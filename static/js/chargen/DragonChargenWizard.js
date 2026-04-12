@@ -11,7 +11,10 @@ import {
   knackIdsCallingSlotsUsed,
   syncHeroKnackSlotAssignments,
 } from "../eligibility.js";
-import { originDefenseFromFinalAttrs, originMovementPoolDice } from "../characterSheet.js";
+import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
+
+/** Dragon wizard Review step: mirror main Review tab (sheet vs JSON). */
+let dragonReviewViewMode = "sheet";
 
 const ARENAS = {
   Physical: ["might", "dexterity", "stamina"],
@@ -1121,50 +1124,89 @@ export function renderDragonChargen(ctx) {
   }
 
   if (step === "review") {
-    const finAttrs = applyFavoredToDragonAttrs(d);
-    const ath = Math.max(0, Math.min(5, Math.round(Number(d.skillDots?.athletics) || 0)));
-    const def = originDefenseFromFinalAttrs(finAttrs);
-    const move = originMovementPoolDice(finAttrs, ath);
-    const fl = bundle.dragonFlights?.[d.flightId];
-    const pre = document.createElement("pre");
-    pre.className = "mono";
-    pre.textContent = JSON.stringify(
-      {
-        chargenLineage: "dragonHeir",
-        characterName: character.characterName,
-        concept: character.concept,
-        deeds: character.deeds,
-        flightId: d.flightId,
-        flightName: fl?.name,
-        inheritance: d.inheritance,
-        paths: d.paths,
-        pathRank: d.pathRank,
-        pathSkills: d.pathSkills,
-        skills: d.skillDots,
-        skillSpecialties: d.skillSpecialties,
-        attributes: finAttrs,
-        favoredApproach: d.favoredApproach,
-        callingSlots: d.callingSlots,
-        callingKnackIds: d.callingKnackIds,
-        finishingCallingKnackIds: d.finishingCallingKnackIds,
-        draconicKnackIds: d.draconicKnackIds,
-        knownMagics: d.knownMagics,
-        spellsByMagicId: d.spellsByMagicId,
-        bonusSpell: d.bonusSpell,
-        birthrightPicks: d.birthrightPicks,
-        finishingBirthrightPicks: d.finishingBirthrightPicks,
-        finishingFocus: d.finishingFocus,
-        deedName: d.deedName,
-        defense: def,
-        movementDice: move,
-        remembrance: fl ? { cipher: fl.remembranceCipher, defection: fl.remembranceDefection } : null,
-      },
-      null,
-      2,
-    );
+    persistDragonFromDom(character, bundle);
+    const tierMeta = bundle.tier?.[character.tier];
+    const exportData = {
+      tier: character.tier,
+      tierId: character.tier,
+      tierName: tierMeta?.name || character.tier,
+      tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+      characterName: character.characterName ?? "",
+      concept: character.concept,
+      deeds: character.deeds,
+      notes: character.notes ?? "",
+      ...buildDragonReviewSnapshot(character, bundle),
+    };
+
     const wrap = document.createElement("div");
+    wrap.className = "review-wrap";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "review-toolbar";
+    const lab = document.createElement("span");
+    lab.className = "help";
+    lab.style.marginRight = "0.35rem";
+    lab.textContent = "View:";
+    const btnSheet = document.createElement("button");
+    btnSheet.type = "button";
+    btnSheet.className = dragonReviewViewMode === "sheet" ? "btn primary" : "btn secondary";
+    btnSheet.textContent = "Character sheet";
+    const btnJson = document.createElement("button");
+    btnJson.type = "button";
+    btnJson.className = dragonReviewViewMode === "json" ? "btn primary" : "btn secondary";
+    btnJson.textContent = "JSON";
+    const btnPrint = document.createElement("button");
+    btnPrint.type = "button";
+    btnPrint.className = "btn secondary review-print-btn";
+    btnPrint.textContent = "Print sheet";
+    btnPrint.title = "Print the character sheet (browser print dialog).";
+
+    toolbar.appendChild(lab);
+    toolbar.appendChild(btnSheet);
+    toolbar.appendChild(btnJson);
+    toolbar.appendChild(btnPrint);
+    wrap.appendChild(toolbar);
+
+    const sheet = buildCharacterSheet(exportData, bundle);
+    sheet.classList.add("review-sheet-panel");
+    sheet.hidden = dragonReviewViewMode !== "sheet";
+    wrap.appendChild(sheet);
+
+    const pre = document.createElement("pre");
+    pre.className = "mono review-json-panel";
+    pre.hidden = dragonReviewViewMode !== "json";
+    pre.textContent = JSON.stringify(exportData, null, 2);
     wrap.appendChild(pre);
-    root.appendChild(panel("Dragon — Review / JSON", wrap));
+
+    const applyView = () => {
+      btnSheet.className = dragonReviewViewMode === "sheet" ? "btn primary" : "btn secondary";
+      btnJson.className = dragonReviewViewMode === "json" ? "btn primary" : "btn secondary";
+      sheet.hidden = dragonReviewViewMode !== "sheet";
+      pre.hidden = dragonReviewViewMode !== "json";
+    };
+
+    btnSheet.addEventListener("click", () => {
+      dragonReviewViewMode = "sheet";
+      applyView();
+    });
+    btnJson.addEventListener("click", () => {
+      dragonReviewViewMode = "json";
+      applyView();
+    });
+    btnPrint.addEventListener("click", () => {
+      const runPrint = () => window.print();
+      if (dragonReviewViewMode !== "sheet") {
+        dragonReviewViewMode = "sheet";
+        applyView();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(runPrint);
+        });
+        return;
+      }
+      runPrint();
+    });
+
+    root.appendChild(panel("Dragon — Review / Export", wrap));
   }
 
   const actions = document.createElement("div");
@@ -1355,6 +1397,9 @@ export function buildDragonReviewSnapshot(character, bundle) {
     favoredApproach: d.favoredApproach,
     defense: originDefenseFromFinalAttrs(finAttrs),
     movementDice: originMovementPoolDice(finAttrs, ath),
+    sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
+    fatebindings: character.fatebindings ?? "",
+    sheetNotesExtra: character.sheetNotesExtra ?? "",
     dragon: dragonBlob,
   };
 }
