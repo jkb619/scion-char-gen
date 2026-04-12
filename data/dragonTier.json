@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "note": "Inheritance rating 1–9 and Lesser Wyrm band paraphrased from Scion: Dragon (traits / advancement). Apotheosis at 10 is out of normal PC scope here.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Inheritance & Character Advancement (pp. 117–119)"
+  },
+  "inheritanceTrack": {
+    "1": { "id": "1", "name": "Hatchling", "band": "Heir", "summary": "Starting Inheritance; narrow but notable power; Scent the Divine; starter Spells and Knacks per chargen (p. 118)." },
+    "2": { "id": "2", "name": "Asset", "band": "Heir", "summary": "Tests and trial runs; +1 Calling dot, +1 Spell, +1 Draconic Knack (p. 118)." },
+    "3": { "id": "3", "name": "Seeker", "band": "Heir", "summary": "Cravings and visions intensify; once per arc optional Momentum + Craving hook; +1 Spell, +1 Draconic Knack (p. 118)." },
+    "4": { "id": "4", "name": "Agent", "band": "Heir", "summary": "Trusted operative with schemes in motion; +1 Calling dot, +1 Spell, +1 Draconic Knack (p. 118)." },
+    "5": { "id": "5", "name": "Conspirator", "band": "Lesser Wyrm", "summary": "Greater draconic insight; harder to hide; gain access to one new Dragon Magic plus spell/knack package (p. 118)." },
+    "6": { "id": "6", "name": "Cabalist", "band": "Lesser Wyrm", "summary": "Inner-circle intrigue; +1 Calling dot in patron’s Calling, +1 Spell, +1 Draconic Knack (p. 119)." },
+    "7": { "id": "7", "name": "Arcanist", "band": "Lesser Wyrm", "summary": "Expert intriguer; Craving Condition Momentum hook scales; +1 Spell, +1 Draconic Knack (p. 119)." },
+    "8": { "id": "8", "name": "Vizier", "band": "Lesser Wyrm", "summary": "Advisor tier; may lose human shape; +1 Spell from patron or signature Flight Magic, +1 Calling dot, +1 preferred Draconic Knack (p. 119)." },
+    "9": { "id": "9", "name": "Mastermind", "band": "Lesser Wyrm", "summary": "Near-draconic perspective; +1 Spell from patron or signature Flight Magic, +1 Calling dot in patron’s Calling, +1 Draconic Knack (p. 119)." }
+  }
+}

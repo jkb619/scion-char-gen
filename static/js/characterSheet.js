@@ -131,6 +131,49 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
 export function buildCharacterSheet(data, bundle) {
   const skills = bundle?.skills || {};
   const attrs = bundle?.attributes || {};
+  if (String(data.chargenLineage ?? "").trim() === "dragonHeir") {
+    const el = document.createElement("div");
+    el.className = "character-sheet character-sheet--dragon-heir";
+    const d = data.dragon && typeof data.dragon === "object" ? data.dragon : null;
+    const fl = d?.flightId && bundle?.dragonFlights?.[d.flightId];
+    const h = document.createElement("h2");
+    h.textContent = "Dragon Heir (Scion: Dragon)";
+    el.appendChild(h);
+    const p = document.createElement("p");
+    p.className = "help";
+    p.textContent =
+      "This sheet view is a compact summary. Use the wizard’s Dragon → Review JSON for the full export blob, and your book for Health, Remembrances, and Twists of Fate (Dragon pp. 112–120).";
+    el.appendChild(p);
+    const ul = document.createElement("ul");
+    ul.className = "cs-summary-list";
+    const add = (label, val) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${label}:</strong> ${val}`;
+      ul.appendChild(li);
+    };
+    add("Name", data.characterName || "—");
+    add("Concept", data.concept || "—");
+    add("Flight", fl?.name || d?.flightId || "—");
+    add("Inheritance", String(d?.inheritance ?? data.inheritance ?? "1"));
+    add("Deed name", d?.deedName || "—");
+    el.appendChild(ul);
+    const pre = document.createElement("pre");
+    pre.className = "mono";
+    pre.textContent = JSON.stringify(
+      {
+        skills: data.skills,
+        attributesAfterFavored: data.attributesAfterFavored,
+        callingSlots: d?.callingSlots,
+        knownMagics: d?.knownMagics,
+        callingKnackIds: d?.callingKnackIds,
+        draconicKnackIds: d?.draconicKnackIds,
+      },
+      null,
+      2,
+    );
+    el.appendChild(pre);
+    return el;
+  }
   const tid = data.tierId ?? data.tier;
   const tierName = (data.tierName || bundle?.tier?.[tid]?.name || tid || "—") + (tid ? ` (${tid})` : "");
   const tierAka = data.tierAlsoKnownAs || bundle?.tier?.[tid]?.alsoKnownAs || "";

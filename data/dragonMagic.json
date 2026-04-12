@@ -1,0 +1,116 @@
+{
+  "_meta": {
+    "note": "Dragon Magics and sample Spells are paraphrased titles only; full mechanics and costs live in Scion: Dragon. Lydia’s example ties Serpent signature to Purification (p. 113).",
+    "source": "Scion_Dragon_(Final_Download).pdf, Step Six: Dragon Magic (p. 112) and Dragon Magic chapters"
+  },
+  "purification": {
+    "id": "purification",
+    "name": "Purification",
+    "description": "Cleansing, sanctifying, or unmaking spiritual taint and corruption in people, places, or bonds.",
+    "spells": [
+      { "id": "soothingAura", "name": "Soothing Aura", "summary": "Calm hostile or panicked targets in an area; support / restoration tilt." },
+      { "id": "burnImpurity", "name": "Burn Impurity", "summary": "Focus cleansing force to scour a specific corruption or curse vector." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113)"
+  },
+  "luck": {
+    "id": "luck",
+    "name": "Luck",
+    "description": "Bend coincidence and fortune; subtle reroutes of risk and opportunity.",
+    "spells": [
+      { "id": "twistOutcome", "name": "Twist Outcome", "summary": "Spend Inheritance to nudge a roll’s outcome category after the fact (table-dependent)." },
+      { "id": "jinxTrail", "name": "Jinx Trail", "summary": "Lay bad luck on a target’s next risky action." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Flight lists (e.g. Draq p. 41)"
+  },
+  "understanding": {
+    "id": "understanding",
+    "name": "Understanding",
+    "description": "Read motives, patterns, and hidden truths; consume or channel insight.",
+    "spells": [
+      { "id": "readDesire", "name": "Read Desire", "summary": "Surface a subject’s strongest want or fear in the scene." },
+      { "id": "borrowedWisdom", "name": "Borrowed Wisdom", "summary": "Lean on draconic memory to answer one concrete question at a cost." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Joka Flight list (p. 51)"
+  },
+  "decay": {
+    "id": "decay",
+    "name": "Decay",
+    "description": "Accelerate rot, ruin, and entropy in matter, institutions, or resolve.",
+    "spells": [
+      { "id": "witherObject", "name": "Wither Object", "summary": "Stress structures or gear; environmental hazard tilt." },
+      { "id": "gnawWill", "name": "Gnaw Will", "summary": "Erode a social tie or commitment over time." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Lindwurm / Lóng lists (pp. 61, 70)"
+  },
+  "flight": {
+    "id": "flight",
+    "name": "Flight",
+    "description": "True draconic mobility—wings, winds, pressure tricks—without relying on mundane transport alone.",
+    "spells": [
+      { "id": "aerialMobility", "name": "Aerial Mobility", "summary": "Sustained personal flight or controlled leaps at scale (per Dragon Magic)." },
+      { "id": "downdraftSlam", "name": "Downdraft Slam", "summary": "Bring aerial force to bear against a zone or target." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113); Lóng list (p. 70)"
+  },
+  "elementalManipulationWater": {
+    "id": "elementalManipulationWater",
+    "name": "Elemental Manipulation (Water)",
+    "description": "Shape, summon, or deny water and aqueous phenomena.",
+    "spells": [
+      { "id": "flashFlood", "name": "Flash Flood", "summary": "Surge water through a controlled corridor or room." },
+      { "id": "visionDistantShore", "name": "Vision of the Distant Shore", "summary": "Scry through standing water you have a bond to (per example naming)." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113)"
+  },
+  "weatherControl": {
+    "id": "weatherControl",
+    "name": "Weather Control",
+    "description": "Call or banish storms, pressure fronts, and sky-scale omens.",
+    "spells": [
+      { "id": "suddenSquall", "name": "Sudden Squall", "summary": "Localize harsh weather against pursuers or structures." },
+      { "id": "clearSkies", "name": "Clear Skies", "summary": "Break an ongoing weather effect in a region." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent list (p. 91)"
+  },
+  "illusions": {
+    "id": "illusions",
+    "name": "Illusions",
+    "description": "Weave believable false images, sounds, and tracks.",
+    "spells": [
+      { "id": "maskAura", "name": "Mask Aura", "summary": "Hide draconic tells from casual supernatural scrutiny." },
+      { "id": "phantomCrowd", "name": "Phantom Crowd", "summary": "Populate a scene with illusory extras." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent / Joka lists"
+  },
+  "animalControl": {
+    "id": "animalControl",
+    "name": "Animal Control",
+    "description": "Command, borrow senses from, or become one with beasts.",
+    "spells": [
+      { "id": "beastMessenger", "name": "Beast Messenger", "summary": "Dispatch animals with a simple geas." },
+      { "id": "packFury", "name": "Pack Fury", "summary": "Rally mundane animals against a chosen threat." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent list (p. 91)"
+  },
+  "transformation": {
+    "id": "transformation",
+    "name": "Transformation",
+    "description": "Draconic hybrid or war-forms; partial shapeshifting tied to Heir tricks.",
+    "spells": [
+      { "id": "scaledHide", "name": "Scaled Hide", "summary": "Temporary armored skin or beast-markers." },
+      { "id": "serpentineSpine", "name": "Serpentine Spine", "summary": "Contortion and reach tricks while mostly human." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq list (p. 41)"
+  },
+  "elementalManipulationFire": {
+    "id": "elementalManipulationFire",
+    "name": "Elemental Manipulation (Fire)",
+    "description": "Shape flame, heat shimmer, and burning hazards.",
+    "spells": [
+      { "id": "heatShroud", "name": "Heat Shroud", "summary": "Ward an ally or object from cold / soak fire briefly." },
+      { "id": "breathLine", "name": "Breath Line", "summary": "Directed gout of fire along a narrow arc." }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq list (p. 41)"
+  }
+}

@@ -30,7 +30,15 @@
     "mythosPurviewInnates",
     "purviewStandardInnates",
     "titans",
-    "knacksTitansRising"
+    "patronAssetSkillOverrides",
+    "knacksTitansRising",
+    "dragonTier",
+    "dragonFlights",
+    "dragonMagic",
+    "dragonKnacks",
+    "tagsDragon",
+    "equipmentDragon",
+    "birthrightsDragon"
   ],
   "api": {
     "manifest": "/api/manifest",

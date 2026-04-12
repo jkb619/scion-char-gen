@@ -23,6 +23,14 @@ import { boonDisplayLabel } from "./boonLabels.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.js";
 import { apiUrl } from "./apiBase.js";
+import {
+  renderDragonChargen,
+  persistDragonFromDom,
+  ensureDragonShape,
+  isDragonHeirChargen,
+  defaultDragonState,
+  buildDragonReviewSnapshot,
+} from "./chargen/DragonChargenWizard.js";
 
 /** Lazy-loaded so optional data-editor modules cannot block the main wizard graph (or `init`). */
 let editorsLoadPromise = null;
@@ -431,6 +439,8 @@ function defaultCharacter() {
       awarenessPurviewId: "",
       awarenessLocked: false,
     },
+    /** `"scion"` = pantheon / Visitation track; `"dragonHeir"` = Scion: Dragon Heir wizard (parallel). */
+    chargenLineage: "scion",
   };
 }
 
@@ -1050,10 +1060,23 @@ function syncCallingToParentDeity() {
   character.callingId = allowed[0] || "";
 }
 
-/** Pantheon Asset Skill ids for the current character pantheon (Society Path), or []. */
-function pantheonAssetSkillIds() {
+/**
+ * Society Path: Asset Skill ids for the **active patron** (divine parent or Titan) when that row lists
+ * `assetSkills` in the bundle; otherwise the pantheon’s `assetSkills` (Origin pp. 96–97). Patron rows are
+ * stamped from pantheon defaults at bundle load; `data/patronAssetSkillOverrides.json` adjusts PB exceptions.
+ */
+function societyPatronAssetSkillIds() {
   const p = bundle?.pantheons?.[character.pantheonId];
-  return Array.isArray(p?.assetSkills) ? p.assetSkills : [];
+  if (!p || typeof p !== "object") return [];
+  const skillsTable = bundle?.skills;
+  const validIds = (arr) => {
+    if (!Array.isArray(arr)) return [];
+    return arr.filter((id) => typeof id === "string" && id && !id.startsWith("_") && skillsTable?.[id]);
+  };
+  const patron = selectedDeityRecord();
+  const fromPatron = validIds(patron?.assetSkills);
+  if (fromPatron.length > 0) return fromPatron;
+  return validIds(p.assetSkills);
 }
 
 /** Paths step: show Virtues for the selected pantheon (from `virtues.json`). */
@@ -1116,7 +1139,7 @@ function fillPantheonVirtuesDisplay(pantheonId) {
  * Merges missing assets ahead of existing non-asset picks (trim to 3 total).
  */
 function ensureSocietyDefaultAssetSkills() {
-  const assets = pantheonAssetSkillIds();
+  const assets = societyPatronAssetSkillIds();
   if (!character.pantheonId || assets.length === 0 || assets.length > 3) return;
   const soc = Array.isArray(character.pathSkills.society) ? [...character.pathSkills.society] : [];
   if (assets.every((a) => soc.includes(a))) return;
@@ -1125,12 +1148,12 @@ function ensureSocietyDefaultAssetSkills() {
 }
 
 /**
- * Society Path must include both pantheon Asset Skills plus exactly one other Skill (Origin p. 97).
+ * Society Path must include every patron (or pantheon) Asset Skill plus enough other Skills to total three (Origin p. 97).
  * @param {string[]} nextArr
- * @param {string} pantheonId
  */
-function societySkillsAllowed(nextArr, pantheonId) {
-  const assets = bundle?.pantheons?.[pantheonId]?.assetSkills;
+function societySkillsAllowed(nextArr) {
+  const pantheonId = String(character?.pantheonId ?? "").trim();
+  const assets = societyPatronAssetSkillIds();
   if (!pantheonId || !Array.isArray(assets) || assets.length === 0) {
     return { ok: true };
   }
@@ -1145,8 +1168,8 @@ function societySkillsAllowed(nextArr, pantheonId) {
       ok: false,
       reason:
         maxNonAsset === 0
-          ? "Society Path: every Skill must be a pantheon Asset Skill (Origin p. 97)."
-          : `Society Path: include all ${assets.length} pantheon Asset Skills and at most ${maxNonAsset} other Skill(s) (Origin p. 97).`,
+          ? "Society Path: every Skill must be a patron / pantheon Asset Skill (Origin pp. 96–97)."
+          : `Society Path: include all ${assets.length} patron / pantheon Asset Skills and at most ${maxNonAsset} other Skill(s) (Origin pp. 96–97).`,
     };
   }
   if (next.size === 3) {
@@ -1155,14 +1178,14 @@ function societySkillsAllowed(nextArr, pantheonId) {
       const names = missing.map((id) => bundle.skills[id]?.name || id).join(" & ");
       return {
         ok: false,
-        reason: `Society Path with three Skills must include every pantheon Asset Skill. Still need: ${names}.`,
+        reason: `Society Path with three Skills must include every required Asset Skill. Still need: ${names}.`,
       };
     }
   }
   return { ok: true };
 }
 
-/** Each Path must list exactly three Skills; Society Path also obeys pantheon Asset Skills (Origin pp. 96–97). */
+/** Each Path must list exactly three Skills; Society Path also obeys patron / pantheon Asset Skills (Origin pp. 96–97). */
 function validateAllPathSkillsDetailed() {
   const issues = [];
   for (const pk of PATH_KEYS) {
@@ -1178,7 +1201,7 @@ function validateAllPathSkillsDetailed() {
   }
   const soc = Array.isArray(character.pathSkills.society) ? character.pathSkills.society : [];
   if (soc.length === 3) {
-    const v = societySkillsAllowed(soc, character.pantheonId);
+    const v = societySkillsAllowed(soc);
     if (!v.ok) issues.push({ pathKey: "society", message: v.reason });
   }
   return { ok: issues.length === 0, issues };
@@ -1255,7 +1278,7 @@ function deityDocEntity(deity) {
   ]
     .filter(Boolean)
     .join("\n\n");
-  const src = patronKindIsTitan() ? deity.source || p?.source || "" : p?.source || "";
+  const src = (typeof deity.source === "string" && deity.source.trim()) || (typeof p?.source === "string" && p.source.trim()) || "";
   return {
     name: deity.name,
     description: desc || (patronKindIsTitan() ? "See Scion: Titanomachy for this Titan’s write-up." : "See Origin Appendix 2 for patron details."),
@@ -1528,8 +1551,8 @@ function arenaPools() {
   return { [a1]: 6, [a2]: 4, [a3]: 2 };
 }
 
-function attributeAllocationSums(attrs) {
-  const pools = arenaPools();
+/** Extra dots (−1 each) per arena for a pre–Favored attribute map. */
+function attributeArenaSums(attrs) {
   const sums = { Physical: 0, Mental: 0, Social: 0 };
   for (const arena of ARENA_ORDER) {
     for (const id of ARENAS[arena]) {
@@ -1537,7 +1560,7 @@ function attributeAllocationSums(attrs) {
       sums[arena] += Math.max(0, v - 1);
     }
   }
-  return { sums, pools };
+  return sums;
 }
 
 function arenaForAttribute(attrId) {
@@ -1596,12 +1619,30 @@ function renderFinalAttrDotRow(label, finalValue, maxFinal, onPickFinal, attrMet
   return row;
 }
 
-/** If an arena uses more extra dots than its pool (e.g. after changing priority), lower ratings until it fits. */
+/**
+ * Minimum pre–Favored rating while trimming to Origin 6 / 4 / 2 arena pools.
+ * After Finishing has spent attribute dots, do not drop below the Attributes-step snapshot (`attrBaseline`).
+ */
+function attrMinWhileNormalizingPools(attrId) {
+  if (finishingAttrDotsPlaced() <= 0) return 1;
+  const b = character.finishing?.attrBaseline;
+  if (!b || typeof b !== "object") return 1;
+  const v = Math.round(Number(b[attrId]));
+  if (Number.isNaN(v)) return 1;
+  return Math.max(1, Math.min(5, v));
+}
+
+/**
+ * If an arena uses more extra dots than its pool (e.g. after changing arena priority or importing JSON),
+ * lower pre–Favored ratings until it fits (Origin p. 97). Never skips solely because Finishing touched Attributes.
+ */
 function normalizeCharacterAttributesToPools() {
   ensureFinishingShape();
-  if (character.finishing.attrBaseline && finishingAttrDotsPlaced() > 0) return;
   const attrs = character.attributes;
+  const baseLine = character.finishing.attrBaseline;
+  const baseIsObj = baseLine && typeof baseLine === "object";
   for (const id of Object.keys(bundle.attributes)) {
+    if (id.startsWith("_")) continue;
     if (attrs[id] == null || attrs[id] < 1) attrs[id] = 1;
     if (attrs[id] > 5) attrs[id] = 5;
   }
@@ -1610,13 +1651,30 @@ function normalizeCharacterAttributesToPools() {
     const ids = ARENAS[arena];
     let sum = ids.reduce((s, id) => s + Math.max(0, (attrs[id] ?? 1) - 1), 0);
     while (sum > pool) {
-      let hi = ids[0];
+      let hi = null;
       for (const id of ids) {
-        if ((attrs[id] ?? 1) > (attrs[hi] ?? 1)) hi = id;
+        const v = attrs[id] ?? 1;
+        const floor = attrMinWhileNormalizingPools(id);
+        if (v > floor) {
+          if (hi === null || v > (attrs[hi] ?? 1)) hi = id;
+        }
       }
-      if ((attrs[hi] ?? 1) <= 1) break;
+      if (hi === null) {
+        hi = ids[0];
+        for (const id of ids) {
+          if ((attrs[id] ?? 1) > (attrs[hi] ?? 1)) hi = id;
+        }
+        if ((attrs[hi] ?? 1) <= 1) break;
+        attrs[hi] -= 1;
+        sum -= 1;
+        if (baseIsObj) baseLine[hi] = attrs[hi];
+        continue;
+      }
       attrs[hi] -= 1;
       sum -= 1;
+      if (baseIsObj && typeof baseLine[hi] === "number" && attrs[hi] < baseLine[hi]) {
+        baseLine[hi] = attrs[hi];
+      }
     }
   }
 }
@@ -1634,12 +1692,30 @@ function applyFavoredApproach(baseAttrs) {
 }
 
 function validateAttributes(attrs) {
-  const { sums, pools } = attributeAllocationSums(attrs);
+  const pools = arenaPools();
+  const sums = attributeArenaSums(attrs);
+  const baseline = character.finishing?.attrBaseline;
+  const hasB = baseline && typeof baseline === "object";
+  const baseSums = hasB ? attributeArenaSums(baseline) : null;
   const msgs = [];
   for (const arena of ARENA_ORDER) {
-    if (sums[arena] !== pools[arena]) {
+    const s = sums[arena];
+    const p = pools[arena];
+    if (hasB) {
+      const bs = baseSums[arena];
+      if (bs !== p) {
+        msgs.push(
+          `${arena} arena: your Attributes-step snapshot has ${bs} extra dots vs this arena’s current rank (${p}). Re-open Attributes after changing arena priority, or re-import (Origin p. 97).`,
+        );
+      }
+    }
+    if (s > p) {
       msgs.push(
-        `${arena} arena: distribute ${pools[arena]} extra dots (currently ${sums[arena]} beyond the 1‑dot base each).`,
+        `${arena} arena: at most ${p} extra dots beyond the free 1 in each Attribute (you have ${s}; Origin p. 97).`,
+      );
+    } else if (s < p) {
+      msgs.push(
+        `${arena} arena: distribute exactly ${p} extra dots beyond the 1‑dot base in each Attribute (currently ${s}; Origin p. 97).`,
       );
     }
   }
@@ -1757,7 +1833,8 @@ function maxAttrFinishing(attrId) {
   const budget = character.finishing.extraAttributeDots || 0;
   const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
   const fromLegend = maxPreFavoredUnderLegendCap(attrId, attrs);
-  return Math.min(5, fromBudget, fromLegend);
+  const fromArena = maxAttrRatingForArena(attrId, attrs);
+  return Math.min(5, fromBudget, fromLegend, fromArena);
 }
 
 function buildCharacterAttrsPre() {
@@ -2008,6 +2085,30 @@ function updateHeaderTierDisplay() {
   const el = document.getElementById("header-tier-display");
   if (!el || !bundle?.tier) return;
   el.innerHTML = "";
+  if (isDragonHeirChargen(character) && bundle?.dragonTier && bundle?.dragonFlights) {
+    ensureDragonShape(character, bundle);
+    const d = character.dragon;
+    const inh = String(d.inheritance ?? "1");
+    const m = bundle.dragonTier?.inheritanceTrack?.[inh];
+    el.title =
+      "Heirs use Inheritance (1–9) instead of Legend for this line. Flight, Dragon Magic, and Draconic Knacks follow Scion: Dragon chargen (pp. 110–119).";
+    const tierLine = document.createElement("div");
+    tierLine.className = "header-tier-line";
+    const fl = bundle.dragonFlights[d.flightId];
+    tierLine.textContent = fl?.name ? `Dragon Heir — ${fl.name}` : "Dragon Heir (pick Flight on Paths)";
+    el.appendChild(tierLine);
+    const row = document.createElement("div");
+    row.className = "header-legend-row";
+    const lab = document.createElement("span");
+    lab.className = "header-legend-label";
+    lab.textContent = "Inheritance";
+    row.appendChild(lab);
+    const sp = document.createElement("span");
+    sp.textContent = `${m?.name || "—"} (${inh})`;
+    row.appendChild(sp);
+    el.appendChild(row);
+    return;
+  }
   el.title =
     "New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation. Legend starts at 0 (no dots filled); click a dot to set your rating, or the rightmost lit dot again to lower by one.";
   if (isMythosPantheonSelected()) {
@@ -2126,22 +2227,79 @@ function renderWelcome(root) {
 function renderConcept(root) {
   const wrap = document.createElement("div");
   wrap.innerHTML = `
+    <div class="field"><label for="f-chargen-lineage">Character line</label>
+      <select id="f-chargen-lineage" autocomplete="off">
+        <option value="scion">Deity/Titan (Scion)</option>
+        <option value="dragonHeir">Dragon (Heir)</option>
+      </select>
+    </div>
+    <p class="help" id="f-chargen-lineage-blurb">Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon switches to the Heir wizard after this step (<em>Scion: Dragon</em>).</p>
     <div class="field"><label>Character name</label><input type="text" id="f-char-name" autocomplete="name" spellcheck="false" /></div>
     <div class="field"><label>Concept</label><textarea id="f-concept"></textarea></div>
     <div class="field"><label>Player / Group notes</label><textarea id="f-notes"></textarea></div>
     <div class="grid-2">
-      <div class="field"><label>Short-term Deed</label><textarea id="f-deed-short"></textarea></div>
-      <div class="field"><label>Long-term Deed</label><textarea id="f-deed-long"></textarea></div>
+      <div class="field"><label id="lab-deed-short" for="f-deed-short">Short-term Deed</label><textarea id="f-deed-short"></textarea></div>
+      <div class="field"><label id="lab-deed-long" for="f-deed-long">Long-term Deed</label><textarea id="f-deed-long"></textarea></div>
     </div>
-    <div class="field"><label>Band Deed</label><textarea id="f-deed-band"></textarea></div>`;
+    <div class="field"><label id="lab-deed-band" for="f-deed-band">Band Deed</label><textarea id="f-deed-band"></textarea></div>`;
   root.appendChild(panel("Concept & Deeds", wrap));
+  const applyDeedLabels = (dragon) => {
+    const ls = document.getElementById("lab-deed-short");
+    const ll = document.getElementById("lab-deed-long");
+    const lb = document.getElementById("lab-deed-band");
+    const blurb = document.getElementById("f-chargen-lineage-blurb");
+    if (dragon) {
+      if (ls) ls.textContent = "Draconic Deed";
+      if (ll) ll.textContent = "Short-term worldly Deed";
+      if (lb) lb.textContent = "Brood Deed";
+      if (blurb) {
+        blurb.innerHTML =
+          "Heir Deeds: one Draconic, one short-term worldly, one Brood (shared) per <em>Scion: Dragon</em> p. 110 (see Origin pp. 94–95 for Deed procedure).";
+      }
+    } else {
+      if (ls) ls.textContent = "Short-term Deed";
+      if (ll) ll.textContent = "Long-term Deed";
+      if (lb) lb.textContent = "Band Deed";
+      if (blurb) {
+        blurb.textContent =
+          "Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon switches to the Heir wizard after this step (Scion: Dragon).";
+      }
+    }
+  };
+  const lineageSel = document.getElementById("f-chargen-lineage");
+  lineageSel.value = isDragonHeirChargen(character) ? "dragonHeir" : "scion";
+  applyDeedLabels(isDragonHeirChargen(character));
+  lineageSel.addEventListener("change", () => {
+    const next = lineageSel.value === "dragonHeir" ? "dragonHeir" : "scion";
+    if (next === character.chargenLineage) return;
+    if (character.chargenLineage === "dragonHeir" && next === "scion") {
+      const progressed =
+        (character.dragon?.stepIndex ?? 0) > 0 || !!(String(character.dragon?.flightId ?? "").trim());
+      if (
+        progressed &&
+        !window.confirm(
+          "Switch back to Deity/Titan (Scion)? Heir data on this character will be removed from the sheet state.",
+        )
+      ) {
+        lineageSel.value = "dragonHeir";
+        return;
+      }
+      character.chargenLineage = "scion";
+      delete character.dragon;
+    } else {
+      character.chargenLineage = "dragonHeir";
+      character.dragon = defaultDragonState();
+    }
+    applyDeedLabels(isDragonHeirChargen(character));
+    render();
+  });
   document.getElementById("f-char-name").value = character.characterName ?? "";
   document.getElementById("f-concept").value = character.concept;
   document.getElementById("f-notes").value = character.notes;
   document.getElementById("f-deed-short").value = character.deeds.short;
   document.getElementById("f-deed-long").value = character.deeds.long;
   document.getElementById("f-deed-band").value = character.deeds.band;
-  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band"].forEach((id) =>
+  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band", "f-chargen-lineage"].forEach((id) =>
     applyHint(document.getElementById(id), id),
   );
 }
@@ -2228,7 +2386,7 @@ function renderPaths(root) {
     character.virtueSpectrum = 0;
     character.parentDeityId = "";
     fillDeities();
-    const assets = pantheonAssetSkillIds();
+    const assets = societyPatronAssetSkillIds();
     if (assets.length >= 1 && assets.length <= 3) {
       character.pathSkills.society = [...assets];
     } else {
@@ -2247,6 +2405,7 @@ function renderPaths(root) {
       character.patronKind = pkSel.value === "titan" ? "titan" : "deity";
       character.parentDeityId = "";
       fillDeities();
+      ensureSocietyDefaultAssetSkills();
       onPatronPurviewContextChange();
       syncCallingToParentDeity();
       render();
@@ -2274,6 +2433,7 @@ function renderPaths(root) {
   document.getElementById("p-deity").addEventListener("change", (e) => {
     persistPathsPhrasesFromDom();
     character.parentDeityId = e.target.value;
+    ensureSocietyDefaultAssetSkills();
     onPatronPurviewContextChange();
     render();
   });
@@ -2391,20 +2551,21 @@ function renderSkills(root) {
     }
     chips.appendChild(h);
 
-    const assets = pk === "society" ? pantheonAssetSkillIds() : [];
+    const assets = pk === "society" ? societyPatronAssetSkillIds() : [];
     if (pk === "society") {
       const rule = document.createElement("p");
       rule.className = "help society-asset-rule";
+      const patronNoun = patronKindIsTitan() ? "Titan parent" : "divine parent";
       if (assets.length >= 2) {
         const aNames = assets.map((id) => bundle.skills[id]?.name || id).join(" & ");
-        rule.innerHTML = `<strong>Required for Society Path:</strong> include every pantheon Asset Skill — <span class="asset-skill-names">${aNames}</span> — plus exactly <em>${Math.max(0, 3 - assets.length)}</em> other Skill(s) of your choice (Origin p. 97).`;
+        rule.innerHTML = `<strong>Required for Society Path:</strong> include every Asset Skill for your chosen ${patronNoun} (or pantheon) — <span class="asset-skill-names">${aNames}</span> — plus exactly <em>${Math.max(0, 3 - assets.length)}</em> other Skill(s) of your choice (Origin pp. 96–97).`;
       } else if (assets.length === 1) {
         const aNames = assets.map((id) => bundle.skills[id]?.name || id).join(", ");
-        rule.innerHTML = `<strong>Required for Society Path:</strong> include the pantheon Asset Skill <span class="asset-skill-names">${aNames}</span> plus two other Skills (three total; Origin p. 97).`;
+        rule.innerHTML = `<strong>Required for Society Path:</strong> include the Asset Skill <span class="asset-skill-names">${aNames}</span> plus two other Skills (three total; Origin pp. 96–97).`;
       } else {
         rule.className = "warn";
         rule.textContent =
-          "Choose a pantheon on the Paths step first; Society Path must use that pantheon’s Asset Skills (Origin p. 97).";
+          "Choose a pantheon on the Paths step first; Society Path must use that pantheon’s Asset Skills until you pick a parent (Origin pp. 96–97).";
       }
       chips.appendChild(rule);
     }
@@ -2439,7 +2600,7 @@ function renderSkills(root) {
         chip,
         s,
         isAsset
-          ? { prefix: "Pantheon Asset Skill — include in your three Society Path picks (Origin p. 97)." }
+          ? { prefix: "Patron / pantheon Asset Skill — include in your three Society Path picks (Origin pp. 96–97)." }
           : undefined,
       );
       chip.addEventListener("click", () => {
@@ -2453,7 +2614,7 @@ function renderSkills(root) {
           return;
         }
         if (pk === "society") {
-          const v = societySkillsAllowed(next, character.pantheonId);
+          const v = societySkillsAllowed(next);
           if (!v.ok) {
             if (viol) viol.textContent = v.reason;
             return;
@@ -2515,7 +2676,7 @@ function renderAttributes(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). Dot rows show your final ratings after Favored Approach; Attributes in your Favored Approach start at 3 dots (1 base + 2 bonus).";
+    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). The same 6 / 4 / 2 caps apply to all pre–Favored ratings (including Finishing attribute dot(s); place them only where the arena still has room — Origin pp. 97 & 99). Dot rows show final ratings after Favored Approach.";
   wrap.appendChild(help);
 
   const rankRow = document.createElement("div");
@@ -2671,7 +2832,7 @@ function renderCalling(root) {
     hint.className = "help";
     hint.textContent = isMythosPantheonSelected()
       ? `Calling options include each id listed for ${deity?.name || "your divine parent"} in the pantheon data, plus the paired normal or inverted Calling where MotM defines a pair (e.g. Destroyer ⇄ Creator). See Masks of the Mythos.`
-      : `Calling is limited to those listed for ${deity?.name || "your divine parent"} in the pantheon data (typically three Favored Callings; confirm against Origin Appendix 2 / Pandora’s Box at the table).`;
+      : `Calling is limited to those listed for ${deity?.name || "your divine parent"} in the pantheon data (three Favored Callings for Origin — Origin p. 98). Use the pantheon write-up that row cites (often Origin Appendix 2 or Mysteries of the World): a single “Calling:” line on a Pandora’s Box Birthright Guide NPC is that servitor’s template, not your parent’s full triple.`;
     wrap.appendChild(hint);
   } else if (!character.parentDeityId) {
     const hint = document.createElement("p");
@@ -3581,7 +3742,7 @@ function renderFinishing(root) {
   const atPanel = document.createElement("section");
   atPanel.className = "panel finishing-place-panel";
   atPanel.innerHTML =
-    "<h2>Attributes — spend finishing dot(s)</h2><p class='help'>Dots show <strong>final</strong> ratings after Favored Approach (same as the Attributes step). Stored values stay pre–Favored; you cannot go below your last Attributes-step snapshot on the pre–Favored track.</p>";
+    "<h2>Attributes — spend finishing dot(s)</h2><p class='help'>Dots show <strong>final</strong> ratings after Favored Approach (same as the Attributes step). Stored values stay pre–Favored; you cannot go below your last Attributes-step snapshot. Each arena may never exceed its 6 / 4 / 2 pre–Favored extra-dot cap (Origin p. 97); leave slack on the Attributes step if you plan to spend Finishing attribute dot(s) in that arena (p. 99).</p>";
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
   for (const id of Object.keys(bundle.attributes)) {
@@ -3859,46 +4020,64 @@ function renderReview(root) {
   pre.textContent = JSON.stringify(exportObj, null, 2);
   wrap.appendChild(pre);
 
-  const advRow = document.createElement("div");
-  advRow.className = "review-advance-row";
-  const adv = getTierAdvancementRule(character.tier);
-  const nextId = adv?.nextTier;
-  const nextMeta = nextId ? bundle.tier[nextId] : null;
-  const btnAdv = document.createElement("button");
-  btnAdv.type = "button";
-  btnAdv.className = "btn secondary";
-  btnAdv.id = "btn-advance-tier";
-  if (!nextId) {
-    btnAdv.disabled = true;
-    btnAdv.textContent =
-      character.tier === "sorcerer"
-        ? "No scripted next tier (Sorcerer)"
-        : character.tier === "god"
-          ? "Already at God tier"
-          : "No further tier";
-  } else {
-    btnAdv.textContent = `Advance to ${nextMeta?.name || nextId}`;
+  if (!isDragonHeirChargen(character)) {
+    const advRow = document.createElement("div");
+    advRow.className = "review-advance-row";
+    const adv = getTierAdvancementRule(character.tier);
+    const nextId = adv?.nextTier;
+    const nextMeta = nextId ? bundle.tier[nextId] : null;
+    const btnAdv = document.createElement("button");
+    btnAdv.type = "button";
+    btnAdv.className = "btn secondary";
+    btnAdv.id = "btn-advance-tier";
+    if (!nextId) {
+      btnAdv.disabled = true;
+      btnAdv.textContent =
+        character.tier === "sorcerer"
+          ? "No scripted next tier (Sorcerer)"
+          : character.tier === "god"
+            ? "Already at God tier"
+            : "No further tier";
+    } else {
+      btnAdv.textContent = `Advance to ${nextMeta?.name || nextId}`;
+    }
+    btnAdv.addEventListener("click", () => {
+      if (!nextId || !adv) return;
+      const msg = buildAdvanceConfirmMessage(adv, nextMeta?.name || nextId);
+      if (!confirm(msg)) return;
+      const res = applyTierAdvancementFromBundle();
+      if (!res) return;
+      updateHeaderTierDisplay();
+      stepIndex = firstNewWizardStepIndex(res.oldTier, res.newTier);
+      reviewViewMode = "sheet";
+      render();
+    });
+    applyHint(btnAdv, "tier-advance");
+    advRow.appendChild(btnAdv);
+    wrap.appendChild(advRow);
   }
-  btnAdv.addEventListener("click", () => {
-    if (!nextId || !adv) return;
-    const msg = buildAdvanceConfirmMessage(adv, nextMeta?.name || nextId);
-    if (!confirm(msg)) return;
-    const res = applyTierAdvancementFromBundle();
-    if (!res) return;
-    updateHeaderTierDisplay();
-    stepIndex = firstNewWizardStepIndex(res.oldTier, res.newTier);
-    reviewViewMode = "sheet";
-    render();
-  });
-  applyHint(btnAdv, "tier-advance");
-  advRow.appendChild(btnAdv);
-  wrap.appendChild(advRow);
 
   root.appendChild(panel("Review / Export", wrap));
 }
 
 function buildExportObject() {
   ensureFinishingShape();
+  if (isDragonHeirChargen(character)) {
+    ensureDragonShape(character, bundle);
+    const snap = buildDragonReviewSnapshot(character, bundle);
+    const tierMeta = bundle.tier?.[character.tier];
+    return {
+      tier: character.tier,
+      tierId: character.tier,
+      tierName: tierMeta?.name || character.tier,
+      tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+      characterName: character.characterName ?? "",
+      concept: character.concept,
+      deeds: character.deeds,
+      notes: character.notes ?? "",
+      ...snap,
+    };
+  }
   const p = selectedPantheon();
   const deity = patronListForPantheon(p).find((d) => d.id === character.parentDeityId);
   const baseAttrs = { ...character.attributes };
@@ -4289,10 +4468,13 @@ function importCharacterFromExportPayload(data) {
     if (src.awarenessLocked === true) mythosInnatePower.awarenessLocked = true;
   }
 
+  const chargenLineage = String(data.chargenLineage ?? "scion").trim() === "dragonHeir" ? "dragonHeir" : "scion";
+
   return {
     ...base,
     tier,
     patronKind,
+    chargenLineage,
     characterName: typeof data.characterName === "string" ? data.characterName : "",
     concept: typeof data.concept === "string" ? data.concept : "",
     deeds,
@@ -4329,6 +4511,17 @@ function importCharacterFromExportPayload(data) {
     sorceryProfile,
     titanicProfile,
     mythosInnatePower,
+    ...(chargenLineage === "dragonHeir" && data.dragon && typeof data.dragon === "object"
+      ? {
+          dragon: (() => {
+            try {
+              return JSON.parse(JSON.stringify(data.dragon));
+            } catch {
+              return { ...data.dragon };
+            }
+          })(),
+        }
+      : {}),
   };
 }
 
@@ -4355,6 +4548,12 @@ function pruneStaleKnackIds() {
 
 /** After replacing `character` (import) or on first load: clamp, hydrate paths/purviews, prune invalid ids. */
 function normalizeCharacterStateAfterLoad() {
+  const lineageRaw = String(character.chargenLineage ?? "scion").trim();
+  character.chargenLineage = lineageRaw === "dragonHeir" ? "dragonHeir" : "scion";
+  if (character.chargenLineage === "dragonHeir") {
+    ensureDragonShape(character, bundle);
+    return;
+  }
   if (character.legendRating == null || Number.isNaN(Number(character.legendRating))) character.legendRating = 0;
   if (character.virtueSpectrum == null || Number.isNaN(Number(character.virtueSpectrum))) character.virtueSpectrum = 0;
   if (isOriginPlayTier(character.tier)) {
@@ -4420,6 +4619,9 @@ function normalizeCharacterStateAfterLoad() {
   trimBirthrightPicksToBudget();
   pruneStaleBoonIds();
   lastPathLayoutHashForSkillDots = null;
+  if (isOriginPlayTier(character.tier)) {
+    normalizeCharacterAttributesToPools();
+  }
 }
 
 function persistPathsPhrasesFromDom() {
@@ -4462,6 +4664,10 @@ function persistSkillSpecialtiesFromForm() {
 }
 
 function persistFromForm() {
+  if (isDragonHeirChargen(character)) {
+    persistDragonFromDom(character, bundle);
+    return;
+  }
   const step = stepDefsForTier(character.tier)[stepIndex];
   if (step === "concept") {
     character.characterName = document.getElementById("f-char-name")?.value || "";
@@ -4561,6 +4767,35 @@ function render() {
   }
   if (wnav) wnav.style.display = "";
 
+  if (isDragonHeirChargen(character)) {
+    if (!bundle?.dragonFlights || typeof bundle.dragonFlights !== "object" || !bundle?.dragonTier) {
+      root.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "warn";
+      p.textContent =
+        "Dragon Heir data is missing from the game bundle. Add dragonTier, dragonFlights, dragonMagic, and dragonKnacks to data/meta.json, restart the server, and hard-refresh.";
+      root.appendChild(p);
+      updateHeaderTierDisplay();
+      return;
+    }
+    ensureDragonShape(character, bundle);
+    root.innerHTML = "";
+    renderDragonChargen({
+      root,
+      character,
+      bundle,
+      render,
+      onExitToScionConcept: () => {
+        character.chargenLineage = "scion";
+        delete character.dragon;
+        stepIndex = 1;
+        render();
+      },
+    });
+    updateHeaderTierDisplay();
+    return;
+  }
+
   if (!bundle?.tier || typeof bundle.tier !== "object") {
     root.innerHTML = "";
     const p = document.createElement("p");
@@ -4633,6 +4868,15 @@ function render() {
     next.className = "btn primary";
     next.textContent = "Next";
     next.addEventListener("click", () => {
+      if (step === "attributes") {
+        normalizeCharacterAttributesToPools();
+        const attrMsgs = validateAttributes(buildCharacterAttrsPre());
+        if (attrMsgs.length) {
+          window.alert(attrMsgs.join("\n"));
+          render();
+          return;
+        }
+      }
       persistFromForm();
       /* Use same `step` as this render (stepDefsForTier + stepIndex) so gate matches visible screen. */
       if (step === "skills") {

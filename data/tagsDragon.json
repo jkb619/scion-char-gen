@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "note": "Supplemental tags for Scion: Dragon Heir gear, Hoard/Lair fiction, and draconic Relics. Merged into tags.json at bundle load. Use `chargenLines` on equipment/birthrights that reference these ids.",
+    "source": "Scion_Dragon_(Final_Download).pdf — Birthrights / Flights examples (Hoard, Lair, Guides, Relics, pp. 42–93, 112, 128)"
+  },
+  "draconicResonance": {
+    "id": "draconicResonance",
+    "name": "Draconic resonance",
+    "tagType": "general",
+    "category": "occult",
+    "appliesTo": ["relic", "equipment", "creature"],
+    "description": "Item or ally carries a clear draconic signature—Memory hooks, scale-gleam, or serpent-cold undertone.",
+    "mechanicalEffects": "Narrative +1 Enhancement when fiction clearly ties the tag to draconic power; confirm costs with Dragon / SG.",
+    "pointCost": 1,
+    "source": "Scion_Dragon_(Final_Download).pdf (paraphrase)"
+  },
+  "hoardTied": {
+    "id": "hoardTied",
+    "name": "Hoard-tied",
+    "tagType": "general",
+    "category": "narrative",
+    "appliesTo": ["relic", "equipment"],
+    "description": "Object’s power waxes when displayed or counted among your hoard; jealous if lent out.",
+    "mechanicalEffects": "Scene stakes around theft, audit, or seizure; confirm with Dragon Hoard rules.",
+    "pointCost": 1,
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "lairBound": {
+    "id": "lairBound",
+    "name": "Lair-bound",
+    "tagType": "general",
+    "category": "narrative",
+    "appliesTo": ["relic", "cult", "equipment"],
+    "description": "Strongest when brought inside or near your claimed sanctuary; weaker on the road.",
+    "mechanicalEffects": "Enhancement or Defense bumps only while fiction places you in the lair; SG call.",
+    "pointCost": 1,
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "serpentVenom": {
+    "id": "serpentVenom",
+    "name": "Serpent venom",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": ["relic", "equipment", "creature"],
+    "description": "Wounds weep, scar, or resist divine healing per story.",
+    "mechanicalEffects": "Toxic / lasting Injury tilt; confirm tag points with SG.",
+    "pointCost": 2,
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent common Birthrights (Fang of an Ancient, paraphrase)"
+  },
+  "midrealmKey": {
+    "id": "midrealmKey",
+    "name": "Midrealm key",
+    "tagType": "tool",
+    "category": "occult",
+    "appliesTo": ["relic", "equipment"],
+    "description": "Opens or stabilizes passage to pocket-space lairs or Flight-linked Terra Incognitae.",
+    "mechanicalEffects": "Access stunts; confirm with Dragon Lair write-ups.",
+    "pointCost": 2,
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "pawnNetwork": {
+    "id": "pawnNetwork",
+    "name": "Pawn network",
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": ["follower", "cult", "equipment"],
+    "description": "Loose allies, hackers, street crews, or cultists who answer to draconic goals more than law.",
+    "mechanicalEffects": "Follower/Cult leverage per Pandora’s Box; tone per Flight (e.g. Black Hats, Crypt).",
+    "pointCost": 1,
+    "source": "Scion_Dragon_(Final_Download).pdf, Flight pawn examples (paraphrase)"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "_meta": {
+    "note": "Paraphrased Dragon Heir Birthright examples (Hoard, Lair, Flight tones). Merged into birthrights.json at bundle load. Each row lists `chargenLines`: [\"dragonHeir\"] so the Dragon wizard can surface them without loading the full Pandora’s Box catalog.",
+    "source": "Scion_Dragon_(Final_Download).pdf — Birthrights, Hoard, Lair, Flight chapters (pp. 42–93, 112, 128)"
+  },
+  "drag_br_hoard_keepsake": {
+    "id": "drag_br_hoard_keepsake",
+    "name": "Hoard-keepsake coin (Relic)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "chargenLines": ["dragonHeir"],
+    "description": "A counted piece of your hoard—warm metal that remembers every hand that tried to steal it.",
+    "mechanicalEffects": "Treat as a low-dot Relic; Enhancement when fiction ties a roll to protecting, flaunting, or auditing the hoard.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Hoard Birthright tone (paraphrase)",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": ["hoardTied", "draconicResonance"],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Jealous wealth, counted gleam"
+    }
+  },
+  "drag_br_lair_shrine": {
+    "id": "drag_br_lair_shrine",
+    "name": "Claimed-lair shrine circle (Cult)",
+    "birthrightType": "cult",
+    "pointCost": 2,
+    "chargenLines": ["dragonHeir"],
+    "description": "Wards, offerings, and locals who treat your sanctuary as holy ground—even if the law calls it trespassing.",
+    "mechanicalEffects": "Cult Reach and rites per Pandora’s Box; strongest scenes inside or bordering your lair fiction.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lair Birthright (paraphrase)"
+  },
+  "drag_br_midrealm_key": {
+    "id": "drag_br_midrealm_key",
+    "name": "Midrealm passage key (Relic)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "chargenLines": ["dragonHeir"],
+    "description": "Bone, glass, or circuit-lattice that stabilizes doors to pocket-space or Terra Incognita tied to your Flight.",
+    "mechanicalEffects": "Relic access stunts for travel or sanctuary scenes; confirm costs with Dragon Lair rules.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lair / Midrealm examples (paraphrase)",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": ["midrealmKey", "lairBound"],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Threshold, folded space"
+    }
+  },
+  "drag_br_serpent_fang": {
+    "id": "drag_br_serpent_fang",
+    "name": "Fang of an ancient line (Relic)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "chargenLines": ["dragonHeir"],
+    "description": "A Serpent-flight talon or ritual blade passed through cells that speak for the wild.",
+    "mechanicalEffects": "Weapon Relic; toxic or lasting harm tilt per Tags — price Boons with your SG.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent common Birthrights (Fang of an Ancient, paraphrase)",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": ["serpentVenom", "draconicResonance"],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Green venom sheen, oath to biomes"
+    }
+  },
+  "drag_br_draq_agitator_cell": {
+    "id": "drag_br_draq_agitator_cell",
+    "name": "Street agitator cell (Follower)",
+    "birthrightType": "follower",
+    "pointCost": 2,
+    "chargenLines": ["dragonHeir"],
+    "description": "Hackers, artists, and muscle who answer your draconic goals before any pantheon’s PR team.",
+    "mechanicalEffects": "Follower dots per Pandora’s Box; good for Subterfuge, Presence, and riot-cover scenes.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq / Black Hats pawn tone (paraphrase)"
+  },
+  "drag_br_memory_guide": {
+    "id": "drag_br_memory_guide",
+    "name": "Echo in the hoard-mind (Guide)",
+    "birthrightType": "guide",
+    "pointCost": 2,
+    "chargenLines": ["dragonHeir"],
+    "description": "An older Heir’s shade, archive-sprite, or cunning wyrm-voice that corrects your mistakes—at a price.",
+    "mechanicalEffects": "Guide Enhancement to Occult, Integrity, or Lore when Memory or draconic history is central.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Guides and draconic mentors (paraphrase)"
+  },
+  "drag_br_crypt_guardian": {
+    "id": "drag_br_crypt_guardian",
+    "name": "Crypt guardian beast (Creature)",
+    "birthrightType": "creature",
+    "pointCost": 3,
+    "chargenLines": ["dragonHeir"],
+    "description": "A scaled watchdog, spirit-serpent, or drone-swarm that patrols your lair’s thresholds.",
+    "mechanicalEffects": "Creature Health and Flairs per Pandora’s Box; favors Defense and intimidation in lair scenes.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Creature / Flight guardian examples (paraphrase)",
+    "creatureDetails": {
+      "tagIds": ["draconicResonance", "loyal"]
+    }
+  }
+}
