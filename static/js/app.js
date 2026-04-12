@@ -2068,6 +2068,178 @@ function birthrightPointCost(bid) {
   return bundle.birthrights[bid]?.pointCost ?? 1;
 }
 
+/** Live substring filter on table rows using `data-filter-text` on each `<tr>`. */
+function wirePickerRowFilter(searchInput, tbody) {
+  const apply = () => {
+    const f = String(searchInput.value || "")
+      .trim()
+      .toLowerCase();
+    for (const tr of tbody.querySelectorAll("tr")) {
+      const key = (tr.getAttribute("data-filter-text") || "").toLowerCase();
+      tr.style.display = !f || key.includes(f) ? "" : "none";
+    }
+  };
+  searchInput.addEventListener("input", apply);
+  searchInput.addEventListener("search", apply);
+}
+
+/**
+ * Click / Enter / Space on sortable headers reorders tbody rows. `columnSpecs[i]` null = not sortable.
+ * @param {HTMLTableSectionElement} thead
+ * @param {HTMLTableSectionElement} tbody
+ * @param {(null | { get: (tr: HTMLTableRowElement) => string | number, numeric?: boolean })[]} columnSpecs
+ */
+function wireSortableTableColumns(thead, tbody, columnSpecs) {
+  const row = thead.querySelector("tr");
+  if (!row) return;
+  const ths = [...row.querySelectorAll("th")];
+  if (ths.length === 0) return;
+  const state = { idx: null, dir: 1 };
+
+  const clearSortUi = () => {
+    for (const th of ths) {
+      th.removeAttribute("aria-sort");
+      const ind = th.querySelector(".sort-indicator");
+      if (ind) ind.textContent = "";
+    }
+  };
+
+  columnSpecs.forEach((spec, idx) => {
+    if (!spec || typeof spec.get !== "function") return;
+    const th = ths[idx];
+    if (!th) return;
+    const orig = th.textContent.trim();
+    th.textContent = "";
+    const lab = document.createElement("span");
+    lab.className = "sort-col-label";
+    lab.textContent = orig || "\u00a0";
+    const ind = document.createElement("span");
+    ind.className = "sort-indicator";
+    ind.setAttribute("aria-hidden", "true");
+    th.appendChild(lab);
+    th.appendChild(ind);
+    th.classList.add("sortable-col-header");
+    th.title = "Sort by this column; click again to reverse order.";
+
+    const sortRows = () => {
+      const rows = [...tbody.querySelectorAll("tr")];
+      const mult = state.dir;
+      const get = spec.get;
+      const numeric = spec.numeric === true;
+      rows.sort((a, b) => {
+        const va = get(a);
+        const vb = get(b);
+        if (numeric) {
+          const na = Number(va);
+          const nb = Number(vb);
+          const naN = Number.isNaN(na);
+          const nbN = Number.isNaN(nb);
+          if (naN && nbN) return 0;
+          if (naN) return 1 * mult;
+          if (nbN) return -1 * mult;
+          if (na !== nb) return mult * (na - nb);
+          return 0;
+        }
+        const sa = String(va).toLowerCase();
+        const sb = String(vb).toLowerCase();
+        if (sa < sb) return -1 * mult;
+        if (sa > sb) return 1 * mult;
+        return 0;
+      });
+      rows.forEach((r) => tbody.appendChild(r));
+    };
+
+    const activate = () => {
+      if (state.idx !== idx) {
+        state.idx = idx;
+        state.dir = 1;
+      } else {
+        state.dir *= -1;
+      }
+      clearSortUi();
+      th.setAttribute("aria-sort", state.dir === 1 ? "ascending" : "descending");
+      ind.textContent = state.dir === 1 ? " \u25b2" : " \u25bc";
+      sortRows();
+    };
+
+    th.style.cursor = "pointer";
+    th.tabIndex = 0;
+    th.addEventListener("click", activate);
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activate();
+      }
+    });
+  });
+}
+
+/** Tag display names for an equipment row (from `tags.json` when present). */
+function equipmentTagLabelList(eq) {
+  return (Array.isArray(eq?.tagIds) ? eq.tagIds : [])
+    .map((tid) => String(bundle.tags?.[tid]?.name || tid))
+    .filter(Boolean);
+}
+
+/** One line for the picker “Description & tags” column. */
+function equipmentPickerDescriptionLine(eq) {
+  const desc = typeof eq?.description === "string" ? eq.description.trim() : "";
+  const tags = equipmentTagLabelList(eq);
+  const tagStr = tags.join(", ");
+  if (desc && tagStr) return `${desc} — Tags: ${tagStr}`;
+  if (desc) return desc;
+  if (tagStr) return `Tags: ${tagStr}`;
+  return "—";
+}
+
+/** Tag id strings from birthright detail blocks (`relicDetails` / `creatureDetails` / optional top-level `tagIds`). */
+function birthrightTagIds(br) {
+  const out = [];
+  const add = (arr) => {
+    if (!Array.isArray(arr)) return;
+    for (const id of arr) {
+      const s = id != null ? String(id).trim() : "";
+      if (s) out.push(s);
+    }
+  };
+  add(br?.relicDetails?.tagIds);
+  add(br?.creatureDetails?.tagIds);
+  add(br?.tagIds);
+  return [...new Set(out)];
+}
+
+/** Tag display names for a birthright (`tags.json` when present). */
+function birthrightTagLabelList(br) {
+  return birthrightTagIds(br)
+    .map((tid) => String(bundle.tags?.[tid]?.name || tid))
+    .filter(Boolean);
+}
+
+/**
+ * Finishing-step birthright catalog “Summary” cell: description (if any), tags, birthright type, mechanical usage.
+ */
+function birthrightFinishingSummaryLine(br) {
+  const desc = typeof br?.description === "string" ? br.description.trim() : "";
+  const tagStr = birthrightTagLabelList(br).join(", ");
+  const typ = typeof br?.birthrightType === "string" ? br.birthrightType.trim() : "";
+  const mech = typeof br?.mechanicalEffects === "string" ? br.mechanicalEffects.trim() : "";
+  const parts = [];
+  if (desc) parts.push(desc);
+  if (tagStr) parts.push(`Tags: ${tagStr}`);
+  if (typ) parts.push(`Type: ${typ}`);
+  if (mech) parts.push(`Mechanical: ${mech}`);
+  if (!parts.length) return "—";
+  return parts.join(" · ");
+}
+
+/** Lowercase haystack for equipment picker (name, type, id, tags, description). */
+function equipmentFilterHaystack(eid, eq) {
+  const tagNames = equipmentTagLabelList(eq).join(" ");
+  const desc = typeof eq?.description === "string" ? eq.description : "";
+  const mech = typeof eq?.mechanicalEffects === "string" ? eq.mechanicalEffects : "";
+  return `${eq?.name || ""} ${eid} ${eq?.equipmentType || ""} ${tagNames} ${desc} ${mech}`.trim().toLowerCase();
+}
+
 /** Mortal / Origin (Finishing): 4 pts. Hero: 7 total on the Birthrights step (not 7+4 combined). Demigod/God: 11 (confirm at table). */
 function maxBirthrightPointsBudget() {
   const t = normalizedTierId(character.tier);
@@ -3714,6 +3886,19 @@ function renderBirthrights(root) {
   sum.textContent = `Points used: ${used} / ${cap}. “Add” spends that row’s point cost; remove picks below to free points.`;
   catalog.appendChild(sum);
 
+  const pickBar = document.createElement("div");
+  pickBar.className = "picker-toolbar";
+  const brSearch = document.createElement("input");
+  brSearch.type = "search";
+  brSearch.className = "picker-search";
+  brSearch.placeholder = "Filter by name, type, or id…";
+  brSearch.autocomplete = "off";
+  brSearch.setAttribute("aria-label", "Filter birthright templates");
+  pickBar.appendChild(brSearch);
+  catalog.appendChild(pickBar);
+  const brScroll = document.createElement("div");
+  brScroll.className = "picker-scroll";
+
   const tbl2 = document.createElement("table");
   tbl2.className = "skill-ratings-table birthrights-table";
   const thead2 = document.createElement("thead");
@@ -3762,10 +3947,23 @@ function renderBirthrights(root) {
     tr.appendChild(tdCost);
     tr.appendChild(tdDesc);
     tr.appendChild(tdAct);
+    tr.setAttribute(
+      "data-filter-text",
+      `${br.name || bid} ${bid} ${br.birthrightType || ""} ${(br.description || br.mechanicalEffects || "").slice(0, 160)}`.trim(),
+    );
     body2.appendChild(tr);
   }
   tbl2.appendChild(body2);
-  catalog.appendChild(tbl2);
+  wirePickerRowFilter(brSearch, body2);
+  wireSortableTableColumns(thead2, body2, [
+    { get: (tr) => (tr.cells[0]?.textContent || "").trim() },
+    { get: (tr) => (tr.cells[1]?.textContent || "").trim() },
+    { get: (tr) => parseInt(String(tr.cells[2]?.textContent || "0"), 10) || 0, numeric: true },
+    null,
+    null,
+  ]);
+  brScroll.appendChild(tbl2);
+  catalog.appendChild(brScroll);
   wrap.appendChild(catalog);
 
   const picks = document.createElement("section");
@@ -4127,26 +4325,86 @@ function renderFinishing(root) {
       pts.className = "help";
       pts.textContent = `Points used: ${used} / ${cap}`;
       knBr.appendChild(pts);
-      const addRow = document.createElement("div");
-      addRow.className = "chips";
+      const finBar = document.createElement("div");
+      finBar.className = "picker-toolbar";
+      const finBrSearch = document.createElement("input");
+      finBrSearch.type = "search";
+      finBrSearch.className = "picker-search";
+      finBrSearch.placeholder = "Filter by name, type, or id…";
+      finBrSearch.autocomplete = "off";
+      finBrSearch.setAttribute("aria-label", "Filter finishing birthrights");
+      finBar.appendChild(finBrSearch);
+      knBr.appendChild(finBar);
+      const finScroll = document.createElement("div");
+      finScroll.className = "picker-scroll";
+      const finTbl = document.createElement("table");
+      finTbl.className = "skill-ratings-table birthrights-table";
+      const finThead = document.createElement("thead");
+      const finHr = document.createElement("tr");
+      ["Entry", "Type", "Pts", "Summary", ""].forEach((lab, idx) => {
+        const th = document.createElement("th");
+        th.textContent = lab;
+        if (idx === 4) th.className = "birthrights-th-action";
+        finHr.appendChild(th);
+      });
+      finThead.appendChild(finHr);
+      finTbl.appendChild(finThead);
+      const finBody = document.createElement("tbody");
       const capBr = maxBirthrightPointsBudget();
       const usedBr = finishingBirthrightPointsUsed();
-      for (const [bid, br] of Object.entries(bundle.birthrights)) {
-        if (bid.startsWith("_")) continue;
-        const c = birthrightPointCost(bid);
+      const finEntries = Object.entries(bundle.birthrights)
+        .filter(([id]) => !id.startsWith("_"))
+        .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]));
+      for (const [bid, br] of finEntries) {
+        const cost = birthrightPointCost(bid);
+        const tr = document.createElement("tr");
+        const tagHay = `${birthrightTagIds(br).join(" ")} ${birthrightTagLabelList(br).join(" ")}`.trim();
+        tr.setAttribute(
+          "data-filter-text",
+          `${br.name || bid} ${bid} ${br.birthrightType || ""} ${tagHay} ${typeof br.description === "string" ? br.description : ""} ${typeof br.mechanicalEffects === "string" ? br.mechanicalEffects : ""}`.trim(),
+        );
+        const tdName = document.createElement("td");
+        tdName.textContent = br.name || bid;
+        const tdType = document.createElement("td");
+        tdType.textContent = br.birthrightType || "—";
+        const tdCost = document.createElement("td");
+        tdCost.textContent = String(cost);
+        tdCost.className = "birthrights-td-num";
+        const tdDesc = document.createElement("td");
+        tdDesc.className = "birthrights-td-desc";
+        tdDesc.textContent = birthrightFinishingSummaryLine(br);
+        const tdAct = document.createElement("td");
+        tdAct.className = "birthrights-td-action";
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "btn secondary";
-        btn.textContent = `+ ${br.name} (${c} pt)`;
-        btn.disabled = usedBr + c > capBr;
+        btn.textContent = "Add";
+        btn.disabled = usedBr + cost > capBr;
         applyGameDataHint(btn, br);
         btn.addEventListener("click", () => {
+          if (finishingBirthrightPointsUsed() + cost > capBr) return;
           addFinishingBirthright(bid);
           render();
         });
-        addRow.appendChild(btn);
+        tdAct.appendChild(btn);
+        tr.appendChild(tdName);
+        tr.appendChild(tdType);
+        tr.appendChild(tdCost);
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdAct);
+        finBody.appendChild(tr);
       }
-      knBr.appendChild(addRow);
+      finTbl.appendChild(finBody);
+      wirePickerRowFilter(finBrSearch, finBody);
+      wireSortableTableColumns(finThead, finBody, [
+        { get: (tr) => (tr.cells[0]?.textContent || "").trim() },
+        { get: (tr) => (tr.cells[1]?.textContent || "").trim() },
+        { get: (tr) => parseInt(String(tr.cells[2]?.textContent || "0"), 10) || 0, numeric: true },
+        null,
+        null,
+      ]);
+      finScroll.appendChild(finTbl);
+      knBr.appendChild(finScroll);
       const list = document.createElement("ul");
       list.className = "finishing-birthright-picks";
       (character.finishing.birthrightPicks || []).forEach((bid, idx) => {
@@ -4175,30 +4433,132 @@ function renderFinishing(root) {
     "<h2>Sheet appendix (extra pages)</h2><p class='help'>The printable character sheet adds separate pages for <strong>equipment</strong> (from the equipment library), <strong>Fatebindings</strong>, and <strong>extended notes</strong>. Player / group notes from the Concept step still appear on page 1.</p>";
   const eqIntro = document.createElement("p");
   eqIntro.className = "help";
-  eqIntro.textContent = "Toggle gear to include on the Equipment page (library entries from Equipment data).";
+  eqIntro.textContent =
+    "Pick gear for the printable Equipment page: search the library, then Add. Your list stays on the right; Remove anytime.";
   sheetAppendix.appendChild(eqIntro);
-  const eqChips = document.createElement("div");
-  eqChips.className = "chips";
+  const eqLayout = document.createElement("div");
+  eqLayout.className = "equipment-picker-layout";
+  const eqCat = document.createElement("div");
+  eqCat.className = "equipment-picker-catalog";
+  const eqBar = document.createElement("div");
+  eqBar.className = "picker-toolbar";
+  const eqSearch = document.createElement("input");
+  eqSearch.type = "search";
+  eqSearch.className = "picker-search";
+  eqSearch.placeholder = "Filter by name, type, tags…";
+  eqSearch.autocomplete = "off";
+  eqSearch.setAttribute("aria-label", "Filter equipment");
+  eqBar.appendChild(eqSearch);
+  eqCat.appendChild(eqBar);
+  const eqScroll = document.createElement("div");
+  eqScroll.className = "picker-scroll";
+  const eqTbl = document.createElement("table");
+  eqTbl.className = "skill-ratings-table equipment-picker-table";
+  const eqThead = document.createElement("thead");
+  const eqHr = document.createElement("tr");
+  ["Name", "Description & tags", "Type", ""].forEach((lab, idx) => {
+    const th = document.createElement("th");
+    th.textContent = lab;
+    if (idx === 3) th.className = "equipment-picker-actions";
+    if (idx === 1) th.className = "equipment-picker-desc-th";
+    eqHr.appendChild(th);
+  });
+  eqThead.appendChild(eqHr);
+  eqTbl.appendChild(eqThead);
+  const eqBody = document.createElement("tbody");
   const eqSet = new Set(character.sheetEquipmentIds || []);
   const eqEntries = Object.entries(bundle.equipment || {})
     .filter(([eid]) => !eid.startsWith("_"))
     .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0])));
   for (const [eid, eq] of eqEntries) {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "chip" + (eqSet.has(eid) ? " on" : "");
-    chip.textContent = eq.name || eid;
-    applyGameDataHint(chip, eq);
-    chip.addEventListener("click", () => {
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-filter-text", equipmentFilterHaystack(eid, eq));
+    const nm = document.createElement("td");
+    nm.textContent = eq.name || eid;
+    const descTd = document.createElement("td");
+    descTd.className = "equipment-picker-desc";
+    descTd.textContent = equipmentPickerDescriptionLine(eq);
+    const typ = document.createElement("td");
+    typ.textContent = eq.equipmentType || "—";
+    typ.className = "muted";
+    const act = document.createElement("td");
+    act.className = "equipment-picker-actions";
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.className = "btn secondary";
+    addBtn.textContent = "Add";
+    addBtn.disabled = eqSet.has(eid);
+    if (addBtn.disabled) addBtn.title = "Already on your sheet — use Remove at right.";
+    applyGameDataHint(addBtn, eq);
+    addBtn.addEventListener("click", () => {
       ensureSheetAppendicesShape();
-      if (eqSet.has(eid)) eqSet.delete(eid);
-      else eqSet.add(eid);
+      if (eqSet.has(eid)) return;
+      eqSet.add(eid);
       character.sheetEquipmentIds = [...eqSet];
       render();
     });
-    eqChips.appendChild(chip);
+    act.appendChild(addBtn);
+    tr.appendChild(nm);
+    tr.appendChild(descTd);
+    tr.appendChild(typ);
+    tr.appendChild(act);
+    eqBody.appendChild(tr);
   }
-  sheetAppendix.appendChild(eqChips);
+  eqTbl.appendChild(eqBody);
+  wirePickerRowFilter(eqSearch, eqBody);
+  wireSortableTableColumns(eqThead, eqBody, [
+    { get: (tr) => (tr.cells[0]?.textContent || "").trim() },
+    { get: (tr) => (tr.cells[1]?.textContent || "").trim() },
+    { get: (tr) => (tr.cells[2]?.textContent || "").trim() },
+    null,
+  ]);
+  eqScroll.appendChild(eqTbl);
+  eqCat.appendChild(eqScroll);
+  eqLayout.appendChild(eqCat);
+  const eqSel = document.createElement("div");
+  eqSel.className = "equipment-picker-selected";
+  const selH = document.createElement("h3");
+  selH.className = "equipment-picker-selected-heading";
+  selH.textContent = "On your sheet";
+  eqSel.appendChild(selH);
+  const orderedIds = [...eqSet].sort((a, b) =>
+    String(bundle.equipment?.[a]?.name || a).localeCompare(String(bundle.equipment?.[b]?.name || b), undefined, {
+      sensitivity: "base",
+    }),
+  );
+  if (orderedIds.length === 0) {
+    const emptyEq = document.createElement("p");
+    emptyEq.className = "help equipment-picker-empty";
+    emptyEq.textContent = "No equipment yet — add from the catalog.";
+    eqSel.appendChild(emptyEq);
+  } else {
+    const selList = document.createElement("ul");
+    selList.className = "equipment-picker-selected-list";
+    for (const eid of orderedIds) {
+      const eq = bundle.equipment?.[eid];
+      const li = document.createElement("li");
+      const lab = document.createElement("span");
+      lab.textContent = eq?.name || eid;
+      applyGameDataHint(lab, eq);
+      const rm = document.createElement("button");
+      rm.type = "button";
+      rm.className = "btn secondary";
+      rm.textContent = "Remove";
+      rm.addEventListener("click", () => {
+        ensureSheetAppendicesShape();
+        const s2 = new Set(character.sheetEquipmentIds || []);
+        s2.delete(eid);
+        character.sheetEquipmentIds = [...s2];
+        render();
+      });
+      li.appendChild(lab);
+      li.appendChild(rm);
+      selList.appendChild(li);
+    }
+    eqSel.appendChild(selList);
+  }
+  eqLayout.appendChild(eqSel);
+  sheetAppendix.appendChild(eqLayout);
   const fbWrap = document.createElement("div");
   fbWrap.className = "field";
   const fbLab = document.createElement("label");

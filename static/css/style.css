@@ -367,6 +367,124 @@ textarea.has-doc-hint:focus-visible {
   max-width: 28rem;
 }
 
+/* Searchable catalog (Birthrights step, Finishing birthrights & equipment) */
+.picker-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.picker-search {
+  flex: 1;
+  min-width: 0;
+  max-width: 28rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+
+.picker-search::placeholder {
+  color: var(--muted);
+}
+
+.picker-scroll {
+  max-height: min(50vh, 22rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Sortable catalog columns (birthrights, finishing birthrights, equipment) */
+.skill-ratings-table th.sortable-col-header {
+  user-select: none;
+}
+
+.skill-ratings-table th.sortable-col-header:hover {
+  color: var(--text);
+}
+
+.skill-ratings-table th.sortable-col-header:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.skill-ratings-table th.sortable-col-header .sort-indicator {
+  font-size: 0.72em;
+  opacity: 0.85;
+}
+
+.equipment-picker-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 52rem) {
+  .equipment-picker-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equipment-picker-selected-heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.equipment-picker-selected-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.equipment-picker-selected-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.equipment-picker-selected-list li:last-child {
+  border-bottom: none;
+}
+
+.equipment-picker-actions {
+  width: 5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.equipment-picker-table .equipment-picker-desc-th {
+  min-width: 12rem;
+}
+
+.equipment-picker-table .equipment-picker-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.35;
+  max-width: 28rem;
+  vertical-align: top;
+}
+
+.equipment-picker-empty {
+  margin: 0.25rem 0 0;
+}
+
 .skill-ratings-th-num {
   text-align: center;
 }
