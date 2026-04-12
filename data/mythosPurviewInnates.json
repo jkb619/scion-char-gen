@@ -1,0 +1,95 @@
+{
+  "_meta": {
+    "title": "Masks of the Mythos — Awareness Innate Powers by Purview",
+    "role": "Merged into bundle.purviews[*].mythosAwarenessInnate at load (see app/services/game_data.py).",
+    "sourcePdf": "Scion_Masks_of_the_Mythos_(Final_Download).pdf",
+    "chapter": "Ch. 3 — AWARENESS PURVIEWS (pp. 49–59)"
+  },
+  "artistry": {
+    "mythosAwarenessInnate": "You draw inspiration and creativity from the people around you. Whenever you are near someone who is performing, creating art, or otherwise doing some type of creative or expressive activity, you gain +3 Enhancement to your own creative endeavors."
+  },
+  "beasts": {
+    "mythosAwarenessInnate": "Animals recognize you as one of their own. Your character can form Bonds with animals in the same way she can people."
+  },
+  "beauty": {
+    "mythosAwarenessInnate": "You gain a buffer against anyone attempting to use their looks to sway you. Your Scale is considered 1 higher for the purposes of resisting such attempts."
+  },
+  "chaos": {
+    "mythosAwarenessInnate": "Chaos follows you wherever you go, rippling away from you and upending normally ordered things. Electronics tend to malfunction when you’re near, cars backfire, engines fail, and people trip on sidewalks — all creating a +1 Complication for anyone attempting to act while in close range of you. You are, of course, immune to your own chaos."
+  },
+  "darkness": {
+    "mythosAwarenessInnate": "You are always a lucid dreamer, able to control the topic and direction of your own dreams. You can watch another person’s dreams while they sleep and insert yourself into them if you come into physical contact with them (either in the dream or the real world). Doing so puts that person into a lucid dreamer state as well, allowing them control over their own dream. While in the Dreamlands, you are considered to have +1 Leadership Scale."
+  },
+  "death": {
+    "mythosAwarenessInnate": "You can sense the presence of death and decay anywhere within medium range. Small things, such as a plant cutting, barely pick up on your radar, while a corpse will resonate and be obvious even if hidden. You can detect ghosts and undead creatures this way as well, even if they are obscured with magic."
+  },
+  "deception": {
+    "mythosAwarenessInnate": "You can change minor aspects of your appearance at a whim. You cannot change set physical aspects, such as height, weight, or your voice, but all other cosmetic aspects can change. Anyone attempting to recognize you suffers a +3 Complication to pierce your disguise."
+  },
+  "earth": {
+    "mythosAwarenessInnate": "Whenever you are attempting the Knockdown Stunt on an opponent, halve the number of successes needed to perform the stunt (rounded up)."
+  },
+  "epicDexterity": {
+    "mythosAwarenessInnate": "Your body is extremely flexible, allowing you to perform amazing feats of gymnastics, even going so far as dislocating your joints and bending your bones to slither through improbable spaces or move into irregular shapes."
+  },
+  "epicStamina": {
+    "mythosAwarenessInnate": "Whenever you are suffering Injury Conditions, reduce the Complication imposed by the Condition by 1."
+  },
+  "epicStrength": {
+    "mythosAwarenessInnate": "When you use Might to impress or intimidate others, your allies gain a +1 Enhancement to their next action and enemies suffer a +1 Complication the next time they attempt to act against you or your allies."
+  },
+  "fertility": {
+    "mythosAwarenessInnate": "Once per session you can radiate a wave of sterility, killing plants, stopping growth, and ending the lives of fast-growing organisms. Within your Field, plants die, and anyone there with you is immediately cured of all diseases, and for the rest of the scene they stop suffering Complications from any physical Conditions they suffered. They do not suffer the Conditions, but it does not resolve them."
+  },
+  "fire": {
+    "mythosAwarenessInnate": "You can control your anger and fury, keeping it always tamped down. You are immune to Influence that would turn your Attitude to angry and attempts to incite you to action through threats or intimidation incur a +2 Complication."
+  },
+  "forge": {
+    "mythosAwarenessInnate": "No creation, technology, or artifact is foreign in your hands. When using an unknown item, or something for a purpose not originally intended, you do not suffer any Complication for doing so."
+  },
+  "fortune": {
+    "mythosAwarenessInnate": "You are the master of your own fate. Attempts to change your luck, fate, or otherwise alter your trajectory suffer a +2 Difficulty. You can, of course, meddle with your own fortune as much as you like."
+  },
+  "frost": {
+    "mythosAwarenessInnate": "You cannot be swayed by emotional appeals or heated seduction. Influence attempts that use Empathy automatically fail, and those using other forms to melt your heart are made at +2 Difficulty."
+  },
+  "health": {
+    "mythosAwarenessInnate": "You are always in good health. You are immune to the effects of mundane diseases, though divine or magical diseases affect you normally. If you’ve come into contact with a disease, you can alleviate that disease in others with a touch."
+  },
+  "journeys": {
+    "mythosAwarenessInnate": "You always know a back passage, a secret route, or a hidden portal to get where you’re going. If a secret door or hidden passage exists, you find it immediately without having to roll, unless it’s obscured by magic. If you need a secret route through or out of a place, you find one, even if one did not exist before."
+  },
+  "moon": {
+    "mythosAwarenessInnate": "You are mutable and ever-changing. Once per session, you may reshape your body as you see fit. Doing so is a simple action that cannot be combined into a mixed action. You can twist flesh into a new shape, rearrange bones, or even remove parts and save them for later. You may make yourself look completely different, changing your bone structure and physical features, or turn yourself into a nightmare amalgam. You gain a +3 Enhancement to actions that would be enhanced by your changed nature (such as seduction, intimidation, or deception)."
+  },
+  "order": {
+    "mythosAwarenessInnate": "You embody entropy, sapping useful energy from spaces and creating randomness and disorder. You can drain any battery (phone, car, flashlight, etc.) within a short range of its charge, or short out an electrical outlet in the same range without a roll. The lost charge dissipates and becomes useless."
+  },
+  "passion": {
+    "mythosAwarenessInnate": "You bond strongly to others. Gain +3 Enhancement whenever you take an action to create or reinforce a Bond."
+  },
+  "prosperity": {
+    "mythosAwarenessInnate": "You always have some currency of the correct kind, even when you reasonably shouldn’t. You don’t have stocks, bonds, or a large bank account, but you always have enough cash to buy someone dinner or grease some palms. Even completely naked in the desert, you’d be able to present cash to your ride for gas."
+  },
+  "sky": {
+    "mythosAwarenessInnate": "You can control the natural weather patterns in your area. You can lessen or heighten a storm, push a cold front far north to miss the city you’re in, or drag a nearby storm into the area, rapidly turning blue skies stormy gray."
+  },
+  "stars": {
+    "mythosAwarenessInnate": "Once per scene, you can divine the unknowable from the stars. You can ask your Storyguide a single question about the possible outcomes of an action you or one of your Bandmates is about to take, and the Storyguide must answer you truthfully."
+  },
+  "sun": {
+    "mythosAwarenessInnate": "Your presence is polarizing, causing people gain or lose hope at your whim. You are a walking atmosphere (Scion: Origin p. 78), which you can make either positive or negative as you like, with a rating equal to half your Legend that affects anyone in the same Field as you."
+  },
+  "war": {
+    "mythosAwarenessInnate": "Whenever you are involved in a conflict (not just physical, any conflict will do) you gain +2 Enhancement to actions that further the conflict rather than working to resolve it."
+  },
+  "water": {
+    "mythosAwarenessInnate": "You have the grace and implacable movement of water. When you set yourself on a path, nothing can prevent you from moving forward. Actions that would stop you, slow you down, or change your course are made at +2 Difficulty. You can ignore Complications that would slow your movement and make a Clash of Wills if the Complication comes from a magical source. This isn’t just walking, it’s any kind of forward movement, including flying, biking, driving a car, etc."
+  },
+  "wild": {
+    "mythosAwarenessInnate": "You are a child of wilderness and wild things recognize you as such. Gain +2 Enhancement when dealing with wild animals or hostile environments. Wild animals always have a positive initial Attitude towards your character unless she does something to frighten or anger them."
+  },
+  "arcaneCalculus": {
+    "mythosAwarenessInnate": "When performing analysis, research, or surveying investigation actions, you gain +1 Enhancement. You can ignore up to 1 Complication from such actions that would lead you to misinterpret the information you gain on the action."
+  }
+}

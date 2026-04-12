@@ -1,0 +1,114 @@
+{
+  "academics": {
+    "id": "academics",
+    "name": "Academics",
+    "description": "Formal knowledge: history, literature, law, and scholarly practice.",
+    "mechanicalEffects": "Assigns dots from prioritized Paths (3/2/1). At 3+ dots, pick a free Specialty (narrow focus); Specialties grant +1 Enhancement when applicable and a Momentum hook on failure in that Specialty, per core rules.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Skills chapter and Character Creation pp. 58–60, 97–98"
+  },
+  "athletics": {
+    "id": "athletics",
+    "name": "Athletics",
+    "description": "Running, jumping, climbing, sports, and broad physical competence.",
+    "mechanicalEffects": "Path dots as above. Movement dice pool is Athletics + higher of Might or Dexterity at sheet finish.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–99"
+  },
+  "closeCombat": {
+    "id": "closeCombat",
+    "name": "Close Combat",
+    "description": "Melee combat and unarmed fighting.",
+    "mechanicalEffects": "Path dots as above; pairs with Attributes per approach to the fight.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "culture": {
+    "id": "culture",
+    "name": "Culture",
+    "description": "Exposure to societies, arts, languages, religions, and social nuance across cultures.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "empathy": {
+    "id": "empathy",
+    "name": "Empathy",
+    "description": "Reading and responding to emotions and social tells.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "firearms": {
+    "id": "firearms",
+    "name": "Firearms",
+    "description": "Ranged weapons that use gunpowder or similar modern ranged tools.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "integrity": {
+    "id": "integrity",
+    "name": "Integrity",
+    "description": "Conviction, principles, and resistance to social or supernatural pressure.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "leadership": {
+    "id": "leadership",
+    "name": "Leadership",
+    "description": "Command, inspiration, and organizing groups toward a goal.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "medicine": {
+    "id": "medicine",
+    "name": "Medicine",
+    "description": "Diagnosis, treatment, and trauma care.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "occult": {
+    "id": "occult",
+    "name": "Occult",
+    "description": "Supernatural lore, rituals, and esoteric practice.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "persuasion": {
+    "id": "persuasion",
+    "name": "Persuasion",
+    "description": "Negotiation, rhetoric, and changing minds.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "pilot": {
+    "id": "pilot",
+    "name": "Pilot",
+    "description": "Vehicles, chase handling, and mounted or complex operator skill.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "science": {
+    "id": "science",
+    "name": "Science",
+    "description": "STEM methodology, experimentation, and technical analysis.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "subterfuge": {
+    "id": "subterfuge",
+    "name": "Subterfuge",
+    "description": "Deception, stealth, and misdirection.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "survival": {
+    "id": "survival",
+    "name": "Survival",
+    "description": "Wilderness endurance, tracking, navigation, and hostile environments.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  },
+  "technology": {
+    "id": "technology",
+    "name": "Technology",
+    "description": "Computers, modern devices, repair, and misuse of hardware/software.",
+    "mechanicalEffects": "Path dots as above.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 58–60, 97–98"
+  }
+}

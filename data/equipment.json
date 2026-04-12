@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "note": "Mundane and minor mythical equipment. tagIds reference ids in tags.json (filter appliesTo includes \"equipment\" in editors).",
+    "equipmentTypes": [
+      "weapon",
+      "armor",
+      "tool",
+      "accessory",
+      "heavy",
+      "vehicle",
+      "general"
+    ]
+  },
+  "eqHandWeapon": {
+    "id": "eqHandWeapon",
+    "name": "One-handed weapon (template)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "sharp"
+    ],
+    "description": "Sword, axe, machete — define look and legal status in play.",
+    "mechanicalEffects": "Use with Close Combat + Might (or table variant).",
+    "source": "Scion: Origin / Hero combat (paraphrase)"
+  },
+  "eqTacticalVest": {
+    "id": "eqTacticalVest",
+    "name": "Tactical vest",
+    "equipmentType": "armor",
+    "tagIds": [
+      "armored",
+      "concealed"
+    ],
+    "description": "Pouches, plates optional; reads ‘prepared’ in urban scenes.",
+    "mechanicalEffects": "Narrative armor / cover; confirm Soft/Hard armor with SG.",
+    "source": "Modern gear (table)"
+  },
+  "eqBinoculars": {
+    "id": "eqBinoculars",
+    "name": "Field binoculars",
+    "equipmentType": "tool",
+    "tagIds": [
+      "keenSenses",
+      "versatile"
+    ],
+    "description": "Glassing distance targets or city skylines.",
+    "mechanicalEffects": "Enhancement to Survey / perception pools when fiction fits.",
+    "source": "Equipment (table)"
+  }
+}

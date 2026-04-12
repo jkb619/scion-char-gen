@@ -1,0 +1,175 @@
+{
+  "_meta": {
+    "title": "Titanic Epicenters",
+    "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
+    "note": "Titanic Scions use Epicenter text instead of normal Innate for universal Purviews (S&M pp. 97–100). Imbue 1 Legend to suppress all Epicenter effects until reclaimed."
+  },
+  "artistry": {
+    "purviewId": "artistry",
+    "summary": "Performances draw emotional investment; viewers resist with Integrity+Resolve vs your Legend or gain positive Attitude. Investigators of your secrets gain +2 Enhancement.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "beasts": {
+    "purviewId": "beasts",
+    "summary": "Start of Intrigue/Action: local animals appear; +1 Enhancement if you accept aid. Harder to hide supernatural nature (+Difficulty = Legend).",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "beauty": {
+    "purviewId": "beauty",
+    "summary": "Intrigue/Procedural: impose Legend-rated Adoration/Obsession Complications on interactors.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "chaos": {
+    "purviewId": "chaos",
+    "summary": "Scene start: others’ actions gain Unfortunate Side Effects Complication; feeds Collateral or Tension alternates per PDF.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "darkness": {
+    "purviewId": "darkness",
+    "summary": "Once/scene +2 Enhancement to hide/conceal; sleeping targets share dream-influence Intrigue.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "death": {
+    "purviewId": "death",
+    "summary": "Thin life/death barriers; Underworld gates swing; ghosts manifest and understand you; undead not hostile unless provoked.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "deception": {
+    "purviewId": "deception",
+    "summary": "+2 Difficulty to pierce your lies/concealment; your Intrigue carries Untrustworthy Complication.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "earth": {
+    "purviewId": "earth",
+    "summary": "On/under ground, earth rises as Light then Heavy Cover after risk/injury; damages surroundings.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "epicDexterity": {
+    "purviewId": "epicDexterity",
+    "summary": "+1 Speed Scale; two Complication: Collateral Damage → Collateral pool or property damage.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "epicStamina": {
+    "purviewId": "epicStamina",
+    "summary": "+1 Scale vs physical harm; failed harm attempts add Collateral die or hurt nearby.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "epicStrength": {
+    "purviewId": "epicStrength",
+    "summary": "+1 Might Scale; physical actions carry Grievous Collateral Damage; Collateral rolls immediately.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "fertility": {
+    "purviewId": "fertility",
+    "summary": "Light Cover from rampant growth; vermin/vegetation damage follows you.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "fire": {
+    "purviewId": "fire",
+    "summary": "Immune to mundane fire/heat/smoke; others gain +1 Enhancement to start fires/destructive flame in your presence.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "forge": {
+    "purviewId": "forge",
+    "summary": "Extra Milestone or duplicate on craft success; Loose Ends Complication may hand work to rivals.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "fortune": {
+    "purviewId": "fortune",
+    "summary": "Extra Fatebinding; more Legend from Fatebindings; may strengthen a Fatebinding ending soon.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "frost": {
+    "purviewId": "frost",
+    "summary": "After cold-related injury/Complication, immune to cold for scene; passion atmospheres chill; Speed Scale users risk Shocking Chill.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "health": {
+    "purviewId": "health",
+    "summary": "Either heal ambient ills / ease First Aid, OR spread pestilence Complications — pick one style per character.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "journeys": {
+    "purviewId": "journeys",
+    "summary": "Wanderlust in your presence grants Legend (or SG Tension).",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "moon": {
+    "purviewId": "moon",
+    "summary": "Hide/reveal vs specific targets gain Legend Enhancement.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "order": {
+    "purviewId": "order",
+    "summary": "Sense legal transgressions viscerally; mortals report breaches; +Legend Enhancement tracking lawbreakers.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "passion": {
+    "purviewId": "passion",
+    "summary": "+1 Scale to emotional Attitudes/atmospheres.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "prosperity": {
+    "purviewId": "prosperity",
+    "summary": "Windfalls and +Legend Enhancement for money/trade solutions.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "sky": {
+    "purviewId": "sky",
+    "summary": "Weather reflects mood; easy to track/read you; once/session Legend Enhancement when storm helps you.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "stars": {
+    "purviewId": "stars",
+    "summary": "+1 Scale visual perception; Overwhelmed Complication from vastness.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "sun": {
+    "purviewId": "sun",
+    "summary": "First lie/conceal/attack in scene +2 Difficulty vs your brilliance; your concealment suffers +2 Complication.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "war": {
+    "purviewId": "war",
+    "summary": "Cheaper Critical stunt; +Legend Enhancement encouraging violence.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "water": {
+    "purviewId": "water",
+    "summary": "+1 Speed Scale in water; Swept Away Complication for others.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  },
+  "wild": {
+    "purviewId": "wild",
+    "summary": "+2 Survival/Stealth in your presence even in urban environments.",
+    "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Maelstroms' Hearts: Epicenters"
+  }
+}

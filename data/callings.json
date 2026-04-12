@@ -1,0 +1,156 @@
+{
+  "creator": {
+    "id": "creator",
+    "name": "Creator",
+    "description": "Builders, makers, inventors—those who shape things that last.",
+    "mechanicalEffects": "Choose one Calling; pre-Visitation Scions should pick a Calling that matches a Favored Calling of the eventual divine parent (Appendix 2, Origin p. 170 intro). Knack lists expand by tier in Pandora’s Box / later books.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Callings pp. 98–99; SCION_Pandoras_Box_(Revised_Download).pdf (Knacks by Calling)"
+  },
+  "guardian": {
+    "id": "guardian",
+    "name": "Guardian",
+    "description": "Protectors who stand between harm and what they value.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "healer": {
+    "id": "healer",
+    "name": "Healer",
+    "description": "Those who mend bodies, minds, and communities.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "hunter": {
+    "id": "hunter",
+    "name": "Hunter",
+    "description": "Trackers and predators—literal or metaphorical.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "judge": {
+    "id": "judge",
+    "name": "Judge",
+    "description": "Arbiters who weigh truth, debt, and consequence.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "leader": {
+    "id": "leader",
+    "name": "Leader",
+    "description": "Those who organize, inspire, and bear responsibility for others.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "liminal": {
+    "id": "liminal",
+    "name": "Liminal",
+    "description": "Boundary-walkers between states, places, and identities.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "lover": {
+    "id": "lover",
+    "name": "Lover",
+    "description": "Those driven by passion, devotion, beauty, or connection.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "sage": {
+    "id": "sage",
+    "name": "Sage",
+    "description": "Teachers, students, and problem-solvers through knowledge.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "trickster": {
+    "id": "trickster",
+    "name": "Trickster",
+    "description": "Clever operators who bend rules and expectations.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "warrior": {
+    "id": "warrior",
+    "name": "Warrior",
+    "description": "Those who meet conflict head-on as a way of life.",
+    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
+  },
+  "adversary": {
+    "id": "adversary",
+    "name": "Adversary",
+    "description": "Inverted Lover — obsession with enemies, vendettas, and tearing down what another cherishes. As a Titanic Calling, Adversary antagonizes and teaches through opposition (Saints & Monsters).",
+    "mechanicalEffects": "MotM inverted Knacks (pp. 47–49) where listed; Titanic Adversary Knacks (Saints & Monsters Ch. 4, sm_*) in this app; Lover knacks from Pandora’s Box when using MotM twin rules.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Callings"
+  },
+  "corruptor": {
+    "id": "corruptor",
+    "name": "Corruptor",
+    "description": "Inverted Guardian — infiltration and rot until the protected thing becomes an extension of the Corruptor’s will.",
+    "mechanicalEffects": "Mythos Calling; Knacks per Masks of the Mythos.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Guardian / Corruptor"
+  },
+  "cosmos": {
+    "id": "cosmos",
+    "name": "Cosmos",
+    "description": "Inverted Sage — knowledge as vast and annihilating as deep space; insight that breaks the witness.",
+    "mechanicalEffects": "Mythos Calling; Knacks per Masks of the Mythos.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Sage / Cosmos"
+  },
+  "defiler": {
+    "id": "defiler",
+    "name": "Defiler",
+    "description": "Inverted Healer — preservation of sickness and corruption so harm spreads farther than the original wound.",
+    "mechanicalEffects": "Mythos Calling; Knacks per Masks of the Mythos.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Healer / Defiler"
+  },
+  "destroyer": {
+    "id": "destroyer",
+    "name": "Destroyer",
+    "description": "Inverted Creator — unmaking, collapse, and end-times appetite using the same primordial forces creation drew on. As a Titanic Calling, Destroyers break structures, challenge order, or embody entropy (Saints & Monsters).",
+    "mechanicalEffects": "MotM inverted Knacks (pp. 47–49) where listed; Titanic Destroyer Knacks (Saints & Monsters Ch. 4, sm_*) in this app; Creator knacks when using MotM twin rules.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Callings"
+  },
+  "monster": {
+    "id": "monster",
+    "name": "Monster",
+    "description": "Myths and legends drip with terrible creatures who swallow the sun, gnaw at the world tree, or eat human flesh — inhuman, grotesque, driven by fear and hunger; some wear pleasing masks or erupt into towering horror (Saints & Monsters). Also used as a Mythos Calling in Masks of the Mythos.",
+    "mechanicalEffects": "MotM Knacks where printed; Titanic Monster Knacks (Saints & Monsters Ch. 4, sm_*) in this app — includes Monstrous Urge hooks per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Callings; Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Callings"
+  },
+  "primeval": {
+    "id": "primeval",
+    "name": "Primeval",
+    "description": "Primordial creative and predatory drive tied to life before humanity—spawn, fecundity, and hunger older than culture. As a Titanic Calling, Primeval embodies land, weather, and vast natural forces (Saints & Monsters).",
+    "mechanicalEffects": "MotM Knacks where listed; Titanic Primeval Knacks (Saints & Monsters Ch. 4, sm_*) in this app.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Callings"
+  },
+  "torturer": {
+    "id": "torturer",
+    "name": "Torturer",
+    "description": "Inverted Warrior — violence for the sustained infliction of pain, detached from glory or cause.",
+    "mechanicalEffects": "Mythos Calling; Knacks per Masks of the Mythos.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Warrior / Torturer"
+  },
+  "tyrant": {
+    "id": "tyrant",
+    "name": "Tyrant",
+    "description": "Inverted Leader — obedience through terror, cultic fealty, and the price of disappointing the overlord. As a Titanic Calling, Tyrant craves power, sycophants, and absolute edicts (Saints & Monsters).",
+    "mechanicalEffects": "MotM inverted Knacks where listed; Titanic Tyrant Knacks (Saints & Monsters Ch. 4, sm_*) in this app; Leader knacks when using MotM twin rules.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Callings"
+  },
+  "outsider": {
+    "id": "outsider",
+    "name": "Outsider",
+    "description": "The stranger at the edge of every story—never quite trusted, never quite cast out, whose presence bends fate and social order in uncomfortable ways (Saints & Monsters).",
+    "mechanicalEffects": "Heroic and Immortal Knacks with ids prefixed sm_outsider_* (merged from knacksSaintsMonsters.json) cite the Player’s Guide; confirm full write-ups in Saints & Monsters.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Outsider Calling"
+  },
+  "shepherd": {
+    "id": "shepherd",
+    "name": "Shepherd",
+    "description": "Protectors who bind their legend to a Ward—teachers, guardians, and matchmakers who stand between harm and the one they shepherd (Saints & Monsters).",
+    "mechanicalEffects": "Heroic and Immortal Knacks with ids prefixed sm_shepherd_* (merged from knacksSaintsMonsters.json); Ward rules per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Shepherd Calling"
+  }
+}

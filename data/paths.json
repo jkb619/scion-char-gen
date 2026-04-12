@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "note": "Paths are freeform phrases at the table; entries here are examples/templates keyed for the wizard.",
+    "pathKinds": ["origin", "role", "societyPantheon"]
+  },
+  "lifeOfPrivilege": {
+    "id": "lifeOfPrivilege",
+    "name": "Life of Privilege",
+    "pathKind": "origin",
+    "description": "A comfortable, well-resourced upbringing that shapes contacts and expectations.",
+    "suggestedSkills": ["culture", "empathy", "technology"],
+    "mechanicalEffects": "Pick three Skills for this Path (subject to table justification). Society Path instead uses two pantheon Asset Skills plus one more Skill (Origin p. 97). Each Skill can belong to at most two Paths.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Path examples pp. 95–96, Path elements pp. 96–101"
+  },
+  "childhoodInConflict": {
+    "id": "childhoodInConflict",
+    "name": "Childhood in a War Zone",
+    "pathKind": "origin",
+    "description": "Formative years shaped by violence, displacement, or survival pressures.",
+    "suggestedSkills": ["athletics", "closeCombat", "subterfuge"],
+    "mechanicalEffects": "Three Skills, connections, Path Condition (pp. 100–101).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95"
+  },
+  "professionalSoldier": {
+    "id": "professionalSoldier",
+    "name": "Professional Soldier",
+    "pathKind": "role",
+    "description": "Military profession or comparable structured combat role.",
+    "suggestedSkills": ["firearms", "closeCombat", "leadership"],
+    "mechanicalEffects": "Three Skills; Role is 'who they are now' (p. 96).",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 96–97"
+  },
+  "traumaSurgeon": {
+    "id": "traumaSurgeon",
+    "name": "Trauma Surgeon",
+    "pathKind": "role",
+    "description": "High-stakes medicine as identity and practice.",
+    "suggestedSkills": ["medicine", "science", "integrity"],
+    "mechanicalEffects": "Three Skills; ties to contacts and facilities (p. 100).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 96"
+  },
+  "daughterOfRiver": {
+    "id": "daughterOfRiver",
+    "name": "Daughter of Oya Iyansan",
+    "pathKind": "societyPantheon",
+    "description": "Supernatural or cultic tie to a pantheon—often the divine parent thread.",
+    "suggestedSkills": ["occult", "empathy", "leadership"],
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one other Skill you justify (p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 96–97"
+  }
+}

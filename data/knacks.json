@@ -1,0 +1,1827 @@
+{
+  "_meta": {
+    "note": "Full Knack lists and rules text: Pandora’s Box (Revised) Calling chapters (primary). Each knack includes `knackKind`: \"mortal\" (Mortal Knack, one Calling slot; only kind allowed at Origin / Mortal tier) or \"immortal\" (Immortal Knack, two Calling slots; Hero+). Tier gates use `tierMin` / `tierMax` (titanic tier counts as Hero tier for these gates). Mythos inverted knacks (mythos_*) require pantheon mythos per MotM pp. 47–48. Saints & Monsters knacks (sm_*), including Titanic Callings and Outsider/Shepherd lists, merge from knacksSaintsMonsters.json at bundle load (see app/services/game_data.py; regenerate via scripts/integrate_saints_monsters_tables.py).",
+    "eligibility": {
+      "callings": "Array of Calling ids, or omit / callingsAny true for any Calling.",
+      "callingsAny": "If true, ignore callings (any Calling).",
+      "tierMin": "Minimum character tier: mortal | sorcerer | hero | titanic | demigod | god (default mortal).",
+      "tierMax": "Maximum character tier inclusive (optional).",
+      "purviewAnyOf": "If set, character must have at least one listed Purview.",
+      "pantheonAnyOf": "If set, character.pantheonId must match one entry.",
+      "deityAnyOf": "If set, character.parentDeityId must match one entry.",
+      "legendMin": "Minimum Legend rating (optional).",
+      "knackKind": "\"mortal\" = Scion Mortal Knack (one Calling slot; valid at Origin / Mortal tier). \"immortal\" = Immortal Knack (two Calling slots; Hero tier minimum in play). Origin (Mortal) characters may only take knackKind \"mortal\"."
+    }
+  },
+  "aPurpose": {
+    "id": "aPurpose",
+    "name": "A Purpose",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Dedicate yourself to protecting an ideal embodied by a person, place, or community.",
+    "mechanicalEffects": "Mortal Knack option in Origin chargen; only one Knack active at a time unless extras purchased (p. 99). Full text in Pandora’s Box Guardian section.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99; SCION_Pandoras_Box_(Revised_Download).pdf (Guardian Knacks)",
+    "knackKind": "mortal"
+  },
+  "internalSchoolBoxing": {
+    "id": "internalSchoolBoxing",
+    "name": "Internal School Boxing",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Martial practice turned inward—soft power, hard results.",
+    "mechanicalEffects": "Martial Knack; confirm dice and limits with Pandora’s Box (Warrior) or your table.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Character Creation examples; SCION_Pandoras_Box_(Revised_Download).pdf",
+    "knackKind": "mortal"
+  },
+  "auraOfGreatness": {
+    "id": "auraOfGreatness",
+    "name": "Aura of Greatness",
+    "callingsAny": true,
+    "tierMin": "hero",
+    "description": "Project commanding presence that steadies allies or unnerves foes.",
+    "mechanicalEffects": "Heroic Knack—see Pandora’s Box for dice and limits.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "knackKind": "immortal"
+  },
+  "forgettable": {
+    "id": "forgettable",
+    "name": "Forgettable",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Slip from notice when you aren’t forcing the issue.",
+    "mechanicalEffects": "Listed as sample supernatural Path knack in Origin appendix—verify tier access with Storyguide.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Supernatural Paths appendix",
+    "tierMax": "mortal",
+    "knackKind": "mortal"
+  },
+  "creator_innate_toolkit": {
+    "id": "creator_innate_toolkit",
+    "name": "Innate Toolkit",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "You can work your craft even without proper tools.",
+    "mechanicalEffects": "One Repair or Build Action; no Injury from missing tools when using hands.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_perfect_rendition": {
+    "id": "creator_perfect_rendition",
+    "name": "Perfect Rendition",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "Photo-perfect recall of images, maps, or signatures you have seen.",
+    "mechanicalEffects": "One Scene; Clash of Wills if observation was obscured supernaturally.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_reverse_engineer": {
+    "id": "creator_reverse_engineer",
+    "name": "Reverse Engineer",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "Disassembling an object reveals how to rebuild or copy it.",
+    "mechanicalEffects": "Applies to (Epic) Objects per book.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_the_unlimited_quartermaster": {
+    "id": "creator_the_unlimited_quartermaster",
+    "name": "The Unlimited Quartermaster",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "You can source mundane crafting supplies without a roll unless blocked.",
+    "mechanicalEffects": "One Building or Repair Action; Clash of Wills if access is opposed.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_we_go_all_night": {
+    "id": "creator_we_go_all_night",
+    "name": "We Go All Night",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "Work a creative project without stopping until it is finished, then rest a day.",
+    "mechanicalEffects": "Includes working through Damage; then mandatory rest.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_wireless_interface": {
+    "id": "creator_wireless_interface",
+    "name": "Wireless Interface",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "Use powered devices in line of sight without touching them.",
+    "mechanicalEffects": "One Scene; very large devices at SG discretion.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_flawlessly_platonic_ideal": {
+    "id": "creator_flawlessly_platonic_ideal",
+    "name": "Flawlessly Platonic Ideal",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "mortal",
+    "description": "Named on Onyx Path forums as a Creator Origin option alongside the other one-slot Knacks.",
+    "mechanicalEffects": "Confirm full text in your printing of Pandora’s Box / errata.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "creator_afternoon_of_fortnights": {
+    "id": "creator_afternoon_of_fortnights",
+    "name": "Afternoon of Fortnights",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "description": "Compress project time with a (Crafts+Epic) roll.",
+    "mechanicalEffects": "One Build or Repair Action. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "creator_lifted_from_dust": {
+    "id": "creator_lifted_from_dust",
+    "name": "Lifted from Dust",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "description": "Build without needing specific parts—raw matter suffices.",
+    "mechanicalEffects": "One Build or Repair Action. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "creator_raise_the_pillars_of_the_earth": {
+    "id": "creator_raise_the_pillars_of_the_earth",
+    "name": "Raise the Pillars of the Earth",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "description": "Shape structures with (Crafts+Epic) roll and scale of successes.",
+    "mechanicalEffects": "One Build or Repair Action. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "creator_touch_of_the_muses": {
+    "id": "creator_touch_of_the_muses",
+    "name": "Touch of the Muses",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "description": "Copy an object’s function after one look; copies decay.",
+    "mechanicalEffects": "(Epic) Hours duration per book. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "guardian_a_fortress": {
+    "id": "guardian_a_fortress",
+    "name": "A Fortress",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Name a room or small building as a sanctuary for your charge.",
+    "mechanicalEffects": "Indefinite; sense intrusions; attacks from outside blocked while charge remains.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "guardian_a_sentinel": {
+    "id": "guardian_a_sentinel",
+    "name": "A Sentinel",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Share senses between you, those who perceive your charge, and your charge.",
+    "mechanicalEffects": "Indefinite; supernaturals may Clash.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "guardian_a_talisman": {
+    "id": "guardian_a_talisman",
+    "name": "A Talisman",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Bless an object to grant (Epic) rerolls to its wearer (not you).",
+    "mechanicalEffects": "Indefinite.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "guardian_a_vigil": {
+    "id": "guardian_a_vigil",
+    "name": "A Vigil",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Stand guard without needing food or sleep while vigil holds.",
+    "mechanicalEffects": "Condition; one vigil at a time; target in sight.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "guardian_a_warning": {
+    "id": "guardian_a_warning",
+    "name": "A Warning",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "mortal",
+    "description": "Sense danger and hostile intent toward your charge.",
+    "mechanicalEffects": "Condition while you protect your charge.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "guardian_by_your_side": {
+    "id": "guardian_by_your_side",
+    "name": "By your Side",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "description": "Teleport next to your charge when needed; innate warning.",
+    "mechanicalEffects": "Indefinite; pay Legend to change charge. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "guardian_eternal_guardian": {
+    "id": "guardian_eternal_guardian",
+    "name": "Eternal Guardian",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "description": "Cannot die or tire until your charge is safe—then damage applies fully.",
+    "mechanicalEffects": "Condition. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "guardian_living_pillar": {
+    "id": "guardian_living_pillar",
+    "name": "Living Pillar",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "description": "Immune to environmental hazards while shielding your charge in arm’s reach.",
+    "mechanicalEffects": "Condition; charge shares immunity except needs for food/sleep. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "guardian_they_cannot_be_touched": {
+    "id": "guardian_they_cannot_be_touched",
+    "name": "They cannot be touched",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "description": "Charge immune to physical damage in combat while kept within (Epic) meters.",
+    "mechanicalEffects": "Until next sunrise or sunset. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "healer_the_bare_minimum": {
+    "id": "healer_the_bare_minimum",
+    "name": "The bare minimum",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Remove hunger and sleep need for targets.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_combat_medic": {
+    "id": "healer_combat_medic",
+    "name": "Combat Medic",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Stabilize and remove last damage track.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_damage_conversion": {
+    "id": "healer_damage_conversion",
+    "name": "Damage Conversion",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Convert lethal damage to bashing for a patient.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_doctor_s_kit": {
+    "id": "healer_doctor_s_kit",
+    "name": "Doctor's Kit",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Stabilize poison and sickness automatically.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_immunization_booster": {
+    "id": "healer_immunization_booster",
+    "name": "Immunization Booster",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Grant temporary immunity to poison/sickness.",
+    "mechanicalEffects": "(Epic) Months; affects up to (Epic) people.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_instant_diagnosis": {
+    "id": "healer_instant_diagnosis",
+    "name": "Instant Diagnosis",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Diagnose ailments and general treatment approach without a roll.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_surgeon_with_the_hands_of_gods": {
+    "id": "healer_surgeon_with_the_hands_of_gods",
+    "name": "Surgeon with the Hands of Gods",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "mortal",
+    "description": "Halve procedure time; no increased Difficulty for critical patients.",
+    "mechanicalEffects": "(Epic) Patients.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "healer_breath_of_life": {
+    "id": "healer_breath_of_life",
+    "name": "Breath of Life",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "description": "Resurrect the recently dead with grave damage remaining.",
+    "mechanicalEffects": "Instant; within one day; needs body. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "healer_internal_refinery": {
+    "id": "healer_internal_refinery",
+    "name": "Internal Refinery",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "description": "Cure self of poison/disease and generate cure for others.",
+    "mechanicalEffects": "Until next sunrise or sunset. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "healer_panacea": {
+    "id": "healer_panacea",
+    "name": "Panacea",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "description": "Mass-produce known cures or antidotes.",
+    "mechanicalEffects": "Instant. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "healer_reconstruction": {
+    "id": "healer_reconstruction",
+    "name": "Reconstruction",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "description": "Restore perfect health.",
+    "mechanicalEffects": "(Epic) Patients. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "hunter_apex_predator": {
+    "id": "hunter_apex_predator",
+    "name": "Apex Predator",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "Foes must win (Resolve+Force) with Epic success to attack you first.",
+    "mechanicalEffects": "Until confronting target.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_eyes_in_the_blinds": {
+    "id": "hunter_eyes_in_the_blinds",
+    "name": "Eyes in the Blinds",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "Invest power in a token to sense around it.",
+    "mechanicalEffects": "(Epic) Months.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_internal_compass": {
+    "id": "hunter_internal_compass",
+    "name": "Internal Compass",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "Never roll to navigate; bonus in magical mazes.",
+    "mechanicalEffects": "Until reaching destination.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_keen_eyed_predator": {
+    "id": "hunter_keen_eyed_predator",
+    "name": "Keen-Eyed Predator",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "On entering a place, ask structured questions about hazards and threats.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_most_dangerous_prey": {
+    "id": "hunter_most_dangerous_prey",
+    "name": "Most Dangerous Prey",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "While pursuing chosen target, gain Speed and penalize their perception.",
+    "mechanicalEffects": "Until confronting target.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_silence_in_the_woods": {
+    "id": "hunter_silence_in_the_woods",
+    "name": "Silence in the Woods",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "Silent pursuit and ambush enhancement.",
+    "mechanicalEffects": "Until confronting target.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_it_s_a_trap": {
+    "id": "hunter_it_s_a_trap",
+    "name": "It's a Trap!",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "mortal",
+    "description": "Hide traps from perception until triggered.",
+    "mechanicalEffects": "Condition; (Epic)×2 traps.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "hunter_always_there": {
+    "id": "hunter_always_there",
+    "name": "Always There",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "description": "Know location and route to quarry, or teleport to them.",
+    "mechanicalEffects": "Until confronting target. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "hunter_perfect_camouflage": {
+    "id": "hunter_perfect_camouflage",
+    "name": "Perfect Camouflage",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "description": "Invisibility and intangibility while hunting.",
+    "mechanicalEffects": "Until confronting target. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "hunter_relentless": {
+    "id": "hunter_relentless",
+    "name": "Relentless",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "description": "Ignore harm and fatigue until prey is overcome—then damage applies.",
+    "mechanicalEffects": "Until target is overcome. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "hunter_send_the_pack": {
+    "id": "hunter_send_the_pack",
+    "name": "Send the Pack",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "description": "Summon shadow hunting allies with traits and dice pools.",
+    "mechanicalEffects": "Until target is overcome. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "judge_eye_for_an_eye": {
+    "id": "judge_eye_for_an_eye",
+    "name": "Eye for an Eye",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Reflect an Injury back on an attacker who injured you.",
+    "mechanicalEffects": "8 Hours.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_indisputable_analysis": {
+    "id": "judge_indisputable_analysis",
+    "name": "Indisputable Analysis",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Know crimes committed by people around you per your law.",
+    "mechanicalEffects": "8 Hours.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_lie_detector": {
+    "id": "judge_lie_detector",
+    "name": "Lie Detector",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Cannot be lied to; sense concealment.",
+    "mechanicalEffects": "8 Hours.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_objection": {
+    "id": "judge_objection",
+    "name": "Objection!",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Pause hostile action in earshot briefly.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_on_the_case": {
+    "id": "judge_on_the_case",
+    "name": "On the Case",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Gain (Epic) clues toward a stated case.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_quick_study": {
+    "id": "judge_quick_study",
+    "name": "Quick Study",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Absorb information from many sources at once.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_the_truth_arises": {
+    "id": "judge_the_truth_arises",
+    "name": "The truth arises",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "mortal",
+    "description": "Listeners know you speak truth.",
+    "mechanicalEffects": "8 Hours.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "judge_bound_by_oath": {
+    "id": "judge_bound_by_oath",
+    "name": "Bound by Oath",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "description": "Bind an oath with ceremony and fate dice support or penalties.",
+    "mechanicalEffects": "Indefinite. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "judge_i_am_the_law": {
+    "id": "judge_i_am_the_law",
+    "name": "I am the Law",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "description": "Impose accepted punishment after contested roll.",
+    "mechanicalEffects": "Instant. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "judge_the_pain_of_dishonesty": {
+    "id": "judge_the_pain_of_dishonesty",
+    "name": "The Pain of Dishonesty",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "description": "Punish lies with upgraded damage until truth is spoken.",
+    "mechanicalEffects": "8 Hours. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "judge_terror_of_the_guilty": {
+    "id": "judge_terror_of_the_guilty",
+    "name": "Terror of the Guilty",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "description": "Drive the guilty to flee or confess.",
+    "mechanicalEffects": "8 Hours; Clash of Wills vs supernaturals. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "leader_one_for_all_and_all_for_one": {
+    "id": "leader_one_for_all_and_all_for_one",
+    "name": "One for all and all for one!",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Followers cannot attack each other and aid when asked.",
+    "mechanicalEffects": "One Mission.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_sir_yes_sir": {
+    "id": "leader_sir_yes_sir",
+    "name": "Sir, yes Sir!",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Orders must be followed; Clash if supernaturally resisted.",
+    "mechanicalEffects": "One Mission.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_good_listener": {
+    "id": "leader_good_listener",
+    "name": "Good Listener",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Team confides in you; betrayal doubles Fate pool until forgiven or Epic rises.",
+    "mechanicalEffects": "One Mission.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_grand_entrance": {
+    "id": "leader_grand_entrance",
+    "name": "Grand Entrance",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Defeating a rival leader makes you recognized successor.",
+    "mechanicalEffects": "One Mission.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_lighthouse_of_society": {
+    "id": "leader_lighthouse_of_society",
+    "name": "Lighthouse of Society",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Calm and direct crowds without rolls unless magic caused fear.",
+    "mechanicalEffects": "One Scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_perfect_poise": {
+    "id": "leader_perfect_poise",
+    "name": "Perfect Poise",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "mortal",
+    "description": "Control displayed emotion and body language; share with team in sight.",
+    "mechanicalEffects": "One Mission.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "leader_uncle_sam_needs_you": {
+    "id": "leader_uncle_sam_needs_you",
+    "name": "Uncle Sam needs you!",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "description": "Recruit strangers to your mission as followers.",
+    "mechanicalEffects": "One Mission. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "leader_everyone_gets_to_go_home": {
+    "id": "leader_everyone_gets_to_go_home",
+    "name": "Everyone gets to go home",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "description": "Take your team’s damage until mission ends.",
+    "mechanicalEffects": "Condition. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "leader_masterful_efficiency": {
+    "id": "leader_masterful_efficiency",
+    "name": "Masterful Efficiency",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "description": "Telepathic coordination and command link for the team.",
+    "mechanicalEffects": "One Mission. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "leader_not_today_friends": {
+    "id": "leader_not_today_friends",
+    "name": "Not Today, Friends",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "description": "Orders keep allies from quitting until task is done.",
+    "mechanicalEffects": "One Mission. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "liminal_just_passing_through": {
+    "id": "liminal_just_passing_through",
+    "name": "Just passing through",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Go unnoticed until destination unless hostile.",
+    "mechanicalEffects": "Condition; Clash if magically sensed.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_complete_privacy": {
+    "id": "liminal_complete_privacy",
+    "name": "Complete Privacy",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Mundane surveillance cannot pierce your interactions.",
+    "mechanicalEffects": "Until next sunrise or sunset.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_experienced_traveler": {
+    "id": "liminal_experienced_traveler",
+    "name": "Experienced Traveler",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Know travel essentials (money, lodging, buildings, local language knowledge).",
+    "mechanicalEffects": "Until destination.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_godly_camping": {
+    "id": "liminal_godly_camping",
+    "name": "Godly camping",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Nature does not attack you while traveling.",
+    "mechanicalEffects": "Until destination.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_neither_the_minute_nor_the_hour": {
+    "id": "liminal_neither_the_minute_nor_the_hour",
+    "name": "Neither the Minute nor the Hour",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Reduce travel time units with (Dexterity+Epic) successes.",
+    "mechanicalEffects": "Until destination.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_unerring_delivery": {
+    "id": "liminal_unerring_delivery",
+    "name": "Unerring Delivery",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Send messages instantly by strange couriers.",
+    "mechanicalEffects": "(Epic) Messages.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_the_long_road_to_anywhere": {
+    "id": "liminal_the_long_road_to_anywhere",
+    "name": "The long road to anywhere",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "mortal",
+    "description": "Journey without stopping; must rest at arrival; hospitality on arrival.",
+    "mechanicalEffects": "Condition.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "liminal_instant_travel": {
+    "id": "liminal_instant_travel",
+    "name": "Instant Travel",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "description": "Travel takes no time unless stopped.",
+    "mechanicalEffects": "Until destination. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "liminal_jim_always_lived_next_door": {
+    "id": "liminal_jim_always_lived_next_door",
+    "name": "Jim always lived next door",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "description": "Claim housing and fit into community as if always there.",
+    "mechanicalEffects": "Indefinite. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "liminal_pierce_the_veil": {
+    "id": "liminal_pierce_the_veil",
+    "name": "Pierce the Veil",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "description": "Enter supernatural realms via a doorway.",
+    "mechanicalEffects": "Instant. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "liminal_skip": {
+    "id": "liminal_skip",
+    "name": "Skip",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "description": "Teleport on Move within line of sight ignoring hazards.",
+    "mechanicalEffects": "One Scene. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "lover_fluid_appeal": {
+    "id": "lover_fluid_appeal",
+    "name": "Fluid Appeal",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Embody ideal beauty for one chosen person.",
+    "mechanicalEffects": "Indefinite.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_i_am_a_fire": {
+    "id": "lover_i_am_a_fire",
+    "name": "I am a Fire",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Stoke romantic affair between targets; Clash vs supernaturals.",
+    "mechanicalEffects": "(Epic) Nights.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_lover_s_intuition": {
+    "id": "lover_lover_s_intuition",
+    "name": "Lover's Intuition",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Learn romantic connections with a touch.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_on_your_side": {
+    "id": "lover_on_your_side",
+    "name": "On your Side",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Chosen ally who likes you treats you as ultimate trust.",
+    "mechanicalEffects": "Indefinite until harm from your words.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_not_a_fighter": {
+    "id": "lover_not_a_fighter",
+    "name": "Not a Fighter",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "If you do not attack, enemies avoid targeting you directly.",
+    "mechanicalEffects": "One Scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_perfect_partner": {
+    "id": "lover_perfect_partner",
+    "name": "Perfect Partner",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Telepathic link with willing partner who likes you.",
+    "mechanicalEffects": "Indefinite.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_soothing_presence": {
+    "id": "lover_soothing_presence",
+    "name": "Soothing Presence",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "mortal",
+    "description": "Calm anger and stress in sight while not fighting.",
+    "mechanicalEffects": "One Scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "lover_center_of_attention": {
+    "id": "lover_center_of_attention",
+    "name": "Center of Attention",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "hero",
+    "description": "Important people appear where you need them socially.",
+    "mechanicalEffects": "One Party. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "lover_for_you_i_will": {
+    "id": "lover_for_you_i_will",
+    "name": "For you, I will",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "hero",
+    "description": "Gain Willpower and possibly Birthright/Legend by impressing a lover.",
+    "mechanicalEffects": "One Task. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "lover_hearts_aflame": {
+    "id": "lover_hearts_aflame",
+    "name": "Hearts Aflame",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "hero",
+    "description": "Soulbind two individuals romantically.",
+    "mechanicalEffects": "Indefinite. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "lover_lover_s_oath": {
+    "id": "lover_lover_s_oath",
+    "name": "Lover's Oath",
+    "callings": [
+      "lover"
+    ],
+    "tierMin": "hero",
+    "description": "Bind lovers with shared awareness and shared harm options.",
+    "mechanicalEffects": "Indefinite. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "sage_blockade_of_reason": {
+    "id": "sage_blockade_of_reason",
+    "name": "Blockade of Reason",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Deflate cons and lies; Clash vs supernatural deception.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_master_of_the_world": {
+    "id": "sage_master_of_the_world",
+    "name": "Master of the World",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Operate any machine or get ST advice for best approach.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_palace_of_memory": {
+    "id": "sage_palace_of_memory",
+    "name": "Palace of Memory",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Relive a past scene in simulation.",
+    "mechanicalEffects": "(Epic) Scenes.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_presence_of_magic": {
+    "id": "sage_presence_of_magic",
+    "name": "Presence of Magic",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Detect magical or sacred places/objects honestly.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_office_hours": {
+    "id": "sage_office_hours",
+    "name": "Office Hours",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Substitute another Mental Skill on teamwork when stumped.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_omniglot_translation": {
+    "id": "sage_omniglot_translation",
+    "name": "Omniglot Translation",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Flawless translation; extra cost for divine languages.",
+    "mechanicalEffects": "(Epic) hours.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_multi_talent": {
+    "id": "sage_multi_talent",
+    "name": "Multi Talent",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "mortal",
+    "description": "Choose another Heroic Knack from any Calling (per book).",
+    "mechanicalEffects": "Variable; confirm limits with SG.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "sage_cipher": {
+    "id": "sage_cipher",
+    "name": "Cipher",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "description": "Decrypt and encrypt beyond lower tier; Clash vs supernatural reads.",
+    "mechanicalEffects": "(Epic) Hours. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "sage_eternal_genius": {
+    "id": "sage_eternal_genius",
+    "name": "Eternal Genius",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "description": "ST reveals probable story conclusion; Fate dice while you don’t fight fate.",
+    "mechanicalEffects": "Indefinite. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "sage_immortal_mastermind": {
+    "id": "sage_immortal_mastermind",
+    "name": "Immortal Mastermind",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "description": "Team knows their part of your plan; you sense progress.",
+    "mechanicalEffects": "One Plan. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "sage_overworld_knowledge": {
+    "id": "sage_overworld_knowledge",
+    "name": "Overworld Knowledge",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "description": "Int+Epic successes become questions to the ST.",
+    "mechanicalEffects": "Instant. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "trickster_blather_and_skite": {
+    "id": "trickster_blather_and_skite",
+    "name": "Blather and Skite",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Distract a target out of combat with opposed roll.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_why_so_serious": {
+    "id": "trickster_why_so_serious",
+    "name": "Why so serious",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Target cannot be taken seriously.",
+    "mechanicalEffects": "Until target tells a joke.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_the_fish_trick": {
+    "id": "trickster_the_fish_trick",
+    "name": "The fish trick",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Swap positions of two non-living items you can see.",
+    "mechanicalEffects": "(Epic) times; Clash if held by supernatural.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_rumor_miller": {
+    "id": "trickster_rumor_miller",
+    "name": "Rumor Miller",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Spread lies virally from minimal seed.",
+    "mechanicalEffects": "(Epic) times.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_smoke_and_mirrors": {
+    "id": "trickster_smoke_and_mirrors",
+    "name": "Smoke and Mirrors",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Negate being Taken Out once and reposition.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_takes_one_to_know_one": {
+    "id": "trickster_takes_one_to_know_one",
+    "name": "Takes one to know one",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Strip ability to communicate truth from a character.",
+    "mechanicalEffects": "Until next sunrise or sunset.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_wasn_t_me": {
+    "id": "trickster_wasn_t_me",
+    "name": "Wasn't me",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "mortal",
+    "description": "Delay blame with Clash vs supernatural detection.",
+    "mechanicalEffects": "One Session.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "trickster_doppelgaenger": {
+    "id": "trickster_doppelgaenger",
+    "name": "Doppelgaenger",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "description": "Create an obedient copy with your traits.",
+    "mechanicalEffects": "(Epic) Days. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "trickster_one_man_s_trash": {
+    "id": "trickster_one_man_s_trash",
+    "name": "One Man's Trash",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "description": "Make junk trade as top value until compared.",
+    "mechanicalEffects": "Condition; Clash if tested supernaturally. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "trickster_surprise_motherfucker": {
+    "id": "trickster_surprise_motherfucker",
+    "name": "Surprise, Motherfucker!",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "description": "Feign being Taken Out and return later for surprise.",
+    "mechanicalEffects": "Instant; once per witness per book. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "trickster_woven_from_lies": {
+    "id": "trickster_woven_from_lies",
+    "name": "Woven from Lies",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "description": "Invent a person who becomes real in the story.",
+    "mechanicalEffects": "Indefinite; Fate may complicate. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "warrior_the_biggest_threat": {
+    "id": "warrior_the_biggest_threat",
+    "name": "The Biggest Threat",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Force a show of strength so enemies must deal with you first.",
+    "mechanicalEffects": "One Fight.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_close_the_gap": {
+    "id": "warrior_close_the_gap",
+    "name": "Close the Gap!",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Leap into melee with a visible enemy.",
+    "mechanicalEffects": "Instant.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_death_by_teacup": {
+    "id": "warrior_death_by_teacup",
+    "name": "Death by Teacup",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Improvised weapons deal (Epic) lethal.",
+    "mechanicalEffects": "One Fight.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_enhanced_impact": {
+    "id": "warrior_enhanced_impact",
+    "name": "Enhanced Impact",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Successful damage knocks down and pushes target.",
+    "mechanicalEffects": "One Fight.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_master_of_weapons": {
+    "id": "warrior_master_of_weapons",
+    "name": "Master of Weapons",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Favored weapon gains Epic dice and rote for the session.",
+    "mechanicalEffects": "One Session.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_trick_shot": {
+    "id": "warrior_trick_shot",
+    "name": "Trick Shot",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Negate ranged penalties; shoot without line of sight if barriers allow.",
+    "mechanicalEffects": "One Session.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_tempered": {
+    "id": "warrior_tempered",
+    "name": "Tempered",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "mortal",
+    "description": "Heavy armor and reflect/destroy melee/projectiles per book.",
+    "mechanicalEffects": "One Fight.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "mortal"
+  },
+  "warrior_army_of_one": {
+    "id": "warrior_army_of_one",
+    "name": "Army of One",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "hero",
+    "description": "No outnumbered penalties; extra Epic dice distributed in fight.",
+    "mechanicalEffects": "One Fight. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "warrior_hurl_to_the_moon": {
+    "id": "warrior_hurl_to_the_moon",
+    "name": "Hurl to the Moon",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "hero",
+    "description": "Throw objects up to your size for massive damage.",
+    "mechanicalEffects": "One Fight. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "warrior_perfect_defense": {
+    "id": "warrior_perfect_defense",
+    "name": "Perfect Defense",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "hero",
+    "description": "Big Defense bonus; defend vs firearms and in all situations.",
+    "mechanicalEffects": "One Fight. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "warrior_they_re_everywhere": {
+    "id": "warrior_they_re_everywhere",
+    "name": "They're Everywhere",
+    "callings": [
+      "warrior"
+    ],
+    "tierMin": "hero",
+    "description": "Attack everyone in the fight in sight without range/cover penalties.",
+    "mechanicalEffects": "One Fight. Immortal Knack (two Calling slots to keep active)—see Hero / Pandora’s Box.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; Scion_Origin_(Revised_Download).pdf; community rules mirror cod.spiele-bund.net/scion/knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_rust_and_decay": {
+    "id": "mythos_rust_and_decay",
+    "name": "Rust and Decay",
+    "callings": [
+      "creator",
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "With a touch, corrode and destroy an item; Creator roll vs Size (and armor Scale if any).",
+    "mechanicalEffects": "Heroic inverted Knack (MotM). Size 0 items destroyed without a roll.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks (pp. 47–48)",
+    "knackKind": "mortal"
+  },
+  "mythos_raze_the_city": {
+    "id": "mythos_raze_the_city",
+    "name": "Raze the City",
+    "callings": [
+      "creator",
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Destroy a small building or monument in minutes; spend Momentum to collapse it instantly.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM)—two Calling slots at Hero+ per standard rules.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_honied_words": {
+    "id": "mythos_honied_words",
+    "name": "Honied Words",
+    "callings": [
+      "guardian",
+      "corruptor"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Name a charge; Momentum directs them with +2 Enhancement while you watch (waive cost with a Bond).",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_puppet_show": {
+    "id": "mythos_puppet_show",
+    "name": "Puppet Show",
+    "callings": [
+      "guardian",
+      "corruptor"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Command your charge’s body and mind for one action; requires Bond, lower Tier, consent per MotM sidebar.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM). Guardian Knack Skill roll.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_spread_disease": {
+    "id": "mythos_spread_disease",
+    "name": "Spread Disease",
+    "callings": [
+      "healer",
+      "defiler"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Worsen a patient’s disease Complication or spread it to nearby targets per Healer Knack Skill.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_plague_bearer": {
+    "id": "mythos_plague_bearer",
+    "name": "Plague Bearer",
+    "callings": [
+      "healer",
+      "defiler"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Spend Momentum to inflict a mythic plague on an area; extra Momentum excludes chosen people.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM). Complication equals Healer Knack Skill.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_scent_of_blood": {
+    "id": "mythos_scent_of_blood",
+    "name": "Scent of Blood",
+    "callings": [
+      "hunter",
+      "monster",
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "+1 Enhancement attacking targets who already have Injury Conditions.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_baying_of_the_hounds": {
+    "id": "mythos_baying_of_the_hounds",
+    "name": "Baying of the Hounds",
+    "callings": [
+      "hunter",
+      "monster",
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Momentum unleashes Mythos hunters on your prey—Complication on all actions until unconscious or you catch them.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_curse_of_fragility": {
+    "id": "mythos_curse_of_fragility",
+    "name": "Curse of Fragility",
+    "callings": [
+      "judge"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Momentum in a fight: all enemies attacking your target treat their attacks as having the Brutal tag.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_pronounce_guilt": {
+    "id": "mythos_pronounce_guilt",
+    "name": "Pronounce Guilt",
+    "callings": [
+      "judge"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Declare guilt; evidence rearranges to fit. Clash of Wills if another guilty party appears.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_harsh_words": {
+    "id": "mythos_harsh_words",
+    "name": "Harsh Words",
+    "callings": [
+      "leader",
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Order a target; Momentum inflicts Complication on anything but obedience; failing to buy off causes damage.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM). Complication tied to Leader Calling rating.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_raise_an_army": {
+    "id": "mythos_raise_an_army",
+    "name": "Raise an Army",
+    "callings": [
+      "leader",
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Momentum raises trivial allies—or Mythos creatures where no people exist—to fight for you.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_the_gate_and_key": {
+    "id": "mythos_the_gate_and_key",
+    "name": "The Gate and Key",
+    "callings": [
+      "liminal"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Momentum opens a portal between literal doors/windows/manholes to anywhere you have visited, including Terra Incognitae.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_among_the_stars": {
+    "id": "mythos_among_the_stars",
+    "name": "Among the Stars",
+    "callings": [
+      "liminal"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Become intangible star-stuff for successes in turns; matter bends around you and attacks slow.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM). Knack Skill roll + Momentum.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_sense_weakness": {
+    "id": "mythos_sense_weakness",
+    "name": "Sense Weakness",
+    "callings": [
+      "lover",
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "After exchanging attacks with a foe, +1 Enhancement vs. them and +1 Defense for the fight (one foe per scene).",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_name_nemesis": {
+    "id": "mythos_name_nemesis",
+    "name": "Name Nemesis",
+    "callings": [
+      "lover",
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Declare a named enemy; they become Fatebound as Nemesis (replaces weaker Fatebinding at same rating).",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_psychic_attack": {
+    "id": "mythos_psychic_attack",
+    "name": "Psychic Attack",
+    "callings": [
+      "sage",
+      "cosmos"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Momentum + Knack Skill: victim takes increased Difficulty on mental tasks for the scene.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_infinite_knowledge": {
+    "id": "mythos_infinite_knowledge",
+    "name": "Infinite Knowledge",
+    "callings": [
+      "sage",
+      "cosmos"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Ask one question—knowable answers are automatic; unknowable or hidden facts may require roll or Clash; investigations gain one Clue.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_redirect": {
+    "id": "mythos_redirect",
+    "name": "Redirect",
+    "callings": [
+      "trickster"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Momentum redirects an enemy’s rage to a new target they attack instead.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_exposed": {
+    "id": "mythos_exposed",
+    "name": "Exposed",
+    "callings": [
+      "trickster"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Momentum: tell a damaging lie believed by all who hear; exoneration provokes Clash of Wills.",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  },
+  "mythos_twist_the_knife": {
+    "id": "mythos_twist_the_knife",
+    "name": "Twist the Knife",
+    "callings": [
+      "warrior",
+      "torturer"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "mortal",
+    "description": "Painful Blow stunt vs. injured enemies; +1 Difficulty to Antagonists’ actions.",
+    "mechanicalEffects": "Heroic inverted Knack (MotM). See MotM for stunt cost.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "mortal"
+  },
+  "mythos_pain_for_pleasure": {
+    "id": "mythos_pain_for_pleasure",
+    "name": "Pain for Pleasure",
+    "callings": [
+      "warrior",
+      "torturer"
+    ],
+    "pantheonAnyOf": [
+      "mythos"
+    ],
+    "tierMin": "hero",
+    "description": "Inflict Injury on a helpless captive to grant your Band +2 Enhancement (+3 if Taken Out).",
+    "mechanicalEffects": "Immortal inverted Knack (MotM).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Inverted Callings Knacks",
+    "knackKind": "immortal"
+  }
+}

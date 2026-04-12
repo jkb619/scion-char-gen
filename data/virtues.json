@@ -1,0 +1,458 @@
+{
+  "aesir": {
+    "pantheonId": "aesir",
+    "virtues": [
+      {
+        "id": "fatalism",
+        "name": "Fatalism",
+        "description": "Acceptance that wyrd is woven—significance lies in meeting the moment you were always meant to face.",
+        "mechanicalEffects": "Spend to fuel Momentum per Storypath virtue rules in Scion: Hero pantheon chapter.",
+        "source": "Scion_Hero_(Final_Download).pdf, Æsir pantheon (Virtues: Fatalism and Audacity)"
+      },
+      {
+        "id": "audacity",
+        "name": "Audacity",
+        "description": "The Norse courage to act boldly even when fate is fixed—deeds matter even if the end is written.",
+        "mechanicalEffects": "Spend to fuel Momentum per Storypath virtue rules in Scion: Hero pantheon chapter.",
+        "source": "Scion_Hero_(Final_Download).pdf, Æsir pantheon"
+      }
+    ]
+  },
+  "manitou": {
+    "pantheonId": "manitou",
+    "virtues": [
+      {
+        "id": "pride",
+        "name": "Pride",
+        "description": "The dignity and drive of a people who refuse to vanish.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Manitou (Virtues: Pride and Dream)"
+      },
+      {
+        "id": "dream",
+        "name": "Dream",
+        "description": "Visions, stories, and futures imagined into being.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Manitou"
+      }
+    ]
+  },
+  "theoi": {
+    "pantheonId": "theoi",
+    "virtues": [
+      {
+        "id": "egotism",
+        "name": "Egotism",
+        "description": "The certainty that you are the axis around which the myth turns.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Theoi (Virtues: Egotism and Kinship)"
+      },
+      {
+        "id": "kinship",
+        "name": "Kinship",
+        "description": "Bonds of blood, guest‑right, and shared destiny among mortals and gods alike.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Theoi"
+      }
+    ]
+  },
+  "netjer": {
+    "pantheonId": "netjer",
+    "virtues": [
+      {
+        "id": "balance",
+        "name": "Balance",
+        "description": "Ma’at—right order, right place, right time.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Netjer (Virtues: Balance and Justice)"
+      },
+      {
+        "id": "justice",
+        "name": "Justice",
+        "description": "Weighing hearts, punishing isfet, restoring what was broken.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Netjer"
+      }
+    ]
+  },
+  "kami": {
+    "pantheonId": "kami",
+    "virtues": [
+      {
+        "id": "sincerity",
+        "name": "Sincerity",
+        "description": "Magokoro—true heart brought to action and word.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Kami (Virtues: Sincerity and Right Action)"
+      },
+      {
+        "id": "rightAction",
+        "name": "Right Action",
+        "description": "Duty performed faithfully even when it costs.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Kami"
+      }
+    ]
+  },
+  "tuathaDeDanann": {
+    "pantheonId": "tuathaDeDanann",
+    "virtues": [
+      {
+        "id": "honor",
+        "name": "Honor",
+        "description": "Face, reputation, and the debts you owe the world.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Tuatha Dé Danann (Virtues: Honor and Prowess—Enech)"
+      },
+      {
+        "id": "prowess",
+        "name": "Prowess",
+        "description": "The skill and courage that prove your honor is not empty boasting.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Tuatha Dé Danann"
+      }
+    ]
+  },
+  "orisha": {
+    "pantheonId": "orisha",
+    "virtues": [
+      {
+        "id": "tradition",
+        "name": "Tradition",
+        "description": "Roots, ancestors, and the old agreements that keep communities whole.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Òrìshà and Loa (Virtues: Tradition and Innovation)"
+      },
+      {
+        "id": "innovation",
+        "name": "Innovation",
+        "description": "New forms for old powers—survival through change.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Òrìshà and Loa"
+      }
+    ]
+  },
+  "deva": {
+    "pantheonId": "deva",
+    "virtues": [
+      {
+        "id": "conscience",
+        "name": "Conscience",
+        "description": "Dharma inward—the voice that will not let you unsee harm.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Devá (Virtues: Conscience and Duty)"
+      },
+      {
+        "id": "duty",
+        "name": "Duty",
+        "description": "Dharma outward—obligation performed without flinching.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Devá"
+      }
+    ]
+  },
+  "shen": {
+    "pantheonId": "shen",
+    "virtues": [
+      {
+        "id": "yin",
+        "name": "Yin",
+        "description": "Receptive power—shadow, yielding, and what is held in reserve.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Shén (Virtues: Yin and Yang)"
+      },
+      {
+        "id": "yang",
+        "name": "Yang",
+        "description": "Active power—light, motion, and shaping force.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Shén"
+      }
+    ]
+  },
+  "teotl": {
+    "pantheonId": "teotl",
+    "virtues": [
+      {
+        "id": "hunger",
+        "name": "Hunger",
+        "description": "The cosmic need to consume, grow, and be renewed through sacrifice.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Teōtl (Virtues: Hunger and Sacrifice)"
+      },
+      {
+        "id": "sacrifice",
+        "name": "Sacrifice",
+        "description": "What is given so the sun may rise again.",
+        "mechanicalEffects": "Momentum per Hero pantheon write-up.",
+        "source": "Scion_Hero_(Final_Download).pdf, Teōtl"
+      }
+    ]
+  },
+  "loa": {
+    "pantheonId": "loa",
+    "virtues": [
+      {
+        "id": "tradition",
+        "name": "Tradition",
+        "description": "Roots, ancestors, and the ways the lwa and their people have kept faith alive across exile and change.",
+        "mechanicalEffects": "Momentum per Storypath virtue rules in Scion: Hero / MotW pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Loa of Haiti (Virtues align with Òrìshà: Tradition and Innovation; see Ogou’s write-up)"
+      },
+      {
+        "id": "innovation",
+        "name": "Innovation",
+        "description": "New forms for old powers—survival, syncretism, and the Petro impulse to transform what cannot be preserved unchanged.",
+        "mechanicalEffects": "Momentum per Storypath virtue rules in Scion: Hero / MotW pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Loa of Haiti"
+      }
+    ]
+  },
+  "nemetondevos": {
+    "pantheonId": "nemetondevos",
+    "virtues": [
+      {
+        "id": "memory",
+        "name": "Memory",
+        "description": "Honoring the past—lore, comrades, prior lives, and the debts owed to what came before.",
+        "mechanicalEffects": "Momentum per MotW Nemetondevos pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Pantheon Path of the Nemetondevos (Memory and Purgation)"
+      },
+      {
+        "id": "purgation",
+        "name": "Purgation",
+        "description": "Letting go so new fate can be written—forgiveness, reinvention, or burning the wicker giant and walking forward.",
+        "mechanicalEffects": "Momentum per MotW Nemetondevos pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Pantheon Path of the Nemetondevos"
+      }
+    ]
+  },
+  "yazata": {
+    "pantheonId": "yazata",
+    "virtues": [
+      {
+        "id": "honesty",
+        "name": "Honesty",
+        "description": "Truthful word and transparent dealing—Asha as right speech and trustworthy covenant.",
+        "mechanicalEffects": "Momentum per MotW Yazata pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Pantheon Path of the Yazata (Honesty and Free Will)"
+      },
+      {
+        "id": "freeWill",
+        "name": "Free Will",
+        "description": "The Ashavan insistence that worthy ends cannot be forced—each soul must choose the good freely.",
+        "mechanicalEffects": "Momentum per MotW Yazata pantheon Path.",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Pantheon Path of the Yazata"
+      }
+    ]
+  },
+  "mythos": {
+    "pantheonId": "mythos",
+    "virtues": [
+      {
+        "id": "humanity",
+        "name": "Humanity",
+        "description": "The stubborn drive to learn, connect, and act as if effort matters—even when the cosmos suggests futility.",
+        "mechanicalEffects": "Spend for Momentum per Storypath virtue rules in Masks of the Mythos.",
+        "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Path (Virtues: Humanity vs. Nihilism)"
+      },
+      {
+        "id": "nihilism",
+        "name": "Nihilism",
+        "description": "The pull toward despair, alienation, and the sense that mortal scales of good and evil do not bind Mythos truth.",
+        "mechanicalEffects": "Spend for Momentum per Storypath virtue rules in Masks of the Mythos.",
+        "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Path"
+      }
+    ]
+  },
+  "anunna": {
+    "pantheonId": "anunna",
+    "virtues": [
+      {
+        "id": "order",
+        "name": "Order",
+        "description": "Civilization measured against chaos—laws, ziggurats, and rightful stations.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "piety",
+        "name": "Piety",
+        "description": "The debt owed to what came before—ancestors, tablets, and the high heavens.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "bogovi": {
+    "pantheonId": "bogovi",
+    "virtues": [
+      {
+        "id": "duty",
+        "name": "Duty",
+        "description": "The law between worlds that keeps mortals and gods from breaking each other.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "harmony",
+        "name": "Harmony",
+        "description": "Dvoeverie—two truths held without tearing the whole.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "apu": {
+    "pantheonId": "apu",
+    "virtues": [
+      {
+        "id": "reciprocity",
+        "name": "Reciprocity",
+        "description": "What is taken must be returned—in offerings, labor, or story.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "endurance",
+        "name": "Endurance",
+        "description": "The long breath of peoples who live in thin air and long memory.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "atua": {
+    "pantheonId": "atua",
+    "virtues": [
+      {
+        "id": "tapu",
+        "name": "Tapu",
+        "description": "Sacred limits—what must not be crossed without price.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "manaVirtue",
+        "name": "Mana",
+        "description": "Presence that reshapes the room—authority without apology.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "balahala": {
+    "pantheonId": "balahala",
+    "virtues": [
+      {
+        "id": "utangNaLoob",
+        "name": "Utang na Loob",
+        "description": "Debts of the soul—gratitude, obligation, and the weave of favors.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "kapwa",
+        "name": "Kapwa",
+        "description": "Shared self—neighbor and stranger folded into one hearth.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "ilhm": {
+    "pantheonId": "ilhm",
+    "virtues": [
+      {
+        "id": "hospitality",
+        "name": "Hospitality",
+        "description": "The guest is law; the table is covenant.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "lineage",
+        "name": "Lineage",
+        "description": "Names recited backward until they touch fire.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "kuh": {
+    "pantheonId": "kuh",
+    "virtues": [
+      {
+        "id": "cosmicOrder",
+        "name": "Cosmic Order",
+        "description": "Days have owners; owners have duties.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "prophecy",
+        "name": "Prophecy",
+        "description": "What was read at the fire returns at the door.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "tengri": {
+    "pantheonId": "tengri",
+    "virtues": [
+      {
+        "id": "courage",
+        "name": "Courage",
+        "description": "To stand in the ring—contest as prayer.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "freedom",
+        "name": "Freedom",
+        "description": "The open horizon—no fence that cannot be outridden.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "palas": {
+    "pantheonId": "palas",
+    "virtues": [
+      {
+        "id": "compassion",
+        "name": "Compassion",
+        "description": "Mercy sharpened until it cuts delusion.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "discipline",
+        "name": "Discipline",
+        "description": "Vows kept when no one is watching the shrine.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  },
+  "zem": {
+    "pantheonId": "zem",
+    "virtues": [
+      {
+        "id": "survival",
+        "name": "Survival",
+        "description": "Island wit—root, reef, and rumor.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      },
+      {
+        "id": "reverence",
+        "name": "Reverence",
+        "description": "Spirits close enough to taste the salt on your skin.",
+        "mechanicalEffects": "Momentum per Storypath rules; confirm wording in your PDF.",
+        "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
+      }
+    ]
+  }
+}

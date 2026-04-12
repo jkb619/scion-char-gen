@@ -1,0 +1,11 @@
+{
+  "_meta": {
+    "title": "Mysteries of the World: The Scion Companion",
+    "role": "Supplement integration — Cults, Druid Path, Covenant Birthright, purview creation, Teros sample pantheon, and translation chapter remain PDF-first; MotW pantheon patrons, virtues, and Signature Purviews (Nemeton, Asha) are in pantheons.json / virtues.json / purviews.json.",
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf",
+    "extractedText": "data/_extracted/mysteries_of_the_world.txt (generated; gitignored)"
+  },
+  "pathsCallout": "Companion rules for Cult Birthrights, Druid Path knacks, and Covenant are in the PDF. Pantheon Path Asset Skills for Loa, Nemetondevos, and Yazata are applied when you pick those pantheons.",
+  "heroPurviewsCallout": "Signature Purviews Nemeton (Nemetondevos) and Asha (Yazata) are in purviews.json for sheet tracking; full Boon ladders are in Mysteries of the World.",
+  "virtuesNote": "Virtues for MotW pantheons live in data/virtues.json under keys loa, nemetondevos, and yazata."
+}

@@ -1,0 +1,1088 @@
+{
+  "_meta": {
+    "title": "Saints & Monsters — Titanic + optional Callings Knacks",
+    "role": "Merged into bundle.knacks by app/services/game_data.py",
+    "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
+    "regenerate": "python3 scripts/integrate_saints_monsters_tables.py"
+  },
+  "sm_adversary_antagonistic_lessons": {
+    "id": "sm_adversary_antagonistic_lessons",
+    "name": "Antagonistic Lessons",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Whenever the results of your actions cause a target of your antagonism to fail, you may adjust their Attitude, cause them to succeed at an action you determine, or instantly create a Fatebinding with the target.",
+    "mechanicalEffects": "Whenever the results of your actions cause a target of your antagonism to fail, you may adjust their Attitude, cause them to succeed at an action you determine, or instantly create a Fatebinding with the target.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_jeering_taunts": {
+    "id": "sm_adversary_jeering_taunts",
+    "name": "Jeering Taunts",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once per scene, taunt a target: increase your Defense against their attacks by your Adversary Calling for the round, or penalize the cost of all their stunts by your Adversary Calling for one action (pick one; cannot pick the same twice in a row).",
+    "mechanicalEffects": "Once per scene, taunt a target: increase your Defense against their attacks by your Adversary Calling for the round, or penalize the cost of all their stunts by your Adversary Calling for one action (pick one; cannot pick the same twice in a row).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_lingering_presence": {
+    "id": "sm_adversary_lingering_presence",
+    "name": "Lingering Presence",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "After any scene where you made a successful Encourage Behavior roll, spend Momentum in the next scene to reapply the same effects as though you rolled the same successes. Free if the target has negative Attitude toward you.",
+    "mechanicalEffects": "After any scene where you made a successful Encourage Behavior roll, spend Momentum in the next scene to reapply the same effects as though you rolled the same successes. Free if the target has negative Attitude toward you.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_spluttering_incoherence": {
+    "id": "sm_adversary_spluttering_incoherence",
+    "name": "Spluttering Incoherence",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "In a scene with a target who has negative Attitude toward you, spend Momentum to prevent them from making any social action until you act again (once per scene).",
+    "mechanicalEffects": "In a scene with a target who has negative Attitude toward you, spend Momentum to prevent them from making any social action until you act again (once per scene).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_sweet_and_sour": {
+    "id": "sm_adversary_sweet_and_sour",
+    "name": "Sweet and Sour",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Knack Skill roll: with successes, curse food/drink consumed by the target with spite-poison (Poisoned-like) that inverts others’ Attitudes toward them. Costs Momentum if you witness them eat/drink; free if you served it.",
+    "mechanicalEffects": "Knack Skill roll: with successes, curse food/drink consumed by the target with spite-poison (Poisoned-like) that inverts others’ Attitudes toward them. Costs Momentum if you witness them eat/drink; free if you served it.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_theft_of_luck": {
+    "id": "sm_adversary_theft_of_luck",
+    "name": "Theft of Luck",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "While in the same scene as a target with negative Attitude toward you, after any of their rolls resolve, spend Momentum to take any number of their successes (before Enhancement/stunts) as Enhancement to your next roll. If that causes them to fail, regain the spent Momentum.",
+    "mechanicalEffects": "While in the same scene as a target with negative Attitude toward you, after any of their rolls resolve, spend Momentum to take any number of their successes (before Enhancement/stunts) as Enhancement to your next roll. If that causes them to fail, regain the spent Momentum.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_opposition_without_limit": {
+    "id": "sm_adversary_opposition_without_limit",
+    "name": "Opposition Without Limit",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When you command, rally, or intrigue enormous forces to oppose another character, imbue (not spend) Legend to invoke your Legendary Title as a Feat of Scale.",
+    "mechanicalEffects": "When you command, rally, or intrigue enormous forces to oppose another character, imbue (not spend) Legend to invoke your Legendary Title as a Feat of Scale.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_pawns_for_my_desire": {
+    "id": "sm_adversary_pawns_for_my_desire",
+    "name": "Pawns for My Desire",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When socially interacting with a target who has negative Attitude toward you, spend Momentum during any Encourage Behavior roll to succeed as though you achieved exactly the successes required.",
+    "mechanicalEffects": "When socially interacting with a target who has negative Attitude toward you, spend Momentum during any Encourage Behavior roll to succeed as though you achieved exactly the successes required.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_adversary_spitting_curses": {
+    "id": "sm_adversary_spitting_curses",
+    "name": "Spitting Curses",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Layer curses on a target until they must obey. Purchasable up to your Adversary Calling (different curse each). Active Knack grants two known curses and Sling Curses (2s) stunt on Encourage Belief/Behavior or attacks within Close. Includes Incompetence, Ill Fortune, and My Presence curse options per PDF.",
+    "mechanicalEffects": "Layer curses on a target until they must obey. Purchasable up to your Adversary Calling (different curse each). Active Knack grants two known curses and Sling Curses (2s) stunt on Encourage Belief/Behavior or attacks within Close. Includes Incompetence, Ill Fortune, and My Presence curse options per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_equal_and_opposite": {
+    "id": "sm_destroyer_equal_and_opposite",
+    "name": "Equal and Opposite",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Whenever an enemy moves you (push, throw, etc.), spend Momentum to apply the same effects to the attacker after resolving them on you.",
+    "mechanicalEffects": "Whenever an enemy moves you (push, throw, etc.), spend Momentum to apply the same effects to the attacker after resolving them on you.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_from_destruction": {
+    "id": "sm_destroyer_from_destruction",
+    "name": "From Destruction",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "During an extended action to create something, destroy something related to the project to add one milestone and impose Limited Resources (2c) on the project.",
+    "mechanicalEffects": "During an extended action to create something, destroy something related to the project to add one milestone and impose Limited Resources (2c) on the project.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_give_and_take": {
+    "id": "sm_destroyer_give_and_take",
+    "name": "Give-and-Take",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "End one condition on a target (including Injury) in exchange for a destructive sacrifice of equal value (SG arbitrates).",
+    "mechanicalEffects": "End one condition on a target (including Injury) in exchange for a destructive sacrifice of equal value (SG arbitrates).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_mantle_of_unmaking": {
+    "id": "sm_destroyer_mantle_of_unmaking",
+    "name": "Mantle of Unmaking",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "+1 Defense at close range. When you use Disarm (Origin p. 116), you may destroy a mundane weapon instead of disarming.",
+    "mechanicalEffects": "+1 Defense at close range. When you use Disarm (Origin p. 116), you may destroy a mundane weapon instead of disarming.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_mine_now": {
+    "id": "sm_destroyer_mine_now",
+    "name": "Mine, Now",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "If you break an enemy’s weapon after Disarm (including via Mantle of Unmaking), apply that weapon’s tags to your weapon until end of scene; overlapping tags grant +1 Enhancement per overlap to attacks. Cannot destroy Relics.",
+    "mechanicalEffects": "If you break an enemy’s weapon after Disarm (including via Mantle of Unmaking), apply that weapon’s tags to your weapon until end of scene; overlapping tags grant +1 Enhancement per overlap to attacks. Cannot destroy Relics.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_shattering_grasp": {
+    "id": "sm_destroyer_shattering_grasp",
+    "name": "Shattering Grasp",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Touch object/structure with Size Scale less than your Destroyer dots: Knack Skill roll; successes shatter it. Spend Momentum to destroy any object you can perceive without touch.",
+    "mechanicalEffects": "Touch object/structure with Size Scale less than your Destroyer dots: Knack Skill roll; successes shatter it. Spend Momentum to destroy any object you can perceive without touch.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_unstoppable_advance": {
+    "id": "sm_destroyer_unstoppable_advance",
+    "name": "Unstoppable Advance",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "While you keep moving (path cannot loop), smash through obstacles and hazards unscathed; does not stop restraint/immobilize. Rush counts as forward movement in combat.",
+    "mechanicalEffects": "While you keep moving (path cannot loop), smash through obstacles and hazards unscathed; does not stop restraint/immobilize. Rush counts as forward movement in combat.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_entropic_pull": {
+    "id": "sm_destroyer_entropic_pull",
+    "name": "Entropic Pull",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Add up to your Destroyer Calling dice to one roll; each die adds 1 to Collateral Pool or Tension. Collateral fills → roll with Destroyer Enhancement; Tension ≥10 → SG promotes an enemy with your Destroyer Enhancement on their next action.",
+    "mechanicalEffects": "Add up to your Destroyer Calling dice to one roll; each die adds 1 to Collateral Pool or Tension. Collateral fills → roll with Destroyer Enhancement; Tension ≥10 → SG promotes an enemy with your Destroyer Enhancement on their next action.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_hammer_of_the_gods": {
+    "id": "sm_destroyer_hammer_of_the_gods",
+    "name": "Hammer of the Gods",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum to add (Destroyer/2) Scale to one act of destruction, demolition, or wide-scale violence (stacks normally).",
+    "mechanicalEffects": "Spend Momentum to add (Destroyer/2) Scale to one act of destruction, demolition, or wide-scale violence (stacks normally).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_herald_of_the_end": {
+    "id": "sm_destroyer_herald_of_the_end",
+    "name": "Herald of the End",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When working to destroy a person/place/thing at Scale, imbue (not spend) Legend to invoke your Legendary Title as a Feat of Scale.",
+    "mechanicalEffects": "When working to destroy a person/place/thing at Scale, imbue (not spend) Legend to invoke your Legendary Title as a Feat of Scale.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_made_favorable": {
+    "id": "sm_destroyer_made_favorable",
+    "name": "Made Favorable",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Knack Skill roll: successes destroy one Field Complication of your choice (or roll vs its rating + Momentum if intangible). Collateral +1 or Tension +1.",
+    "mechanicalEffects": "Knack Skill roll: successes destroy one Field Complication of your choice (or roll vs its rating + Momentum if intangible). Collateral +1 or Tension +1.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_on_a_pale_horse": {
+    "id": "sm_destroyer_on_a_pale_horse",
+    "name": "On a Pale Horse",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Instantly kill any trivial target you perceive. 1 Momentum: kill one target in Close range with less than half Health, lower Tier (or Taken Out if same/higher Tier per SG). Cannot target PCs. SG determines outcomes.",
+    "mechanicalEffects": "Instantly kill any trivial target you perceive. 1 Momentum: kill one target in Close range with less than half Health, lower Tier (or Taken Out if same/higher Tier per SG). Cannot target PCs. SG determines outcomes.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_destroyer_the_ties_that_bind": {
+    "id": "sm_destroyer_the_ties_that_bind",
+    "name": "The Ties that Bind",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum to destroy a relationship between a target and another character (employer, friend, romance, etc.). Not for magically protected ties, Fatebindings, or higher Tier; not another PC without consent.",
+    "mechanicalEffects": "Spend Momentum to destroy a relationship between a target and another character (employer, friend, romance, etc.). Not for magically protected ties, Fatebindings, or higher Tier; not another PC without consent.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_apex_myth": {
+    "id": "sm_monster_apex_myth",
+    "name": "Apex Myth",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Gain your Monster dots in Enhancement to Encourage Behavior rolls involving another monster (non-human or same Monster Calling).",
+    "mechanicalEffects": "Gain your Monster dots in Enhancement to Encourage Behavior rolls involving another monster (non-human or same Monster Calling).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_blood_drinker": {
+    "id": "sm_monster_blood_drinker",
+    "name": "Blood-Drinker",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Enhancement to attacks vs wounded target from Health lost or highest Injury severity (whichever applies).",
+    "mechanicalEffects": "Enhancement to attacks vs wounded target from Health lost or highest Injury severity (whichever applies).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_contagion": {
+    "id": "sm_monster_contagion",
+    "name": "Contagion",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Natural Tag attacks spread disease: choose Disease Condition when you Inflict Injury. Chosen when purchased; purchasable up to Monster dots (different disease each).",
+    "mechanicalEffects": "Natural Tag attacks spread disease: choose Disease Condition when you Inflict Injury. Chosen when purchased; purchasable up to Monster dots (different disease each).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_implacable": {
+    "id": "sm_monster_implacable",
+    "name": "Implacable",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "When Taken Out, spend Momentum to keep fighting for Monster dots in Turns, then sleep until scene end; on waking, +2 to Monstrous Urge Complication until you fail to buy off.",
+    "mechanicalEffects": "When Taken Out, spend Momentum to keep fighting for Monster dots in Turns, then sleep until scene end; on waking, +2 to Monstrous Urge Complication until you fail to buy off.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_keeper_of_taboos": {
+    "id": "sm_monster_keeper_of_taboos",
+    "name": "Keeper of Taboos",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once per session, violate a non-violent social taboo without usual consequences; allies may ignore social Complications/Conditions or walk away from narrative fallout (Attitude floor 0). Speaking truth to power through violence/destruction buffs witnesses per PDF.",
+    "mechanicalEffects": "Once per session, violate a non-violent social taboo without usual consequences; allies may ignore social Complications/Conditions or walk away from narrative fallout (Attitude floor 0). Speaking truth to power through violence/destruction buffs witnesses per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_red_of_claw_and_fang": {
+    "id": "sm_monster_red_of_claw_and_fang",
+    "name": "Red of Claw and Fang",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Monstrous Natural weapon (stinger, horns, spines…): Natural tag + additional tags equal to Monster Calling; +1 Difficulty to conceal; Momentum to retract. Purchasable (Monster) times for separate weapons.",
+    "mechanicalEffects": "Monstrous Natural weapon (stinger, horns, spines…): Natural tag + additional tags equal to Monster Calling; +1 Difficulty to conceal; Momentum to retract. Purchasable (Monster) times for separate weapons.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_seizing_jaws": {
+    "id": "sm_monster_seizing_jaws",
+    "name": "Seizing Jaws",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Grapple without hands (maw, tongue, hair…); Monster dots Enhancement to grapple/combat stunts while maintaining hold.",
+    "mechanicalEffects": "Grapple without hands (maw, tongue, hair…); Monster dots Enhancement to grapple/combat stunts while maintaining hold.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_tell_tale_heart": {
+    "id": "sm_monster_tell_tale_heart",
+    "name": "Tell-Tale Heart",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "With Q&A procedural Stunt, always ask one extra question about target’s fears/insecurities; +2 Enhancement when leveraging them.",
+    "mechanicalEffects": "With Q&A procedural Stunt, always ask one extra question about target’s fears/insecurities; +2 Enhancement when leveraging them.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_the_monster_within": {
+    "id": "sm_monster_the_monster_within",
+    "name": "The Monster Within",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum (free if succumbed to Monstrous Urge) to assume monstrous form: unarmed Natural + two chosen tags; synergy with Red of Claw and Fang; social resolution Difficulty +Monster; custom combat stunt with SG at purchase.",
+    "mechanicalEffects": "Spend Momentum (free if succumbed to Monstrous Urge) to assume monstrous form: unarmed Natural + two chosen tags; synergy with Red of Claw and Fang; social resolution Difficulty +Monster; custom combat stunt with SG at purchase.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_compelling_and_repulsive": {
+    "id": "sm_monster_compelling_and_repulsive",
+    "name": "Compelling and Repulsive",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Social face-to-face and close combat: Reviled (2s) stunt — target gains Revulsion Complication equal to Monster Calling; see PDF for follow-up Difficulty.",
+    "mechanicalEffects": "Social face-to-face and close combat: Reviled (2s) stunt — target gains Revulsion Complication equal to Monster Calling; see PDF for follow-up Difficulty.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_drawn_to_virulence": {
+    "id": "sm_monster_drawn_to_virulence",
+    "name": "Drawn to Virulence",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum to appear next to anyone you perceive with Poison or Disease Condition; your next attack or Encourage Behavior gains Monster dots Enhancement.",
+    "mechanicalEffects": "Spend Momentum to appear next to anyone you perceive with Poison or Disease Condition; your next attack or Encourage Behavior gains Monster dots Enhancement.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_predators_instincts": {
+    "id": "sm_monster_predators_instincts",
+    "name": "Predator's Instincts",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When indulging animalistic urges at epic Scale, imbue Legend to invoke Legendary Title as Feat of Scale.",
+    "mechanicalEffects": "When indulging animalistic urges at epic Scale, imbue Legend to invoke Legendary Title as Feat of Scale.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_sloughing_form": {
+    "id": "sm_monster_sloughing_form",
+    "name": "Sloughing Form",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When Taken Out, spend Momentum: leave a meat shell, reappear in Close Range, recover Monster dots of Injuries (once/session unless reset by Monstrous Urge).",
+    "mechanicalEffects": "When Taken Out, spend Momentum: leave a meat shell, reappear in Close Range, recover Monster dots of Injuries (once/session unless reset by Monstrous Urge).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_monster_titanic_stature": {
+    "id": "sm_monster_titanic_stature",
+    "name": "Titanic Stature",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Under Monstrous Urges, grow >2× size with fearsome mien: +1 Size Scale; Momentum to add Shockwave to attacks using giant form.",
+    "mechanicalEffects": "Under Monstrous Urges, grow >2× size with fearsome mien: +1 Size Scale; Momentum to add Shockwave to attacks using giant form.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_call_of_the_wild": {
+    "id": "sm_primeval_call_of_the_wild",
+    "name": "Call of the Wild",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum: call animals, earth/plants, or deep-sea beast to aid you — add Primeval dots Enhancement to any roll (before rolling).",
+    "mechanicalEffects": "Spend Momentum: call animals, earth/plants, or deep-sea beast to aid you — add Primeval dots Enhancement to any roll (before rolling).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_depths_of_the_world": {
+    "id": "sm_primeval_depths_of_the_world",
+    "name": "Depths of the World",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Nothing from nature harms you. Each purchase grants a chosen Resistant Tag (up to Primeval Calling purchases).",
+    "mechanicalEffects": "Nothing from nature harms you. Each purchase grants a chosen Resistant Tag (up to Primeval Calling purchases).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_elemental_body": {
+    "id": "sm_primeval_elemental_body",
+    "name": "Elemental Body",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Simple action: become one natural element for the scene (or until you end); ignore environmental effects/Complications/Conditions as appropriate.",
+    "mechanicalEffects": "Simple action: become one natural element for the scene (or until you end); ignore environmental effects/Complications/Conditions as appropriate.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_fists_of_the_world": {
+    "id": "sm_primeval_fists_of_the_world",
+    "name": "Fists of the World",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Unarmed attacks gain Elemental tag (chosen element); second purchase extends to any weapon; repurchase up to Primeval Calling (different element each).",
+    "mechanicalEffects": "Unarmed attacks gain Elemental tag (chosen element); second purchase extends to any weapon; repurchase up to Primeval Calling (different element each).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_tectonic_reveal": {
+    "id": "sm_primeval_tectonic_reveal",
+    "name": "Tectonic Reveal",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "First procedural scene entry: without rolling, Q&A Stunt questions about the earth equal to your Primeval Calling.",
+    "mechanicalEffects": "First procedural scene entry: without rolling, Q&A Stunt questions about the earth equal to your Primeval Calling.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_sheltering_presence": {
+    "id": "sm_primeval_sheltering_presence",
+    "name": "Sheltering Presence",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Apply Primeval Knacks that grant immunity/resistance/protection from environment to allies within Close range.",
+    "mechanicalEffects": "Apply Primeval Knacks that grant immunity/resistance/protection from environment to allies within Close range.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_the_world_obeys": {
+    "id": "sm_primeval_the_world_obeys",
+    "name": "The World Obeys",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum: reduce an environmental Field Complication by your Primeval Calling (may zero it); regain Momentum if eliminated (not for complications you created).",
+    "mechanicalEffects": "Spend Momentum: reduce an environmental Field Complication by your Primeval Calling (may zero it); regain Momentum if eliminated (not for complications you created).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_alpha_and_omega": {
+    "id": "sm_primeval_alpha_and_omega",
+    "name": "Alpha and Omega",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "In environmental disaster, spend Momentum to end it immediately (and related Conditions) or summon your own disaster as Field Complication (Primeval rating) affecting everyone unless protected.",
+    "mechanicalEffects": "In environmental disaster, spend Momentum to end it immediately (and related Conditions) or summon your own disaster as Field Complication (Primeval rating) affecting everyone unless protected.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_fly_on_wings_of_wind": {
+    "id": "sm_primeval_fly_on_wings_of_wind",
+    "name": "Fly on Wings of Wind",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum: lift self and allies (count = Primeval Calling) on storm/elemental movement; vertical movement in combat, bypass ground hazards.",
+    "mechanicalEffects": "Spend Momentum: lift self and allies (count = Primeval Calling) on storm/elemental movement; vertical movement in combat, bypass ground hazards.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_state_shift": {
+    "id": "sm_primeval_state_shift",
+    "name": "State Shift",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum: shift water (or with Knack Skill, other matter) one state solid/liquid/gas within Close.",
+    "mechanicalEffects": "Spend Momentum: shift water (or with Knack Skill, other matter) one state solid/liquid/gas within Close.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_tidal_force": {
+    "id": "sm_primeval_tidal_force",
+    "name": "Tidal Force",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Treat Primeval Calling as Speed Scale on combat movement; may add Shockwave after movement (+1 Collateral or Tension).",
+    "mechanicalEffects": "Treat Primeval Calling as Speed Scale on combat movement; may add Shockwave after movement (+1 Collateral or Tension).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_the_world_entire": {
+    "id": "sm_primeval_the_world_entire",
+    "name": "The World Entire",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When bending massive natural forces (rivers, wildfires, tides), imbue Legend for Legendary Title as Feat of Scale.",
+    "mechanicalEffects": "When bending massive natural forces (rivers, wildfires, tides), imbue Legend for Legendary Title as Feat of Scale.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_wild_growth": {
+    "id": "sm_primeval_wild_growth",
+    "name": "Wild Growth",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum: bless one creature with wild growth to huge Size for the scene; animals become Creature Birthright under your control at Primeval rating; SG/player consent rules per PDF.",
+    "mechanicalEffects": "Spend Momentum: bless one creature with wild growth to huge Size for the scene; animals become Creature Birthright under your control at Primeval rating; SG/player consent rules per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_primeval_world_spinner": {
+    "id": "sm_primeval_world_spinner",
+    "name": "World-Spinner",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum: create environmental Field Complication (Primeval rating) for the scene; extend with +Momentum per extra scene (ends end of session).",
+    "mechanicalEffects": "Spend Momentum: create environmental Field Complication (Primeval rating) for the scene; extend with +Momentum per extra scene (ends end of session).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_away_from_me": {
+    "id": "sm_tyrant_away_from_me",
+    "name": "Away From Me",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Rebuke a target in-scene: lower Tier free; same/higher spend Momentum + Clash of Wills — on success they must leave the Field (removed from scene).",
+    "mechanicalEffects": "Rebuke a target in-scene: lower Tier free; same/higher spend Momentum + Clash of Wills — on success they must leave the Field (removed from scene).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_die_for_me": {
+    "id": "sm_tyrant_die_for_me",
+    "name": "Die for Me",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/session Knack Skill: successes let you redirect harm targeting you to a lower-Tier subject; if they die, second use unlocked.",
+    "mechanicalEffects": "Once/session Knack Skill: successes let you redirect harm targeting you to a lower-Tier subject; if they die, second use unlocked.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_empowered_by_sycophants": {
+    "id": "sm_tyrant_empowered_by_sycophants",
+    "name": "Empowered by Sycophants",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Enhancement equal to rating of Followers or Creature present for Encourage Behavior/Belief, Tyrant Knack Skill, or intimidation/coercion.",
+    "mechanicalEffects": "Enhancement equal to rating of Followers or Creature present for Encourage Behavior/Belief, Tyrant Knack Skill, or intimidation/coercion.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_first_and_foremost": {
+    "id": "sm_tyrant_first_and_foremost",
+    "name": "First and Foremost",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Start of social scene: declare yourself focus — SG characters must target you first socially or -2 dice; tie-break OOC if multiple Tyrants.",
+    "mechanicalEffects": "Start of social scene: declare yourself focus — SG characters must target you first socially or -2 dice; tie-break OOC if multiple Tyrants.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_great_and_terrible": {
+    "id": "sm_tyrant_great_and_terrible",
+    "name": "Great and Terrible",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum: until your next turn, characters targeting you cannot benefit from extra Enhancement unless innate magic (Boon/Knack).",
+    "mechanicalEffects": "Spend Momentum: until your next turn, characters targeting you cannot benefit from extra Enhancement unless innate magic (Boon/Knack).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_in_my_stead": {
+    "id": "sm_tyrant_in_my_stead",
+    "name": "In My Stead",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/scene promote lower-Tier subordinate to act socially as you (your Skill+Attribute only). On failure you may dispose of them and succeed exactly.",
+    "mechanicalEffects": "Once/scene promote lower-Tier subordinate to act socially as you (your Skill+Attribute only). On failure you may dispose of them and succeed exactly.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_iron_fisted_order": {
+    "id": "sm_tyrant_iron_fisted_order",
+    "name": "Iron-Fisted Order",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Initiative: lower-Tier SG characters cannot act before you; one PC Band member at a time benefits in combat.",
+    "mechanicalEffects": "Initiative: lower-Tier SG characters cannot act before you; one PC Band member at a time benefits in combat.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_pride_goes_before": {
+    "id": "sm_tyrant_pride_goes_before",
+    "name": "Pride Goes Before",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Access Inflated Ego (2s) stunt on social actions — Hubris Condition per PDF; consent rules for PCs; Enhancement inversion on target.",
+    "mechanicalEffects": "Access Inflated Ego (2s) stunt on social actions — Hubris Condition per PDF; consent rules for PCs; Enhancement inversion on target.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_take_the_fall": {
+    "id": "sm_tyrant_take_the_fall",
+    "name": "Take the Fall",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/scene on failed social or unbought social Complication, redirect fallout to a connected character (Bond etc.; PC needs consent).",
+    "mechanicalEffects": "Once/scene on failed social or unbought social Complication, redirect fallout to a connected character (Bond etc.; PC needs consent).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_terror_at_hand": {
+    "id": "sm_tyrant_terror_at_hand",
+    "name": "Terror at Hand",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum: clear target’s negative Attitude toward you to 0, then summon weapon/armor from fear using Attitude+Legend for Tags until session end (may become Relic).",
+    "mechanicalEffects": "Spend Momentum: clear target’s negative Attitude toward you to 0, then summon weapon/armor from fear using Attitude+Legend for Tags until session end (may become Relic).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_total_authority": {
+    "id": "sm_tyrant_total_authority",
+    "name": "Total Authority",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Trivial targets in procedural instantly treat you as authority and volunteer clues as Extra Clue/Interpretation stunts × Tyrant Calling.",
+    "mechanicalEffects": "Trivial targets in procedural instantly treat you as authority and volunteer clues as Extra Clue/Interpretation stunts × Tyrant Calling.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_i_am_absolute": {
+    "id": "sm_tyrant_i_am_absolute",
+    "name": "I Am Absolute",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum (extra if same+ Tier): command target to take a non–self-harmful social/combat/procedural action they cannot refuse; Titans/Gods may demand return; PC consent.",
+    "mechanicalEffects": "Spend Momentum (extra if same+ Tier): command target to take a non–self-harmful social/combat/procedural action they cannot refuse; Titans/Gods may demand return; PC consent.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_petty_tyrant": {
+    "id": "sm_tyrant_petty_tyrant",
+    "name": "Petty Tyrant",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "In your seat of power, set up to Tyrant Calling arbitrary rules; rulebreakers get -2 Complication; eject if unbought; PCs not forced to obey edicts.",
+    "mechanicalEffects": "In your seat of power, set up to Tyrant Calling arbitrary rules; rulebreakers get -2 Complication; eject if unbought; PCs not forced to obey edicts.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_selfish_demand": {
+    "id": "sm_tyrant_selfish_demand",
+    "name": "Selfish Demand",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once/session demand lower-Tier target comply as though they rolled successes = Tyrant Calling (must spend on stunts). Cannot demand self-harm or impossible acts.",
+    "mechanicalEffects": "Once/session demand lower-Tier target comply as though they rolled successes = Tyrant Calling (must spend on stunts). Cannot demand self-harm or impossible acts.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_solipsistic_disdain": {
+    "id": "sm_tyrant_solipsistic_disdain",
+    "name": "Solipsistic Disdain",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once/scene spend Momentum to ignore an attack entirely; ambush/surprise may waive cost and allow second use.",
+    "mechanicalEffects": "Once/scene spend Momentum to ignore an attack entirely; ambush/surprise may waive cost and allow second use.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_tyrant_squirming_masses": {
+    "id": "sm_tyrant_squirming_masses",
+    "name": "Squirming Masses",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Coerce fear or obedience at huge Scale: imbue Legend for Legendary Title as Feat of Scale.",
+    "mechanicalEffects": "Coerce fear or obedience at huge Scale: imbue Legend for Legendary Title as Feat of Scale.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
+  },
+  "sm_outsider_i_cant_you_say": {
+    "id": "sm_outsider_i_cant_you_say",
+    "name": "I Can't, You Say",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/session reroll a failed roll; +1 Enhancement if botch, +2 if another character said you'd fail.",
+    "mechanicalEffects": "Once/session reroll a failed roll; +1 Enhancement if botch, +2 if another character said you'd fail.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_lovable_scamp": {
+    "id": "sm_outsider_lovable_scamp",
+    "name": "Lovable Scamp",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "When your action would drop Attitude, Knack roll negates reduction per success; extras impose +1 Complication on future Intrigue vs you until bought.",
+    "mechanicalEffects": "When your action would drop Attitude, Knack roll negates reduction per success; extras impose +1 Complication on future Intrigue vs you until bought.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_narrow_trolling": {
+    "id": "sm_outsider_narrow_trolling",
+    "name": "Narrow Trolling",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "When you drop someone's Attitude, it only drops toward you; their Attitude toward your Band rises.",
+    "mechanicalEffects": "When you drop someone's Attitude, it only drops toward you; their Attitude toward your Band rises.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_exceptions_that_prove": {
+    "id": "sm_outsider_exceptions_that_prove",
+    "name": "Exceptions that Prove",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/scene in a Field with a Complication, spend Momentum to ignore it; free if truly alone.",
+    "mechanicalEffects": "Once/scene in a Field with a Complication, spend Momentum to ignore it; free if truly alone.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_no_i_in_team": {
+    "id": "sm_outsider_no_i_in_team",
+    "name": "There's no I in Team",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum to exclude yourself from a multi-target effect that would include you.",
+    "mechanicalEffects": "Spend Momentum to exclude yourself from a multi-target effect that would include you.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_master_of_interference": {
+    "id": "sm_outsider_master_of_interference",
+    "name": "Master of Interference",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/session compelling a Fatebound SG character: you gain 1 Legend, they gain 2 Legend instead of 1.",
+    "mechanicalEffects": "Once/session compelling a Fatebound SG character: you gain 1 Legend, they gain 2 Legend instead of 1.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_petard_hoister": {
+    "id": "sm_outsider_petard_hoister",
+    "name": "Petard Hoister",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "+2 Enhancement vs secret plotters/effects until a day passes or outsiders learn.",
+    "mechanicalEffects": "+2 Enhancement vs secret plotters/effects until a day passes or outsiders learn.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_with_friends_like_these": {
+    "id": "sm_outsider_with_friends_like_these",
+    "name": "With Friends Like These",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Spend Momentum vs pantheon social engagement: on success target gains +2 Complication on Procedural/Intrigue involving you; draws you into their scheme.",
+    "mechanicalEffects": "Spend Momentum vs pantheon social engagement: on success target gains +2 Complication on Procedural/Intrigue involving you; draws you into their scheme.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_black_sheep": {
+    "id": "sm_outsider_black_sheep",
+    "name": "Black Sheep",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When others use Scent the Divine or similar, you read as member of any pantheon except your own.",
+    "mechanicalEffects": "When others use Scent the Divine or similar, you read as member of any pantheon except your own.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_fate_twister": {
+    "id": "sm_outsider_fate_twister",
+    "name": "Fate Twister",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Vs Fatebound: Knack roll successes ≥ Fatebinding strength turns their Fatebound to Jinx for the session (exceptions per PDF).",
+    "mechanicalEffects": "Vs Fatebound: Knack roll successes ≥ Fatebinding strength turns their Fatebound to Jinx for the session (exceptions per PDF).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_friendly_face": {
+    "id": "sm_outsider_friendly_face",
+    "name": "Friendly Face",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once/session declare alliance with an individual and sever their tie to a group/Path until session end.",
+    "mechanicalEffects": "Once/session declare alliance with an individual and sever their tie to a group/Path until session end.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_nowhere_man": {
+    "id": "sm_outsider_nowhere_man",
+    "name": "Nowhere Man",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Tracking you fails without magic; magic adds +3 Complication or warns you.",
+    "mechanicalEffects": "Tracking you fails without magic; magic adds +3 Complication or warns you.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_outsider_outside_looking_in": {
+    "id": "sm_outsider_outside_looking_in",
+    "name": "Outside Looking In",
+    "callings": [
+      "outsider"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Outside a building: spend Momentum to sense inside via someone you know there; lose normal senses for duration.",
+    "mechanicalEffects": "Outside a building: spend Momentum to sense inside via someone you know there; lose normal senses for duration.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_a_friend_to_all": {
+    "id": "sm_shepherd_a_friend_to_all",
+    "name": "A Friend to All",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "You and Ward may exceed Fatebinding limit by tier difference.",
+    "mechanicalEffects": "You and Ward may exceed Fatebinding limit by tier difference.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_and_my_shield": {
+    "id": "sm_shepherd_and_my_shield",
+    "name": "And My Shield",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Full Defense: Ward in Short range doubles Defense pool.",
+    "mechanicalEffects": "Full Defense: Ward in Short range doubles Defense pool.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_in_the_nick_of_time": {
+    "id": "sm_shepherd_in_the_nick_of_time",
+    "name": "In the Nick of Time",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Ward attacked in LOS: spend Momentum to move to them instantly.",
+    "mechanicalEffects": "Ward attacked in LOS: spend Momentum to move to them instantly.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_leading_by_example": {
+    "id": "sm_shepherd_leading_by_example",
+    "name": "Leading by Example",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "When Ward gains Complication, you may take consequences; overcoming it grants them Enhancement = rating, you half.",
+    "mechanicalEffects": "When Ward gains Complication, you may take consequences; overcoming it grants them Enhancement = rating, you half.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_matchmaker": {
+    "id": "sm_shepherd_matchmaker",
+    "name": "Matchmaker",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Your once/session new Fatebinding may be used by another consenting player/SG character instead.",
+    "mechanicalEffects": "Your once/session new Fatebinding may be used by another consenting player/SG character instead.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_taught_you_everything": {
+    "id": "sm_shepherd_taught_you_everything",
+    "name": "Taught You Everything I Know",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "mortal",
+    "knackKind": "mortal",
+    "description": "Once/session train Ward — note successes; spend for Just Like in Training / You Won't Stop Me / I Can Do This per PDF.",
+    "mechanicalEffects": "Once/session train Ward — note successes; spend for Just Like in Training / You Won't Stop Me / I Can Do This per PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_my_senses_tingling": {
+    "id": "sm_shepherd_my_senses_tingling",
+    "name": "My Senses are Tingling",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Meet SG characters: aware if Jinx/Nemesis/Rival/Traitor with Ward or Bandmates (not which).",
+    "mechanicalEffects": "Meet SG characters: aware if Jinx/Nemesis/Rival/Traitor with Ward or Bandmates (not which).",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_out_of_frying_pan": {
+    "id": "sm_shepherd_out_of_frying_pan",
+    "name": "Out of the Frying Pan",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Ward Taken Out in LOS: Knack success negates after armor; uses per Episode = tier difference.",
+    "mechanicalEffects": "Ward Taken Out in LOS: Knack success negates after armor; uses per Episode = tier difference.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_punching_above_weight": {
+    "id": "sm_shepherd_punching_above_weight",
+    "name": "Punching Above Your Weight",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once/Episode spend Momentum: Ward's attack/defense at Scale = tier difference.",
+    "mechanicalEffects": "Once/Episode spend Momentum: Ward's attack/defense at Scale = tier difference.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_wise_counsel": {
+    "id": "sm_shepherd_wise_counsel",
+    "name": "Wise Counsel",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Procedural: Ward researches with 0 dots — spend Momentum once/session, Knack roll grants them dots up to 5 for that roll.",
+    "mechanicalEffects": "Procedural: Ward researches with 0 dots — spend Momentum once/session, Knack roll grants them dots up to 5 for that roll.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  },
+  "sm_shepherd_you_can_do_this_all_day": {
+    "id": "sm_shepherd_you_can_do_this_all_day",
+    "name": "You Can Do This All Day",
+    "callings": [
+      "shepherd"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Ward buying off Complication: spend Momentum, Knack roll; Ward may use successes to buy off that Complication.",
+    "mechanicalEffects": "Ward buying off Complication: spend Momentum, Knack roll; Ward may use successes to buy off that Complication.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Saints & Monsters (Calling Knacks)"
+  }
+}

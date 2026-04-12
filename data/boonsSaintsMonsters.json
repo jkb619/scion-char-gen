@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "title": "Saints & Monsters — Magic & Denizen Boon hooks",
+    "mergedInto": "boons",
+    "note": "Transcribe full Boon ladders from the PDF into this file over time; Magic and Denizen Purview entries here are starting anchors.",
+    "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  },
+  "magic_assumption_godform": {
+    "id": "magic_assumption_godform",
+    "name": "Assumption of the Godform",
+    "purview": "magic",
+    "dot": 1,
+    "tierMin": "hero",
+    "legendMin": 0,
+    "requiresBoonIds": [],
+    "description": "Imbue 1 Legend — for the scene gain Enhancement 3 on Sorcery rolls for spells tied to any other Purview you have.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend. Duration: One scene. Subject: Self.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  },
+  "magic_bend_fate": {
+    "id": "magic_bend_fate",
+    "name": "Bend Fate",
+    "purview": "magic",
+    "dot": 2,
+    "tierMin": "hero",
+    "legendMin": 2,
+    "requiresBoonIds": [
+      "magic_assumption_godform"
+    ],
+    "description": "Spend 1+ Legend to subtly alter an ongoing ritual, curse, or magical effect you know — one brief phrase alteration; cost 1 Legend per Tier of the effect.",
+    "mechanicalEffects": "Spend 1+ Legend. Range: Close. See S&M p. 79.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  },
+  "magic_thrice_great": {
+    "id": "magic_thrice_great",
+    "name": "Thrice-Great",
+    "purview": "magic",
+    "dot": 3,
+    "tierMin": "demigod",
+    "legendMin": 4,
+    "requiresBoonIds": [
+      "magic_bend_fate"
+    ],
+    "description": "Imbue 2 Legend — during extended rituals, each Milestone completed allows a Feat of Scale without spending Legend on mystical-knowledge rolls.",
+    "mechanicalEffects": "Imbue 2 Legend. Reflexive. Until ritual completes.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  },
+  "denizen_earth_animate_placeholder": {
+    "id": "denizen_earth_animate_placeholder",
+    "name": "Animate Earth (Denizen)",
+    "purview": "denizenEarthFriend",
+    "dot": 1,
+    "tierMin": "hero",
+    "legendMin": 1,
+    "requiresBoonIds": [],
+    "description": "Imbue or spend Legend to animate earth as a mindless construct (professional) under your control — full stats in S&M pp. 45–46.",
+    "mechanicalEffects": "Placeholder Boon row for chargen UI — confirm costs and construct tags with PDF.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  }
+}

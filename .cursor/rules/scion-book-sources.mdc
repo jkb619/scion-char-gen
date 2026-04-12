@@ -1,0 +1,43 @@
+---
+description: Use local Scion 2e PDFs as canonical rules/data source for this app
+alwaysApply: true
+---
+
+# Scion book sources (this machine)
+
+When implementing or changing character creation logic, data lists, or UI copy tied to rules, treat the **local PDF library** as the authority—not memory or the open web.
+
+**Primary data canon for this app:** `SCION_Pandoras_Box_(Revised_Download).pdf` — use it first for **Boons**, **standard Purview Boon ladders**, **Knack compendium** (Calling chapters), **Birthrights** (types, dots, and most examples), and **Purview** write-ups that PB prints. When Origin or Hero gives a chargen *procedure* (e.g. Visitation order, Mortal steps) that PB only summarizes, follow the core book for that *procedure* but prefer **PB for the powers text** (costs, tags, Marvels, full Boon/Knack wording). If books disagree on a power, **default to Pandora’s Box (Revised)** unless the feature is explicitly MotW / Saints & Monsters / another supplement.
+
+## Paths
+
+- **Windows:** `C:\Users\John\Desktop\Scion\books\`
+- **WSL (this repo):** `/mnt/c/Users/John/Desktop/Scion/books/`
+
+If a file is missing on disk, say so; do not invent tables.
+
+## Which book for what
+
+| Need | Prefer |
+|------|--------|
+| **Boons, Knacks (by Calling), Birthrights, standard Purviews, Signature Purviews in PB** | `SCION_Pandoras_Box_(Revised_Download).pdf` **first** |
+| Core chargen spine (Paths, Attributes, Skills, Callings, Origin Mortal tier) | `Scion_Origin_(Revised_Download).pdf` |
+| Visitation + Hero tier steps where PB cross-references Hero | `Scion_Hero_(Final_Download).pdf` |
+| Demigod + options | `Scion_Demigod_Second_Edition_(Final_Download).pdf`, `Scion_Demigod_Companion_(Final_Download).pdf` |
+| God tier | `Scion_God_Second_Edition_(Final_Download).pdf`, `Scion_God_Players_Guide_(Final_Download).pdf` |
+| Edges, Saints, Monsters | `Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf` |
+| Pantheons, setting, adventures | `Mysteries_of_the_World_*`, `Once_and_Future_*`, `Realms_of_Mystery__Magic_*`, `Rock_Gods_and_Road_Trips_*`, `Scion_-_Titanomachy_*`, `Scion_Masks_of_the_Mythos_*`, `Scion_Mythical_Denizens_*`, `Scion_Wild_Hunt_*`, `TItans_Rising_*`, tasty-bit compilations |
+| Scion: Dragon line | `Scion_Dragon_*`, `Scion_Dragon_Companion_*`, `Scion_Dragon_Tasty-Bit_Compilation_*` |
+| MCG character sheet / sheet-adjacent | `248484-ScionCC_v3.pdf` (verify against Origin/Hero for conflicts) |
+
+Use companions and setting books only when the feature explicitly depends on them.
+
+## Process for code changes
+
+1. Identify the **book + section/page** that defines the rule or list before encoding it.
+2. In code or UI, cite **book title (short) + page** where helpful (match the style already used in `chargen.py`).
+3. Do **not** paste large copyrighted stat blocks or full Boon/Knack text into the repo; paraphrase mechanics for implementation and keep long verbatim quotes out of source.
+
+## PDF access
+
+Agents may use terminal tools (`pdftotext`, etc.) on paths under `/mnt/c/Users/John/Desktop/Scion/books/` when the environment provides them, to extract structure for implementation.

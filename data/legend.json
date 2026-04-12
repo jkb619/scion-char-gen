@@ -1,0 +1,16 @@
+{
+  "legend": {
+    "id": "legend",
+    "name": "Legend",
+    "description": "Renown and mythic weight that unlocks divine capabilities at higher tiers.",
+    "mechanicalEffects": "Tier sets baseline target numbers and capability ceilings (see Tiers, Origin p. 63). At Origin, follow mortal/pre-Visitation guidance in Character Creation (Knacks, Health, Defense notes on pp. 98–99).",
+    "source": "Scion_Origin_(Revised_Download).pdf, Tiers p. 63; Legend discussion Hero+"
+  },
+  "deeds": {
+    "id": "deeds",
+    "name": "Deeds",
+    "description": "Short-term, long-term, and band goals that propel the story.",
+    "mechanicalEffects": "Origin chargen expects three Deeds (concept step, p. 94).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 94"
+  }
+}

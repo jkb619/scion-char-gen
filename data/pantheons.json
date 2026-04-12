@@ -1,0 +1,3472 @@
+{
+  "_meta": {
+    "signaturePurviewNote": "signaturePurviewId is the Purview id on the character sheet (must exist in purviews.json). Boons list which Purview(s) gate them via `purview`, `purviews`, or `purviewAnyOf` in boons.json."
+  },
+  "aesir": {
+    "id": "aesir",
+    "name": "Æsir — Norse Gods",
+    "assetSkills": [
+      "closeCombat",
+      "occult"
+    ],
+    "description": "Gods of the Norse sphere—fate, storms, and the long winter.",
+    "mechanicalEffects": "Society Path grants these two Asset Skills plus one more Skill of your choice (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, Character Creation pantheon list p. 95; Appendix 2 pp. 170–171",
+    "deities": [
+      {
+        "id": "odin",
+        "name": "Odin",
+        "callings": [
+          "leader",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "death",
+          "deception",
+          "epicStamina",
+          "fortune",
+          "journeys",
+          "war"
+        ]
+      },
+      {
+        "id": "thor",
+        "name": "Thor",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStamina",
+          "epicStrength",
+          "fertility",
+          "sky"
+        ]
+      },
+      {
+        "id": "frigg",
+        "name": "Frigg",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "fortune",
+          "order",
+          "wild"
+        ]
+      },
+      {
+        "id": "hel",
+        "name": "Hel",
+        "callings": [
+          "guardian",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "death",
+          "forge",
+          "frost",
+          "health",
+          "passion"
+        ]
+      },
+      {
+        "id": "baldr",
+        "name": "Baldr",
+        "callings": [
+          "guardian",
+          "liminal",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "passion",
+          "health",
+          "epicStamina",
+          "sun"
+        ]
+      },
+      {
+        "id": "heimdall",
+        "name": "Heimdall",
+        "callings": [
+          "creator",
+          "guardian",
+          "hunter"
+        ],
+        "purviews": [
+          "artistry",
+          "beauty",
+          "epicStamina",
+          "journeys"
+        ]
+      },
+      {
+        "id": "loki",
+        "name": "Loki",
+        "callings": [
+          "liminal",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "deception",
+          "epicStrength",
+          "fire"
+        ]
+      },
+      {
+        "id": "sif",
+        "name": "Sif",
+        "callings": [
+          "creator",
+          "guardian",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "earth",
+          "fertility",
+          "order"
+        ]
+      },
+      {
+        "id": "tyr",
+        "name": "Tyr",
+        "callings": [
+          "judge",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStamina",
+          "order",
+          "passion",
+          "war"
+        ]
+      },
+      {
+        "id": "freya",
+        "name": "Freya",
+        "callings": [
+          "lover",
+          "guardian",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "epicStamina",
+          "death",
+          "fertility",
+          "fortune",
+          "passion",
+          "war"
+        ]
+      },
+      {
+        "id": "freyr",
+        "name": "Freyr",
+        "callings": [
+          "lover",
+          "warrior",
+          "leader"
+        ],
+        "purviews": [
+          "beauty",
+          "fertility",
+          "order",
+          "war",
+          "wild"
+        ]
+      },
+      {
+        "id": "skadi",
+        "name": "Skaði",
+        "callings": [
+          "hunter",
+          "judge",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "epicDexterity",
+          "frost",
+          "journeys",
+          "order"
+        ]
+      },
+      {
+        "id": "njord",
+        "name": "Njörðr",
+        "callings": [
+          "creator",
+          "hunter",
+          "liminal"
+        ],
+        "purviews": [
+          "fertility",
+          "fire",
+          "journeys",
+          "prosperity",
+          "sky",
+          "water"
+        ]
+      }
+    ],
+    "signaturePurviewId": "wyrd"
+  },
+  "manitou": {
+    "id": "manitou",
+    "name": "Manitou — Algonquian Pantheon",
+    "assetSkills": [
+      "medicine",
+      "occult"
+    ],
+    "description": "Spirits and culture heroes tied to lakes, forests, and Skyworld stories.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 171–172",
+    "deities": [
+      {
+        "id": "geezhigoQuae",
+        "name": "Geezhigo-Quae",
+        "callings": [
+          "guardian",
+          "healer",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "moon",
+          "order",
+          "sky",
+          "stars"
+        ]
+      },
+      {
+        "id": "muzzuKumikQuae",
+        "name": "Muzzu-Kumik-Quae",
+        "callings": [
+          "healer",
+          "hunter",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "earth",
+          "fertility",
+          "sky",
+          "water",
+          "wild"
+        ]
+      },
+      {
+        "id": "winonah",
+        "name": "Winonah",
+        "callings": [
+          "guardian",
+          "healer",
+          "lover"
+        ],
+        "purviews": [
+          "epicStamina",
+          "fortune",
+          "health",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "maudjeeKawiss",
+        "name": "Maudjee-Kawiss",
+        "callings": [
+          "hunter",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "epicDexterity",
+          "epicStrength",
+          "war"
+        ]
+      },
+      {
+        "id": "pukawiss",
+        "name": "Pukawiss",
+        "callings": [
+          "lover",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "epicDexterity",
+          "artistry",
+          "passion",
+          "fortune",
+          "deception"
+        ]
+      },
+      {
+        "id": "cheebyAubOozoo",
+        "name": "Cheeby-aub-oozoo",
+        "callings": [
+          "hunter",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "darkness",
+          "death",
+          "epicStamina",
+          "order"
+        ]
+      },
+      {
+        "id": "nanaboozoo",
+        "name": "Nana’b’oozoo",
+        "callings": [
+          "hunter",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "chaos",
+          "epicDexterity",
+          "fortune",
+          "journeys"
+        ]
+      },
+      {
+        "id": "ioskeha",
+        "name": "Ioskeha",
+        "callings": [
+          "creator",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "forge",
+          "sun",
+          "sky",
+          "order",
+          "beasts",
+          "health",
+          "passion"
+        ]
+      },
+      {
+        "id": "tawiscara",
+        "name": "Tawiscara",
+        "callings": [
+          "creator",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "chaos",
+          "deception",
+          "darkness",
+          "death",
+          "passion",
+          "forge",
+          "war"
+        ]
+      }
+    ],
+    "signaturePurviewId": "dodaem",
+    "signaturePurviewLabel": "Doadem"
+  },
+  "theoi": {
+    "id": "theoi",
+    "name": "Theoi — Greco-Roman Pantheon",
+    "assetSkills": [
+      "empathy",
+      "persuasion"
+    ],
+    "description": "Olympians and their rivals—politics, passion, and polis.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 171–173",
+    "deities": [
+      {
+        "id": "zeus",
+        "name": "Zeus",
+        "callings": [
+          "leader",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "deception",
+          "epicStrength",
+          "epicStamina",
+          "fortune",
+          "order",
+          "sky"
+        ]
+      },
+      {
+        "id": "hera",
+        "name": "Hera",
+        "callings": [
+          "judge",
+          "leader",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "fertility",
+          "health",
+          "order",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "athena",
+        "name": "Athena",
+        "callings": [
+          "guardian",
+          "sage",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "epicDexterity",
+          "order",
+          "war"
+        ]
+      },
+      {
+        "id": "apollo",
+        "name": "Apollo",
+        "callings": [
+          "healer",
+          "judge",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "epicDexterity",
+          "health",
+          "sun"
+        ]
+      },
+      {
+        "id": "artemis",
+        "name": "Artemis",
+        "callings": [
+          "guardian",
+          "healer",
+          "hunter"
+        ],
+        "purviews": [
+          "beasts",
+          "epicDexterity",
+          "health",
+          "moon",
+          "wild"
+        ]
+      },
+      {
+        "id": "aphrodite",
+        "name": "Aphrodite",
+        "callings": [
+          "creator",
+          "guardian",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "fertility",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "ares",
+        "name": "Ares",
+        "callings": [
+          "guardian",
+          "lover",
+          "warrior"
+        ],
+        "purviews": [
+          "chaos",
+          "fertility",
+          "order",
+          "passion",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "hephaestus",
+        "name": "Hephaestus",
+        "callings": [
+          "creator",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "epicStamina",
+          "fire",
+          "forge",
+          "fortune"
+        ]
+      },
+      {
+        "id": "hermes",
+        "name": "Hermes",
+        "callings": [
+          "liminal",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "death",
+          "deception",
+          "epicDexterity",
+          "journeys",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "poseidon",
+        "name": "Poseidon",
+        "callings": [
+          "guardian",
+          "hunter",
+          "leader"
+        ],
+        "purviews": [
+          "beasts",
+          "epicStrength",
+          "earth",
+          "water"
+        ]
+      },
+      {
+        "id": "hades",
+        "name": "Hades",
+        "callings": [
+          "judge",
+          "leader",
+          "liminal"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "earth",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "dionysus",
+        "name": "Dionysus",
+        "callings": [
+          "liminal",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "deception",
+          "fertility",
+          "passion",
+          "wild"
+        ]
+      }
+    ],
+    "signaturePurviewId": "order",
+    "signaturePurviewLabel": "Metamorphosis"
+  },
+  "netjer": {
+    "id": "netjer",
+    "name": "Netjer — Egyptian Pantheon",
+    "assetSkills": [
+      "academics",
+      "occult"
+    ],
+    "description": "The court of lives, death, and starlit deserts.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 172–173",
+    "deities": [
+      {
+        "id": "re",
+        "name": "Re",
+        "callings": [
+          "creator",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "epicStamina",
+          "fire",
+          "journeys",
+          "order",
+          "sun"
+        ]
+      },
+      {
+        "id": "wesir",
+        "name": "Wesir",
+        "callings": [
+          "creator",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "earth",
+          "fertility",
+          "order"
+        ]
+      },
+      {
+        "id": "aset",
+        "name": "Aset",
+        "callings": [
+          "guardian",
+          "healer",
+          "trickster"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "deception",
+          "fertility",
+          "fortune",
+          "health",
+          "stars"
+        ]
+      },
+      {
+        "id": "set",
+        "name": "Set",
+        "callings": [
+          "guardian",
+          "leader",
+          "trickster"
+        ],
+        "purviews": [
+          "beasts",
+          "chaos",
+          "earth",
+          "epicStrength",
+          "journeys",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "anpu",
+        "name": "Anpu",
+        "callings": [
+          "guardian",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "beasts",
+          "darkness",
+          "death",
+          "order"
+        ]
+      },
+      {
+        "id": "bast",
+        "name": "Bast",
+        "callings": [
+          "guardian",
+          "hunter",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "epicDexterity",
+          "fertility",
+          "fortune",
+          "health",
+          "moon",
+          "sun",
+          "war"
+        ]
+      },
+      {
+        "id": "heru",
+        "name": "Heru",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "moon",
+          "order",
+          "sky",
+          "sun",
+          "war"
+        ]
+      },
+      {
+        "id": "djehuty",
+        "name": "Djehuty",
+        "callings": [
+          "guardian",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "deception",
+          "fortune",
+          "health",
+          "moon",
+          "order"
+        ]
+      }
+    ],
+    "signaturePurviewId": "heku",
+    "signaturePurviewLabel": "Heku"
+  },
+  "kami": {
+    "id": "kami",
+    "name": "Kami — Japanese Gods",
+    "assetSkills": [
+      "closeCombat",
+      "culture"
+    ],
+    "description": "Amatsukami and Kunitsukami—myriad kami of shrine and story.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 95 list).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 173–174",
+    "deities": [
+      {
+        "id": "amaterasu",
+        "name": "Amaterasu",
+        "callings": [
+          "judge",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "epicStrength",
+          "fertility",
+          "order",
+          "prosperity",
+          "sun"
+        ]
+      },
+      {
+        "id": "tsukiyomi",
+        "name": "Tsukiyomi",
+        "callings": [
+          "healer",
+          "liminal",
+          "judge"
+        ],
+        "purviews": [
+          "artistry",
+          "darkness",
+          "moon",
+          "order"
+        ]
+      },
+      {
+        "id": "susanoo",
+        "name": "Susano-o",
+        "callings": [
+          "creator",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "death",
+          "epicStrength",
+          "forge",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "hachiman",
+        "name": "Hachiman",
+        "callings": [
+          "leader",
+          "sage",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "order",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "inari",
+        "name": "Inari",
+        "callings": [
+          "creator",
+          "healer",
+          "liminal"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "fortune",
+          "health",
+          "journeys",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "takemikazuchi",
+        "name": "Takemikazuchi",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "epicDexterity",
+          "epicStamina",
+          "epicStrength",
+          "sky",
+          "war"
+        ]
+      }
+    ],
+    "signaturePurviewId": "yaoyorozuNoKamigami",
+    "signaturePurviewLabel": "Yaoyorozu No Kamigami"
+  },
+  "tuathaDeDanann": {
+    "id": "tuathaDeDanann",
+    "name": "Tuatha Dé Danann — Irish Gods",
+    "assetSkills": [
+      "closeCombat",
+      "culture"
+    ],
+    "description": "Gods of hills, brughs, and bargains struck in torchlight.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 173–174",
+    "deities": [
+      {
+        "id": "theDagda",
+        "name": "The Dagda",
+        "callings": [
+          "guardian",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "epicStamina",
+          "epicStrength",
+          "fertility",
+          "forge",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "brigid",
+        "name": "Brigid",
+        "callings": [
+          "healer",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "fertility",
+          "fire",
+          "forge",
+          "health"
+        ]
+      },
+      {
+        "id": "lugh",
+        "name": "Lugh",
+        "callings": [
+          "creator",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "epicDexterity",
+          "epicStrength",
+          "forge",
+          "health",
+          "order",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "morrigan",
+        "name": "The Morrígan",
+        "callings": [
+          "liminal",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "chaos",
+          "death",
+          "epicDexterity",
+          "fortune",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "manannan",
+        "name": "Manannán mac Lir",
+        "callings": [
+          "guardian",
+          "liminal",
+          "trickster"
+        ],
+        "purviews": [
+          "deception",
+          "journeys",
+          "prosperity",
+          "stars",
+          "water"
+        ]
+      },
+      {
+        "id": "aengus",
+        "name": "Aengus",
+        "callings": [
+          "guardian",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "beasts",
+          "beauty",
+          "deception",
+          "moon",
+          "passion"
+        ]
+      }
+    ],
+    "signaturePurviewId": "wild",
+    "signaturePurviewLabel": "Geasa"
+  },
+  "orisha": {
+    "id": "orisha",
+    "name": "Òrìshà — Yorùbá Pantheon",
+    "assetSkills": [
+      "medicine",
+      "subterfuge"
+    ],
+    "description": "Orishas of river, forge, and drum—community and trial woven together.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 174–175",
+    "deities": [
+      {
+        "id": "oya",
+        "name": "Oya Iyansan",
+        "callings": [
+          "guardian",
+          "liminal",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "epicDexterity",
+          "epicStrength",
+          "death",
+          "prosperity",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "shango",
+        "name": "Shàngó",
+        "callings": [
+          "leader",
+          "lover",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "beauty",
+          "epicStrength",
+          "fire",
+          "order",
+          "passion",
+          "prosperity",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "oshun",
+        "name": "Òshun",
+        "callings": [
+          "healer",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "beauty",
+          "fertility",
+          "fortune",
+          "frost",
+          "health",
+          "passion",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "ogun",
+        "name": "Ògún",
+        "callings": [
+          "creator",
+          "hunter",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "epicStrength",
+          "epicStamina",
+          "forge",
+          "passion",
+          "war"
+        ]
+      },
+      {
+        "id": "obatala",
+        "name": "Obàtálá",
+        "callings": [
+          "creator",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "artistry",
+          "health",
+          "order",
+          "sky"
+        ]
+      },
+      {
+        "id": "eshu",
+        "name": "Èshù Elègbará",
+        "callings": [
+          "liminal",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "deception",
+          "epicDexterity",
+          "fortune",
+          "journeys"
+        ]
+      }
+    ],
+    "signaturePurviewId": "passion",
+    "signaturePurviewLabel": "Cheval / Gún"
+  },
+  "loa": {
+    "id": "loa",
+    "name": "Loa — Haiti",
+    "assetSkills": [
+      "medicine",
+      "subterfuge"
+    ],
+    "description": "The lwa of Vodou—Gods forged in the Americas from Fon, Yorùbá, and many African lines, cousins to the Òrìshà (Mysteries of the World).",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97). Many Loa mirror Òrìshà Mantles unless MotW specifies otherwise.",
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Chapter 3: Pantheons (The Loa of Haiti)",
+    "signaturePurviewId": "passion",
+    "signaturePurviewLabel": "Cheval / Gún",
+    "deities": [
+      {
+        "id": "legba",
+        "name": "Legba, Who Opens the Way",
+        "callings": [
+          "liminal",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "deception",
+          "epicDexterity",
+          "fortune",
+          "journeys"
+        ]
+      },
+      {
+        "id": "baronCimetiere",
+        "name": "Baron Cimetière",
+        "callings": [
+          "guardian",
+          "judge",
+          "sage"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "epicStamina",
+          "health"
+        ]
+      },
+      {
+        "id": "baronLaCroix",
+        "name": "Baron La Croix",
+        "callings": [
+          "guardian",
+          "judge",
+          "sage"
+        ],
+        "purviews": [
+          "death",
+          "epicStamina",
+          "fortune",
+          "health"
+        ]
+      },
+      {
+        "id": "baronSamedi",
+        "name": "Baron Samedi",
+        "callings": [
+          "judge",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "death",
+          "epicStamina",
+          "fertility",
+          "health"
+        ]
+      },
+      {
+        "id": "damballa",
+        "name": "Damballa, the Ancestor",
+        "callings": [
+          "creator",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "earth",
+          "fertility",
+          "order",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "ezili",
+        "name": "Ezili, Who Struggles and Loves",
+        "callings": [
+          "healer",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "beauty",
+          "fertility",
+          "fortune",
+          "frost",
+          "health",
+          "passion",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "kalfu",
+        "name": "Kalfu, Who Walks at Night",
+        "callings": [
+          "liminal",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "darkness",
+          "fortune",
+          "journeys",
+          "moon"
+        ]
+      },
+      {
+        "id": "lasyren",
+        "name": "Lasyren, Who Sings in the Sea",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "fortune",
+          "health",
+          "journeys",
+          "moon",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "ogou",
+        "name": "Ogou, Who Wields Iron",
+        "callings": [
+          "creator",
+          "hunter",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "epicStamina",
+          "epicStrength",
+          "forge",
+          "passion",
+          "war"
+        ]
+      }
+    ]
+  },
+  "deva": {
+    "id": "deva",
+    "name": "Devá — Gods of South Asia",
+    "assetSkills": [
+      "athletics",
+      "survival"
+    ],
+    "description": "Vedic currents, storm thrones, and wheel-turning kings.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 175–176",
+    "deities": [
+      {
+        "id": "indra",
+        "name": "Indra",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "epicStrength",
+          "epicDexterity",
+          "fertility",
+          "order",
+          "sky",
+          "war",
+          "wild"
+        ]
+      },
+      {
+        "id": "agni",
+        "name": "Agni",
+        "callings": [
+          "guardian",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "epicStrength",
+          "epicDexterity",
+          "fire",
+          "journeys",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "shiva",
+        "name": "Shiva",
+        "callings": [
+          "hunter",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "chaos",
+          "death",
+          "deception",
+          "epicStrength",
+          "epicDexterity",
+          "epicStamina",
+          "fertility",
+          "fire",
+          "moon",
+          "sky"
+        ]
+      },
+      {
+        "id": "vishnu",
+        "name": "Vishnu",
+        "callings": [
+          "guardian",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "beauty",
+          "deception",
+          "epicStamina",
+          "epicStrength",
+          "epicDexterity",
+          "order",
+          "passion"
+        ]
+      },
+      {
+        "id": "kali",
+        "name": "Kali",
+        "callings": [
+          "guardian",
+          "liminal",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStrength",
+          "epicDexterity",
+          "epicStamina",
+          "artistry",
+          "chaos",
+          "darkness",
+          "death",
+          "deception",
+          "fire"
+        ]
+      },
+      {
+        "id": "ganesha",
+        "name": "Ganesha",
+        "callings": [
+          "guardian",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "chaos",
+          "fortune",
+          "journeys",
+          "prosperity"
+        ]
+      }
+    ],
+    "signaturePurviewId": "yoga",
+    "signaturePurviewLabel": "Yoga"
+  },
+  "shen": {
+    "id": "shen",
+    "name": "Shén — Chinese Pantheon",
+    "assetSkills": [
+      "academics",
+      "leadership"
+    ],
+    "description": "Celestial bureaucracy, rivers of ink, and monkey-king mischief.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 175–176",
+    "deities": [
+      {
+        "id": "nuwa",
+        "name": "Nuwā",
+        "callings": [
+          "creator",
+          "guardian",
+          "healer"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "forge",
+          "health",
+          "moon",
+          "sky"
+        ]
+      },
+      {
+        "id": "fuxi",
+        "name": "Fuxi",
+        "callings": [
+          "creator",
+          "hunter",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "fertility",
+          "forge",
+          "fortune",
+          "health",
+          "order",
+          "sun"
+        ]
+      },
+      {
+        "id": "guanYu",
+        "name": "Guan Yu",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "epicStrength",
+          "epicStamina",
+          "order",
+          "passion",
+          "prosperity",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "sunWukong",
+        "name": "Sun Wukong",
+        "callings": [
+          "liminal",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "chaos",
+          "deception",
+          "epicDexterity",
+          "epicStamina",
+          "epicStrength",
+          "journeys",
+          "war"
+        ]
+      },
+      {
+        "id": "nezha",
+        "name": "Prince Nezha",
+        "callings": [
+          "guardian",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "artistry",
+          "epicStamina",
+          "epicStrength",
+          "health",
+          "war"
+        ]
+      },
+      {
+        "id": "change",
+        "name": "Chang’e",
+        "callings": [
+          "healer",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "beasts",
+          "beauty",
+          "epicStamina",
+          "health",
+          "moon"
+        ]
+      },
+      {
+        "id": "huangdi",
+        "name": "Huangdi",
+        "callings": [
+          "creator",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "earth",
+          "forge",
+          "health",
+          "order",
+          "prosperity",
+          "war"
+        ]
+      }
+    ],
+    "signaturePurviewId": "tianming",
+    "signaturePurviewLabel": "Tianming"
+  },
+  "teotl": {
+    "id": "teotl",
+    "name": "Teōtl — Aztec Gods",
+    "assetSkills": [
+      "culture",
+      "empathy"
+    ],
+    "description": "Flower wars, thirsty suns, and altars that remember.",
+    "mechanicalEffects": "Society Path Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "Scion_Origin_(Revised_Download).pdf, p. 95; Appendix 2 pp. 176–177",
+    "deities": [
+      {
+        "id": "quetzalcoatl",
+        "name": "Quetzalcoatl",
+        "callings": [
+          "creator",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "fertility",
+          "journeys",
+          "order",
+          "sky",
+          "stars"
+        ]
+      },
+      {
+        "id": "huitzilopochtli",
+        "name": "Huītzilōpōchtli",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "epicStrength",
+          "prosperity",
+          "sun",
+          "war"
+        ]
+      },
+      {
+        "id": "tezcatlipoca",
+        "name": "Tezcatlipoca",
+        "callings": [
+          "hunter",
+          "leader",
+          "trickster"
+        ],
+        "purviews": [
+          "beasts",
+          "chaos",
+          "darkness",
+          "deception",
+          "earth",
+          "fortune",
+          "war"
+        ]
+      },
+      {
+        "id": "tlaloc",
+        "name": "Tlāloc",
+        "callings": [
+          "guardian",
+          "healer",
+          "hunter"
+        ],
+        "purviews": [
+          "death",
+          "earth",
+          "fertility",
+          "frost",
+          "health",
+          "sky"
+        ]
+      },
+      {
+        "id": "xochipilli",
+        "name": "Xochipilli",
+        "callings": [
+          "guardian",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "beauty",
+          "fortune",
+          "passion",
+          "prosperity"
+        ]
+      }
+    ],
+    "signaturePurviewId": "sun",
+    "signaturePurviewLabel": "Nextlahualli"
+  },
+  "nemetondevos": {
+    "id": "nemetondevos",
+    "name": "Nemetondevos — Gods of the Sacred Shrines (Gaul)",
+    "assetSkills": [
+      "closeCombat",
+      "survival"
+    ],
+    "description": "Reincarnating Gaulish Gods tied to nemetons—sacred shrines bridging The World and their realms—rebuilding after Rome (Mysteries of the World).",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97). Signature Purview Nemeton models shrine gates and mementos; confirm Boons and limits in MotW.",
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Chapter 3 (Nemetondevos of Gaul)",
+    "signaturePurviewId": "nemeton",
+    "deities": [
+      {
+        "id": "andarta",
+        "name": "Andarta, Goddess of War",
+        "callings": [
+          "hunter",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "epicDexterity",
+          "epicStamina",
+          "fortune",
+          "passion",
+          "war"
+        ]
+      },
+      {
+        "id": "belenos",
+        "name": "Belenos, Keeper of the Wheel",
+        "callings": [
+          "healer",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "death",
+          "health",
+          "stars",
+          "sun"
+        ]
+      },
+      {
+        "id": "cernunnos",
+        "name": "Cernunnos, Horned God of the Wild",
+        "callings": [
+          "creator",
+          "guardian",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "prosperity",
+          "wild"
+        ]
+      },
+      {
+        "id": "epona",
+        "name": "Epona, Goddess of Horses",
+        "callings": [
+          "guardian",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "order",
+          "war"
+        ]
+      },
+      {
+        "id": "esos",
+        "name": "Esos, the Forester",
+        "callings": [
+          "creator",
+          "liminal",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "epicStrength",
+          "forge"
+        ]
+      },
+      {
+        "id": "gobannos",
+        "name": "Gobannos, the Smith",
+        "callings": [
+          "creator",
+          "lover",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStamina",
+          "forge",
+          "journeys",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "nantosuelta",
+        "name": "Nantosuelta, Goddess of Hearth and Hive",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "fire"
+        ]
+      },
+      {
+        "id": "nehalenniaAndNodens",
+        "name": "Nehalennia and Nodens, Twins of Voyages and Healing Journeys",
+        "callings": [
+          "guardian",
+          "healer",
+          "liminal"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "health",
+          "journeys",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "taranis",
+        "name": "Taranis, God of the Sky and the Storm",
+        "callings": [
+          "judge",
+          "liminal",
+          "warrior"
+        ],
+        "purviews": [
+          "chaos",
+          "epicStrength",
+          "sky"
+        ]
+      },
+      {
+        "id": "sulis",
+        "name": "Sulis, Goddess of the Healing Springs of Bath",
+        "callings": [
+          "guardian",
+          "healer",
+          "judge"
+        ],
+        "purviews": [
+          "earth",
+          "health",
+          "water"
+        ]
+      }
+    ]
+  },
+  "yazata": {
+    "id": "yazata",
+    "name": "Yazata — Persia",
+    "assetSkills": [
+      "integrity",
+      "leadership"
+    ],
+    "description": "Ashavans of Mazdayasna—masters of good thoughts, words, and deeds—standing against the Druj and daevas (Mysteries of the World).",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97). Signature Purview Asha is the Threefold Path made playable; confirm Mantles and Demigod+ options in MotW.",
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Chapter 3 (The Yazata of Persia)",
+    "signaturePurviewId": "asha",
+    "deities": [
+      {
+        "id": "anahita",
+        "name": "Anahita of the Waters",
+        "callings": [
+          "creator",
+          "healer",
+          "warrior"
+        ],
+        "purviews": [
+          "beauty",
+          "health",
+          "war",
+          "water",
+          "wild"
+        ]
+      },
+      {
+        "id": "ashi",
+        "name": "Ashi of the Good Reward",
+        "callings": [
+          "judge",
+          "sage",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "fortune",
+          "prosperity",
+          "war"
+        ]
+      },
+      {
+        "id": "atar",
+        "name": "Atar, Son of Ahura Mazda",
+        "callings": [
+          "guardian",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "artistry",
+          "beauty",
+          "fire",
+          "forge",
+          "health",
+          "passion"
+        ]
+      },
+      {
+        "id": "haoma",
+        "name": "Haoma, the First Priest",
+        "callings": [
+          "healer",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "epicStrength",
+          "fertility",
+          "health"
+        ]
+      },
+      {
+        "id": "hvareKhshaeta",
+        "name": "Hvare-Khshaeta, Who Is the Radiant Sun",
+        "callings": [
+          "guardian",
+          "hunter",
+          "leader"
+        ],
+        "purviews": [
+          "beauty",
+          "epicDexterity",
+          "epicStamina",
+          "sun"
+        ]
+      },
+      {
+        "id": "mangha",
+        "name": "Mangha, Who Is the Moon",
+        "callings": [
+          "creator",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "fortune",
+          "moon",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "mithra",
+        "name": "Mithra of the Covenants",
+        "callings": [
+          "guardian",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "death",
+          "order",
+          "sun"
+        ]
+      },
+      {
+        "id": "rashnu",
+        "name": "Rashnu, Who Is Justice",
+        "callings": [
+          "guardian",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "death",
+          "epicStrength",
+          "journeys",
+          "order"
+        ]
+      },
+      {
+        "id": "sraosha",
+        "name": "Sraosha, Who Is Conscience",
+        "callings": [
+          "guardian",
+          "judge",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "death",
+          "epicDexterity",
+          "epicStamina",
+          "epicStrength",
+          "journeys",
+          "war"
+        ]
+      },
+      {
+        "id": "tishtrya",
+        "name": "Tishtrya of the Rain",
+        "callings": [
+          "guardian",
+          "healer",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "health",
+          "sky",
+          "stars",
+          "water"
+        ]
+      },
+      {
+        "id": "vanant",
+        "name": "Vanant the Good",
+        "callings": [
+          "guardian",
+          "hunter",
+          "judge"
+        ],
+        "purviews": [
+          "epicDexterity",
+          "epicStamina",
+          "epicStrength",
+          "journeys",
+          "stars"
+        ]
+      },
+      {
+        "id": "vataVayu",
+        "name": "Vata-Vayu, Who Is the Wind",
+        "callings": [
+          "creator",
+          "liminal",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "death",
+          "epicDexterity",
+          "sky",
+          "wild"
+        ]
+      },
+      {
+        "id": "verethragna",
+        "name": "Verethragna, Who Smites All Resistance",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "epicDexterity",
+          "epicStamina",
+          "epicStrength",
+          "fertility",
+          "health",
+          "journeys",
+          "war"
+        ]
+      },
+      {
+        "id": "zam",
+        "name": "Zam, Who Is the Earth",
+        "callings": [
+          "creator",
+          "guardian",
+          "healer"
+        ],
+        "purviews": [
+          "beauty",
+          "earth",
+          "epicStamina",
+          "wild"
+        ]
+      },
+      {
+        "id": "zarathushtra",
+        "name": "Zarathushtra, Ashavan",
+        "callings": [
+          "healer",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "artistry",
+          "journeys",
+          "order"
+        ]
+      }
+    ]
+  },
+  "mythos": {
+    "id": "mythos",
+    "name": "The Mythos",
+    "assetSkills": [
+      "academics",
+      "occult"
+    ],
+    "description": "Extradimensional entities and their Scions (Scion: Masks of the Mythos)—alien patterns, optional Awareness, Mythos Fatebindings, and realities pressed thin.",
+    "mechanicalEffects": "Mythos Path Skills default to Academics and Occult (MotM). Use the supplement for Awareness, Mythos Conditions, investigation chapter, Miskatonic Hollow, antagonists, and relics not modeled in this JSON.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Chapter 1 (Mythos Pantheons) et seq.",
+    "signaturePurviewId": "arcaneCalculus",
+    "deities": [
+      {
+        "id": "albtraum",
+        "name": "Albtraum",
+        "callings": [
+          "corruptor",
+          "liminal",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "beasts",
+          "beauty",
+          "water"
+        ]
+      },
+      {
+        "id": "azathoth",
+        "name": "Azathoth",
+        "callings": [
+          "adversary",
+          "destroyer",
+          "liminal"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "epicStamina",
+          "stars",
+          "sun"
+        ]
+      },
+      {
+        "id": "bokrug",
+        "name": "Bokrug",
+        "callings": [
+          "guardian",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "fortune",
+          "moon",
+          "prosperity",
+          "water",
+          "war"
+        ]
+      },
+      {
+        "id": "cthulhu",
+        "name": "Cthulhu",
+        "callings": [
+          "cosmos",
+          "liminal",
+          "monster"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "epicStamina",
+          "epicStrength",
+          "health",
+          "water"
+        ]
+      },
+      {
+        "id": "ghatanothoa",
+        "name": "Ghatanothoa",
+        "callings": [
+          "corruptor",
+          "cosmos",
+          "tyrant"
+        ],
+        "purviews": [
+          "chaos",
+          "darkness",
+          "death",
+          "deception",
+          "epicStrength"
+        ]
+      },
+      {
+        "id": "greenishFlame",
+        "name": "The Greenish Flame",
+        "callings": [
+          "liminal",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "darkness",
+          "deception",
+          "forge",
+          "journeys"
+        ]
+      },
+      {
+        "id": "lordOfTheGreatAbyss",
+        "name": "Lord of the Great Abyss",
+        "callings": [
+          "cosmos",
+          "guardian",
+          "trickster"
+        ],
+        "purviews": [
+          "darkness",
+          "deception",
+          "frost",
+          "health",
+          "water"
+        ]
+      },
+      {
+        "id": "nyarlathotep",
+        "name": "Nyarlathotep",
+        "callings": [
+          "adversary",
+          "corruptor",
+          "sage"
+        ],
+        "purviews": [
+          "chaos",
+          "darkness",
+          "deception",
+          "epicDexterity",
+          "journeys",
+          "order",
+          "passion",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "rhanTegoth",
+        "name": "Rhan-Tegoth",
+        "callings": [
+          "hunter",
+          "leader",
+          "torturer"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "epicDexterity",
+          "epicStamina",
+          "frost",
+          "passion"
+        ]
+      },
+      {
+        "id": "shubNiggurath",
+        "name": "Shub-Niggurath",
+        "callings": [
+          "creator",
+          "primeval",
+          "torturer"
+        ],
+        "purviews": [
+          "beasts",
+          "earth",
+          "epicStrength",
+          "epicStamina",
+          "fertility",
+          "wild"
+        ]
+      },
+      {
+        "id": "yig",
+        "name": "Yig",
+        "callings": [
+          "hunter",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "earth",
+          "epicDexterity",
+          "fertility",
+          "wild"
+        ]
+      },
+      {
+        "id": "yogSothoth",
+        "name": "Yog-Sothoth",
+        "callings": [
+          "judge",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "epicDexterity",
+          "epicStrength",
+          "epicStamina",
+          "journeys",
+          "order",
+          "stars"
+        ]
+      },
+      {
+        "id": "kingInYellow",
+        "name": "The King in Yellow",
+        "callings": [
+          "corruptor",
+          "leader",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "chaos",
+          "death",
+          "deception",
+          "fortune",
+          "health",
+          "journeys"
+        ]
+      }
+    ]
+  },
+  "anunna": {
+    "id": "anunna",
+    "name": "Anunna — Mesopotamian Pantheon",
+    "assetSkills": [
+      "academics",
+      "occult"
+    ],
+    "description": "The great courts of Sumer, Akkad, and Babylon—tablets, ziggurats, and gods who remember being first.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Anunna pantheon; patron lists confirm against your PDFs.",
+    "signaturePurviewId": "shuila",
+    "deities": [
+      {
+        "id": "enki",
+        "name": "Enki",
+        "callings": [
+          "creator",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "deception",
+          "earth",
+          "fertility",
+          "health",
+          "order",
+          "water"
+        ]
+      },
+      {
+        "id": "marduk",
+        "name": "Marduk",
+        "callings": [
+          "leader",
+          "warrior",
+          "judge"
+        ],
+        "purviews": [
+          "epicStrength",
+          "order",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "shamash",
+        "name": "Shamash",
+        "callings": [
+          "judge",
+          "sage",
+          "guardian"
+        ],
+        "purviews": [
+          "health",
+          "order",
+          "sun",
+          "journeys"
+        ]
+      },
+      {
+        "id": "enlil",
+        "name": "Enlil",
+        "callings": [
+          "leader",
+          "judge",
+          "destroyer"
+        ],
+        "purviews": [
+          "order",
+          "sky",
+          "wild"
+        ]
+      },
+      {
+        "id": "nergal",
+        "name": "Nergal",
+        "callings": [
+          "destroyer",
+          "judge",
+          "warrior"
+        ],
+        "purviews": [
+          "death",
+          "fire",
+          "health",
+          "war"
+        ]
+      },
+      {
+        "id": "sin",
+        "name": "Sin",
+        "callings": [
+          "judge",
+          "liminal",
+          "sage"
+        ],
+        "purviews": [
+          "darkness",
+          "moon",
+          "order",
+          "stars"
+        ]
+      },
+      {
+        "id": "ereshkigal",
+        "name": "Ereshkigal",
+        "callings": [
+          "judge",
+          "guardian",
+          "monster"
+        ],
+        "purviews": [
+          "death",
+          "darkness",
+          "order"
+        ]
+      },
+      {
+        "id": "ninhursag",
+        "name": "Ninhursag",
+        "callings": [
+          "creator",
+          "healer",
+          "guardian"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "health",
+          "wild"
+        ]
+      },
+      {
+        "id": "ishtar",
+        "name": "Ishtar",
+        "callings": [
+          "lover",
+          "warrior",
+          "trickster"
+        ],
+        "purviews": [
+          "beauty",
+          "passion",
+          "war",
+          "sky"
+        ]
+      },
+      {
+        "id": "ninurta",
+        "name": "Ninurta",
+        "callings": [
+          "guardian",
+          "hunter",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStrength",
+          "sky",
+          "war",
+          "wild"
+        ]
+      },
+      {
+        "id": "tammuz",
+        "name": "Tammuz",
+        "callings": [
+          "lover",
+          "shepherd",
+          "liminal"
+        ],
+        "purviews": [
+          "fertility",
+          "health",
+          "passion",
+          "death"
+        ]
+      }
+    ]
+  },
+  "bogovi": {
+    "id": "bogovi",
+    "name": "Bogovi — Slavic Pantheon",
+    "assetSkills": [
+      "closeCombat",
+      "culture"
+    ],
+    "description": "Forest law, storm kings, and the old pacts that keep the world turning under Slavic skies.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Bogovi pantheon; confirm patrons at the table.",
+    "signaturePurviewId": "dvoeverie",
+    "deities": [
+      {
+        "id": "perun",
+        "name": "Perun",
+        "callings": [
+          "guardian",
+          "leader",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStrength",
+          "sky",
+          "war",
+          "order"
+        ]
+      },
+      {
+        "id": "veles",
+        "name": "Veles",
+        "callings": [
+          "guardian",
+          "trickster",
+          "liminal"
+        ],
+        "purviews": [
+          "beasts",
+          "death",
+          "deception",
+          "earth",
+          "prosperity",
+          "water"
+        ]
+      },
+      {
+        "id": "mokosh",
+        "name": "Mokosh",
+        "callings": [
+          "creator",
+          "guardian",
+          "healer"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "health",
+          "wild"
+        ]
+      },
+      {
+        "id": "dazhbog",
+        "name": "Dazhbog",
+        "callings": [
+          "lover",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "fire",
+          "health",
+          "sun",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "morena",
+        "name": "Morena",
+        "callings": [
+          "destroyer",
+          "judge",
+          "liminal"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "frost",
+          "health"
+        ]
+      },
+      {
+        "id": "stribog",
+        "name": "Stribog",
+        "callings": [
+          "judge",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "journeys",
+          "sky"
+        ]
+      },
+      {
+        "id": "chors",
+        "name": "Chors",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "moon",
+          "sky",
+          "stars",
+          "sun"
+        ]
+      },
+      {
+        "id": "svarozhich",
+        "name": "Svarozhich",
+        "callings": [
+          "creator",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "fire",
+          "forge",
+          "order",
+          "sun"
+        ]
+      },
+      {
+        "id": "radegast",
+        "name": "Radegast",
+        "callings": [
+          "liminal",
+          "sage",
+          "lover"
+        ],
+        "purviews": [
+          "artistry",
+          "journeys",
+          "moon",
+          "stars"
+        ]
+      },
+      {
+        "id": "svantovit",
+        "name": "Svantovit",
+        "callings": [
+          "guardian",
+          "warrior",
+          "sage"
+        ],
+        "purviews": [
+          "fortune",
+          "order",
+          "war",
+          "wild"
+        ]
+      }
+    ]
+  },
+  "apu": {
+    "id": "apu",
+    "name": "Apu — Andean Pantheon",
+    "assetSkills": [
+      "athletics",
+      "survival"
+    ],
+    "description": "Apus of peak and storm—ancestors on the heights, lightning on the cordillera, and cities older than their stones remember.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Apu pantheon.",
+    "signaturePurviewId": "pachakutic",
+    "deities": [
+      {
+        "id": "viracocha",
+        "name": "Viracocha",
+        "callings": [
+          "creator",
+          "sage",
+          "trickster"
+        ],
+        "purviews": [
+          "artistry",
+          "earth",
+          "journeys",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "inti",
+        "name": "Inti",
+        "callings": [
+          "guardian",
+          "leader",
+          "healer"
+        ],
+        "purviews": [
+          "fire",
+          "health",
+          "order",
+          "sun"
+        ]
+      },
+      {
+        "id": "mamaQuilla",
+        "name": "Mama Quilla",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "moon",
+          "passion",
+          "stars"
+        ]
+      },
+      {
+        "id": "illapa",
+        "name": "Illapa",
+        "callings": [
+          "guardian",
+          "warrior",
+          "judge"
+        ],
+        "purviews": [
+          "death",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "supay",
+        "name": "Supay",
+        "callings": [
+          "judge",
+          "liminal",
+          "trickster"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "deception",
+          "earth"
+        ]
+      },
+      {
+        "id": "pachamama",
+        "name": "Pachamama",
+        "callings": [
+          "creator",
+          "guardian",
+          "healer"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "health",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "mamaOcllo",
+        "name": "Mama Ocllo",
+        "callings": [
+          "creator",
+          "sage",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "earth",
+          "fertility",
+          "order"
+        ]
+      },
+      {
+        "id": "mancoCapac",
+        "name": "Manco Cápac",
+        "callings": [
+          "leader",
+          "warrior",
+          "sage"
+        ],
+        "purviews": [
+          "epicStrength",
+          "order",
+          "sun",
+          "war"
+        ]
+      }
+    ]
+  },
+  "atua": {
+    "id": "atua",
+    "name": "Atua — Polynesian Pantheon",
+    "assetSkills": [
+      "culture",
+      "closeCombat"
+    ],
+    "description": "Sky, sea, and lineage woven together—atua who walk as storm, shark, and the obligations between cousins.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Atua pantheon.",
+    "signaturePurviewId": "atuaMana",
+    "deities": [
+      {
+        "id": "tane",
+        "name": "Tāne",
+        "callings": [
+          "creator",
+          "guardian",
+          "lover"
+        ],
+        "purviews": [
+          "beasts",
+          "beauty",
+          "fertility",
+          "wild"
+        ]
+      },
+      {
+        "id": "tangaroa",
+        "name": "Tangaroa",
+        "callings": [
+          "creator",
+          "trickster",
+          "liminal"
+        ],
+        "purviews": [
+          "beasts",
+          "deception",
+          "moon",
+          "water"
+        ]
+      },
+      {
+        "id": "tumatauenga",
+        "name": "Tūmatauenga",
+        "callings": [
+          "guardian",
+          "warrior",
+          "leader"
+        ],
+        "purviews": [
+          "death",
+          "epicStrength",
+          "passion",
+          "war"
+        ]
+      },
+      {
+        "id": "rongo",
+        "name": "Rongo",
+        "callings": [
+          "healer",
+          "sage",
+          "lover"
+        ],
+        "purviews": [
+          "fertility",
+          "health",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "haumia",
+        "name": "Haumia-tiketike",
+        "callings": [
+          "guardian",
+          "healer",
+          "sage"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "health",
+          "wild"
+        ]
+      },
+      {
+        "id": "tawhirimatea",
+        "name": "Tāwhirimātea",
+        "callings": [
+          "destroyer",
+          "hunter",
+          "sage"
+        ],
+        "purviews": [
+          "chaos",
+          "epicDexterity",
+          "sky"
+        ]
+      },
+      {
+        "id": "ruamoko",
+        "name": "Ruaumoko",
+        "callings": [
+          "destroyer",
+          "liminal",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "fire",
+          "journeys"
+        ]
+      },
+      {
+        "id": "hinenuitepo",
+        "name": "Hine-nui-te-pō",
+        "callings": [
+          "judge",
+          "liminal",
+          "guardian"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "moon",
+          "order"
+        ]
+      }
+    ]
+  },
+  "balahala": {
+    "id": "balahala",
+    "name": "Balahala — Philippine Pantheon",
+    "assetSkills": [
+      "athletics",
+      "subterfuge"
+    ],
+    "description": "Island spirits, ancestor bargains, and the bright edge between jungle and sea.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Balahala pantheon.",
+    "signaturePurviewId": "paganito",
+    "deities": [
+      {
+        "id": "bathala",
+        "name": "Bathala",
+        "callings": [
+          "creator",
+          "judge",
+          "leader"
+        ],
+        "purviews": [
+          "order",
+          "sky",
+          "stars",
+          "sun"
+        ]
+      },
+      {
+        "id": "mayari",
+        "name": "Mayari",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "moon",
+          "passion",
+          "wild"
+        ]
+      },
+      {
+        "id": "apolaki",
+        "name": "Apolaki",
+        "callings": [
+          "guardian",
+          "warrior",
+          "leader"
+        ],
+        "purviews": [
+          "epicStrength",
+          "sky",
+          "sun",
+          "war"
+        ]
+      },
+      {
+        "id": "tala",
+        "name": "Tala",
+        "callings": [
+          "guardian",
+          "lover",
+          "trickster"
+        ],
+        "purviews": [
+          "beauty",
+          "moon",
+          "stars",
+          "deception"
+        ]
+      },
+      {
+        "id": "hanan",
+        "name": "Hanan",
+        "callings": [
+          "healer",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "fertility",
+          "health",
+          "sun"
+        ]
+      },
+      {
+        "id": "idiyanale",
+        "name": "Idiyanale",
+        "callings": [
+          "creator",
+          "healer",
+          "sage"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "health",
+          "prosperity"
+        ]
+      }
+    ]
+  },
+  "ilhm": {
+    "id": "ilhm",
+    "name": "Ilhm — Persian Pantheon",
+    "assetSkills": [
+      "academics",
+      "culture"
+    ],
+    "description": "Feast-law, fire-temples, and guests bound by salt—Ilhm remembers the table as altar.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Ilhm pantheon (distinct from Yazata in published chapters).",
+    "signaturePurviewId": "marzeh",
+    "deities": [
+      {
+        "id": "anahita",
+        "name": "Anahita",
+        "callings": [
+          "guardian",
+          "healer",
+          "lover"
+        ],
+        "purviews": [
+          "beauty",
+          "fertility",
+          "health",
+          "water"
+        ]
+      },
+      {
+        "id": "mithra",
+        "name": "Mithra",
+        "callings": [
+          "guardian",
+          "judge",
+          "warrior"
+        ],
+        "purviews": [
+          "order",
+          "sun",
+          "war",
+          "wild"
+        ]
+      },
+      {
+        "id": "rashnu",
+        "name": "Rashnu",
+        "callings": [
+          "judge",
+          "sage",
+          "liminal"
+        ],
+        "purviews": [
+          "death",
+          "order",
+          "stars",
+          "journeys"
+        ]
+      },
+      {
+        "id": "verethragna",
+        "name": "Verethragna",
+        "callings": [
+          "warrior",
+          "hunter",
+          "guardian"
+        ],
+        "purviews": [
+          "beasts",
+          "epicStrength",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "atar",
+        "name": "Atar",
+        "callings": [
+          "guardian",
+          "lover",
+          "sage"
+        ],
+        "purviews": [
+          "fire",
+          "health",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "haoma",
+        "name": "Haoma",
+        "callings": [
+          "healer",
+          "sage",
+          "creator"
+        ],
+        "purviews": [
+          "fertility",
+          "health",
+          "prosperity",
+          "wild"
+        ]
+      }
+    ]
+  },
+  "kuh": {
+    "id": "kuh",
+    "name": "K’uh — Maya Pantheon",
+    "assetSkills": [
+      "academics",
+      "occult"
+    ],
+    "description": "Calendar priests, storm serpents, and the old cities whose stones still count days.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — K’uh pantheon.",
+    "signaturePurviewId": "tzolkin",
+    "deities": [
+      {
+        "id": "kinichAhau",
+        "name": "K’inich Ajaw",
+        "callings": [
+          "leader",
+          "guardian",
+          "warrior"
+        ],
+        "purviews": [
+          "epicStrength",
+          "fire",
+          "health",
+          "sun"
+        ]
+      },
+      {
+        "id": "chaac",
+        "name": "Chaac",
+        "callings": [
+          "guardian",
+          "healer",
+          "warrior"
+        ],
+        "purviews": [
+          "fertility",
+          "health",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "ixchel",
+        "name": "Ixchel",
+        "callings": [
+          "creator",
+          "healer",
+          "sage"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "moon",
+          "water"
+        ]
+      },
+      {
+        "id": "itzamna",
+        "name": "Itzamna",
+        "callings": [
+          "creator",
+          "sage",
+          "judge"
+        ],
+        "purviews": [
+          "death",
+          "health",
+          "order",
+          "sky"
+        ]
+      },
+      {
+        "id": "kukulkan",
+        "name": "K’uk’ulkan",
+        "callings": [
+          "liminal",
+          "trickster",
+          "warrior"
+        ],
+        "purviews": [
+          "beasts",
+          "deception",
+          "sky"
+        ]
+      },
+      {
+        "id": "bulucChabtan",
+        "name": "Buluc Chabtan",
+        "callings": [
+          "destroyer",
+          "warrior",
+          "hunter"
+        ],
+        "purviews": [
+          "death",
+          "passion",
+          "war"
+        ]
+      }
+    ]
+  },
+  "tengri": {
+    "id": "tengri",
+    "name": "Tengri — Turko-Mongol Pantheon",
+    "assetSkills": [
+      "athletics",
+      "survival"
+    ],
+    "description": "Eternal blue sky, steppe law, and shamans who bargain where soul meets storm.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Tengri pantheon.",
+    "signaturePurviewId": "qut",
+    "deities": [
+      {
+        "id": "kokTengri",
+        "name": "Kök Tengri",
+        "callings": [
+          "judge",
+          "leader",
+          "sage"
+        ],
+        "purviews": [
+          "order",
+          "sky",
+          "stars"
+        ]
+      },
+      {
+        "id": "erlik",
+        "name": "Erlik",
+        "callings": [
+          "destroyer",
+          "judge",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "darkness",
+          "death",
+          "deception"
+        ]
+      },
+      {
+        "id": "umay",
+        "name": "Umay",
+        "callings": [
+          "guardian",
+          "healer",
+          "lover"
+        ],
+        "purviews": [
+          "beasts",
+          "fertility",
+          "health",
+          "wild"
+        ]
+      },
+      {
+        "id": "mergen",
+        "name": "Mergen",
+        "callings": [
+          "hunter",
+          "sage",
+          "warrior"
+        ],
+        "purviews": [
+          "epicDexterity",
+          "journeys",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "kizagan",
+        "name": "Kizagan",
+        "callings": [
+          "destroyer",
+          "warrior",
+          "adversary"
+        ],
+        "purviews": [
+          "death",
+          "epicStrength",
+          "war"
+        ]
+      }
+    ]
+  },
+  "palas": {
+    "id": "palas",
+    "name": "Pālas — Tibetan Pantheon",
+    "assetSkills": [
+      "academics",
+      "occult"
+    ],
+    "description": "Vows, mandalas, and wrathful compassion worn like armor—Pālas walk the ridge between miracle and rule.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pālas pantheon.",
+    "signaturePurviewId": "yidam",
+    "deities": [
+      {
+        "id": "chenrezig",
+        "name": "Chenrezig",
+        "callings": [
+          "healer",
+          "guardian",
+          "sage"
+        ],
+        "purviews": [
+          "beauty",
+          "health",
+          "passion",
+          "prosperity"
+        ]
+      },
+      {
+        "id": "greenTara",
+        "name": "Green Tārā",
+        "callings": [
+          "guardian",
+          "lover",
+          "warrior"
+        ],
+        "purviews": [
+          "earth",
+          "journeys",
+          "passion",
+          "wild"
+        ]
+      },
+      {
+        "id": "manjushri",
+        "name": "Mañjuśrī",
+        "callings": [
+          "sage",
+          "warrior",
+          "creator"
+        ],
+        "purviews": [
+          "artistry",
+          "deception",
+          "order",
+          "war"
+        ]
+      },
+      {
+        "id": "vajrapani",
+        "name": "Vajrapāṇi",
+        "callings": [
+          "guardian",
+          "warrior",
+          "destroyer"
+        ],
+        "purviews": [
+          "epicStrength",
+          "fire",
+          "sky",
+          "war"
+        ]
+      },
+      {
+        "id": "paldenLhamo",
+        "name": "Palden Lhamo",
+        "callings": [
+          "destroyer",
+          "judge",
+          "guardian"
+        ],
+        "purviews": [
+          "darkness",
+          "death",
+          "moon",
+          "war"
+        ]
+      }
+    ]
+  },
+  "zem": {
+    "id": "zem",
+    "name": "Zem — Taíno Pantheon",
+    "assetSkills": [
+      "medicine",
+      "culture"
+    ],
+    "description": "Caribbean atabeys and yucahuas—storm, cassava, and spirits who remember the islands before the maps.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97).",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Zem pantheon.",
+    "signaturePurviewId": "behique",
+    "deities": [
+      {
+        "id": "yucahu",
+        "name": "Yúcahu",
+        "callings": [
+          "creator",
+          "guardian",
+          "leader"
+        ],
+        "purviews": [
+          "earth",
+          "fertility",
+          "sky"
+        ]
+      },
+      {
+        "id": "atabey",
+        "name": "Atabey",
+        "callings": [
+          "creator",
+          "healer",
+          "lover"
+        ],
+        "purviews": [
+          "fertility",
+          "health",
+          "moon",
+          "water"
+        ]
+      },
+      {
+        "id": "boinayel",
+        "name": "Boinayel",
+        "callings": [
+          "healer",
+          "hunter",
+          "sage"
+        ],
+        "purviews": [
+          "beasts",
+          "health",
+          "water",
+          "wild"
+        ]
+      },
+      {
+        "id": "juracan",
+        "name": "Juracán",
+        "callings": [
+          "destroyer",
+          "warrior",
+          "trickster"
+        ],
+        "purviews": [
+          "chaos",
+          "sky",
+          "water"
+        ]
+      },
+      {
+        "id": "guabancex",
+        "name": "Guabancex",
+        "callings": [
+          "destroyer",
+          "judge",
+          "guardian"
+        ],
+        "purviews": [
+          "death",
+          "fertility",
+          "sky",
+          "water"
+        ]
+      }
+    ]
+  }
+}

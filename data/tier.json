@@ -1,0 +1,73 @@
+{
+  "mortal": {
+    "id": "mortal",
+    "name": "Mortal / Origin",
+    "alsoKnownAs": "Pre-Visitation Scion or Mortal",
+    "description": "Ordinary humans or Scions before divine inheritance fully awakens—lives are still largely shaped by mortal skills and Paths.",
+    "mechanicalEffects": "Six-step Origin character creation (concept through finishing touches) on pp. 94–99: Paths grant Skills with 3/2/1 prioritization; Attributes use 6/4/2 distribution per Arena on top of 1 dot each, then Favored Approach +2 to each Attribute in that Approach (max 5, overflow stays in Arena); one Calling and one active Mortal Knack at a time unless extras purchased (full Knack text: Pandora’s Box); five finishing Skill dots, one Attribute dot, two Knacks or four Birthright points (Birthrights: Pandora’s Box first, Origin p. 99 / Hero p. 201 cross-reference). Defense from Resilience Attributes; Injury track with extra Bruised from Stamina; record movement (Athletics + higher of Might or Dexterity).",
+    "typicalLegendRange": "0–1",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "finishing", "review"],
+    "purviewsOriginNote": "Patron Purview picks are part of Hero (post-Visitation) chargen, not Origin Mortal creation. Pantheon and divine parent here still drive Society Path Asset Skills and story (Origin p. 97). Appendix 2 lists each deity’s patron Purviews for when you advance to Hero on Review.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Character Creation pp. 94–106"
+  },
+  "hero": {
+    "id": "hero",
+    "name": "Hero",
+    "alsoKnownAs": "Post-Visitation Scion",
+    "description": "Visitation has happened: mythic power is real on the streets, but the Scion is still learning what divinity demands.",
+    "mechanicalEffects": "Nine-step Hero chargen (concept through finishing touches): Scion: Hero for Visitation *procedure* and step order; Pandora’s Box (Revised) as the primary reference for Purviews, Birthrights, Boons, and the Knack compendium. Use this wizard’s shared steps where they overlap, then confirm limits at the table.",
+    "typicalLegendRange": "2–4",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 1,
+    "purviewsChargenNote": "Hero: one innate Purview from your divine parent’s list (Paths) plus your pantheon’s Signature Purview (data: pantheons.json signaturePurviewId). Full Innate and Boon write-ups: Pandora’s Box (Revised). At Demigod+ you can add other Purviews (e.g. from Relics) — confirm with your Storyguide.",
+    "source": "Scion_Hero_(Final_Download).pdf (Visitation / chargen flow); SCION_Pandoras_Box_(Revised_Download).pdf (Purviews, Boons, Knacks, Birthrights)"
+  },
+  "demigod": {
+    "id": "demigod",
+    "name": "Demigod",
+    "alsoKnownAs": "Book Three tier",
+    "description": "World-shaking power with one foot still in mortal stories—Dominion-scale play opens.",
+    "mechanicalEffects": "Follow Scion: Demigod chargen and advancement; this app’s JSON can be extended with Demigod-only Knacks/Boons entries.",
+    "typicalLegendRange": "5–8",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 4,
+    "purviewsChargenNote": "Demigod play continues Purviews and Birthrights from Hero; use Pandora’s Box (Revised) first for Boon ladders and Purview limits, then Scion: Demigod for tier-specific rules. This app keeps four patron Purview slots from your parent’s list unless your table expands them.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf"
+  },
+  "god": {
+    "id": "god",
+    "name": "God",
+    "alsoKnownAs": "Apotheosis tier",
+    "description": "Near-fully divine actors shaping pantheons and cosmology.",
+    "mechanicalEffects": "Follow Scion: God character creation and mantle rules; extend data JSON with God-tier options as needed.",
+    "typicalLegendRange": "8–10+",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 4,
+    "purviewsChargenNote": "God-tier characters: Pandora’s Box (Revised) for Mantles, Purviews, and Boon ladders; Scion: God for tier-specific rules. This app still uses four patron Purview slots from the parent list as a chargen default — confirm with your Storyguide.",
+    "source": "Scion_God_Second_Edition_(Final_Download).pdf"
+  },
+  "sorcerer": {
+    "id": "sorcerer",
+    "name": "Sorcerer",
+    "alsoKnownAs": "Mortal magic user",
+    "description": "Mortals who wield learned magic, pacts, or sorcerous paths outside classic divine bloodlines.",
+    "mechanicalEffects": "Saints & Monsters Ch. 3: Motif, Sources of Power, Invocation, Patronage, Prohibition, Talisman, and the Magic Purview (merged into this app’s Purviews/Boons from supplemental data). Paths and Callings still model story hooks; confirm dot budgets and Marvel limits with the PDF.",
+    "typicalLegendRange": "Varies",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "sorcerer", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 0,
+    "purviewsChargenNote": "Sorcerers: track the Magic Purview and any other Purviews your table grants (Relics, Denizen hooks, etc.). Patron Purview slots from a divine parent are not used unless your chronicle blends sorcery with Scion lineage.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf; Scion_Tasty_Bit_Compilation_(Final_Download).pdf"
+  },
+  "titanic": {
+    "id": "titanic",
+    "name": "Titanic Scion",
+    "alsoKnownAs": "Maelstrom-touched Scion (Saints & Monsters)",
+    "description": "Scions whose nature skews toward Titanic Callings and Maelstrom Hearts—Epicenters replace standard universal Purview Innates while the bond is unsuppressed.",
+    "mechanicalEffects": "Use Saints & Monsters Titanic chargen: Titanic Calling, universal Purviews with Epicenter text (see bundle epicenters), Maelstrom Hearts, Collateral or Tension alternates, and Titanic Mutations (recorded in the wizard’s Titanic extras step).",
+    "typicalLegendRange": "2–4 (Hero-like band; confirm with Storyguide)",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "titanicExtras", "finishing", "review"],
+    "patronPurviewSlotCount": 1,
+    "purviewsChargenNote": "Titanic: each universal Purview you take uses Epicenter summaries from Saints & Monsters (bundle.epicenters) in place of the usual Innate until you imbue Legend to suppress Epicenter effects (see PDF). Patron Purview picks still follow your divine parent’s list where applicable.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Scions & Maelstroms' Hearts"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "might": {
+    "id": "might",
+    "name": "Might",
+    "arena": "Physical",
+    "approach": "Force",
+    "description": "Brute strength and speed used to lift, break, or overpower obstacles.",
+    "mechanicalEffects": "Each Attribute begins with 1 dot. You distribute extra dots per Arena priority (6/4/2 among the three Attributes in that Arena), then add +2 dots to every Attribute that shares your Favored Approach (Force, Finesse, or Resilience), to a maximum of 5 dots per Attribute at creation (redistribute overflow within the same Arena). Pools pair a Skill with one Attribute.",
+    "source": "Scion_Origin_(Revised_Download).pdf, Character Creation (Attributes), pp. 97–98; Attributes and Approaches, p. 63"
+  },
+  "dexterity": {
+    "id": "dexterity",
+    "name": "Dexterity",
+    "arena": "Physical",
+    "approach": "Finesse",
+    "description": "Deftness, coordination, and agility for fine movement and precision.",
+    "mechanicalEffects": "Same dot rules as other Attributes (see might). Often pairs with Skills for precise physical actions.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "stamina": {
+    "id": "stamina",
+    "name": "Stamina",
+    "arena": "Physical",
+    "approach": "Resilience",
+    "description": "Vital toughness, endurance, and staying power.",
+    "mechanicalEffects": "Same dot rules as other Attributes. One of the Resilience Attributes used for Defense when you take a Defensive action (often Stamina). Extra Bruised Injury slots at Stamina 3–4 or 5 at creation.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98, 99"
+  },
+  "intellect": {
+    "id": "intellect",
+    "name": "Intellect",
+    "arena": "Mental",
+    "approach": "Force",
+    "description": "Genius, memorized knowledge, and forceful application of mental power.",
+    "mechanicalEffects": "Same dot rules as other Attributes.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "cunning": {
+    "id": "cunning",
+    "name": "Cunning",
+    "arena": "Mental",
+    "approach": "Finesse",
+    "description": "Quick-wittedness, clever improvisation, and mental agility.",
+    "mechanicalEffects": "Same dot rules as other Attributes.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "resolve": {
+    "id": "resolve",
+    "name": "Resolve",
+    "arena": "Mental",
+    "approach": "Resilience",
+    "description": "Discipline, focus, and attention to detail under pressure.",
+    "mechanicalEffects": "Same dot rules as other Attributes. Resilience Attribute option for Defense.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "presence": {
+    "id": "presence",
+    "name": "Presence",
+    "arena": "Social",
+    "approach": "Force",
+    "description": "Charisma and forceful social presence.",
+    "mechanicalEffects": "Same dot rules as other Attributes.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "manipulation": {
+    "id": "manipulation",
+    "name": "Manipulation",
+    "arena": "Social",
+    "approach": "Finesse",
+    "description": "Subtle social graces, nuance, and fine-tuned influence.",
+    "mechanicalEffects": "Same dot rules as other Attributes.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  },
+  "composure": {
+    "id": "composure",
+    "name": "Composure",
+    "arena": "Social",
+    "approach": "Resilience",
+    "description": "Keeping cool, deflecting pressure, and social endurance.",
+    "mechanicalEffects": "Same dot rules as other Attributes. Resilience Attribute option for Defense.",
+    "source": "Scion_Origin_(Revised_Download).pdf, pp. 63, 97–98"
+  }
+}

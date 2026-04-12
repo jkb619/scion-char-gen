@@ -1,0 +1,39 @@
+{
+  "canonicalRules": {
+    "primaryDataSource": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "label": "Pandora's Box (Revised)",
+    "scope": "Primary reference for Boons, standard Purview Boon ladders, Knack/Birthright catalog mechanics, and Purview chapters in that volume. Origin and Hero remain the default for Mortal/Visitation procedure where PB points to them; supplements apply when a feature is explicitly from those books."
+  },
+  "gameDataFiles": [
+    "attributes",
+    "skills",
+    "paths",
+    "callings",
+    "pantheons",
+    "purviews",
+    "legend",
+    "virtues",
+    "knacks",
+    "boons",
+    "birthrights",
+    "tags",
+    "equipment",
+    "tier",
+    "tierAdvancement",
+    "masksOfTheMythos",
+    "mysteriesOfTheWorld",
+    "saintsMonsters",
+    "knacksSaintsMonsters",
+    "purviewsDenizens",
+    "boonsSaintsMonsters",
+    "epicenters",
+    "mythosPurviewInnates",
+    "purviewStandardInnates"
+  ],
+  "api": {
+    "manifest": "/api/manifest",
+    "bundle": "/api/bundle",
+    "item": "/api/data/{name}",
+    "putItem": "PUT /api/data/{name} — replace entire table JSON (Birthright library editor)"
+  }
+}

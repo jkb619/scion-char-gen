@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "title": "Scion: Masks of the Mythos",
+    "role": "Supplement integration — patrons, virtues, Signature (Arcane Calculus), inverted Calling knacks, and Boon ladder live in data/*.json; Hollow, full relic write-ups, and long investigation chapters remain PDF-first.",
+    "pantheonId": "mythos",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf",
+    "extractedText": "data/_extracted/masks_of_the_mythos.txt (generated; gitignored)"
+  },
+  "pathsCallout": "Mythos Path default Skills: Academics and Occult (already reflected when you pick this pantheon). Track Awareness, Mythos Deeds, and MotM-only rules in play per the PDF.",
+  "mythosInnatePowerCallout": "Mythos Scions can choose to take the Awareness Innate Power that comes with a Purview instead of the normal one. They will only ever have one Innate Power, and once the Awareness Innate Power is chosen, they cannot go back. (MotM Ch. 3; chargen Step Seven p. 41 lets you pick normal or Awareness for your innate Purview, and if you start with normal you may replace it with the Awareness Innate when your Awareness increases—once you take Awareness, you cannot switch again.)",
+  "mythosAwarenessBoonCallout": "Boons — You may choose to pick up an Awareness Boon as one of your initial Boons. You can only start with one Awareness Boon at character creation.",
+  "heroPurviewsCallout": "If the Signature Purview (Arcane Calculus) is missing from your bundle, reload the app after updating purviews.json.",
+  "virtuesNote": "Virtues for Mythos are in data/virtues.json (Humanity vs. Nihilism). If this message still appears, reload the bundle.",
+  "mythosFatebindingBasics": {
+    "awarenessLimit": "A PC may not have more Mythos Fatebinding Conditions than dots in Awareness.",
+    "acquiring": "Once per session, may gain a new Mythos Fatebinding to regain 1 Awareness; also when abusing Mythos Relics, losing one, or Marveling with Awareness instead of Legend (MotM p. 46).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Fatebinding Basics"
+  },
+  "mythosConditions": [
+    {
+      "id": "awakened",
+      "name": "Awakened",
+      "summary": "The Mythos has instilled dreadful knowledge you can barely contain.",
+      "invoke": "Gain a single use of a Heroic Sage Knack.",
+      "compel": "Your next roll automatically fails with a Consolation.",
+      "avoidance": "+2 Complication to all actions per prior avoidance (cumulative); may force Injury if not bought off.",
+      "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf p. 46"
+    },
+    {
+      "id": "herald",
+      "name": "Herald",
+      "summary": "The Mythos plans to use you as a conduit between its realms and the World.",
+      "invoke": "Gain insight into a plot element in the scene as if you used the Interpretation stunt on a clue.",
+      "compel": "Gain 1 Momentum; a rift floods the area with Mythos creatures that attack you and your allies.",
+      "avoidance": "Injury from stress; cannot travel to another realm for the rest of the session.",
+      "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf p. 46"
+    },
+    {
+      "id": "tasked",
+      "name": "Tasked",
+      "summary": "You are bound to serve the Mythos whether or not you understand the task.",
+      "invoke": "After failing a simple action, succeed at 0 threshold and buy off related Complications.",
+      "compel": "Your next action is mixed: your original intent plus the Mythos’s bizarre assignment.",
+      "avoidance": "Imperil one of your Fatebindings as the Mythos lashes out at loved ones.",
+      "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf p. 46"
+    }
+  ]
+}

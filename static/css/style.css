@@ -1,0 +1,1140 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --panel: #171b22;
+  --text: #e8e4dc;
+  --muted: #9aa3b2;
+  --accent: #c9a24d;
+  --accent-2: #4f8cc9;
+  --danger: #d14b4b;
+  --border: #2a313d;
+  --dot-empty: #2f3541;
+  --dot-fill: #c9a24d;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 20% -10%, #1a2230, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header,
+.site-footer {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-tier-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  max-width: 17rem;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.header-tier-line {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.header-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.header-legend-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.legend-dot-track {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 11rem;
+}
+
+.legend-dot-track.legend-dot-track-dense {
+  gap: 3px;
+  max-width: 9rem;
+}
+
+.legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid #5a6678;
+  background: rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.legend-dot-track.legend-dot-track-dense .legend-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.legend-dot.on {
+  background: linear-gradient(145deg, #e8c86a, #9a7224);
+  border-color: #4a3a19;
+}
+
+.legend-dot[tabindex="0"] {
+  cursor: pointer;
+}
+
+select,
+input[type="text"],
+input[type="number"],
+textarea {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.45rem 0.55rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+/* Hover: rule hints (title + help cursor); light outline on hover/focus */
+.has-doc-hint {
+  cursor: help;
+}
+
+select.has-doc-hint:hover,
+input.has-doc-hint:hover,
+textarea.has-doc-hint:hover,
+select.has-doc-hint:focus-visible,
+input.has-doc-hint:focus-visible,
+textarea.has-doc-hint:focus-visible {
+  outline: 1px dashed rgba(201, 162, 77, 0.55);
+  outline-offset: 2px;
+  border-color: rgba(201, 162, 77, 0.45);
+}
+
+.chip.has-doc-hint:hover,
+.dot.has-doc-hint:hover,
+.btn.has-doc-hint:hover {
+  outline: 1px dashed rgba(201, 162, 77, 0.55);
+  outline-offset: 2px;
+}
+
+.dot-row.has-doc-hint {
+  cursor: help;
+}
+
+.dot-row.has-doc-hint:hover {
+  outline: 1px dashed rgba(201, 162, 77, 0.35);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.skill-rating-block {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.skill-rating-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.skill-specialty-field {
+  margin-top: 0.25rem;
+  margin-left: 0;
+  max-width: 42rem;
+}
+
+.skill-specialty-field input[type="text"] {
+  width: 100%;
+}
+
+.skill-ratings-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.skill-ratings-skill-label {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.skill-specialty-inline {
+  flex: 1 1 14rem;
+  min-width: 10rem;
+  margin-top: 0;
+  max-width: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.skill-specialty-inline label {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.skill-specialty-inline input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Skills step: cannot advance until path picks are valid */
+.skills-gate-errors {
+  border: 2px solid #c94a4a;
+  background: rgba(80, 20, 20, 0.45);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #ffd6d6;
+}
+
+.skills-gate-errors-title {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+  color: #ffb4b4;
+}
+
+.skills-gate-errors ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.skills-gate-errors li {
+  margin: 0.25rem 0;
+}
+
+.panel.panel-gate-invalid {
+  border-color: #c94a4a;
+  box-shadow: 0 0 0 1px rgba(201, 74, 74, 0.45);
+}
+
+.skill-ratings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.skill-ratings-table th,
+.skill-ratings-table td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.skill-ratings-table th {
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.birthrights-table .birthrights-th-action,
+.birthrights-table .birthrights-td-action {
+  width: 4.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.birthrights-table .birthrights-td-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  width: 3rem;
+}
+
+.birthrights-table .birthrights-td-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  max-width: 28rem;
+}
+
+.skill-ratings-th-num {
+  text-align: center;
+}
+
+.skill-ratings-col-paths.num,
+.skill-dot-total {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.skill-ratings-col-paths {
+  width: 5rem;
+  text-align: center;
+}
+
+.skill-ratings-col-name {
+  min-width: 14rem;
+  width: 38%;
+}
+
+.skill-ratings-col-dots {
+  min-width: 11rem;
+}
+
+.skill-ratings-dots-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.skill-dot-total {
+  min-width: 1.25rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.skill-ratings-clear {
+  padding: 0.15rem 0.45rem !important;
+  font-size: 0.75rem !important;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #2a3344, #222933);
+  color: var(--text);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #3b465a;
+}
+
+.btn.primary {
+  border-color: #4c401f;
+  background: linear-gradient(180deg, #6b5424, #4a3a19);
+  color: #fff7e0;
+}
+
+.btn.secondary {
+  border-color: #2f4a66;
+  background: linear-gradient(180deg, #274058, #1c2f45);
+}
+
+.patron-purview-innate-desc {
+  margin-top: 0.4rem;
+  max-width: 42rem;
+  line-height: 1.45;
+}
+
+.boon-purview-innate-callout {
+  margin: 0.2rem 0 0.55rem;
+  max-width: 48rem;
+  line-height: 1.45;
+}
+
+.mythos-innate-purview-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 28rem;
+}
+
+.mythos-innate-or-sep {
+  display: block;
+  margin: 0.65rem 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* Hero: Purview <select>, “-- or --”, and Awareness button on one row */
+.mythos-innate-awareness-row--hero-inline {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+}
+
+.mythos-innate-awareness-row--hero-inline #f-mythos-innate-purview {
+  flex: 1 1 12rem;
+  min-width: 10rem;
+  max-width: 24rem;
+}
+
+.mythos-innate-awareness-row--hero-inline .mythos-innate-or-sep {
+  display: inline;
+  margin: 0;
+  text-align: inherit;
+  flex: 0 0 auto;
+}
+
+.mythos-innate-awareness-row--hero-inline .mythos-innate-commit-wrap {
+  flex: 0 0 auto;
+}
+
+.mythos-innate-commit-wrap {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mythos-innate-commit-btn {
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  min-width: 12rem;
+}
+
+.wizard-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.wizard-nav button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.wizard-nav button.active {
+  color: #111;
+  background: var(--accent);
+  border-color: #e3c56f;
+}
+
+.wizard-nav button.done {
+  color: var(--text);
+  border-color: #3b465a;
+}
+
+.wizard-root {
+  /* Fill space between nav and footer so an empty main does not leave a false “blank page” gap (body is a flex column; footer uses margin-top: auto). */
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 1.25rem 1.5rem 2rem;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.wizard-root .wizard-loading-msg {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.panel {
+  background: rgba(23, 27, 34, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+/* Attributes step: Defense + Movement dice side by side, compact */
+.attributes-derived-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 0.75rem;
+  margin-bottom: 1rem;
+  align-items: stretch;
+}
+
+.attributes-derived-row .panel {
+  margin-bottom: 0;
+  padding: 0.55rem 0.75rem;
+}
+
+.attributes-derived-row .panel h2 {
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+}
+
+.attributes-derived-row .panel .help {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .attributes-derived-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.paths-step-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.paths-phrases-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.paths-phrases-row .field {
+  min-width: 0;
+}
+
+.paths-pantheon-deity-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+}
+
+.paths-pantheon-deity-row .field {
+  min-width: 0;
+}
+
+.paths-pantheon-deity-row select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.grid-2 .field-calling-row {
+  grid-column: 1 / -1;
+}
+
+.calling-select-dots-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.field-calling-row .calling-select-dots-row select {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.field-calling-row .calling-inline-dots {
+  flex: 0 0 auto;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.help {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.dot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.35rem 0;
+}
+
+.dot-row .label {
+  flex: 0 0 170px;
+  font-size: 0.92rem;
+}
+
+.dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #5c6575;
+  background: var(--dot-empty);
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Skills step: ratings from Path math only — dots are display-only */
+.dots span.dot {
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: middle;
+  cursor: default;
+}
+
+.dot.filled {
+  background: radial-gradient(circle at 30% 25%, #ffe6a1, var(--dot-fill));
+  border-color: #e3c56f;
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.dot.dot-capped:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+  border-color: #4a5260;
+  background: rgba(40, 44, 52, 0.6);
+}
+
+/* Below usable range but still part of current rating (e.g. finishing baseline) */
+.dot.filled.dot-capped:disabled {
+  opacity: 0.88;
+  cursor: not-allowed;
+  border-color: #b89a55;
+  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  filter: brightness(0.95);
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.35rem;
+}
+
+.warn {
+  color: #ffb4a8;
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: #9fe8bf;
+  font-size: 0.9rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+/* Purviews step: selected chip expands to show innate text (not choosable like Boons) */
+.purview-chip-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  max-width: min(100%, 22rem);
+  margin-bottom: 0.15rem;
+}
+
+.purview-innate-under-chip {
+  width: 100%;
+  padding: 0.4rem 0.55rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(12, 14, 18, 0.55);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.purview-innate-granted-note {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.purview-innate-block + .purview-innate-block {
+  margin-top: 0.45rem;
+}
+
+.purview-innate-block-label {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: #e8ecf0;
+  margin-bottom: 0.12rem;
+}
+
+.purview-innate-block-body {
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+}
+
+.hero-pantheon-signature-purview .hero-signature-innate-preview {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+.hero-signature-innate-preview-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.patron-purview-innate-desc .purview-innate-block-label {
+  color: var(--muted);
+}
+
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.chip.on {
+  border-color: var(--accent);
+  color: #fff7e0;
+}
+
+.chip.chip-unqualified {
+  border-style: dashed;
+  border-color: #c97a4a;
+  color: #f0d4c4;
+}
+
+/* Calling step: larger touch targets; at Origin only 1–2 Mortal knacks may show, so chips read as primary actions */
+.calling-knacks-panel .chips {
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+}
+
+.calling-knacks-panel .chip {
+  font-size: 0.95rem;
+  padding: 0.55rem 1.05rem;
+  min-height: 2.75rem;
+  min-width: min(100%, 12rem);
+  max-width: 26rem;
+  border-radius: 0.65rem;
+  text-align: left;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.chip .chip-knack-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+}
+
+.chip .chip-knack-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.chip .knack-kind-badge {
+  flex: 0 0 auto;
+  font-size: 0.68em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.12rem 0.4rem;
+  border-radius: 0.35rem;
+  line-height: 1.2;
+}
+
+.chip .knack-kind-badge.knack-kind-mortal {
+  background: rgba(90, 140, 110, 0.45);
+  color: #d4f5e2;
+}
+
+.chip .knack-kind-badge.knack-kind-immortal {
+  background: rgba(120, 70, 130, 0.5);
+  color: #f5e0fa;
+}
+
+.boon-purview-group {
+  margin-bottom: 1rem;
+}
+
+.boon-purview-heading {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Society Path: pantheon Asset Skills — dashed = required pick, solid gold = actually selected */
+.chip.chip-pantheon-asset:not(.on) {
+  border-style: dashed;
+  border-color: rgba(201, 162, 77, 0.55);
+  background: rgba(30, 28, 22, 0.35);
+  color: #c5b89a;
+  box-shadow: none;
+}
+
+.chip.chip-pantheon-asset:not(.on):hover {
+  border-color: rgba(227, 197, 111, 0.65);
+  background: rgba(201, 162, 77, 0.08);
+  color: #ebe4d4;
+}
+
+.chip.chip-pantheon-asset.on {
+  border-style: solid;
+  border-color: #e3c56f;
+  background: rgba(107, 84, 36, 0.55);
+  color: #fffaf0;
+  box-shadow: 0 0 0 2px rgba(227, 197, 111, 0.35);
+}
+
+.chip.chip-pantheon-asset.on:hover {
+  border-color: #f0d78a;
+  background: rgba(120, 95, 42, 0.65);
+}
+
+.society-asset-rule .asset-skill-names {
+  color: #ffe6a1;
+  font-weight: 600;
+}
+
+/* Paths step: Virtues for selected pantheon */
+.pantheon-virtues-panel {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: rgba(23, 27, 34, 0.92);
+}
+
+.pantheon-virtues-heading {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pantheon-virtues-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  line-height: 1.45;
+}
+
+.pantheon-virtues-list li {
+  margin-bottom: 0.35rem;
+}
+
+.pantheon-virtue-desc {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.p-virtue-spectrum-mount {
+  margin-top: 0.35rem;
+}
+
+.p-virtue-spectrum-mount .cs-field {
+  margin-bottom: 0;
+}
+
+/* Virtue spectrum reuses character-sheet classes but sits in the dark Paths wizard */
+.p-virtue-spectrum-mount .cs-field-label {
+  color: var(--muted);
+}
+
+.p-virtue-spectrum-mount .cs-field-value {
+  background: rgba(23, 27, 34, 0.92);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.p-virtue-spectrum-mount .cs-virtue-name {
+  color: var(--text);
+}
+
+.p-virtue-spectrum-mount .cs-dot {
+  border-color: #5c6575;
+  background: var(--dot-empty);
+}
+
+.p-virtue-spectrum-mount .cs-dot.on {
+  background: radial-gradient(circle at 30% 25%, #ffe6a1, var(--dot-fill));
+  border-color: #e3c56f;
+}
+
+.p-virtue-spectrum-mount .cs-virtue-spectrum--interactive .cs-dot[tabindex="0"] {
+  cursor: pointer;
+  outline: none;
+}
+
+.p-virtue-spectrum-mount .cs-virtue-spectrum--interactive .cs-dot[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.finishing-place-panel {
+  margin-top: 1rem;
+}
+
+.finishing-budget-summary {
+  margin-top: 0.35rem;
+}
+
+/* Skills step: path panel title includes the Paths-step phrase */
+.path-skills-heading {
+  font-size: 1.05rem;
+  line-height: 1.35;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.finishing-skills-table {
+  margin-top: 0.5rem;
+}
+
+.finishing-birthright-picks {
+  margin: 0.5rem 0 0 1.25rem;
+}
+
+.step-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+}
+
+/* App mode: wizard vs birthrights data editor */
+.app-main-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.app-main-tab.primary {
+  box-shadow: 0 0 0 1px rgba(201, 162, 77, 0.35);
+}
+
+/* Birthrights JSON editor */
+.br-editor-root {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.br-editor-intro code {
+  font-size: 0.88em;
+  color: var(--accent-2);
+}
+
+.br-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.br-editor-status {
+  flex: 1 1 12rem;
+  min-height: 1.25rem;
+}
+
+.br-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .br-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.br-editor-list-ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: min(62vh, 36rem);
+  overflow: auto;
+}
+
+.br-editor-list-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.br-editor-list-btn:hover {
+  border-color: var(--accent-2);
+}
+
+.br-editor-list-btn.active {
+  border-color: var(--accent);
+  background: rgba(201, 162, 77, 0.12);
+}
+
+.br-editor-list-id {
+  font-size: 0.72rem;
+  font-family: ui-monospace, monospace;
+  color: var(--muted);
+}
+
+.br-editor-list-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.br-editor-list-type {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.br-editor-search {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.br-editor-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.br-editor-subhead {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.br-editor-relic-panel {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.br-editor-dot-row .label {
+  flex: 0 0 11rem;
+  max-width: 100%;
+}
+
+@media (max-width: 560px) {
+  .br-editor-dot-row .label {
+    flex: 1 1 100%;
+  }
+}
+
+.tag-checklist-grid,
+.tag-applies-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.tag-check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.tag-check-label {
+  color: var(--text);
+}

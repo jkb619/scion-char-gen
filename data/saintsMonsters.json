@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "title": "Scion Player's Guide: Saints & Monsters",
+    "role": "Supplement hooks — Saints (divine-adjacent paths), Titanic Scions, Denizens, and related chargen. Titanic Calling Knacks (Adversary, Destroyer, Monster, Primeval, Tyrant) are merged into knacks from knacksSaintsMonsters.json at bundle load.",
+    "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
+    "extractedText": "data/_extracted/saints_monsters.txt (generated; gitignored)"
+  },
+  "titanicKnacksCallout": "Titanic Calling Knacks from Chapter Four (pp. 91–97) appear in Knacks when your Calling is Adversary, Destroyer, Monster, Primeval, or Tyrant. They use the sm_* ids and cite this Player’s Guide in hints.",
+  "saintsCallout": "Saint chargen, Guides, Relics, and Marvel/Boon limits are PDF-first; extend data/boons.json or dedicated tables when you transcribe rules from the Saints chapters.",
+  "denizenPurviewIds": [
+    "denizenEarthFriend",
+    "denizenIllusions",
+    "denizenLair",
+    "denizenObdurance",
+    "denizenTransformation",
+    "denizenWaterFriend",
+    "denizenWindFriend"
+  ],
+  "sorcererDataNote": "Magic Purview and sample Magic Boons merge from purviewsDenizens.json / boonsSaintsMonsters.json at bundle load. Sorcerer wizard fields live in character.sorceryProfile (export JSON).",
+  "titanicDataNote": "Epicenter summaries: bundle.epicenters (after load). Titanic extras: character.titanicProfile."
+}

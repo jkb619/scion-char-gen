@@ -1,0 +1,179 @@
+{
+  "_meta": {
+    "note": "Master tag list for equipment, Relics, Creatures, and other tagged items in this app. Use appliesTo so editors only offer relevant tags; empty appliesTo means the tag appears everywhere.",
+    "categories": [
+      "combat",
+      "protection",
+      "mobility",
+      "sensory",
+      "social",
+      "occult",
+      "utility",
+      "narrative"
+    ],
+    "appliesToRoles": [
+      "equipment",
+      "relic",
+      "creature",
+      "follower",
+      "guide",
+      "cult",
+      "general"
+    ]
+  },
+  "sharp": {
+    "id": "sharp",
+    "name": "Sharp",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Edged or piercing — can cut, impale, or threaten lethal harm.",
+    "source": "Storypath tags / Pandora’s Box Relic & weapon examples (paraphrase)"
+  },
+  "heavy": {
+    "id": "heavy",
+    "name": "Heavy",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Hard hits, high mass, or slow recovery — often pairs with Might.",
+    "source": "Storypath / Scion combat tags (paraphrase)"
+  },
+  "ranged": {
+    "id": "ranged",
+    "name": "Ranged",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Effective at a distance; Range bands matter.",
+    "source": "Scion: Hero / Origin combat (paraphrase)"
+  },
+  "armored": {
+    "id": "armored",
+    "name": "Armored",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Resists harm — soft or hard armor narrative hook.",
+    "source": "Pandora’s Box / equipment (paraphrase)"
+  },
+  "concealed": {
+    "id": "concealed",
+    "name": "Concealed",
+    "category": "utility",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Easy to hide on the person or in plain sight.",
+    "source": "Gear & Relic flavor (table)"
+  },
+  "loud": {
+    "id": "loud",
+    "name": "Loud",
+    "category": "narrative",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Hard to use quietly; may attract attention or Complications.",
+    "source": "Narrative tag (table)"
+  },
+  "faithbound": {
+    "id": "faithbound",
+    "name": "Faithbound",
+    "category": "occult",
+    "appliesTo": [
+      "relic",
+      "cult",
+      "guide"
+    ],
+    "description": "Oaths, worship, or divine patronage shape its power or taboos.",
+    "source": "Scion tone — shrines, cults, relics (paraphrase)"
+  },
+  "sentient": {
+    "id": "sentient",
+    "name": "Sentient",
+    "category": "narrative",
+    "appliesTo": [
+      "relic",
+      "creature",
+      "guide"
+    ],
+    "description": "Has drives, voice, or agenda — may grant Momentum hooks.",
+    "source": "Pandora’s Box Creatures / Relics (paraphrase)"
+  },
+  "swift": {
+    "id": "swift",
+    "name": "Swift",
+    "category": "mobility",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Fast movement, quick draw, or initiative edge in fiction.",
+    "source": "Storypath (paraphrase)"
+  },
+  "keenSenses": {
+    "id": "keenSenses",
+    "name": "Keen senses",
+    "category": "sensory",
+    "appliesTo": [
+      "creature",
+      "follower",
+      "equipment",
+      "relic"
+    ],
+    "description": "Tracking, hearing, scent, or unusual perception.",
+    "source": "Creature / follower flavor (table)"
+  },
+  "loyal": {
+    "id": "loyal",
+    "name": "Loyal",
+    "category": "social",
+    "appliesTo": [
+      "creature",
+      "follower"
+    ],
+    "description": "Sticks with you unless dramatically betrayed or coerced.",
+    "source": "Follower / Creature (table)"
+  },
+  "versatile": {
+    "id": "versatile",
+    "name": "Versatile",
+    "category": "utility",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "general"
+    ],
+    "description": "Useful in several kinds of challenges without narrow specialty.",
+    "source": "Generic gear tag (table)"
+  },
+  "legendary": {
+    "id": "legendary",
+    "name": "Legendary",
+    "category": "narrative",
+    "appliesTo": [
+      "relic",
+      "creature",
+      "equipment"
+    ],
+    "description": "Stories precede it; may draw Fatebinding or attention at Scale.",
+    "source": "Scion Legend / Fatebinding tone (paraphrase)"
+  }
+}

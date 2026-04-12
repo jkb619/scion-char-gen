@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scion - character creator</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/character-sheet.css" />
+    <!-- Unregister stray service workers on local dev hosts; they can intercept /api/bundle so uvicorn never logs it. -->
+    <script>
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+        var h = location.hostname;
+        if (h !== "127.0.0.1" && h !== "localhost") return;
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(function (regs) {
+            return Promise.all(
+              regs.map(function (r) {
+                return r.unregister();
+              }),
+            );
+          })
+          .catch(function () {});
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <h1>Scion - character creator</h1>
+        <p class="tagline">storypath tiers, data-driven from local json tables</p>
+      </div>
+      <div class="header-actions">
+        <span id="header-tier-display" class="header-tier-display" title="New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation."></span>
+        <input type="file" id="input-import-json" accept=".json,application/json" hidden aria-hidden="true" />
+        <button type="button" id="btn-import-json" class="btn secondary">Import JSON</button>
+        <button type="button" id="btn-export-json" class="btn secondary">Export JSON</button>
+      </div>
+    </header>
+
+    <nav class="app-main-tabs" id="app-main-tabs" aria-label="Application mode"></nav>
+
+    <nav class="wizard-nav" id="wizard-nav"></nav>
+
+    <main id="wizard-root" class="wizard-root">
+      <p class="wizard-loading-msg">Loading wizard…</p>
+    </main>
+
+    <footer class="site-footer">
+      <span>Rules text lives in your books—this tool stores summaries and citations only.</span>
+    </footer>
+
+    {% if bundle_b64 %}
+    <textarea id="scion-embedded-bundle-b64" hidden aria-hidden="true" readonly>{{ bundle_b64 | safe }}</textarea>
+    <script>
+      window.__SCION_EMBEDDED_BUNDLE = true;
+    </script>
+    {% endif %}
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>
