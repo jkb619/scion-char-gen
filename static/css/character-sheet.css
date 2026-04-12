@@ -124,7 +124,8 @@
 .cs-write-line {
   min-height: 1.5rem;
   border-bottom: 1px solid var(--cs-line);
-  background: linear-gradient(to bottom, transparent calc(100% - 1px), rgba(196, 184, 164, 0.35) 1px);
+  /* Avoid calc() in gradients — PyMuPDF Story’s CSS parser rejects it when exporting This Sheet PDF. */
+  background-color: rgba(244, 239, 228, 0.65);
 }
 
 .cs-field-value-sheet-appendix {
@@ -866,6 +867,64 @@
   line-height: 1.35;
 }
 
+/* Deeds: one line + at-table checkbox per row (matches community interactive sheet). */
+.cs-mcg-deed-row {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 6.25rem) minmax(0, 1fr) auto;
+  gap: 0.35rem 0.45rem;
+  align-items: center;
+  margin: 0.2rem 0 0.28rem;
+  font-size: 0.76rem;
+}
+
+.cs-mcg-deed-label {
+  font-weight: 800;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cs-accent);
+  white-space: nowrap;
+}
+
+.cs-mcg-deed-value {
+  min-height: 1.15rem;
+  border-bottom: 1px solid var(--cs-line);
+  color: var(--cs-ink);
+  word-break: break-word;
+  line-height: 1.3;
+  padding: 0.06rem 0;
+}
+
+/* Display-only boxes (not native checkboxes) so the sheet reads blank until marked at the table. */
+.cs-mcg-sheet-tick {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--cs-line);
+  border-radius: 2px;
+  background: #fffefb;
+  vertical-align: bottom;
+}
+
+.cs-mcg-deed-row .cs-mcg-sheet-tick {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.cs-mcg-hard-armor-ticks {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  padding-bottom: 0.02rem;
+}
+
+.cs-mcg-hard-armor-row .cs-mcg-line-value {
+  min-height: 1.05rem;
+}
+
 .cs-mcg-check-row {
   display: flex;
   flex-wrap: wrap;
@@ -881,12 +940,134 @@
   color: var(--cs-muted);
 }
 
+.cs-mcg-check--stub {
+  cursor: default;
+}
+
 .cs-mcg-track-block {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
   margin: 0.35rem 0;
+}
+
+.cs-mcg-track-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  margin: 0.35rem 0;
+}
+
+.cs-mcg-track-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+/* Label in column 1; dots + pool-spent checkbox stacked in column 2 (Legend + Mythos Awareness). */
+.cs-mcg-legend-with-pool {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.28rem 0.45rem;
+  align-items: start;
+}
+
+.cs-mcg-legend-with-pool > .cs-mcg-track-label {
+  margin-top: 0.12rem;
+}
+
+.cs-mcg-legend-dots-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+/* One pool-spent checkbox aligned under each Legend / Awareness dot (Review sheet). */
+.cs-mcg-legend-pool-track {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.32rem;
+}
+
+.cs-mcg-legend-pool-track--dense {
+  gap: 0.22rem;
+}
+
+.cs-mcg-legend-pool-track--dense .cs-dot {
+  width: 7px;
+  height: 7px;
+}
+
+.cs-mcg-legend-pool-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.cs-mcg-pool-check--under-dot {
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cs-mcg-pool-check--under-dot input.cs-mcg-pool-check-input {
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+.cs-mcg-pool-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--cs-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cs-mcg-pool-check--icon-only {
+  gap: 0;
+}
+
+.cs-mcg-pool-check input.cs-mcg-pool-check-input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--cs-line);
+  border-radius: 2px;
+  background: #fffefb;
+  cursor: pointer;
+}
+
+.cs-mcg-pool-check input.cs-mcg-pool-check-input:checked {
+  background: var(--cs-accent);
+  box-shadow: inset 0 0 0 2px #fffefb;
+}
+
+.cs-mcg-dice-track-grid {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 11.75rem) minmax(0, 1fr);
+  column-gap: 0.5rem;
+  row-gap: 0.35rem;
+  align-items: center;
+  margin: 0.35rem 0;
+}
+
+.cs-mcg-dice-track-grid .cs-mcg-square-track {
+  justify-self: start;
 }
 
 .cs-mcg-track-label {
@@ -1011,22 +1192,39 @@
 .cs-mcg-knack-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.15rem 1rem;
+  gap: 0.35rem 0.75rem;
   margin-bottom: 0.35rem;
 }
 
-.cs-mcg-knack-row {
+.cs-mcg-knack-block {
+  border-bottom: 1px dotted rgba(196, 184, 164, 0.9);
+  padding: 0.12rem 0 0.2rem;
+  font-size: 0.76rem;
+}
+
+.cs-mcg-knack-row-head {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.76rem;
-  border-bottom: 1px dotted rgba(196, 184, 164, 0.9);
-  padding: 0.08rem 0;
 }
 
 .cs-mcg-knack-text {
   flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 650;
+}
+
+.cs-mcg-knack-row-head .cs-mcg-sheet-tick {
+  align-self: flex-end;
+  margin-bottom: 0.06rem;
+}
+
+.cs-mcg-knack-note {
+  margin-top: 0.12rem;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--cs-muted);
   overflow-wrap: anywhere;
 }
 
@@ -1051,16 +1249,66 @@
   font-size: 0.74rem;
 }
 
-.cs-mcg-innate {
-  min-height: 2.4rem;
-  font-size: 0.7rem;
+/* Align Name / Source / Innate power label column; ruled value column lines up (MrGone-style). */
+.cs-mcg-purview-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.cs-mcg-purview-lines > .cs-mcg-line-field {
+  display: grid;
+  grid-template-columns: 7.35rem minmax(0, 1fr);
+  column-gap: 0.45rem;
+  align-items: end;
+  min-width: 0;
+}
+
+.cs-mcg-purview-lines > .cs-mcg-line-field .cs-mcg-line-label {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.cs-mcg-purview-lines > .cs-mcg-line-field .cs-mcg-line-value {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* Innate power: same column widths as Name/Source; ruled lines every line (incl. empty first row), not one border at bottom. */
+.cs-mcg-purview-innate-field {
+  display: grid;
+  grid-template-columns: 7.35rem minmax(0, 1fr);
+  column-gap: 0.45rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.cs-mcg-purview-innate-field > .cs-mcg-line-label {
+  grid-column: 1;
+  justify-self: start;
+  margin-top: 0.18rem;
+}
+
+.cs-mcg-purview-innate-value {
+  grid-column: 2;
+  min-width: 0;
+  font-size: 0.68rem;
   line-height: 1.35;
   white-space: pre-wrap;
-  margin-top: 0.2rem;
-  padding: 0.2rem;
-  border: 1px dashed rgba(196, 184, 164, 0.9);
-  border-radius: 2px;
   overflow-wrap: anywhere;
+  min-height: calc(2 * 1.35em + 0.08rem);
+  padding-bottom: 0.06rem;
+  color: var(--cs-ink);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.35em - 1px),
+    var(--cs-line) calc(1.35em - 1px),
+    var(--cs-line) 1.35em
+  );
+  background-repeat: repeat-x;
+  background-size: 100% 1.35em;
+  background-position: left top;
 }
 
 .cs-mcg-boon-grid {
@@ -1079,8 +1327,35 @@
   border: 1px solid var(--cs-line);
   background: #fffefb;
   border-radius: 2px;
-  padding: 0.32rem 0.38rem;
+  padding: 0.38rem 0.42rem 0.42rem;
   font-size: 0.7rem;
+}
+
+/* Boon labeled rows: fixed label width (matches birthrights / purview cards) so values share one column. */
+.cs-mcg-boon-block > .cs-mcg-line-field {
+  display: grid;
+  grid-template-columns: 7.35rem minmax(0, 1fr);
+  column-gap: 0.4rem;
+  align-items: end;
+  min-width: 0;
+}
+
+.cs-mcg-boon-block > .cs-mcg-line-field .cs-mcg-line-label {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.cs-mcg-boon-block > .cs-mcg-line-field .cs-mcg-line-value {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* Boon rows: allow wrapped Cost / Duration / etc. */
+.cs-mcg-boon-block .cs-mcg-line-value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.32;
+  min-height: 1.2rem;
 }
 
 .cs-mcg-boon-mini-row {
@@ -1091,13 +1366,24 @@
 }
 
 .cs-mcg-boon-note {
-  min-height: 1.4rem;
-  margin-top: 0.2rem;
-  padding-top: 0.15rem;
+  min-height: 2.85rem;
+  margin-top: 0.22rem;
+  padding-top: 0.18rem;
   border-top: 1px dotted var(--cs-line);
   font-size: 0.68rem;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+/* Detail note: align body text with line-field value column (label width + gap). */
+.cs-mcg-boon-block > .cs-mcg-boon-note {
+  padding-left: calc(7.35rem + 0.4rem);
+}
+
+.cs-mcg-boon-note--detail {
+  min-height: 4.6rem;
+  max-height: none;
+  white-space: pre-wrap;
 }
 
 .cs-mcg-cond-cols {
@@ -1124,8 +1410,65 @@
   border: 1px solid var(--cs-line);
   background: #fffefb;
   border-radius: 2px;
-  padding: 0.32rem 0.38rem;
+  padding: 0.38rem 0.42rem 0.45rem;
   font-size: 0.72rem;
+}
+
+/* Single-line rows: same label width in every birthright card so values share one vertical rhythm. */
+.cs-mcg-br-block > .cs-mcg-line-field {
+  display: grid;
+  grid-template-columns: 7.35rem minmax(0, 1fr);
+  column-gap: 0.4rem;
+  align-items: end;
+  min-width: 0;
+}
+
+.cs-mcg-br-block > .cs-mcg-line-field .cs-mcg-line-label {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.cs-mcg-br-block > .cs-mcg-line-field .cs-mcg-line-value {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* Birthright description / mechanics: ruled multiline (matches Purview innate rhythm). */
+.cs-mcg-br-ruled-field {
+  display: grid;
+  grid-template-columns: 7.35rem minmax(0, 1fr);
+  column-gap: 0.4rem;
+  align-items: start;
+  min-width: 0;
+  margin-top: 0.12rem;
+}
+
+.cs-mcg-br-ruled-field > .cs-mcg-line-label {
+  grid-column: 1;
+  justify-self: start;
+  margin-top: 0.12rem;
+}
+
+.cs-mcg-br-ruled-value {
+  grid-column: 2;
+  min-width: 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: calc(2.85 * 1.35em + 0.08rem);
+  padding-bottom: 0.06rem;
+  color: var(--cs-ink);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.35em - 1px),
+    var(--cs-line) calc(1.35em - 1px),
+    var(--cs-line) 1.35em
+  );
+  background-repeat: repeat-x;
+  background-size: 100% 1.35em;
+  background-position: left top;
 }
 
 .cs-mcg-br-head {
@@ -1424,6 +1767,18 @@
   gap: 0.35rem;
   font-size: 0.76rem;
   margin: 0.12rem 0;
+}
+
+.cs-dragon-sheet-tick {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--drg-line);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.88);
+  vertical-align: bottom;
 }
 
 .cs-dragon-spacer {

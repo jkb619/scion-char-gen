@@ -10,7 +10,7 @@
     "callingsAny": true,
     "tierMin": "hero",
     "knackKind": "mortal",
-    "description": "Once per scene unveil your full power on a social roll to impress, threaten, intimidate, or overwhelm.",
+    "description": "Once per scene: +2 Enhancement on that social roll. Once per scene unveil your full power on a social roll to impress, threaten, intimidate, or overwhelm.",
     "mechanicalEffects": "Once per scene: +2 Enhancement on that social roll. Everyone who can sense the supernatural intuits your Titanic nature, Legend, and pantheon; trivial characters flee or freeze.",
     "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Heroic)"
   },
@@ -40,7 +40,7 @@
     "callingsAny": true,
     "tierMin": "hero",
     "knackKind": "immortal",
-    "description": "Your Innate Purview marvels can flare beyond normal limits but betray you to keen observers.",
+    "description": "Once per scene: one extra Innate Purview marvel this scene without counting toward your marvel limit. Once per scene. Your Innate Purview marvels can flare beyond normal limits but betray you to keen observers.",
     "mechanicalEffects": "Once per scene: one extra Innate Purview marvel this scene without counting toward your marvel limit. Whenever you imbue or spend Legend, Hero+ characters may roll Occult + Intellect to identify you and gain +2 Enhancement to track or detect you for the scene.",
     "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Immortal)"
   },
@@ -48,7 +48,10 @@
     "id": "tr_general_divine_armistice",
     "name": "Divine Armistice (Òrìshà / Loa)",
     "callingsAny": true,
-    "pantheonAnyOf": ["orisha", "loa"],
+    "pantheonAnyOf": [
+      "orisha",
+      "loa"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Spend Momentum to cool hatred between Gods, Titans, and the Titanomachy within a Field.",
@@ -58,7 +61,9 @@
   "tr_adv_enemy_of_my_enemy": {
     "id": "tr_adv_enemy_of_my_enemy",
     "name": "Enemy of My Enemy",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Sense shared grudges and read useful memories about why someone hates what you hate.",
@@ -68,7 +73,9 @@
   "tr_adv_my_misfortune_is_your_misfortune": {
     "id": "tr_adv_my_misfortune_is_your_misfortune",
     "name": "My Misfortune Is Your Misfortune",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Redirect a Complication imposed on you toward the source or someone they care about.",
@@ -78,7 +85,9 @@
   "tr_adv_perfectly_symmetrical_violence": {
     "id": "tr_adv_perfectly_symmetrical_violence",
     "name": "Perfectly Symmetrical Violence",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Strike back immediately when someone injures you.",
@@ -88,7 +97,9 @@
   "tr_adv_pride_before_a_fall": {
     "id": "tr_adv_pride_before_a_fall",
     "name": "Pride Before a Fall",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Punish a rival’s successes with ironic failure.",
@@ -98,7 +109,9 @@
   "tr_adv_a_wicked_idea": {
     "id": "tr_adv_a_wicked_idea",
     "name": "A Wicked Idea",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Plant a dangerous idea disguised as a joke; the target’s self-control frays.",
@@ -108,8 +121,12 @@
   "tr_adv_fever_ridden_bogovi": {
     "id": "tr_adv_fever_ridden_bogovi",
     "name": "Fever-Ridden (Bogovi)",
-    "callings": ["adversary"],
-    "pantheonAnyOf": ["bogovi"],
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "bogovi"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Possess another as a spiritual disease, riding their senses.",
@@ -119,8 +136,12 @@
   "tr_adv_wrath_is_sustenance_kuh": {
     "id": "tr_adv_wrath_is_sustenance_kuh",
     "name": "Wrath Is Sustenance (K’uh)",
-    "callings": ["adversary"],
-    "pantheonAnyOf": ["kuh"],
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "kuh"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Feed on enmity; leverage hatred in contests.",
@@ -130,7 +151,9 @@
   "tr_adv_my_best_enemy": {
     "id": "tr_adv_my_best_enemy",
     "name": "My Best Enemy",
-    "callings": ["adversary"],
+    "callings": [
+      "adversary"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Hold extra temporary Fatebindings fueled by rivalry.",
@@ -140,8 +163,12 @@
   "tr_adv_ruin_your_life_netjer": {
     "id": "tr_adv_ruin_your_life_netjer",
     "name": "Ruin Your Life (Netjer)",
-    "callings": ["adversary"],
-    "pantheonAnyOf": ["netjer"],
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "netjer"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Steal an enemy’s identity to destroy their reputation.",
@@ -151,8 +178,12 @@
   "tr_adv_that_venom_deception_palas": {
     "id": "tr_adv_that_venom_deception_palas",
     "name": "That Venom, Deception (Pālas)",
-    "callings": ["adversary"],
-    "pantheonAnyOf": ["palas"],
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "palas"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Spread irresistible gossip that compels believers to repeat it.",
@@ -162,17 +193,21 @@
   "tr_dest_it_all_ends_in_silence": {
     "id": "tr_dest_it_all_ends_in_silence",
     "name": "It All Ends in Silence",
-    "callings": ["destroyer"],
+    "callings": [
+      "destroyer"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
-    "description": "Create a sound-suppressing Field favoring stealth and muffling foes.",
+    "description": "Spend Momentum: Field grants +1 Enhancement to Stealth. Create a sound-suppressing Field favoring stealth and muffling foes.",
     "mechanicalEffects": "Spend Momentum: Field grants +1 Enhancement to Stealth; noisy actions take +3 Complication; if not bought off, speech cannot carry beyond Short range for the scene.",
     "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic)"
   },
   "tr_dest_not_a_trace": {
     "id": "tr_dest_not_a_trace",
     "name": "Not a Trace (Destroyer)",
-    "callings": ["destroyer"],
+    "callings": [
+      "destroyer"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Erase forensic and electronic evidence of your presence after each scene.",
@@ -182,7 +217,9 @@
   "tr_dest_sever_the_ties": {
     "id": "tr_dest_sever_the_ties",
     "name": "Sever the Ties",
-    "callings": ["destroyer"],
+    "callings": [
+      "destroyer"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Undermine loyalties harder when you Shift Attitude to tear bonds apart.",
@@ -192,7 +229,9 @@
   "tr_dest_what_you_fear_losing": {
     "id": "tr_dest_what_you_fear_losing",
     "name": "What You Fear Losing",
-    "callings": ["destroyer"],
+    "callings": [
+      "destroyer"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Read what a victim cannot bear to lose and leverage it in threats.",
@@ -202,8 +241,12 @@
   "tr_dest_juracans_dance_zem": {
     "id": "tr_dest_juracans_dance_zem",
     "name": "Juracán’s Dance (Zemí)",
-    "callings": ["destroyer"],
-    "pantheonAnyOf": ["zem"],
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "zem"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Channel destruction through performance and revolutionary art.",
@@ -213,8 +256,12 @@
   "tr_dest_jotuns_armory_aesir": {
     "id": "tr_dest_jotuns_armory_aesir",
     "name": "Jötun’s Armory (Æsir)",
-    "callings": ["destroyer"],
-    "pantheonAnyOf": ["aesir"],
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "aesir"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Reflexively arm yourself with improvised oversized weapons from scenery.",
@@ -224,8 +271,12 @@
   "tr_dest_swallow_the_moon_balahala": {
     "id": "tr_dest_swallow_the_moon_balahala",
     "name": "Swallow the Moon (Bahala)",
-    "callings": ["destroyer"],
-    "pantheonAnyOf": ["balahala"],
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "balahala"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Diminish a Purview’s grip on the scene by devouring its symbolic power.",
@@ -235,8 +286,12 @@
   "tr_dest_evil_eye_tuatha": {
     "id": "tr_dest_evil_eye_tuatha",
     "name": "The Evil Eye (Tuatha)",
-    "callings": ["destroyer"],
-    "pantheonAnyOf": ["tuathaDeDanann"],
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "tuathaDeDanann"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Your locked gaze becomes a lethal, vision-warping curse.",
@@ -246,8 +301,12 @@
   "tr_dest_embrace_the_end_yazata": {
     "id": "tr_dest_embrace_the_end_yazata",
     "name": "Embrace the End (Yazata)",
-    "callings": ["destroyer"],
-    "pantheonAnyOf": ["yazata"],
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "yazata"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Your attacks carry decay—wounds fester and years catch up.",
@@ -257,18 +316,24 @@
   "tr_mon_stinging_stink_manitou": {
     "id": "tr_mon_stinging_stink_manitou",
     "name": "Stinging Stink (Manitou)",
-    "callings": ["monster"],
-    "pantheonAnyOf": ["manitou"],
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "manitou"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
-    "description": "Release a musk cloud that marks everyone nearby with stench and social peril.",
+    "description": "Action: Noxious Condition on everyone within Short. Release a musk cloud that marks everyone nearby with stench and social peril.",
     "mechanicalEffects": "Action: Noxious Condition on everyone within Short; hours to scrub; +2 Complication on social influence to avoid offense and on Stealth to avoid trails for the scene.",
     "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Heroic, Manitou)"
   },
   "tr_mon_no_close_ups_please": {
     "id": "tr_mon_no_close_ups_please",
     "name": "No Close-ups, Please",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Your face refuses to be remembered—only the fear sticks.",
@@ -278,8 +343,12 @@
   "tr_mon_debts_paid_in_blood_teotl": {
     "id": "tr_mon_debts_paid_in_blood_teotl",
     "name": "Debts Paid in Blood (Teōtl)",
-    "callings": ["monster"],
-    "pantheonAnyOf": ["teotl"],
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "teotl"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Hunt anyone indebted to you across distance with predatory certainty.",
@@ -289,7 +358,9 @@
   "tr_mon_face_of_fear": {
     "id": "tr_mon_face_of_fear",
     "name": "The Face of Fear",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Embody a target’s primal fear to terrify them worse than anyone else.",
@@ -299,7 +370,9 @@
   "tr_mon_evolving_threat": {
     "id": "tr_mon_evolving_threat",
     "name": "Evolving Threat",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Each turn you adapt armor or natural weapons against what hurt you.",
@@ -309,7 +382,9 @@
   "tr_mon_lifeblood_buffet": {
     "id": "tr_mon_lifeblood_buffet",
     "name": "Lifeblood Buffet",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "A concealed natural weapon feeds on blood to mend your wounds.",
@@ -319,28 +394,36 @@
   "tr_mon_monsters_in_the_mirror": {
     "id": "tr_mon_monsters_in_the_mirror",
     "name": "Monsters in the Mirror",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
-    "description": "Infect others with Monstrous Urges that risk collateral harm.",
+    "description": "Spend Momentum to inflict Monstrous Urges (see Saints & Monsters or Titanomachy for the Condition). Infect others with Monstrous Urges that risk collateral harm.",
     "mechanicalEffects": "Spend Momentum to inflict Monstrous Urges (see Saints & Monsters or Titanomachy for the Condition). Same Tier+ resists with Clash of Wills.",
     "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
   },
   "tr_mon_skulking_horror": {
     "id": "tr_mon_skulking_horror",
     "name": "Skulking Horror",
-    "callings": ["monster"],
+    "callings": [
+      "monster"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
-    "description": "While hidden and your position unknown, slip across Long range without crossing the space between.",
+    "description": "While concealed from all observers, move to any location you can see within Long range without traversing intervening space. While hidden and your position unknown, slip across Long range without crossing the space between.",
     "mechanicalEffects": "While concealed from all observers, move to any location you can see within Long range without traversing intervening space.",
     "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
   },
   "tr_mon_sacrificial_spawn_tengri": {
     "id": "tr_mon_sacrificial_spawn_tengri",
     "name": "Sacrificial Spawn (Tengri)",
-    "callings": ["monster"],
-    "pantheonAnyOf": ["tengri"],
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "tengri"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Sacrifice a body part to birth a short-lived titanspawn.",
@@ -350,7 +433,9 @@
   "tr_prime_bending_the_world": {
     "id": "tr_prime_bending_the_world",
     "name": "Bending the World",
-    "callings": ["primeval"],
+    "callings": [
+      "primeval"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Act at Close range through wind, plants, and other natural extensions.",
@@ -360,8 +445,12 @@
   "tr_prime_the_old_ways_nemetondevos": {
     "id": "tr_prime_the_old_ways_nemetondevos",
     "name": "The Old Ways (Nemetondevos)",
-    "callings": ["primeval"],
-    "pantheonAnyOf": ["nemetondevos"],
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "nemetondevos"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Punish reliance on complex tools; return craft to raw elements.",
@@ -371,7 +460,9 @@
   "tr_prime_none_grasp_the_wind": {
     "id": "tr_prime_none_grasp_the_wind",
     "name": "None Grasp the Wind",
-    "callings": ["primeval"],
+    "callings": [
+      "primeval"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Slip bonds and barriers that would hold a mortal body.",
@@ -381,7 +472,9 @@
   "tr_prime_world_is_my_partner": {
     "id": "tr_prime_world_is_my_partner",
     "name": "The World Is My Partner",
-    "callings": ["primeval"],
+    "callings": [
+      "primeval"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "A bond with your Purview refreshes each session to bank successes like a normal Bond.",
@@ -391,7 +484,9 @@
   "tr_prime_world_provides": {
     "id": "tr_prime_world_provides",
     "name": "The World Provides",
-    "callings": ["primeval"],
+    "callings": [
+      "primeval"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Shape simple mundane materials for crafting without special supplies.",
@@ -401,8 +496,12 @@
   "tr_prime_caldera_overflows_atua": {
     "id": "tr_prime_caldera_overflows_atua",
     "name": "The Caldera Overflows (Atua)",
-    "callings": ["primeval"],
-    "pantheonAnyOf": ["atua"],
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "atua"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "When you are injured, your Purview lashes out as hazardous terrain.",
@@ -412,18 +511,24 @@
   "tr_prime_implacable_as_winter": {
     "id": "tr_prime_implacable_as_winter",
     "name": "Implacable as Winter",
-    "callings": ["primeval"],
+    "callings": [
+      "primeval"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
-    "description": "Once per scene, shut down emotional leverage against you.",
+    "description": "Once per scene reset one attitude to 0 or reduce an atmosphere’s influence on you by Primeval. For the rest of the scene, plays on your ambitions/desires take +2 Complication; if not bought off, the manipulator risks Injury as elements lash out. Once per scene, shut down emotional leverage against you.",
     "mechanicalEffects": "Once per scene reset one attitude to 0 or reduce an atmosphere’s influence on you by Primeval. For the rest of the scene, plays on your ambitions/desires take +2 Complication; if not bought off, the manipulator risks Injury as elements lash out.",
     "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Immortal)"
   },
   "tr_prime_single_minded_disaster_kami": {
     "id": "tr_prime_single_minded_disaster_kami",
     "name": "Single-Minded Disaster (Kami)",
-    "callings": ["primeval"],
-    "pantheonAnyOf": ["kami"],
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "kami"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Declare your intent for the scene and barrel through opposition—at a cost.",
@@ -433,8 +538,12 @@
   "tr_prime_bodys_trove_theoi": {
     "id": "tr_prime_bodys_trove_theoi",
     "name": "The Body’s Trove (Theoi)",
-    "callings": ["primeval"],
-    "pantheonAnyOf": ["theoi"],
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "theoi"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Hide tools and willing passengers inside your Titanic body.",
@@ -444,18 +553,24 @@
   "tr_tyr_compliance_is_rewarded": {
     "id": "tr_tyr_compliance_is_rewarded",
     "name": "Compliance Is Rewarded",
-    "callings": ["tyrant"],
+    "callings": [
+      "tyrant"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
-    "description": "Heal a subordinate’s Condition, then punish future defiance.",
+    "description": "Spend 1 Momentum to resolve a Condition on someone who recognizes you as superior. Heal a subordinate’s Condition, then punish future defiance.",
     "mechanicalEffects": "Spend 1 Momentum to resolve a Condition on someone who recognizes you as superior; next defiance inflicts Complication equal to Tyrant dots or the Condition returns with Injury if not bought off. Higher-Tier sources require Clash of Wills (Legend + Presence).",
     "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic)"
   },
   "tr_tyr_impossible_quest_tuatha": {
     "id": "tr_tyr_impossible_quest_tuatha",
     "name": "An Impossible Quest (Plant Dôn)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["tuathaDeDanann"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "tuathaDeDanann"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Goad someone into a brutal task with a tempting reward.",
@@ -465,8 +580,12 @@
   "tr_tyr_greasing_the_palm_shen": {
     "id": "tr_tyr_greasing_the_palm_shen",
     "name": "Greasing the Palm (Shén)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["shen"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "shen"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Intuit the perfect bribe for an official and lock in their complicity.",
@@ -476,7 +595,9 @@
   "tr_tyr_the_last_word": {
     "id": "tr_tyr_the_last_word",
     "name": "The Last Word",
-    "callings": ["tyrant"],
+    "callings": [
+      "tyrant"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "End a debate or topic for the rest of the scene.",
@@ -486,7 +607,9 @@
   "tr_tyr_whom_do_you_serve": {
     "id": "tr_tyr_whom_do_you_serve",
     "name": "Whom Do You Serve?",
-    "callings": ["tyrant"],
+    "callings": [
+      "tyrant"
+    ],
     "tierMin": "hero",
     "knackKind": "mortal",
     "description": "Map a character’s loyalties, chains of command, and attitudes.",
@@ -496,8 +619,12 @@
   "tr_tyr_shatter_tablets_anunna": {
     "id": "tr_tyr_shatter_tablets_anunna",
     "name": "Shatter Tablets, Seize Crowns (Annunaki)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["anunna"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "anunna"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Claim honors, offices, or possessions from a rival you defeat in an agreed contest.",
@@ -507,8 +634,12 @@
   "tr_tyr_dwelling_in_darkness_apu": {
     "id": "tr_tyr_dwelling_in_darkness_apu",
     "name": "Dwelling in Darkness (Apu)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["apu"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "apu"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Consecrate a dark stronghold and snap back to it when plans collapse.",
@@ -518,8 +649,12 @@
   "tr_tyr_obvious_superiority_deva": {
     "id": "tr_tyr_obvious_superiority_deva",
     "name": "Obvious Superiority (Devá)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["deva"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "deva"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Reject authority that is not your own with overwhelming disdain.",
@@ -529,8 +664,12 @@
   "tr_tyr_auspices_of_attar_ilhm": {
     "id": "tr_tyr_auspices_of_attar_ilhm",
     "name": "Auspices of Attar (Ilhm)",
-    "callings": ["tyrant"],
-    "pantheonAnyOf": ["ilhm"],
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "ilhm"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Rally trivial mortals as fanatic Heavy Followers for one battle.",
@@ -540,7 +679,9 @@
   "tr_tyr_survey_the_empire": {
     "id": "tr_tyr_survey_the_empire",
     "name": "Survey the Empire",
-    "callings": ["tyrant"],
+    "callings": [
+      "tyrant"
+    ],
     "tierMin": "hero",
     "knackKind": "immortal",
     "description": "Read the morale and needs of those sworn or subject to you.",

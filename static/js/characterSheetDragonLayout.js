@@ -106,12 +106,11 @@ export function fillDragonFourPageLayout(el, api) {
     return w;
   }
 
-  function checkbox(disabled = true) {
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.disabled = disabled;
-    cb.setAttribute("aria-hidden", "true");
-    return cb;
+  function checkbox() {
+    const tick = document.createElement("span");
+    tick.className = "cs-dragon-sheet-tick";
+    tick.setAttribute("aria-hidden", "true");
+    return tick;
   }
 
   function knackLabel(id) {
@@ -203,8 +202,7 @@ export function fillDragonFourPageLayout(el, api) {
   idBlock.appendChild(lineField("Name", data.characterName));
   idBlock.appendChild(lineField("Flight / Dragon", data.flightName || data.flightId || ""));
   idBlock.appendChild(lineField("Player", ""));
-  const chronicle =
-    [data.tierName, data.tierAlsoKnownAs].filter(Boolean).join(" — ") || String(data.trackTierLabel || "");
+  const chronicle = String(data.tierName || data.trackTierLabel || "").trim();
   idBlock.appendChild(lineField("Chronicle", chronicle));
   p1.appendChild(idBlock);
 
@@ -514,7 +512,7 @@ export function fillDragonFourPageLayout(el, api) {
     const head = document.createElement("div");
     head.className = "cs-dragon-br-head";
     head.appendChild(document.createElement("span"));
-    head.appendChild(dotTrack(1));
+    head.appendChild(dotTrack(0));
     blk.appendChild(head);
     const dl = document.createElement("div");
     dl.className = "cs-dragon-br-desc-label";

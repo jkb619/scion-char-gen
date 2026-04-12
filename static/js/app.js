@@ -13,16 +13,24 @@ import {
   pruneKnackIdsToCallingSlotCap,
   syncHeroKnackSlotAssignments,
   knackAppliesToCallingsLine,
+  heroCallingRowMatchesKnack,
+  knackCallingTokensForRowMatch,
+  originCallingKnackChipGroupKey,
   boonEligible,
   boonIsPurviewInnateAutomaticGrant,
   boonPrimaryPurview,
   characterPurviewIdSet,
   mythosCallingTwinId,
+  mythosPatronCallingIdForChooser,
+  callingIdInWizardLibraryChooser,
 } from "./eligibility.js";
 import { boonDisplayLabel } from "./boonLabels.js";
-import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { birthrightTagIds, birthrightTagLabels } from "./birthrightTags.js";
+import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.js";
 import { apiUrl } from "./apiBase.js";
+import { buildScionInteractivePdfFields, downloadInteractiveCharacterPdf } from "./interactivePdfFields.js";
+import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
 import {
   renderDragonChargen,
   persistDragonFromDom,
@@ -246,6 +254,34 @@ function clampLegendRating(value, tierId) {
 
 function syncLegendToTier() {
   character.legendRating = clampLegendRating(character.legendRating ?? 0, character.tier);
+  ensureLegendAwarenessPoolSlotArrays();
+}
+
+/** Pad or trim per-dot pool-spent flags to length `n` (Legend / Awareness imbue tracking on the sheet). */
+function padPoolSlotArray(arr, n) {
+  const cap = Math.max(0, Math.round(Number(n) || 0));
+  const out = Array(cap).fill(false);
+  if (!Array.isArray(arr)) return out;
+  for (let i = 0; i < cap; i += 1) out[i] = !!arr[i];
+  return out;
+}
+
+/** Keep `legendPoolDotSpentSlots` / `awarenessPoolDotSpentSlots` aligned with tier (and Mythos for Awareness). */
+function ensureLegendAwarenessPoolSlotArrays() {
+  const legN = legendDotMaxForTier(character.tier);
+  if (!Array.isArray(character.legendPoolDotSpentSlots)) {
+    character.legendPoolDotSpentSlots = Array(legN).fill(false);
+    if (character.legendPoolDotSpent === true) character.legendPoolDotSpentSlots[0] = true;
+  } else {
+    character.legendPoolDotSpentSlots = padPoolSlotArray(character.legendPoolDotSpentSlots, legN);
+  }
+  const awN = isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1;
+  if (!Array.isArray(character.awarenessPoolDotSpentSlots)) {
+    character.awarenessPoolDotSpentSlots = Array(awN).fill(false);
+    if (character.awarenessPoolDotSpent === true) character.awarenessPoolDotSpentSlots[0] = true;
+  } else {
+    character.awarenessPoolDotSpentSlots = padPoolSlotArray(character.awarenessPoolDotSpentSlots, awN);
+  }
 }
 
 /**
@@ -278,13 +314,17 @@ function buildLegendDotTrack(value, tierId, interactive) {
   return wrap;
 }
 
-/** Masks of the Mythos: Awareness track length (defaults to 1 dot filled at chargen). */
-const AWARENESS_DOT_MAX = 10;
+/** Mythos Awareness: same per-tier cap as Legend (Origin 1, Hero 4, …). */
+function awarenessDotMaxForTier(tierId) {
+  return legendDotMaxForTier(tierId);
+}
 
-function clampAwarenessRating(value) {
+function clampAwarenessRating(value, tierId = character.tier) {
+  if (!isMythosPantheonSelected()) return 1;
+  const max = awarenessDotMaxForTier(tierId);
   const n = Math.round(Number(value));
   const x = Number.isNaN(n) ? 1 : n;
-  return Math.max(1, Math.min(AWARENESS_DOT_MAX, x));
+  return Math.max(1, Math.min(max, x));
 }
 
 function syncAwarenessWithPantheon() {
@@ -293,16 +333,18 @@ function syncAwarenessWithPantheon() {
   } else {
     character.awarenessRating = 1;
   }
+  ensureLegendAwarenessPoolSlotArrays();
 }
 
 /**
- * Mythos Awareness: 1–10 filled dots. Click dot i to set to i; click again on the rightmost filled dot to lower by one (minimum 1).
+ * Mythos Awareness: 1..tier-max filled dots. Click dot i to set to i; click again on the rightmost filled dot to lower by one (minimum 1).
  * @param {number} value
+ * @param {string} tierId
  * @param {boolean} interactive
  */
-function buildAwarenessDotTrack(value, interactive) {
-  const max = AWARENESS_DOT_MAX;
-  const v = clampAwarenessRating(value);
+function buildAwarenessDotTrack(value, tierId, interactive) {
+  const max = awarenessDotMaxForTier(tierId);
+  const v = clampAwarenessRating(value, tierId);
   const wrap = document.createElement("span");
   wrap.className = "legend-dot-track legend-dot-track-dense";
   wrap.setAttribute("role", interactive ? "radiogroup" : "img");
@@ -314,7 +356,7 @@ function buildAwarenessDotTrack(value, interactive) {
     if (interactive) {
       d.tabIndex = 0;
       d.addEventListener("click", () => {
-        const cur = clampAwarenessRating(character.awarenessRating ?? 1);
+        const cur = clampAwarenessRating(character.awarenessRating ?? 1, character.tier);
         if (cur === i) character.awarenessRating = Math.max(1, i - 1);
         else character.awarenessRating = i;
         syncAwarenessWithPantheon();
@@ -362,7 +404,7 @@ function defaultCharacter() {
     tier: "mortal",
     characterName: "",
     concept: "",
-    deeds: { short: "", long: "", band: "" },
+    deeds: { short: "", long: "", band: "", mythos: "" },
     paths: { origin: "", role: "", society: "" },
     pantheonId: "",
     /** 0–5 filled dots between pantheon Virtue extremes (left → right in virtues.json order). */
@@ -396,8 +438,12 @@ function defaultCharacter() {
     birthrightIds: [],
     /** 0 = none until set in the header (Legend fluctuates in play; tier advance does not auto-fill dots). */
     legendRating: 0,
-    /** Masks of the Mythos pantheon only: Awareness 1–10 (stored as 1 when not Mythos). */
+    /** Masks of the Mythos pantheon only: Awareness 1..tier max (stored as 1 when not Mythos). */
     awarenessRating: 1,
+    /** At-table: one flag per Legend dot on the track (imbued / spent pool from that die). */
+    legendPoolDotSpentSlots: [],
+    /** At-table: one flag per Awareness dot (Mythos); length 1 when not Mythos. */
+    awarenessPoolDotSpentSlots: [],
     /** { fromTier, toTier, appliedAt, source, checklist }[] */
     tierAdvancementLog: [],
     finishing: {
@@ -535,7 +581,7 @@ function renderMythosInnatePowerPanel(wrap) {
   const panel = document.createElement("div");
   panel.className = "panel mythos-innate-panel";
   const h = document.createElement("h2");
-  h.textContent = "Mythos: Innate Power (Purview)";
+  h.textContent = "Mythos: Awareness Innate Power";
   panel.appendChild(h);
   const intro = document.createElement("p");
   intro.className = "help";
@@ -563,19 +609,27 @@ function renderMythosInnatePowerPanel(wrap) {
   const fieldset = document.createElement("fieldset");
   fieldset.className = "mythos-innate-fieldset";
   const leg = document.createElement("legend");
-  leg.textContent = "Innate Purview powers";
+  leg.textContent = "Standard innate vs Awareness Innate";
   fieldset.appendChild(leg);
+
+  const heroLikeInnate =
+    normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic";
 
   const stdBlock = document.createElement("div");
   stdBlock.className = "field mythos-innate-standard-block";
   const stdTitle = document.createElement("div");
   stdTitle.className = "field mythos-innate-subhead";
-  stdTitle.textContent = "Standard innate Purview";
+  stdTitle.textContent = heroLikeInnate ? "Standard innate (patron Purview)" : "Standard innate Purview";
   stdBlock.appendChild(stdTitle);
   const stdP = document.createElement("p");
   stdP.className = "help";
-  stdP.innerHTML =
-    "Use the <strong>standard innate Purview</strong> write-ups from <strong>Pandora’s Box (Revised)</strong> (primary) and Scion: Hero where PB cross-references Hero, for each Purview your <strong>divine parent</strong> grants (patron Purviews from Origin Appendix 2). That follows the parent’s list, not the pantheon’s Signature Purview alone.";
+  if (heroLikeInnate) {
+    stdP.innerHTML =
+      "On Hero / Titanic, choose your patron innate with the <strong>Patron innate Purview</strong> chips <strong>above</strong>. That uses the <strong>standard innate</strong> from <strong>Pandora’s Box (Revised)</strong> (and Hero where PB points there)—not the Awareness dropdown in this section.";
+  } else {
+    stdP.innerHTML =
+      "Use the <strong>standard innate Purview</strong> write-ups from <strong>Pandora’s Box (Revised)</strong> (primary) and Scion: Hero where PB cross-references Hero, for each Purview your <strong>divine parent</strong> grants (patron Purviews from Origin Appendix 2). That follows the parent’s list, not the pantheon’s Signature Purview alone.";
+  }
   stdBlock.appendChild(stdP);
   const deity = selectedDeityEntity();
   const parentPvIds = Array.isArray(deity?.purviews) ? [...new Set(deity.purviews)].filter(Boolean) : [];
@@ -590,7 +644,7 @@ function renderMythosInnatePowerPanel(wrap) {
     w.className = "warn";
     w.textContent = "This divine parent has no patron Purviews listed in pantheon data yet.";
     stdBlock.appendChild(w);
-  } else {
+  } else if (!heroLikeInnate) {
     const ul = document.createElement("ul");
     ul.className = "mythos-innate-parent-purviews";
     for (const pid of [...parentPvIds].sort((a, b) =>
@@ -610,12 +664,13 @@ function renderMythosInnatePowerPanel(wrap) {
 
   const awTitle = document.createElement("div");
   awTitle.className = "field mythos-innate-subhead";
-  awTitle.textContent = "Mythos Awareness Innate (MotM)";
+  awTitle.textContent = "Awareness Innate — which Purview? (MotM)";
   fieldset.appendChild(awTitle);
   const awIntro = document.createElement("p");
   awIntro.className = "help";
-  awIntro.innerHTML =
-    "Optionally commit to the <strong>Awareness Innate</strong> for <strong>one</strong> Purview from your <strong>divine parent’s</strong> list below (MotM pp. 49–59). Once confirmed, you cannot revert.";
+  awIntro.innerHTML = heroLikeInnate
+    ? "The <strong>dropdown</strong> is only for picking <strong>which parent Purview</strong> receives MotM’s <strong>Awareness Innate</strong> text if you press <strong>Awareness Innate Power…</strong>. It does <strong>not</strong> set your normal innate—that stays the chip selection above unless you commit and replace the model (MotM pp. 49–59; irreversible once committed)."
+    : "Optionally commit to the <strong>Awareness Innate</strong> for <strong>one</strong> Purview from your <strong>divine parent’s</strong> list (MotM pp. 49–59). Once confirmed, you cannot revert.";
   fieldset.appendChild(awIntro);
 
   const heroTier = normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic";
@@ -623,7 +678,9 @@ function renderMythosInnatePowerPanel(wrap) {
   rowPv.className = "field mythos-innate-awareness-row" + (heroTier ? " mythos-innate-awareness-row--hero-inline" : "");
   const labPv = document.createElement("label");
   labPv.htmlFor = "f-mythos-innate-purview";
-  labPv.textContent = "Purview (must be on divine parent’s list)";
+  labPv.textContent = heroLikeInnate
+    ? "Purview for Awareness Innate (parent list; if committing)"
+    : "Purview (must be on divine parent’s list)";
   const sel = document.createElement("select");
   sel.id = "f-mythos-innate-purview";
   const blank = document.createElement("option");
@@ -776,10 +833,6 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
   dotsTd.className = "skill-ratings-col-dots";
   const dotsWrap = document.createElement("div");
   dotsWrap.className = "skill-ratings-dots-wrap";
-  const valSpan = document.createElement("span");
-  valSpan.className = "skill-dot-total";
-  valSpan.textContent = String(val);
-  dotsWrap.appendChild(valSpan);
   const dots = document.createElement("div");
   dots.className = "dots";
   const bSk = character.finishing.skillBaseline || {};
@@ -810,19 +863,6 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
     }
   }
   dotsWrap.appendChild(dots);
-  if (mode === "finishing") {
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.className = "btn secondary skill-ratings-clear";
-    clear.textContent = "clear";
-    clear.addEventListener("click", () => {
-      character.skillDots[sid] = minV;
-      delete character.skillSpecialties[sid];
-      render();
-    });
-    applyHint(clear, "skill-clear");
-    dotsWrap.appendChild(clear);
-  }
   dotsTd.appendChild(dotsWrap);
   tr.appendChild(dotsTd);
   applyGameDataHint(dotsTd, skillMeta);
@@ -1088,20 +1128,32 @@ function callingIdsAllowedForCharacter() {
   if (!Array.isArray(raw) || raw.length === 0) return null;
   let out = raw.filter((cid) => typeof cid === "string" && !cid.startsWith("_") && bundle.callings?.[cid]);
   if (out.length === 0) return null;
-  /** MotM: parent lists one side of an inverted pair; the player may take the normal or inverted Calling. */
+  /** MotM: chooser lists only inverted Callings; standard ids from data map to their inverted twin (e.g. Sage → Cosmos). */
   if (isMythosPantheonSelected()) {
-    const seen = new Set(out);
-    const extra = [];
+    const seen = new Set();
+    const mapped = [];
     for (const cid of out) {
-      const twin = mythosCallingTwinId(cid);
-      if (twin && bundle.callings?.[twin] && !seen.has(twin)) {
-        seen.add(twin);
-        extra.push(twin);
-      }
+      const use = mythosPatronCallingIdForChooser(cid);
+      if (!use || !bundle.callings?.[use] || seen.has(use)) continue;
+      seen.add(use);
+      mapped.push(use);
     }
-    out = [...out, ...extra];
+    out = mapped;
   }
   return out;
+}
+
+/** If `id` is not in `allowed`, map Mythos normal→inverted twin when that twin is allowed (keeps slots valid after chooser change). */
+function remapCallingIdIntoAllowedList(id, allowed) {
+  const sid = String(id || "").trim();
+  const list = Array.isArray(allowed) ? allowed : [];
+  if (!sid || !list.length) return "";
+  if (list.includes(sid)) return sid;
+  if (isMythosPantheonSelected()) {
+    const twin = mythosCallingTwinId(sid);
+    if (twin && list.includes(twin)) return twin;
+  }
+  return "";
 }
 
 /** Hero tier only: three Storypath Callings with dots (Visitation default 1 / 1 / 1 before you assign the rest). */
@@ -1147,7 +1199,8 @@ function rebalanceHeroCallingSlotDotsOverFive() {
 function initHeroCallingSlotsAfterVisitation() {
   const allowed = callingIdsAllowedForCharacter();
   const cur = String(character.callingId || "").trim();
-  const primary = allowed?.includes(cur) ? cur : allowed?.[0] || cur || "";
+  const mapped = remapCallingIdIntoAllowedList(cur, allowed || []);
+  const primary = mapped || allowed?.[0] || cur || "";
   character.callingSlots = [
     { id: primary, dots: 1 },
     { id: "", dots: 1 },
@@ -1189,15 +1242,33 @@ function syncCallingToParentDeity() {
   if (heroUsesCallingSlots()) {
     ensureCallingSlotsForHero();
     if (allowed) {
-      const allowedSet = new Set(allowed);
+      const patronSet = new Set(allowed);
+      const mythos = isMythosPantheonSelected();
+      const fullCallingSet = new Set(
+        Object.keys(bundle.callings || {}).filter(
+          (k) => typeof k === "string" && k && !k.startsWith("_") && callingIdInWizardLibraryChooser(k, bundle, mythos),
+        ),
+      );
       const lockPrimary = visitationLocksPrimaryCallingChoice();
       for (let si = 0; si < character.callingSlots.length; si += 1) {
         if (lockPrimary && si === 0) continue;
         const s = character.callingSlots[si];
-        if (s.id && !allowedSet.has(s.id)) s.id = "";
+        if (!s.id) continue;
+        if (si === 0) {
+          if (!patronSet.has(s.id)) {
+            const mapped = remapCallingIdIntoAllowedList(s.id, allowed);
+            s.id = mapped || "";
+          }
+        } else if (!fullCallingSet.has(s.id)) {
+          s.id = "";
+        }
       }
-      const cur0 = character.callingSlots[0]?.id || "";
-      if (!allowedSet.has(cur0) && !lockPrimary) character.callingSlots[0].id = allowed[0] || "";
+      const cur0 = String(character.callingSlots[0]?.id || "").trim();
+      if (cur0 && !patronSet.has(cur0)) {
+        const m0 = remapCallingIdIntoAllowedList(cur0, allowed);
+        if (m0) character.callingSlots[0].id = m0;
+        else if (!lockPrimary) character.callingSlots[0].id = allowed[0] || "";
+      }
     }
     syncCallingAggregatesFromHeroSlots();
     return;
@@ -1205,7 +1276,43 @@ function syncCallingToParentDeity() {
   if (!allowed) return;
   const cur = character.callingId || "";
   if (allowed.includes(cur)) return;
-  character.callingId = allowed[0] || "";
+  const mapped = remapCallingIdIntoAllowedList(cur, allowed);
+  character.callingId = mapped || allowed[0] || "";
+}
+
+/** @param {unknown} arr */
+function validPathSkillIdArray(arr) {
+  const skillsTable = bundle?.skills;
+  if (!Array.isArray(arr)) return [];
+  return arr.filter((id) => typeof id === "string" && id && !id.startsWith("_") && skillsTable?.[id]);
+}
+
+/** Pantheon row only — used to drop stale Society picks after switching to a patron with different Asset Skills. */
+function pantheonWideSocietyAssetSkillIds() {
+  const p = bundle?.pantheons?.[character.pantheonId];
+  if (!p || typeof p !== "object") return [];
+  return validPathSkillIdArray(p.assetSkills);
+}
+
+/**
+ * Asset Skills that appear on at least one patron row but not on the pantheon-wide list (after bundle stamp).
+ * Used to clear a previous parent’s extra Asset Skill when it is not required for the newly selected parent.
+ */
+function patronAssetSkillsBeyondPantheonDefault(pantheonId) {
+  const p = bundle?.pantheons?.[pantheonId];
+  if (!p || typeof p !== "object") return [];
+  const base = new Set(pantheonWideSocietyAssetSkillIds());
+  const out = new Set();
+  for (const key of ["deities", "titans"]) {
+    const rows = Array.isArray(p[key]) ? p[key] : [];
+    for (const row of rows) {
+      if (!row || typeof row !== "object") continue;
+      for (const id of validPathSkillIdArray(row.assetSkills)) {
+        if (!base.has(id)) out.add(id);
+      }
+    }
+  }
+  return [...out];
 }
 
 /**
@@ -1216,15 +1323,10 @@ function syncCallingToParentDeity() {
 function societyPatronAssetSkillIds() {
   const p = bundle?.pantheons?.[character.pantheonId];
   if (!p || typeof p !== "object") return [];
-  const skillsTable = bundle?.skills;
-  const validIds = (arr) => {
-    if (!Array.isArray(arr)) return [];
-    return arr.filter((id) => typeof id === "string" && id && !id.startsWith("_") && skillsTable?.[id]);
-  };
   const patron = selectedDeityRecord();
-  const fromPatron = validIds(patron?.assetSkills);
+  const fromPatron = validPathSkillIdArray(patron?.assetSkills);
   if (fromPatron.length > 0) return fromPatron;
-  return validIds(p.assetSkills);
+  return validPathSkillIdArray(p.assetSkills);
 }
 
 /** Paths step: show Virtues for the selected pantheon (from `virtues.json`). */
@@ -1284,14 +1386,22 @@ function fillPantheonVirtuesDisplay(pantheonId) {
 
 /**
  * If the pantheon lists 1–3 Asset Skills, Society Path must include all of them.
- * Merges missing assets ahead of existing non-asset picks (trim to 3 total).
+ * Merges missing patron/pantheon assets ahead of other picks (trim to 3 total).
+ * Strips pantheon Asset Skills that are no longer required after choosing a divine parent with a different
+ * pair (e.g. Loa defaults Medicine & Subterfuge → Baron Samedi requires Integrity & Subterfuge; Medicine was
+ * not the player’s “one free” pick, so do not carry it forward — Origin pp. 96–97).
  */
 function ensureSocietyDefaultAssetSkills() {
   const assets = societyPatronAssetSkillIds();
   if (!character.pantheonId || assets.length === 0 || assets.length > 3) return;
-  const soc = Array.isArray(character.pathSkills.society) ? [...character.pathSkills.society] : [];
-  if (assets.every((a) => soc.includes(a))) return;
-  const rest = soc.filter((s) => !assets.includes(s));
+  const pantheonAssets = pantheonWideSocietyAssetSkillIds();
+  const stalePantheonOnly = pantheonAssets.filter((id) => !assets.includes(id));
+  const orphanPatronExtras = patronAssetSkillsBeyondPantheonDefault(character.pantheonId).filter((id) => !assets.includes(id));
+  const soc0 = Array.isArray(character.pathSkills.society) ? [...character.pathSkills.society] : [];
+  const rest = soc0
+    .filter((s) => !assets.includes(s))
+    .filter((s) => !stalePantheonOnly.includes(s))
+    .filter((s) => !orphanPatronExtras.includes(s));
   character.pathSkills.society = [...assets, ...rest].slice(0, 3);
 }
 
@@ -1749,8 +1859,20 @@ function maxFinalRatingForAttr(attrId, attrsPre) {
   return preMax;
 }
 
-/** Dot row: always 5 positions; `value` / fills use final ratings (post–Favored Approach). */
-function renderFinalAttrDotRow(label, finalValue, maxFinal, onPickFinal, attrMeta, minFinal = 1, ariaSuffix = "(after Favored Approach)") {
+/**
+ * Dot row: always 5 positions; `value` / fills use final ratings (post–Favored Approach).
+ * @param {number | null} [lockedFinalThrough] When set (e.g. Finishing), filled dots with index <= this value use a darker fill so dots above show the new finishing bump only.
+ */
+function renderFinalAttrDotRow(
+  label,
+  finalValue,
+  maxFinal,
+  onPickFinal,
+  attrMeta,
+  minFinal = 1,
+  ariaSuffix = "(after Favored Approach)",
+  lockedFinalThrough = null,
+) {
   const row = document.createElement("div");
   row.className = "dot-row";
   if (attrMeta) applyGameDataHint(row, attrMeta);
@@ -1760,12 +1882,16 @@ function renderFinalAttrDotRow(label, finalValue, maxFinal, onPickFinal, attrMet
   const dots = document.createElement("div");
   dots.className = "dots";
   const shown = Math.min(finalValue, maxFinal);
+  const lockedCut =
+    lockedFinalThrough != null ? Math.min(Math.max(0, lockedFinalThrough), shown) : null;
   for (let i = 1; i <= 5; i += 1) {
     const b = document.createElement("button");
     b.type = "button";
     const allowed = i >= minFinal && i <= maxFinal;
     b.disabled = !allowed;
-    b.className = "dot" + (i <= shown ? " filled" : "") + (allowed ? "" : " dot-capped");
+    let cls = "dot" + (i <= shown ? " filled" : "") + (allowed ? "" : " dot-capped");
+    if (lockedCut != null && i <= shown && i <= lockedCut) cls += " dot-finishing-locked-fill";
+    b.className = cls;
     b.setAttribute("aria-label", `${label} ${i} of 5${ariaSuffix ? ` ${ariaSuffix}` : ""}`);
     if (allowed) {
       b.addEventListener("click", () => onPickFinal(i));
@@ -2028,42 +2154,6 @@ function maxFinalAttrFinishing(attrId) {
   return applyFavoredApproach({ ...attrs, [attrId]: maxPre })[attrId];
 }
 
-/** Pre–Favored extra dots by arena (Finishing may exceed the p. 97 pool in one arena; Origin p. 98). */
-function finishingAttributeArenaBudgetSummaryText() {
-  const attrs = buildCharacterAttrsPre();
-  const pools = arenaPools();
-  const sums = attributeArenaSums(attrs);
-  return ARENA_ORDER.map((arena) => {
-    const p = pools[arena];
-    const u = sums[arena];
-    return `${arena} ${u} / ${p}`;
-  }).join(" · ");
-}
-
-/** When an Attribute cannot gain +1 from Finishing: dot on another line, or five-dot cap after Favored Approach. */
-function finishingAttributeCannotRaiseNote(attrId) {
-  const attrs = buildCharacterAttrsPre();
-  const pre = attrs[attrId] ?? 1;
-  const maxP = maxAttrFinishing(attrId);
-  if (maxP > pre) return "";
-  const b = character.finishing.attrBaseline || {};
-  const budget = character.finishing.extraAttributeDots || 0;
-  const placedOthers = Object.keys(bundle.attributes)
-    .filter((oid) => oid !== attrId)
-    .reduce((s, oid) => s + Math.max(0, (attrs[oid] ?? 1) - (b[oid] ?? 1)), 0);
-  const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
-  const fromLegend = maxPreFavoredUnderLegendCap(attrId, attrs);
-  const m = Math.min(5, fromBudget, fromLegend);
-
-  if (fromBudget === m && budget > 0 && placedOthers >= budget) {
-    return "Your Finishing attribute dot is on another Attribute right now; lower that Attribute first to move +1 here.";
-  }
-  if (fromLegend === m && pre >= fromLegend) {
-    return "Raising pre–Favored here would break the 5 cap after Favored Approach.";
-  }
-  return "";
-}
-
 function birthrightPointCost(bid) {
   return bundle.birthrights[bid]?.pointCost ?? 1;
 }
@@ -2192,35 +2282,12 @@ function equipmentPickerDescriptionLine(eq) {
   return "—";
 }
 
-/** Tag id strings from birthright detail blocks (`relicDetails` / `creatureDetails` / optional top-level `tagIds`). */
-function birthrightTagIds(br) {
-  const out = [];
-  const add = (arr) => {
-    if (!Array.isArray(arr)) return;
-    for (const id of arr) {
-      const s = id != null ? String(id).trim() : "";
-      if (s) out.push(s);
-    }
-  };
-  add(br?.relicDetails?.tagIds);
-  add(br?.creatureDetails?.tagIds);
-  add(br?.tagIds);
-  return [...new Set(out)];
-}
-
-/** Tag display names for a birthright (`tags.json` when present). */
-function birthrightTagLabelList(br) {
-  return birthrightTagIds(br)
-    .map((tid) => String(bundle.tags?.[tid]?.name || tid))
-    .filter(Boolean);
-}
-
 /**
  * Finishing-step birthright catalog “Summary” cell: description (if any), tags, birthright type, mechanical usage.
  */
 function birthrightFinishingSummaryLine(br) {
   const desc = typeof br?.description === "string" ? br.description.trim() : "";
-  const tagStr = birthrightTagLabelList(br).join(", ");
+  const tagStr = birthrightTagLabels(br, bundle).join(", ");
   const typ = typeof br?.birthrightType === "string" ? br.birthrightType.trim() : "";
   const mech = typeof br?.mechanicalEffects === "string" ? br.mechanicalEffects.trim() : "";
   const parts = [];
@@ -2353,7 +2420,7 @@ function heroPurviewsPatronPickRequiredAndMissing() {
   ensurePatronPurviewSlots();
   const pick = String(character.patronPurviewSlots?.[0] || "").trim();
   if (pick && patronOpts.includes(pick)) return "";
-  return "Choose one innate Purview from your divine parent’s patron list (use a chip below or the Patron Purview control on Paths) before continuing.";
+  return "Choose one innate Purview from your divine parent’s patron list (use a chip in Patron innate Purview above, or the Patron Purview control on Paths) before continuing.";
 }
 
 /** Patron Purview dropdown count on Paths (from `tier.json` patronPurviewSlotCount, capped at four). */
@@ -2511,9 +2578,16 @@ function updateHeaderTierDisplay() {
     awLab.className = "header-legend-label";
     awLab.textContent = "Awareness";
     awRow.appendChild(awLab);
-    awRow.appendChild(buildAwarenessDotTrack(character.awarenessRating ?? 1, true));
+    awRow.appendChild(buildAwarenessDotTrack(character.awarenessRating ?? 1, character.tier, true));
     el.appendChild(awRow);
   }
+}
+
+/** After changing wizard step, scroll so the step nav / top of content is in view (avoids staying at prior step’s scroll depth). */
+function scrollWizardStepIntoView() {
+  requestAnimationFrame(() => {
+    document.getElementById("wizard-nav")?.scrollIntoView({ block: "start", behavior: "auto" });
+  });
 }
 
 function renderNav() {
@@ -2530,6 +2604,7 @@ function renderNav() {
       persistFromForm();
       stepIndex = idx;
       render();
+      scrollWizardStepIntoView();
     });
     nav.appendChild(btn);
   });
@@ -2588,6 +2663,7 @@ function renderWelcome(root) {
     reviewViewMode = "sheet";
     normalizeCharacterStateAfterLoad();
     render();
+    scrollWizardStepIntoView();
   });
   tierPick.appendChild(sel);
   body.appendChild(tierPick);
@@ -2699,6 +2775,11 @@ function renderPaths(root) {
           </select>
         </div>
         <div class="field paths-deity-field"><label id="p-deity-label" for="p-deity">Parent</label><select id="p-deity"></select></div>
+        <div class="field paths-mythos-deed-field" id="p-mythos-deed-wrap" hidden>
+          <label for="p-mythos-deed">Mythos Deed</label>
+          <textarea id="p-mythos-deed" rows="2" spellcheck="false" placeholder="Fourth Deed slot (Masks of the Mythos)"></textarea>
+          <p class="help paths-mythos-deed-hint">MotM adds a <strong>Mythos</strong> Deed alongside Short-term, Long-term, and Band (see your MotM / table guidance).</p>
+        </div>
       </div>
       <p class="help paths-patron-lineage-hint">Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.</p>
     </div>
@@ -2816,6 +2897,17 @@ function renderPaths(root) {
   document.getElementById("p-origin").value = character.paths.origin;
   document.getElementById("p-role").value = character.paths.role;
   document.getElementById("p-soc").value = character.paths.society;
+  const mythDeedWrap = document.getElementById("p-mythos-deed-wrap");
+  const mythDeedTa = document.getElementById("p-mythos-deed");
+  if (mythDeedWrap && mythDeedTa) {
+    const showMyth = isMythosPantheonSelected();
+    mythDeedWrap.hidden = !showMyth;
+    if (typeof character.deeds?.mythos !== "string") character.deeds.mythos = "";
+    mythDeedTa.value = character.deeds.mythos || "";
+    mythDeedTa.oninput = () => {
+      character.deeds.mythos = mythDeedTa.value;
+    };
+  }
   fillPantheonVirtuesDisplay(character.pantheonId);
   const vm = document.getElementById("p-virtue-spectrum-mount");
   if (vm) {
@@ -2833,7 +2925,9 @@ function renderPaths(root) {
     );
     if (row) vm.appendChild(row);
   }
-  ["p-origin", "p-role", "p-soc", "p-pantheon", "p-patron-kind", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
+  ["p-origin", "p-role", "p-soc", "p-pantheon", "p-patron-kind", "p-deity", "p-mythos-deed"].forEach((id) =>
+    applyHint(document.getElementById(id), id),
+  );
 }
 
 function renderSkills(root) {
@@ -3277,23 +3371,38 @@ function renderCalling(root) {
     const hint = document.createElement("p");
     hint.className = "help";
     hint.textContent = isMythosPantheonSelected()
-      ? `Calling options include each id listed for ${deity?.name || "your divine parent"} in the pantheon data, plus the paired normal or inverted Calling where MotM defines a pair (e.g. Destroyer ⇄ Creator). See Masks of the Mythos.`
+      ? `Masks of the Mythos: only inverted Callings from this list appear — each id from ${deity?.name || "your divine parent"} in pantheon data is shown as its MotM Calling (standard names in the file map to inverted equivalents, e.g. Sage → Cosmos).`
       : `Calling is limited to those listed for ${deity?.name || "your divine parent"} in the pantheon data (three Favored Callings for Origin — Origin p. 98). Use the pantheon write-up that row cites (often Origin Appendix 2 or Mysteries of the World): a single “Calling:” line on a Pandora’s Box Birthright Guide NPC is that servitor’s template, not your parent’s full triple.`;
     wrap.appendChild(hint);
   } else if (!character.parentDeityId) {
     const hint = document.createElement("p");
     hint.className = "help";
-    hint.textContent =
-      "Choose a divine parent on the Paths step to limit Calling to that deity’s listed Callings. Until then, every Calling in the library is shown.";
+    hint.textContent = isMythosPantheonSelected()
+      ? "Choose a divine parent on the Paths step to limit Calling 1 to that deity’s MotM Calling list. Until then, the full library below shows each inverted Calling where MotM pairs one (standard sides like Sage are omitted when Cosmos exists); unpaired Callings (e.g. Liminal) stay listed."
+      : "Choose a divine parent on the Paths step to limit Calling to that deity’s listed Callings. Until then, every standard Calling in the library is shown (MotM inverted Callings are hidden for non-Mythos characters).";
     wrap.appendChild(hint);
   }
 
-  let callingEntries = allowedCallingIds
-    ? allowedCallingIds.map((cid) => [cid, bundle.callings[cid]]).filter(([, c]) => c)
-    : Object.entries(bundle.callings).filter(([cid]) => !cid.startsWith("_"));
-  callingEntries = [...callingEntries].sort((a, b) =>
-    String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" }),
+  const mythosPan = isMythosPantheonSelected();
+  const sortCallingEntries = (entries) =>
+    [...entries].sort((a, b) =>
+      String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" }),
+    );
+  const allCallingEntries = sortCallingEntries(
+    Object.entries(bundle.callings || {}).filter(([cid]) =>
+      callingIdInWizardLibraryChooser(cid, bundle, mythosPan),
+    ),
   );
+  /** Hero Calling 1: must be one of the divine parent’s listed Callings (when a parent is set). */
+  const patronCallingEntries = allowedCallingIds
+    ? sortCallingEntries(
+        allowedCallingIds
+          .filter((cid) => callingIdInWizardLibraryChooser(cid, bundle, mythosPan))
+          .map((cid) => [cid, bundle.callings[cid]])
+          .filter(([, c]) => c),
+      )
+    : null;
+  let callingEntries = patronCallingEntries || allCallingEntries;
   const firstId = callingEntries[0]?.[0] || "";
 
   const grid = document.createElement("div");
@@ -3308,12 +3417,36 @@ function renderCalling(root) {
     const visTier = normalizedTierId(character.tier);
     visH.textContent = visTier === "titanic" ? "Visitation (Origin → Titanic)" : "Visitation (Origin → Hero)";
     visPanel.appendChild(visH);
-    const visP = document.createElement("p");
+    const visP = document.createElement("div");
     visP.className = "help";
-    visP.innerHTML =
-      visTier === "titanic"
-        ? "Use <strong>Review → Advance</strong> from Mortal when your table supports it, or start at <strong>Titanic</strong> on Welcome. After a Mortal tier-up, <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (dots can move). Assign <strong>three</strong> Callings and <strong>five</strong> dots (each at least one). <strong>Titans Rising:</strong> include <strong>at least one Titanic Calling</strong> (Adversary, Destroyer, Monster, Primeval, Tyrant). Knack budget equals the sum of row dots."
-        : "If you are advancing from Mortal, use <strong>Review → Advance to Hero</strong> (not Finishing) to reach this step. <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (only its dots can move here); pick two new Callings in rows 2–3. New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots.";
+    if (visTier === "titanic") {
+      visP.innerHTML =
+        "Use <strong>Review → Advance</strong> from Mortal when your table supports it, or start at <strong>Titanic</strong> on Welcome. After a Mortal tier-up, <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (dots can move). Assign <strong>three</strong> Callings and <strong>five</strong> dots (each at least one). <strong>Titans Rising:</strong> include <strong>at least one Titanic Calling</strong> (Adversary, Destroyer, Monster, Primeval, Tyrant). Knack budget equals the sum of row dots.";
+    } else {
+      const intro = document.createElement("p");
+      intro.className = "calling-visitation-hero-intro";
+      intro.innerHTML =
+        "If you are advancing from Mortal, use <strong>Review → Advance to Hero</strong> (not Finishing) to reach this step. <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (only its dots can move here); pick two new Callings in rows 2–3. New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots. <strong>Calling 1</strong>’s menu is your divine parent’s Calling list; <strong>Callings 2 and 3</strong> list the full Calling library.";
+      visP.appendChild(intro);
+      const rules = document.createElement("p");
+      rules.className = "calling-visitation-hero-rules";
+      rules.textContent =
+        "Your character receives five dots among all their Callings, but each must have at least one dot.";
+      visP.appendChild(rules);
+      const ul = document.createElement("ul");
+      ul.className = "calling-visitation-hero-list";
+      const items = [
+        "One of your Callings must be one of your divine parent’s three, but the other two are free choice.",
+        "Each Calling is associated with three Fatebinding roles (Hero p. 197).",
+        "At Legend 2, 4, 6, 8, and 10 you gain an extra dot of Calling, which can be applied to any of your three chosen Callings as long as it does not take that Calling above five dots.",
+      ];
+      for (const t of items) {
+        const li = document.createElement("li");
+        li.textContent = t;
+        ul.appendChild(li);
+      }
+      visP.appendChild(ul);
+    }
     visPanel.appendChild(visP);
     wrap.appendChild(visPanel);
     const lockPrimaryCallingSelect = visitationLocksPrimaryCallingChoice();
@@ -3345,7 +3478,9 @@ function renderCalling(root) {
         if (oid) selectedOnOtherRows.add(oid);
       }
       const curId = String(slot.id || "").trim();
-      for (const [cid, c] of callingEntries) {
+      const rowEntries =
+        rowIdx === 0 && patronCallingEntries?.length ? patronCallingEntries : allCallingEntries;
+      for (const [cid, c] of rowEntries) {
         if (selectedOnOtherRows.has(cid) && cid !== curId) continue;
         const o = document.createElement("option");
         o.value = cid;
@@ -3353,7 +3488,7 @@ function renderCalling(root) {
         applyGameDataHint(o, c);
         selH.appendChild(o);
       }
-      selH.value = curId && callingEntries.some(([cid]) => cid === curId) ? curId : "";
+      selH.value = curId && rowEntries.some(([cid]) => cid === curId) ? curId : "";
       if (rowIdx === 0 && lockPrimaryCallingSelect) {
         selH.disabled = true;
       } else {
@@ -3496,7 +3631,7 @@ function renderCalling(root) {
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
   const knackOriginNote = isOriginPlayTier(character.tier)
-    ? " <strong>Origin (Mortal):</strong> only <strong>Mortal</strong> Knacks (one Calling slot each)—<strong>Immortal</strong> Knacks need Hero tier or higher."
+    ? " <strong>Origin (Mortal):</strong> only <strong>Mortal</strong> Knacks (one Calling slot each)—<strong>Immortal</strong> Knacks need Hero tier or higher. Chips are grouped under <strong>your Calling</strong> vs <strong>Any Calling</strong> (same layout as the Hero step)."
     : heroUsesCallingSlots()
       ? " <strong>Hero (three Callings):</strong> each Calling row’s <strong>dots</strong> are that row’s Knack budget (each <strong>Heroic</strong> Knack costs <strong>one</strong>; an <strong>Immortal</strong> Knack costs <strong>two</strong> and must sit on a row with at least <strong>two</strong> dots). A Knack only appears if <strong>some</strong> row that matches its Calling(s) still has room—Knacks that list <strong>several</strong> Callings stay available if <strong>any</strong> of your matching rows can pay."
       : " <strong>Hero+ (book):</strong> each additional dot you gain in any Calling allows you to purchase and know one additional Knack from that specific Calling. You may never have more Knacks known than your total Calling dots across all three Callings. <strong>This wizard:</strong> the dot row next to your primary Calling is your <strong>Calling rating</strong> budget for chips below—each <strong>Heroic</strong> (Mortal) Knack uses <strong>one</strong> slot. <strong>Alternately</strong>, you may take <strong>a single Immortal Knack instead of two Heroic Knacks</strong> when your Calling rating is <strong>two or higher</strong> (one Immortal costs <strong>two</strong> slot-equivalents; you cannot take more than one Immortal Knack from this swap).";
@@ -3507,9 +3642,13 @@ function renderCalling(root) {
   const smTitanicKnackNote = hasTitanicSaintsMonstersKnackCalling()
     ? ` <strong>Saints & Monsters:</strong> ${typeof smTitanicNoteRaw === "string" && smTitanicNoteRaw.trim() ? smTitanicNoteRaw.trim() : "Titanic Calling Knacks from Chapter Four appear as chips with ids prefixed <code>sm_</code> and this book in hints."}`
     : "";
-  knackPanel.innerHTML = `<h2>Knacks</h2><p class="help">Each chip is tagged <strong>Mortal</strong> or <strong>Immortal</strong> (data: <code>knackKind</code>). <strong>Muted / disabled</strong> chips are Knacks you still pass the <strong>Calling / tier / patron-type / Purview / pantheon</strong> rules in the data for, but your current <strong>per-row dot budgets</strong> (or the one-Immortal cap) cannot pay for them yet—raise dots on a matching Calling row until they become clickable. <strong>Titans Rising</strong> (<code>tr_*</code>) and <strong>S&amp;M Titanic Calling</strong> (<code>sm_*</code>) entries use the same rules: they show up whenever those gates pass (often a <strong>Titanic Calling</strong> row or <code>callingsAny</code> on the card). Use <cite>Pandora’s Box</cite> at the table for full mechanics.${knackOriginNote}${mythosKnackNote}${smTitanicKnackNote} Picks that no longer fit stay visible so you can clear them. Knacks already taken as <strong>extra Finishing Knacks</strong> are omitted here so you cannot pick the same Knack twice.</p>`;
-  const chips = document.createElement("div");
-  chips.className = "chips";
+  knackPanel.innerHTML = `<h2>Knacks</h2><p class="help">Each chip is tagged <strong>Mortal</strong> or <strong>Immortal</strong> (data: <code>knackKind</code>). <strong>Muted / disabled</strong> chips are Knacks you still pass the <strong>Calling / tier / patron-type / Purview / pantheon</strong> rules in the data for, but your current <strong>per-row dot budgets</strong> (or the one-Immortal cap) cannot pay for them yet—raise dots on a matching Calling row until they become clickable. <strong>Titans Rising</strong> (<code>tr_*</code>) and <strong>S&amp;M Titanic Calling</strong> (<code>sm_*</code>) entries use the same rules: they show up whenever those gates pass (often a <strong>Titanic Calling</strong> row or <code>callingsAny</code> on the card). Use <cite>Pandora’s Box</cite> at the table for full mechanics.${knackOriginNote}${mythosKnackNote}${smTitanicKnackNote} Picks that no longer fit stay visible so you can clear them. Knacks already taken as <strong>extra Finishing Knacks</strong> are omitted here so you cannot pick the same Knack twice.${
+    heroUsesCallingSlots()
+      ? " <strong>Hero:</strong> chips are grouped under the first Calling row they match (or <strong>Any Calling</strong> when the card applies to any Calling)."
+      : isOriginPlayTier(character.tier)
+        ? " <strong>Origin:</strong> chips are grouped under <strong>your selected Calling</strong> or <strong>Any Calling</strong>."
+        : ""
+  }</p>`;
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   const knackEntries = Object.entries(bundle.knacks)
     .filter(([kid]) => !kid.startsWith("_"))
@@ -3519,12 +3658,12 @@ function renderCalling(root) {
       if (ea !== eb) return ea ? -1 : 1;
       return (a[1].name || a[0]).localeCompare(b[1].name || b[0]);
     });
-  for (const [kid, k] of knackEntries) {
+
+  /** @param {HTMLElement} container */
+  function appendKnackChip(container, kid, k) {
     const baseOk = knackEligible(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const on = character.knackIds.includes(kid);
-    if (!baseOk && !on) continue;
-    if (!on && finishingKnackSet.has(kid)) continue;
     const slotBlocked = baseOk && !eligible && !on;
     const chip = document.createElement("button");
     chip.type = "button";
@@ -3555,8 +3694,9 @@ function renderCalling(root) {
     const appliesLine = knackAppliesToCallingsLine(k, bundle);
     applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
     if (slotBlocked) {
-      const gateHint =
-        "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack.";
+      const gateHint = heroUsesCallingSlots()
+        ? "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack."
+        : "You qualify for this Knack (Calling / tier / optional data gates), but your Calling Knack budget is full—clear a pick first (Origin: one Mortal Knack from Calling dots).";
       chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
     }
     if (on && heroUsesCallingSlots() && character.knackSlotById && character.knackSlotById[kid] != null && Array.isArray(character.callingSlots)) {
@@ -3566,9 +3706,122 @@ function renderCalling(root) {
       const payNote = `Charged to: ${rowName} (${ri + 1} of 3).`;
       chip.title = chip.title ? `${chip.title}\n\n${payNote}` : payNote;
     }
-    chips.appendChild(chip);
+    container.appendChild(chip);
   }
-  knackPanel.appendChild(chips);
+
+  if (heroUsesCallingSlots()) {
+    /** @type {Map<number | "any", [string, Record<string, unknown>][]>} */
+    const buckets = new Map();
+    const pushBucket = (key, pair) => {
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(pair);
+    };
+    for (const [kid, k] of knackEntries) {
+      const baseOk = knackEligible(k, character, bundle);
+      const on = character.knackIds.includes(kid);
+      if (!baseOk && !on) continue;
+      if (!on && finishingKnackSet.has(kid)) continue;
+      const tok = knackCallingTokensForRowMatch(k, character);
+      let key = /** @type {number | "any"} */ ("any");
+      if (tok !== null) {
+        let placed = false;
+        for (let ri = 0; ri < HERO_CALLING_ROW_COUNT; ri += 1) {
+          if (heroCallingRowMatchesKnack(ri, k, character, bundle)) {
+            key = ri;
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) key = "any";
+      }
+      pushBucket(key, [kid, k]);
+    }
+    const order = /** @type {(number | "any")[]} */ ([0, 1, 2, "any"]);
+    for (const key of order) {
+      const list = buckets.get(key);
+      if (!list?.length) continue;
+      const section = document.createElement("div");
+      section.className = "calling-knack-chip-group";
+      const head = document.createElement("h3");
+      head.className = "calling-knack-chip-group-title";
+      if (key === "any") {
+        head.textContent = "Any Calling";
+      } else {
+        const rid = String(character.callingSlots?.[key]?.id || "").trim();
+        head.textContent = rid
+          ? `${bundle.callings[rid]?.name || rid} (Calling ${key + 1})`
+          : `Calling ${key + 1} — pick a Calling above`;
+      }
+      section.appendChild(head);
+      const chipWrap = document.createElement("div");
+      chipWrap.className = "chips chips--calling-knack-subgroup";
+      for (const [kid, k] of list) {
+        appendKnackChip(chipWrap, kid, k);
+      }
+      section.appendChild(chipWrap);
+      knackPanel.appendChild(section);
+    }
+  } else if (isOriginPlayTier(character.tier)) {
+    /** @type {Map<"selected" | "any", [string, Record<string, unknown>][]>} */
+    const buckets = new Map([
+      ["selected", []],
+      ["any", []],
+    ]);
+    const pushBucket = (key, pair) => {
+      buckets.get(key).push(pair);
+    };
+    for (const [kid, k] of knackEntries) {
+      const baseOk = knackEligible(k, character, bundle);
+      const on = character.knackIds.includes(kid);
+      if (!baseOk && !on) continue;
+      if (!on && finishingKnackSet.has(kid)) continue;
+      const key = originCallingKnackChipGroupKey(k, character);
+      pushBucket(key, [kid, k]);
+    }
+    const order = /** @type {("selected" | "any")[]} */ (["selected", "any"]);
+    for (const key of order) {
+      const list = buckets.get(key) || [];
+      const section = document.createElement("div");
+      section.className = "calling-knack-chip-group";
+      const head = document.createElement("h3");
+      head.className = "calling-knack-chip-group-title";
+      if (key === "any") {
+        head.textContent = "Any Calling";
+      } else {
+        const rid = String(character.callingId || "").trim();
+        head.textContent = rid
+          ? `${bundle.callings[rid]?.name || rid} (your Calling)`
+          : "Your Calling — pick above";
+      }
+      section.appendChild(head);
+      const chipWrap = document.createElement("div");
+      chipWrap.className = "chips chips--calling-knack-subgroup";
+      if (list.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "help";
+        empty.textContent =
+          "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
+        chipWrap.appendChild(empty);
+      } else {
+        for (const [kid, k] of list) {
+          appendKnackChip(chipWrap, kid, k);
+        }
+      }
+      section.appendChild(chipWrap);
+      knackPanel.appendChild(section);
+    }
+  } else {
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    for (const [kid, k] of knackEntries) {
+      const baseOk = knackEligible(k, character, bundle);
+      const on = character.knackIds.includes(kid);
+      if (!baseOk && !on) continue;
+      if (!on && finishingKnackSet.has(kid)) continue;
+      appendKnackChip(chips, kid, k);
+    }
+    knackPanel.appendChild(chips);
+  }
   applyHint(knackPanel, "knack-select");
   wrap.appendChild(knackPanel);
 
@@ -3689,7 +3942,9 @@ function renderPurviews(root) {
 
   if (singlePatronPurviewTier) {
     if (patronOpts.length > 0) {
-      help.innerHTML = `Pick <strong>one</strong> innate Purview from your parent’s list—use the chips below or the Patron Purview control on <strong>Paths</strong>. (Your pantheon Signature is separate; see above.)`;
+      help.innerHTML = isMythosPantheonSelected()
+        ? `Use <strong>Patron innate Purview</strong> (chips) for your <strong>standard</strong> innate Purview. The <strong>Mythos: Awareness Innate</strong> section below is <em>only</em> if you commit MotM’s optional Awareness Innate—same page, different choice. Your pantheon Signature stays automatic (see above). You can also set the patron pick on <strong>Paths</strong>.`
+        : `Pick <strong>one</strong> innate Purview from your parent’s list—use the chips in <strong>Patron innate Purview</strong> below or the Patron Purview control on <strong>Paths</strong>. (Your pantheon Signature is separate; see above.)`;
     } else {
       const motmPaths = isMythosPantheonSelected() ? masksMotMBundle()?.pathsCallout : "";
       if (typeof motmPaths === "string" && motmPaths.trim()) {
@@ -3707,9 +3962,8 @@ function renderPurviews(root) {
   }
   applyHint(help, "purview-select");
   wrap.appendChild(help);
-  renderMythosInnatePowerPanel(wrap);
   const chips = document.createElement("div");
-  chips.className = "chips";
+  chips.className = "chips purviews-patron-innate-chips";
   /** @type {[string, Record<string, unknown>][]} */
   let purviewEntries;
   if (singlePatronPurviewTier) {
@@ -3763,6 +4017,29 @@ function renderPurviews(root) {
     }
     chips.appendChild(chipWrap);
   }
+  if (singlePatronPurviewTier) {
+    const patronInnatePanel = document.createElement("section");
+    patronInnatePanel.className = "panel purviews-patron-innate-panel";
+    const ph = document.createElement("h2");
+    ph.textContent = "Patron innate Purview";
+    patronInnatePanel.appendChild(ph);
+    const pIntro = document.createElement("p");
+    pIntro.className = "help purviews-patron-innate-intro";
+    if (isMythosPantheonSelected()) {
+      pIntro.innerHTML =
+        "Turn <strong>one</strong> chip on. That is the patron Purview whose <strong>standard innate</strong> you use (Pandora’s Box / Hero). It is <strong>not</strong> chosen with the Awareness dropdown—use the next panel only if you deliberately replace that model with MotM’s <strong>Awareness Innate</strong> (and commit).";
+    } else {
+      pIntro.innerHTML =
+        "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list (same value as Patron Purview 1 on Paths). Innate write-ups preview under the selected chip.";
+    }
+    patronInnatePanel.appendChild(pIntro);
+    patronInnatePanel.appendChild(chips);
+    wrap.appendChild(patronInnatePanel);
+    renderMythosInnatePowerPanel(wrap);
+  } else {
+    renderMythosInnatePowerPanel(wrap);
+    wrap.appendChild(chips);
+  }
   const patronPickWarn = heroPurviewsPatronPickRequiredAndMissing();
   if (patronPickWarn) {
     const wPv = document.createElement("p");
@@ -3770,7 +4047,6 @@ function renderPurviews(root) {
     wPv.textContent = patronPickWarn;
     wrap.appendChild(wPv);
   }
-  wrap.appendChild(chips);
   root.appendChild(panel("Purviews", wrap));
 }
 
@@ -4107,7 +4383,7 @@ function renderBoons(root) {
         ? ` Purviews currently in scope for this wizard: <strong>${tracked.map((id) => purviewDisplayNameForPantheon(id, bundle, character.pantheonId)).join(", ")}</strong>.`
         : " <strong>No Purviews in scope yet</strong> — at Hero/Titanic set your patron innate on <strong>Paths</strong> (and confirm your pantheon Signature); at Demigod+ add Purviews on the Purviews step.";
     empty.innerHTML =
-      "No qualifying Boons yet — confirm <strong>tier</strong> (e.g. Demigod ladder steps need Demigod tier) and Purviews in scope. (Legend and printed Boon ladder prerequisites are not enforced in this wizard; both change in play — confirm at the table.)" +
+      "No qualifying Boons yet — confirm <strong>tier</strong> (e.g. some Boons need Demigod or God tier) and Purviews in scope. (Legend and printed Boon prerequisites from the books are not enforced in this wizard; both change in play — confirm at the table.)" +
       trackedNote +
       " If this list omits a Purview you expect, open <strong>Paths</strong> / <strong>Purviews</strong> so patron slots and sheet picks sync, then return here.";
     wrap.appendChild(empty);
@@ -4219,12 +4495,8 @@ function renderFinishing(root) {
   const atHelp = document.createElement("p");
   atHelp.className = "help";
   atHelp.textContent =
-    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded). The book does not tie it to the 6 / 4 / 2 arenas; it still cannot break the five-dot-per-Attribute cap after Favored Approach (Origin p. 97). Dots show final ratings; picks cannot go below your Attributes-step snapshot on each Attribute.";
+    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded). The book does not tie it to the 6 / 4 / 2 arenas; it still cannot break the five-dot-per-Attribute cap after Favored Approach (Origin p. 97). Dots show final ratings after Favored Approach.";
   atPanel.appendChild(atHelp);
-  const atArena = document.createElement("p");
-  atArena.className = "help finishing-arena-budget";
-  atArena.textContent = `Pre–Favored extra dots by arena (current / Attributes-step allowance): ${finishingAttributeArenaBudgetSummaryText()}. A value above the allowance is allowed when it comes from this Finishing dot.`;
-  atPanel.appendChild(atArena);
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
   for (const id of Object.keys(bundle.attributes)) {
@@ -4232,13 +4504,13 @@ function renderFinishing(root) {
     if (!meta || String(id).startsWith("_")) continue;
     const maxFinal = maxFinalAttrFinishing(id);
     const finalVal = finAttrFinal[id] ?? 1;
-    const preV = finAttrBase[id] ?? 1;
+    const snap = character.finishing.attrBaseline?.[id];
+    const baselinePre =
+      snap != null ? Math.max(1, Math.min(5, Math.round(Number(snap)))) : (finAttrBase[id] ?? 1);
+    const attrsLockedPre = { ...finAttrBase, [id]: baselinePre };
+    const finalLockedThrough = Math.min(applyFavoredApproach(attrsLockedPre)[id] ?? 1, maxFinal);
     const block = document.createElement("div");
     block.className = "finishing-attr-block";
-    const sub = document.createElement("p");
-    sub.className = "help finishing-attr-sub";
-    sub.textContent = `Pre–Favored ${preV} · final (after Approach) ${finalVal}`;
-    block.appendChild(sub);
     block.appendChild(
       renderFinalAttrDotRow(
         meta.name,
@@ -4254,15 +4526,10 @@ function renderFinishing(root) {
         },
         meta,
         1,
+        "(after Favored Approach)",
+        finalLockedThrough,
       ),
     );
-    const stall = finishingAttributeCannotRaiseNote(id);
-    if (stall) {
-      const sn = document.createElement("p");
-      sn.className = "help finishing-attr-stall";
-      sn.textContent = stall;
-      block.appendChild(sn);
-    }
     atPanel.appendChild(block);
   }
   wrap.appendChild(atPanel);
@@ -4278,9 +4545,11 @@ function renderFinishing(root) {
       const finSmNote = hasTitanicSaintsMonstersKnackCalling()
         ? " <strong>Saints & Monsters</strong> Titanic Knacks (<code>sm_*</code>) follow the same gates."
         : "";
-      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2><p class="help">These are <strong>in addition to</strong> your Calling-dot Knacks from the Calling step (they do <strong>not</strong> spend that dot budget). The same Calling / tier / <code>knackKind</code> gates apply, plus at most <strong>one Immortal Knack</strong> across Calling + Finishing combined. Knacks already on Calling are hidden here. Up to two extra picks.${finKnackNote}${finSmNote}</p>`;
-      const kchips = document.createElement("div");
-      kchips.className = "chips";
+      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2><p class="help">These are <strong>in addition to</strong> your Calling-dot Knacks from the Calling step (they do <strong>not</strong> spend that dot budget). The same Calling / tier / <code>knackKind</code> gates apply, plus at most <strong>one Immortal Knack</strong> across Calling + Finishing combined. Knacks already on Calling are hidden here. Up to two extra picks.${finKnackNote}${finSmNote}${
+        isOriginPlayTier(character.tier)
+          ? " <strong>Origin:</strong> chips are split under <strong>your Calling</strong> and <strong>Any Calling</strong>; you may pick from either group (same rules)."
+          : ""
+      }</p>`;
       const callingKnackSet = new Set(character.knackIds || []);
       const finUniq = [...new Set(character.finishing.finishingKnackIds || [])];
       const knackEntriesFin = Object.entries(bundle.knacks)
@@ -4291,12 +4560,14 @@ function renderFinishing(root) {
           if (ea !== eb) return ea ? -1 : 1;
           return (a[1].name || a[0]).localeCompare(b[1].name || b[0]);
         });
-      for (const [kid, k] of knackEntriesFin) {
+
+      /** @param {HTMLElement} container */
+      function appendFinishingKnackChip(container, kid, k) {
         const eligibleFin = knackEligibleForFinishingExtraKnack(k, character, bundle);
         const on = character.finishing.finishingKnackIds.includes(kid);
         const eligibleShow = on ? knackFinishingPickIsValidHeld(k, character, bundle) : eligibleFin;
-        if (!eligibleShow && !on) continue;
-        if (eligibleFin && !on && callingKnackSet.has(kid)) continue;
+        if (!eligibleShow && !on) return;
+        if (eligibleFin && !on && callingKnackSet.has(kid)) return;
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "chip" + (on ? " on" : "") + (!eligibleShow && on ? " chip-unqualified" : "");
@@ -4309,14 +4580,68 @@ function renderFinishing(root) {
             "No longer qualifies for your current Calling/tier/gates—remove or adjust your character.";
         }
         setKnackChipContents(chip, k);
-        applyGameDataHint(chip, k);
+        const appliesLine = knackAppliesToCallingsLine(k, bundle);
+        applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
         chip.addEventListener("click", () => {
           toggleFinishingKnack(kid);
           render();
         });
-        kchips.appendChild(chip);
+        container.appendChild(chip);
       }
-      knBr.appendChild(kchips);
+
+      if (isOriginPlayTier(character.tier)) {
+        /** @type {Map<"selected" | "any", [string, Record<string, unknown>][]>} */
+        const finBuckets = new Map([
+          ["selected", []],
+          ["any", []],
+        ]);
+        for (const [kid, k] of knackEntriesFin) {
+          const eligibleFin = knackEligibleForFinishingExtraKnack(k, character, bundle);
+          const on = character.finishing.finishingKnackIds.includes(kid);
+          const eligibleShow = on ? knackFinishingPickIsValidHeld(k, character, bundle) : eligibleFin;
+          if (!eligibleShow && !on) continue;
+          if (eligibleFin && !on && callingKnackSet.has(kid)) continue;
+          finBuckets.get(originCallingKnackChipGroupKey(k, character)).push([kid, k]);
+        }
+        for (const key of /** @type {("selected" | "any")[]} */ (["selected", "any"])) {
+          const list = finBuckets.get(key) || [];
+          const section = document.createElement("div");
+          section.className = "calling-knack-chip-group finishing-extra-knack-group";
+          const head = document.createElement("h3");
+          head.className = "calling-knack-chip-group-title";
+          if (key === "any") {
+            head.textContent = "Any Calling";
+          } else {
+            const rid = String(character.callingId || "").trim();
+            head.textContent = rid
+              ? `${bundle.callings[rid]?.name || rid} (your Calling)`
+              : "Your Calling — set on Calling step";
+          }
+          section.appendChild(head);
+          const chipWrap = document.createElement("div");
+          chipWrap.className = "chips chips--calling-knack-subgroup";
+          if (list.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "help";
+            empty.textContent =
+              "No extra Knacks in this group match your gates, or every candidate is already your Calling Knack — adjust Calling or clear picks.";
+            chipWrap.appendChild(empty);
+          } else {
+            for (const [kid, k] of list) {
+              appendFinishingKnackChip(chipWrap, kid, k);
+            }
+          }
+          section.appendChild(chipWrap);
+          knBr.appendChild(section);
+        }
+      } else {
+        const kchips = document.createElement("div");
+        kchips.className = "chips";
+        for (const [kid, k] of knackEntriesFin) {
+          appendFinishingKnackChip(kchips, kid, k);
+        }
+        knBr.appendChild(kchips);
+      }
     } else {
       const cap = maxBirthrightPointsBudget();
       knBr.innerHTML = `<h2>Birthrights (up to ${cap} points)</h2><p class='help'>Add templates or examples below; each pick costs its listed points (data). Remove picks to free points. These picks count toward your tier Birthrights budget (same list as the Birthrights step).</p>`;
@@ -4358,7 +4683,7 @@ function renderFinishing(root) {
       for (const [bid, br] of finEntries) {
         const cost = birthrightPointCost(bid);
         const tr = document.createElement("tr");
-        const tagHay = `${birthrightTagIds(br).join(" ")} ${birthrightTagLabelList(br).join(" ")}`.trim();
+        const tagHay = `${birthrightTagIds(br).join(" ")} ${birthrightTagLabels(br, bundle).join(" ")}`.trim();
         tr.setAttribute(
           "data-filter-text",
           `${br.name || bid} ${bid} ${br.birthrightType || ""} ${tagHay} ${typeof br.description === "string" ? br.description : ""} ${typeof br.mechanicalEffects === "string" ? br.mechanicalEffects : ""}`.trim(),
@@ -4662,13 +4987,81 @@ function renderReview(root) {
     }
     runPrint();
   });
+  const btnMrGonePdf = document.createElement("button");
+  btnMrGonePdf.type = "button";
+  btnMrGonePdf.className = "btn secondary";
+  btnMrGonePdf.textContent = "Download MrGone Sheet";
+  btnMrGonePdf.title =
+    "Fills the community four-page AcroForm PDF (Mr. Gone / lnodiv style). Server needs that template file and PyMuPDF.";
+  btnMrGonePdf.addEventListener("click", async () => {
+    persistFromForm();
+    const data = buildExportObject();
+    const fields = buildScionInteractivePdfFields(data, bundle);
+    const nm = String(data.characterName ?? "").trim() || "character";
+    btnMrGonePdf.disabled = true;
+    try {
+      await downloadInteractiveCharacterPdf("scion", fields, nm);
+    } catch (e) {
+      console.error(e);
+      window.alert(e instanceof Error ? e.message : String(e));
+    } finally {
+      btnMrGonePdf.disabled = false;
+    }
+  });
+  const btnThisSheetPdf = document.createElement("button");
+  btnThisSheetPdf.type = "button";
+  btnThisSheetPdf.className = "btn secondary";
+  btnThisSheetPdf.textContent = "Download This Sheet";
+  btnThisSheetPdf.title =
+    "A4 PDF from the on-screen sheet (Chromium + extra A4 layout CSS). Requires Playwright + `playwright install chromium` on the server; otherwise a simpler PDF engine is used. Not the MrGone AcroForm file.";
+  btnThisSheetPdf.addEventListener("click", async () => {
+    persistFromForm();
+      const el = document.querySelector(".review-sheet-panel.character-sheet");
+    const nm = String(character.characterName ?? "").trim() || "character";
+    btnThisSheetPdf.disabled = true;
+    try {
+      if (!el) throw new Error("Character sheet is not visible. Switch to Character sheet view and try again.");
+      await downloadReviewSheetAsPdf(el, nm);
+    } catch (e) {
+      console.error(e);
+      window.alert(e instanceof Error ? e.message : String(e));
+    } finally {
+      btnThisSheetPdf.disabled = false;
+    }
+  });
   toolbar.appendChild(lab);
   toolbar.appendChild(btnSheet);
   toolbar.appendChild(btnJson);
   toolbar.appendChild(btnPrint);
+  toolbar.appendChild(btnMrGonePdf);
+  toolbar.appendChild(btnThisSheetPdf);
   wrap.appendChild(toolbar);
 
-  const sheet = buildCharacterSheet(exportObj, bundle);
+  const sheetHooks = {
+    getLegendPoolSpentAt: (idx) => {
+      ensureLegendAwarenessPoolSlotArrays();
+      return !!(character.legendPoolDotSpentSlots && character.legendPoolDotSpentSlots[idx]);
+    },
+    setLegendPoolSpentAt: (idx, v) => {
+      ensureLegendAwarenessPoolSlotArrays();
+      if (idx >= 0 && idx < character.legendPoolDotSpentSlots.length) {
+        character.legendPoolDotSpentSlots[idx] = !!v;
+        render();
+      }
+    },
+    getAwarenessPoolSpentAt: (idx) => {
+      ensureLegendAwarenessPoolSlotArrays();
+      return !!(character.awarenessPoolDotSpentSlots && character.awarenessPoolDotSpentSlots[idx]);
+    },
+    setAwarenessPoolSpentAt: (idx, v) => {
+      ensureLegendAwarenessPoolSlotArrays();
+      if (idx >= 0 && idx < character.awarenessPoolDotSpentSlots.length) {
+        character.awarenessPoolDotSpentSlots[idx] = !!v;
+        render();
+      }
+    },
+  };
+  const sheet = buildCharacterSheet(exportObj, bundle, sheetHooks);
   sheet.classList.add("review-sheet-panel");
   sheet.hidden = reviewViewMode !== "sheet";
   wrap.appendChild(sheet);
@@ -4710,6 +5103,7 @@ function renderReview(root) {
       stepIndex = firstNewWizardStepIndex(res.oldTier, res.newTier);
       reviewViewMode = "sheet";
       render();
+      scrollWizardStepIntoView();
     });
     applyHint(btnAdv, "tier-advance");
     advRow.appendChild(btnAdv);
@@ -4756,8 +5150,16 @@ function buildExportObject() {
     tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
     legendRating: character.legendRating ?? 0,
     legendDotMax: legendDotMaxForTier(character.tier),
+    legendPoolDotSpentSlots: padPoolSlotArray(
+      character.legendPoolDotSpentSlots || [],
+      legendDotMaxForTier(character.tier),
+    ),
     awarenessRating: clampAwarenessRating(character.awarenessRating ?? 1),
-    awarenessDotMax: AWARENESS_DOT_MAX,
+    awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+    awarenessPoolDotSpentSlots: padPoolSlotArray(
+      character.awarenessPoolDotSpentSlots || [],
+      isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+    ),
     tierAdvancementLog: [...(character.tierAdvancementLog || [])],
     characterName: character.characterName ?? "",
     concept: character.concept,
@@ -4804,7 +5206,10 @@ function buildExportObject() {
     knackIds: [...character.knackIds],
     knacks: character.knackIds.map((id) => bundle.knacks[id]?.name || id),
     finishingKnacks: (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
-    purviews: character.purviewIds,
+    purviews: mergedPurviewIdsForSheet({
+      purviews: character.purviewIds,
+      patronPurviewSlots: character.patronPurviewSlots,
+    }),
     patronPurviewSlots: [...(character.patronPurviewSlots || [])],
     boons: (character.boonIds || []).filter((id) => {
       const bb = bundle.boons?.[id];
@@ -4971,6 +5376,7 @@ function importCharacterFromExportPayload(data) {
     short: typeof data.deeds?.short === "string" ? data.deeds.short : base.deeds.short,
     long: typeof data.deeds?.long === "string" ? data.deeds.long : base.deeds.long,
     band: typeof data.deeds?.band === "string" ? data.deeds.band : base.deeds.band,
+    mythos: typeof data.deeds?.mythos === "string" ? data.deeds.mythos : base.deeds.mythos,
   };
 
   const paths = {
@@ -5000,8 +5406,7 @@ function importCharacterFromExportPayload(data) {
   if (!favOpts.has(favoredApproach)) favoredApproach = base.favoredApproach;
 
   const validPurview = new Set(Object.keys(bundle.purviews || {}).filter((k) => !k.startsWith("_")));
-  let purviewIds = Array.isArray(data.purviews) ? data.purviews.filter((x) => typeof x === "string" && x) : [];
-  purviewIds = purviewIds.filter((id) => validPurview.has(id));
+  let purviewIds = mergedPurviewIdsForSheet(data).filter((id) => validPurview.has(id));
 
   const rawSlots = Array.isArray(data.patronPurviewSlots) ? data.patronPurviewSlots.filter((x) => typeof x === "string") : [];
   const patronPurviewSlots = Array(PATRON_PURVIEW_SLOT_COUNT)
@@ -5029,7 +5434,8 @@ function importCharacterFromExportPayload(data) {
   if (pantheonId === "mythos") {
     const ar = data.awarenessRating;
     if (ar != null && !Number.isNaN(Number(ar))) awarenessRating = Math.round(Number(ar));
-    awarenessRating = Math.max(1, Math.min(AWARENESS_DOT_MAX, awarenessRating));
+    const awCap = awarenessDotMaxForTier(tier);
+    awarenessRating = Math.max(1, Math.min(awCap, awarenessRating));
   }
 
   const finBase = { ...base.finishing };
@@ -5142,6 +5548,23 @@ function importCharacterFromExportPayload(data) {
 
   const chargenLineage = String(data.chargenLineage ?? "scion").trim() === "dragonHeir" ? "dragonHeir" : "scion";
 
+  const legNImp = legendDotMaxForTier(tier);
+  let legendPoolDotSpentSlots = padPoolSlotArray([], legNImp);
+  if (Array.isArray(data.legendPoolDotSpentSlots) && data.legendPoolDotSpentSlots.length) {
+    legendPoolDotSpentSlots = padPoolSlotArray(data.legendPoolDotSpentSlots.map((x) => !!x), legNImp);
+  } else if (data.legendPoolDotSpent === true) {
+    legendPoolDotSpentSlots = Array(legNImp).fill(false);
+    legendPoolDotSpentSlots[0] = true;
+  }
+  const awNImp = pantheonId === "mythos" ? awarenessDotMaxForTier(tier) : 1;
+  let awarenessPoolDotSpentSlots = padPoolSlotArray([], awNImp);
+  if (Array.isArray(data.awarenessPoolDotSpentSlots) && data.awarenessPoolDotSpentSlots.length) {
+    awarenessPoolDotSpentSlots = padPoolSlotArray(data.awarenessPoolDotSpentSlots.map((x) => !!x), awNImp);
+  } else if (data.awarenessPoolDotSpent === true) {
+    awarenessPoolDotSpentSlots = Array(awNImp).fill(false);
+    awarenessPoolDotSpentSlots[0] = true;
+  }
+
   return {
     ...base,
     tier,
@@ -5185,6 +5608,8 @@ function importCharacterFromExportPayload(data) {
     sorceryProfile,
     titanicProfile,
     mythosInnatePower,
+    legendPoolDotSpentSlots,
+    awarenessPoolDotSpentSlots,
     ...(chargenLineage === "dragonHeir" && data.dragon && typeof data.dragon === "object"
       ? {
           dragon: (() => {
@@ -5228,6 +5653,15 @@ function normalizeCharacterStateAfterLoad() {
     ensureDragonShape(character, bundle);
     return;
   }
+  if (!character.deeds || typeof character.deeds !== "object") {
+    character.deeds = { short: "", long: "", band: "", mythos: "" };
+  } else {
+    if (typeof character.deeds.short !== "string") character.deeds.short = "";
+    if (typeof character.deeds.long !== "string") character.deeds.long = "";
+    if (typeof character.deeds.band !== "string") character.deeds.band = "";
+    if (typeof character.deeds.mythos !== "string") character.deeds.mythos = "";
+  }
+  ensureLegendAwarenessPoolSlotArrays();
   if (character.legendRating == null || Number.isNaN(Number(character.legendRating))) character.legendRating = 0;
   if (character.virtueSpectrum == null || Number.isNaN(Number(character.virtueSpectrum))) character.virtueSpectrum = 0;
   if (isOriginPlayTier(character.tier)) {
@@ -5306,6 +5740,11 @@ function persistPathsPhrasesFromDom() {
   character.paths.origin = document.getElementById("p-origin")?.value || "";
   character.paths.role = document.getElementById("p-role")?.value || "";
   character.paths.society = document.getElementById("p-soc")?.value || "";
+  const mythTa = document.getElementById("p-mythos-deed");
+  const mythWrap = document.getElementById("p-mythos-deed-wrap");
+  if (mythTa && mythWrap && !mythWrap.hidden && character.deeds) {
+    character.deeds.mythos = mythTa.value || "";
+  }
 }
 
 /** Paths step: phrases, pantheon, divine parent, patron Purview slots → `character` + merged `purviewIds`. */
@@ -5463,11 +5902,13 @@ function render() {
       character,
       bundle,
       render,
+      scrollStepIntoView: scrollWizardStepIntoView,
       onExitToScionConcept: () => {
         character.chargenLineage = "scion";
         delete character.dragon;
         stepIndex = 1;
         render();
+        scrollWizardStepIntoView();
       },
     });
     updateHeaderTierDisplay();
@@ -5537,6 +5978,7 @@ function render() {
       persistFromForm();
       stepIndex -= 1;
       render();
+      scrollWizardStepIntoView();
     });
     actions.appendChild(back);
   }
@@ -5587,6 +6029,7 @@ function render() {
       }
       stepIndex += 1;
       render();
+      scrollWizardStepIntoView();
     });
     if (step === "purviews") {
       const pvBlock = heroPurviewsPatronPickRequiredAndMissing();
@@ -5652,6 +6095,7 @@ async function init() {
       normalizeCharacterStateAfterLoad();
       updateHeaderTierDisplay();
       render();
+      scrollWizardStepIntoView();
     } catch (e) {
       console.error(e);
       const msg = e instanceof Error ? e.message : String(e);

@@ -77,6 +77,10 @@ export const HELP = {
     example: "Odin — lists patron Purviews from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign Purviews).",
     source: `${cite("origin", "Appendix 2: Pantheons (gods, Callings, Purviews)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
   },
+  "p-mythos-deed": {
+    example: "Fourth Deed tied to Mythos play (MotM) — distinct from Short-term, Long-term, and Band.",
+    source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Masks of the Mythos / Deeds (confirm wording at table).",
+  },
   "patron-purviews": {
     example: "Hero+: pick patron Purviews only from that parent’s list (slot count from tier data, default four); duplicate slots swap.",
     source: `${cite("origin", "Appendix 2 — patron Purviews per deity (reference)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
@@ -191,7 +195,7 @@ export const HELP = {
     source: `${cite("hero", "Birthrights (Character Generation)", "186+")}; ${cite("hero", "Finishing Touches — Knacks vs Birthrights", "201+")}; Pandora’s Box (Revised) Birthright chapters.`,
   },
   "boon-select": {
-    example: "Boons appear only for Purviews you track: merged patron slots (Paths) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Innate summaries under a heading are reference only — ladder chips are the selectable Boons in this app.",
+    example: "Boons appear only for Purviews you track: merged patron slots (Paths) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
     source: `${cite("hero", "Purviews & Boons", "200+")}; ${cite("demigod", "Advanced Boons", "")}; ${cite("god", "God-tier Boons", "")}.`,
   },
 

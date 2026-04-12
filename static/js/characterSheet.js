@@ -130,7 +130,17 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
  * @param {Record<string, unknown>} data — `buildExportObject()` output
  * @param {Record<string, unknown>} bundle — loaded game bundle
  */
-export function buildCharacterSheet(data, bundle) {
+/**
+ * @param {Record<string, unknown>} data
+ * @param {Record<string, unknown>} bundle
+ * @param {{
+ *   getLegendPoolSpentAt: (idx: number) => boolean;
+ *   setLegendPoolSpentAt: (idx: number, v: boolean) => void;
+ *   getAwarenessPoolSpentAt: (idx: number) => boolean;
+ *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
+ * } | null | undefined} [sheetHooks] — Review only: one pool-spent checkbox per Legend / Awareness dot
+ */
+export function buildCharacterSheet(data, bundle, sheetHooks) {
   const skills = bundle?.skills || {};
   const attrs = bundle?.attributes || {};
   if (String(data.chargenLineage ?? "").trim() === "dragonHeir") {
@@ -143,8 +153,7 @@ export function buildCharacterSheet(data, bundle) {
     return el;
   }
   const tid = data.tierId ?? data.tier;
-  const tierName = (data.tierName || bundle?.tier?.[tid]?.name || tid || "—") + (tid ? ` (${tid})` : "");
-  const tierAka = data.tierAlsoKnownAs || bundle?.tier?.[tid]?.alsoKnownAs || "";
+  const tierName = data.tierName || bundle?.tier?.[tid]?.name || tid || "—";
   const tierKey = String(tid ?? "mortal").trim().toLowerCase();
   const tierKeyNorm = tierKey === "origin" ? "mortal" : tierKey;
   const ldmRaw = data.legendDotMax;
@@ -190,12 +199,13 @@ export function buildCharacterSheet(data, bundle) {
     return wrap;
   }
 
-  /** Mythos Awareness: 1–10 dots (default 1). */
-  function awarenessDotTrackReadOnly(n) {
+  /** Mythos Awareness: 1..max dots (max follows tier, same table as Legend). */
+  function awarenessDotTrackReadOnly(n, max) {
+    const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
     const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-legend-dot-track cs-legend-dot-track-dense";
+    wrap.className =
+      "cs-dot-track cs-legend-dot-track" + (cap > 6 ? " cs-legend-dot-track-dense" : "");
     wrap.setAttribute("role", "img");
-    const cap = 10;
     const v = Math.max(1, Math.min(cap, Math.round(Number(n) || 1)));
     wrap.setAttribute("aria-label", `Awareness ${v} of ${cap}`);
     for (let i = 1; i <= cap; i += 1) {
@@ -207,29 +217,40 @@ export function buildCharacterSheet(data, bundle) {
     return wrap;
   }
 
+  const admRaw = data.awarenessDotMax;
+  const awarenessMax =
+    admRaw != null && admRaw !== "" && !Number.isNaN(Number(admRaw))
+      ? Math.max(1, Math.round(Number(admRaw)))
+      : String(data.pantheonId || "").trim() === "mythos"
+        ? legendMax
+        : 1;
+
   function buildKnackSheetRows() {
-    const out = /** @type {{ title: string; description: string; source: string }[]} */ ([]);
+    const out =
+      /** @type {{ knackId: string; title: string; description: string; mechanicalEffects: string; source: string }[]} */ ([]);
     const addIds = (ids, suffix) => {
       for (const id of ids || []) {
         const k = bundle?.knacks?.[id];
         const base = k?.name || id;
         const title = suffix ? `${base} (${suffix})` : base;
         out.push({
+          knackId: String(id),
           title,
           description: (k?.description || "").trim(),
+          mechanicalEffects: (k?.mechanicalEffects || "").trim(),
           source: (k?.source || "").trim(),
         });
       }
     };
     if (Array.isArray(data.knackIds) && data.knackIds.length) addIds(data.knackIds, "");
     const finIds = data.finishing?.finishingKnackIds;
-    if (Array.isArray(finIds) && finIds.length) addIds(finIds, "finishing");
+    if (Array.isArray(finIds) && finIds.length) addIds(finIds, "");
     if (out.length) return out;
     for (const name of data.knacks || []) {
-      if (name) out.push({ title: String(name), description: "", source: "" });
+      if (name) out.push({ knackId: "", title: String(name), description: "", mechanicalEffects: "", source: "" });
     }
     for (const name of data.finishingKnacks || []) {
-      if (name) out.push({ title: `${String(name)} (finishing)`, description: "", source: "" });
+      if (name) out.push({ knackId: "", title: String(name), description: "", mechanicalEffects: "", source: "" });
     }
     return out;
   }
@@ -289,7 +310,6 @@ export function buildCharacterSheet(data, bundle) {
     data,
     bundle,
     tierName,
-    tierAka,
     tid,
     tierKeyNorm,
     legendMax,
@@ -313,6 +333,8 @@ export function buildCharacterSheet(data, bundle) {
     boonDisplayLabel,
     boonIsPurviewInnateAutomaticGrant,
     applyGameDataHint,
+    awarenessMax,
+    sheetHooks: sheetHooks || null,
   });
 
   const sp = data.sorceryProfile;

@@ -1,5 +1,5 @@
 /**
- * Purview Innate summaries (separate from Boon ladder picks).
+ * Purview Innate summaries (separate from Boon catalog picks).
  * @typedef {{ key: string; label: string; body: string }} PurviewInnateBlock
  */
 

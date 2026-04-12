@@ -4,6 +4,11 @@
  * Filled from `buildExportObject()`; empty lines remain for table play where the app has no field.
  */
 
+import { mergedPurviewIdsForSheet } from "./purviewDisplayName.js";
+import { boonPrimaryPurview } from "./eligibility.js";
+import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
+import { birthrightTagLabels } from "./birthrightTags.js";
+
 /**
  * @param {HTMLElement} el — root `.character-sheet`
  * @param {object} api — helpers and data from `buildCharacterSheet`
@@ -13,7 +18,6 @@ export function fillMcgFourPageLayout(el, api) {
     data,
     bundle,
     tierName,
-    tierAka,
     tid,
     tierKeyNorm,
     legendMax,
@@ -37,9 +41,79 @@ export function fillMcgFourPageLayout(el, api) {
     boonDisplayLabel,
     boonIsPurviewInnateAutomaticGrant,
     applyGameDataHint,
+    awarenessMax,
+    sheetHooks,
   } = api;
 
   const charName = String(data.characterName ?? "").trim();
+
+  function mcgSheetTick() {
+    const tick = document.createElement("span");
+    tick.className = "cs-mcg-sheet-tick";
+    tick.setAttribute("aria-hidden", "true");
+    return tick;
+  }
+
+  /**
+   * Legend or Mythos Awareness: filled dots with optional per-dot pool-spent checkboxes (Review sheet).
+   * @param {"Legend" | "Awareness"} kind
+   */
+  function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind) {
+    const c = Math.max(1, Math.min(20, Math.round(Number(cap) || 1)));
+    const hooks =
+      sheetHooks &&
+      typeof sheetHooks.getLegendPoolSpentAt === "function" &&
+      typeof sheetHooks.setLegendPoolSpentAt === "function" &&
+      typeof sheetHooks.getAwarenessPoolSpentAt === "function" &&
+      typeof sheetHooks.setAwarenessPoolSpentAt === "function"
+        ? sheetHooks
+        : null;
+    if (!hooks) {
+      if (kind === "Legend") {
+        const v = Math.max(0, Math.min(c, Math.round(Number(filled) || 0)));
+        cell.appendChild(legendDotTrackReadOnly(v, c));
+      } else {
+        const av = Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
+        cell.appendChild(awarenessDotTrackReadOnly(av, c));
+      }
+      return;
+    }
+    const v =
+      kind === "Legend"
+        ? Math.max(0, Math.min(c, Math.round(Number(filled) || 0)))
+        : Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
+    const track = document.createElement("div");
+    track.className = "cs-mcg-legend-pool-track" + (c > 6 ? " cs-mcg-legend-pool-track--dense" : "");
+    for (let i = 1; i <= c; i += 1) {
+      const col = document.createElement("div");
+      col.className = "cs-mcg-legend-pool-col";
+      const dot = document.createElement("span");
+      dot.className = "cs-dot" + (i <= v ? " on" : "");
+      dot.setAttribute("aria-hidden", "true");
+      col.appendChild(dot);
+      const idx = i - 1;
+      const lab = document.createElement("label");
+      lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
+      lab.setAttribute(
+        "aria-label",
+        kind === "Legend" ? `Legend pool from dot ${i} spent` : `Awareness pool from dot ${i} spent`,
+      );
+      const inp = document.createElement("input");
+      inp.type = "checkbox";
+      inp.className = "cs-mcg-pool-check-input";
+      if (kind === "Legend") {
+        inp.checked = !!hooks.getLegendPoolSpentAt(idx);
+        inp.addEventListener("change", () => hooks.setLegendPoolSpentAt(idx, inp.checked));
+      } else {
+        inp.checked = !!hooks.getAwarenessPoolSpentAt(idx);
+        inp.addEventListener("change", () => hooks.setAwarenessPoolSpentAt(idx, inp.checked));
+      }
+      lab.appendChild(inp);
+      col.appendChild(lab);
+      track.appendChild(col);
+    }
+    cell.appendChild(track);
+  }
 
   function page() {
     const p = document.createElement("div");
@@ -62,6 +136,65 @@ export function fillMcgFourPageLayout(el, api) {
     return w;
   }
 
+  /** Purview innate block(s): same label column + ruled text column as Name/Source (ruled every line). */
+  function mcgLinedFieldInnatePower(innateText) {
+    const w = document.createElement("div");
+    w.className = "cs-mcg-purview-innate-field";
+    const l = document.createElement("span");
+    l.className = "cs-mcg-line-label";
+    l.textContent = "Innate power";
+    const v = document.createElement("div");
+    v.className = "cs-mcg-purview-innate-value";
+    v.textContent = innateText == null || innateText === "" ? "" : String(innateText);
+    w.appendChild(l);
+    w.appendChild(v);
+    return w;
+  }
+
+  /** Birthright description / mechanics: same ruled style as Innate, shorter label column. */
+  function mcgBrRuledBlock(label, text) {
+    const w = document.createElement("div");
+    w.className = "cs-mcg-br-ruled-field";
+    const l = document.createElement("span");
+    l.className = "cs-mcg-line-label";
+    l.textContent = label;
+    const v = document.createElement("div");
+    v.className = "cs-mcg-br-ruled-value";
+    v.textContent = text == null || text === "" ? "" : String(text);
+    w.appendChild(l);
+    w.appendChild(v);
+    return w;
+  }
+
+  /**
+   * @param {HTMLElement} blk
+   * @param {Record<string, unknown> | null | undefined} bb
+   * @param {string} bid
+   */
+  function appendMcgBoonBlock(blk, bb, bid) {
+    const title = bb ? boonDisplayLabel(bb, bundle, data.pantheonId) : String(bid || "");
+    blk.appendChild(mcgLinedField("Name", title));
+    const pvId = bb ? String(boonPrimaryPurview(bb) || "").trim() : "";
+    blk.appendChild(mcgLinedField("Purview", pvId ? purviewDisplayNameForPantheon(pvId, bundle, data.pantheonId) : ""));
+    const t = bb ? boonTrackedMechanicalFields(bb) : { cost: "", duration: "", subject: "", range: "", action: "", clash: "" };
+    blk.appendChild(mcgLinedField("Cost", t.cost));
+    blk.appendChild(mcgLinedField("Duration", t.duration));
+    const subjectParts = [t.subject, t.clash ? `Clash: ${t.clash}` : ""].filter(Boolean);
+    blk.appendChild(mcgLinedField("Subject", subjectParts.join(" · ")));
+    blk.appendChild(mcgLinedField("Range", t.range));
+    blk.appendChild(mcgLinedField("Action", t.action));
+    const note = document.createElement("div");
+    note.className = "cs-mcg-boon-note cs-mcg-boon-note--detail";
+    const desc = bb ? String(bb.description ?? "").trim() : "";
+    const mech = bb ? String(bb.mechanicalEffects ?? "").trim() : "";
+    const parts = [];
+    if (desc) parts.push(desc);
+    if (mech) parts.push(mech);
+    note.textContent = parts.join("\n\n").slice(0, 1200);
+    blk.appendChild(note);
+    if (bb) applyGameDataHint(blk, bb);
+  }
+
   function mcgSectionTitle(text) {
     const t = document.createElement("div");
     t.className = "cs-mcg-band-title";
@@ -71,19 +204,52 @@ export function fillMcgFourPageLayout(el, api) {
 
   function mcgCheckboxRow(labels) {
     const r = document.createElement("div");
-    r.className = "cs-mcg-check-row";
+    r.className = "cs-mcg-check-row cs-mcg-check-row--stub";
     for (const lab of labels) {
-      const x = document.createElement("label");
-      x.className = "cs-mcg-check";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.disabled = true;
-      cb.setAttribute("aria-hidden", "true");
-      x.appendChild(cb);
+      const x = document.createElement("span");
+      x.className = "cs-mcg-check cs-mcg-check--stub";
+      x.appendChild(mcgSheetTick());
       x.appendChild(document.createTextNode(" " + lab));
       r.appendChild(x);
     }
     return r;
+  }
+
+  /** Hard armor: label + two at-table boxes + write line (matches Soft armor row rhythm). */
+  function mcgHardArmorRow() {
+    const w = document.createElement("div");
+    w.className = "cs-mcg-line-field cs-mcg-hard-armor-row";
+    const l = document.createElement("span");
+    l.className = "cs-mcg-line-label";
+    l.textContent = "Hard armor";
+    const ticks = document.createElement("div");
+    ticks.className = "cs-mcg-hard-armor-ticks";
+    ticks.appendChild(mcgSheetTick());
+    ticks.appendChild(mcgSheetTick());
+    const v = document.createElement("div");
+    v.className = "cs-mcg-line-value";
+    w.appendChild(l);
+    w.appendChild(ticks);
+    w.appendChild(v);
+    return w;
+  }
+
+  /** One deed line + checkbox (MrGone-style sheet; checkbox left blank for table use). */
+  function mcgDeedSheetRow(label, text) {
+    const row = document.createElement("div");
+    row.className = "cs-mcg-deed-row";
+    const lab = document.createElement("span");
+    lab.className = "cs-mcg-deed-label";
+    lab.textContent = label;
+    const val = document.createElement("div");
+    val.className = "cs-mcg-deed-value";
+    val.textContent = text == null || text === "" ? "" : String(text);
+    const tick = mcgSheetTick();
+    tick.title = "Track when resolved at the table (matches interactive PDF deed checks).";
+    row.appendChild(lab);
+    row.appendChild(val);
+    row.appendChild(tick);
+    return row;
   }
 
   /** @param {"origin"|"role"|"society"} key */
@@ -176,7 +342,7 @@ export function fillMcgFourPageLayout(el, api) {
   const rowB = document.createElement("div");
   rowB.className = "cs-mcg-header-rows";
   rowB.appendChild(mcgLinedField("Concept", data.concept || "—"));
-  rowB.appendChild(mcgLinedField("Chronicle", (tierAka ? `${tierName} — ${tierAka}` : tierName) || tid || ""));
+    rowB.appendChild(mcgLinedField("Chronicle", String(tierName || tid || "").trim()));
   rowB.appendChild(mcgLinedField("Pantheon", data.pantheon || "—"));
   top.appendChild(rowA);
   top.appendChild(rowB);
@@ -285,17 +451,20 @@ export function fillMcgFourPageLayout(el, api) {
   }
   leftCol.appendChild(mcgLinedField("Guide", ""));
   leftCol.appendChild(mcgSectionTitle("Deeds"));
-  leftCol.appendChild(mcgCheckboxRow(["Short-term", "Long-term", "Band", "Mythos"]));
-  const deedNote = document.createElement("div");
-  deedNote.className = "cs-mcg-deed-note";
-  const d = data.deeds || {};
-  deedNote.textContent = [d.short, d.long, d.band].filter(Boolean).join(" · ") || "—";
-  leftCol.appendChild(deedNote);
+  const d = data.deeds && typeof data.deeds === "object" ? data.deeds : {};
+  leftCol.appendChild(mcgDeedSheetRow("Short-term", d.short));
+  leftCol.appendChild(mcgDeedSheetRow("Long-term", d.long));
+  leftCol.appendChild(mcgDeedSheetRow("Band", d.band));
+  if (String(data.pantheonId || "").trim() === "mythos") {
+    leftCol.appendChild(mcgDeedSheetRow("Mythos", d.mythos));
+  }
 
   const rightCol = document.createElement("div");
   rightCol.className = "cs-mcg-p1-right";
-  const legRow = document.createElement("div");
-  legRow.className = "cs-mcg-track-block";
+  const legStack = document.createElement("div");
+  legStack.className = "cs-mcg-track-stack";
+  const legBlock = document.createElement("div");
+  legBlock.className = "cs-mcg-legend-with-pool";
   const legL = document.createElement("span");
   legL.className = "cs-mcg-track-label";
   legL.textContent = "Legend";
@@ -303,9 +472,13 @@ export function fillMcgFourPageLayout(el, api) {
     data.legendRating != null && data.legendRating !== "" && !Number.isNaN(Number(data.legendRating))
       ? Number(data.legendRating)
       : 0;
-  legRow.appendChild(legL);
-  legRow.appendChild(legendDotTrackReadOnly(lv, legendMax));
-  rightCol.appendChild(legRow);
+  const legDotsCell = document.createElement("div");
+  legDotsCell.className = "cs-mcg-legend-dots-cell";
+  appendLegendAwarenessDotsWithPools(legDotsCell, lv, legendMax, "Legend");
+  legBlock.appendChild(legL);
+  legBlock.appendChild(legDotsCell);
+  legStack.appendChild(legBlock);
+  rightCol.appendChild(legStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
   const virt = buildVirtueSpectrumElement(
     { pantheonId: data.pantheonId, virtueSpectrum: data.virtueSpectrum },
@@ -314,23 +487,28 @@ export function fillMcgFourPageLayout(el, api) {
   );
   if (virt) rightCol.appendChild(virt);
   if (String(data.pantheonId || "").trim() === "mythos") {
-    const awRow = document.createElement("div");
-    awRow.className = "cs-mcg-track-block";
+    const awStack = document.createElement("div");
+    awStack.className = "cs-mcg-track-stack";
+    const awBlock = document.createElement("div");
+    awBlock.className = "cs-mcg-legend-with-pool";
     const awL = document.createElement("span");
     awL.className = "cs-mcg-track-label";
     awL.textContent = "Awareness";
     const awRaw = data.awarenessRating;
     const av = awRaw != null && awRaw !== "" && !Number.isNaN(Number(awRaw)) ? Number(awRaw) : 1;
-    awRow.appendChild(awL);
-    awRow.appendChild(awarenessDotTrackReadOnly(av));
-    rightCol.appendChild(awRow);
+    const awDotsCell = document.createElement("div");
+    awDotsCell.className = "cs-mcg-legend-dots-cell";
+    appendLegendAwarenessDotsWithPools(awDotsCell, av, awarenessMax, "Awareness");
+    awBlock.appendChild(awL);
+    awBlock.appendChild(awDotsCell);
+    awStack.appendChild(awBlock);
+    rightCol.appendChild(awStack);
   }
-  const mom = document.createElement("div");
-  mom.className = "cs-mcg-track-block";
+  const diceGrid = document.createElement("div");
+  diceGrid.className = "cs-mcg-dice-track-grid";
   const momL = document.createElement("span");
   momL.className = "cs-mcg-track-label";
   momL.textContent = "Momentum (track at table)";
-  mom.appendChild(momL);
   const momSq = document.createElement("span");
   momSq.className = "cs-mcg-square-track";
   for (let i = 0; i < 12; i += 1) {
@@ -338,14 +516,9 @@ export function fillMcgFourPageLayout(el, api) {
     s.className = "cs-mcg-sq";
     momSq.appendChild(s);
   }
-  mom.appendChild(momSq);
-  rightCol.appendChild(mom);
-  const divn = document.createElement("div");
-  divn.className = "cs-mcg-track-block";
   const divL = document.createElement("span");
   divL.className = "cs-mcg-track-label";
   divL.textContent = "Divinity dice (higher tiers)";
-  divn.appendChild(divL);
   const divSq = document.createElement("span");
   divSq.className = "cs-mcg-square-track cs-mcg-square-track--10";
   for (let i = 0; i < 10; i += 1) {
@@ -353,8 +526,11 @@ export function fillMcgFourPageLayout(el, api) {
     s.className = "cs-mcg-sq";
     divSq.appendChild(s);
   }
-  divn.appendChild(divSq);
-  rightCol.appendChild(divn);
+  diceGrid.appendChild(momL);
+  diceGrid.appendChild(momSq);
+  diceGrid.appendChild(divL);
+  diceGrid.appendChild(divSq);
+  rightCol.appendChild(diceGrid);
 
   p1Bot.appendChild(leftCol);
   p1Bot.appendChild(rightCol);
@@ -432,7 +608,7 @@ export function fillMcgFourPageLayout(el, api) {
   combCol.appendChild(mcgLinedField("Defense", String(defRating)));
   combCol.appendChild(mcgLinedField("Initiative", ""));
   combCol.appendChild(mcgLinedField("Soft armor", ""));
-  combCol.appendChild(mcgCheckboxRow(["Hard armor", "Hard armor"]));
+  combCol.appendChild(mcgHardArmorRow());
   p2mid.appendChild(descCol);
   p2mid.appendChild(combCol);
   p2.appendChild(p2mid);
@@ -498,25 +674,38 @@ export function fillMcgFourPageLayout(el, api) {
   const nk = document.createElement("div");
   nk.className = "cs-mcg-knack-grid";
   for (let i = 0; i < 16; i += 1) {
-    const row = document.createElement("div");
-    row.className = "cs-mcg-knack-row";
+    const blk = document.createElement("div");
+    blk.className = "cs-mcg-knack-block";
     const r = knackRows[i];
+    const head = document.createElement("div");
+    head.className = "cs-mcg-knack-row-head";
     const t = document.createElement("span");
     t.className = "cs-mcg-knack-text";
     t.textContent = r ? r.title : "";
-    row.appendChild(t);
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.disabled = true;
-    row.appendChild(cb);
-    nk.appendChild(row);
+    head.appendChild(t);
+    head.appendChild(mcgSheetTick());
+    blk.appendChild(head);
+    const note = document.createElement("div");
+    note.className = "cs-mcg-knack-note";
+    if (r) {
+      const desc = (r.description || "").trim();
+      const mech = (r.mechanicalEffects || "").trim();
+      const bits = [desc, mech].filter(Boolean);
+      note.textContent = bits.join(" ").slice(0, 320);
+      const kid = String(r.knackId || "").trim();
+      if (kid && bundle.knacks?.[kid] && typeof applyGameDataHint === "function") {
+        applyGameDataHint(blk, bundle.knacks[kid]);
+      }
+    }
+    blk.appendChild(note);
+    nk.appendChild(blk);
   }
   p3.appendChild(nk);
 
   p3.appendChild(mcgSectionTitle("Purviews"));
   const pvWrap = document.createElement("div");
   pvWrap.className = "cs-mcg-purview-grid";
-  const purIds = (data.purviews || []).filter(Boolean);
+  const purIds = mergedPurviewIdsForSheet(data);
   const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
   const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
   const titanicSheet = tierKeyNorm === "titanic";
@@ -524,16 +713,18 @@ export function fillMcgFourPageLayout(el, api) {
     const blk = document.createElement("div");
     blk.className = "cs-mcg-purview-block";
     const pid = purIds[i];
-    blk.appendChild(mcgLinedField("Name", pid ? nameFor(pid) : ""));
-    blk.appendChild(mcgLinedField("Source", pid ? (bundle.purviews?.[pid]?.source || "").trim().slice(0, 120) : ""));
-    blk.appendChild(mcgCheckboxRow(["Dominion"]));
-    const inn = document.createElement("div");
-    inn.className = "cs-mcg-innate";
+    const lines = document.createElement("div");
+    lines.className = "cs-mcg-purview-lines";
+    lines.appendChild(mcgLinedField("Name", pid ? nameFor(pid) : ""));
+    lines.appendChild(mcgLinedField("Source", pid ? (bundle.purviews?.[pid]?.source || "").trim().slice(0, 120) : ""));
+    let innateLines = "";
     if (pid) {
       const blocks = purviewInnateBlocks(bundle, pid, { mythosPantheon: mythosSheet, titanicTier: titanicSheet });
-      inn.textContent = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
+      innateLines = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
     }
-    blk.appendChild(inn);
+    lines.appendChild(mcgLinedFieldInnatePower(innateLines));
+    blk.appendChild(lines);
+    blk.appendChild(mcgCheckboxRow(["Dominion"]));
     pvWrap.appendChild(blk);
   }
   p3.appendChild(pvWrap);
@@ -549,42 +740,14 @@ export function fillMcgFourPageLayout(el, api) {
     if (bb && boonIsPurviewInnateAutomaticGrant(bb, bundle)) continue;
     const blk = document.createElement("div");
     blk.className = "cs-mcg-boon-block";
-    const title = bb ? boonDisplayLabel(bb, bundle, data.pantheonId) : String(bid);
-    blk.appendChild(mcgLinedField("Name", title));
-    const pvId = bb?.purviewId ? String(bb.purviewId) : "";
-    blk.appendChild(mcgLinedField("Purview", pvId ? purviewDisplayNameForPantheon(pvId, bundle, data.pantheonId) : ""));
-    blk.appendChild(mcgLinedField("Cost", bb?.cost != null ? String(bb.cost) : ""));
-    blk.appendChild(mcgLinedField("Duration", (bb?.duration || "").trim()));
-    blk.appendChild(mcgLinedField("Subject", ""));
-    const row2 = document.createElement("div");
-    row2.className = "cs-mcg-boon-mini-row";
-    row2.appendChild(mcgLinedField("Range", (bb?.range || "").trim()));
-    row2.appendChild(mcgLinedField("Action", (bb?.action || "").trim()));
-    blk.appendChild(row2);
-    const note = document.createElement("div");
-    note.className = "cs-mcg-boon-note";
-    note.textContent = (bb?.description || "").trim().slice(0, 220);
-    blk.appendChild(note);
-    if (bb) applyGameDataHint(blk, bb);
+    appendMcgBoonBlock(blk, bb || null, String(bid));
     boonWrap.appendChild(blk);
     bi += 1;
   }
   while (boonWrap.children.length < 12) {
     const blk = document.createElement("div");
     blk.className = "cs-mcg-boon-block";
-    blk.appendChild(mcgLinedField("Name", ""));
-    blk.appendChild(mcgLinedField("Purview", ""));
-    blk.appendChild(mcgLinedField("Cost", ""));
-    blk.appendChild(mcgLinedField("Duration", ""));
-    blk.appendChild(mcgLinedField("Subject", ""));
-    const row2 = document.createElement("div");
-    row2.className = "cs-mcg-boon-mini-row";
-    row2.appendChild(mcgLinedField("Range", ""));
-    row2.appendChild(mcgLinedField("Action", ""));
-    blk.appendChild(row2);
-    const emptyNote = document.createElement("div");
-    emptyNote.className = "cs-mcg-boon-note";
-    blk.appendChild(emptyNote);
+    appendMcgBoonBlock(blk, null, "");
     boonWrap.appendChild(blk);
   }
   p3.appendChild(boonWrap);
@@ -619,10 +782,17 @@ export function fillMcgFourPageLayout(el, api) {
     const nm = document.createElement("span");
     nm.textContent = br?.name || bid || "";
     head.appendChild(nm);
-    head.appendChild(dotTrack(br?.pointCost != null ? Math.min(5, Math.max(1, Math.round(Number(br.pointCost)))) : 1));
+    head.appendChild(
+      dotTrack(
+        br ? (br.pointCost != null ? Math.min(5, Math.max(1, Math.round(Number(br.pointCost)))) : 1) : 0,
+      ),
+    );
     blk.appendChild(head);
     blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
-    blk.appendChild(mcgLinedField("En", ""));
+    const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
+    blk.appendChild(mcgLinedField("Tags", tagStr));
+    blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
+    blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
     const rd = br?.relicDetails;
     const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
     blk.appendChild(
@@ -631,13 +801,8 @@ export function fillMcgFourPageLayout(el, api) {
         pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, data.pantheonId) : "",
       ),
     );
-    blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || br?.mechanicalEffects || "").toString().trim().slice(0, 160)));
-    blk.appendChild(mcgLinedField("Tags", ""));
-    for (let j = 0; j < 2; j += 1) {
-      const ln = document.createElement("div");
-      ln.className = "cs-mcg-write-line";
-      blk.appendChild(ln);
-    }
+    blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
+    blk.appendChild(mcgLinedField("Enhancement", ""));
     if (br) applyGameDataHint(blk, br);
     brGrid.appendChild(blk);
   }

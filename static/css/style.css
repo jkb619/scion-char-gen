@@ -292,12 +292,6 @@ textarea.has-doc-hint:focus-visible {
   flex-shrink: 0;
 }
 
-.finishing-arena-budget {
-  margin: 0.35rem 0 1rem;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
 .finishing-attr-block {
   margin-bottom: 0.85rem;
   padding-bottom: 0.65rem;
@@ -308,18 +302,6 @@ textarea.has-doc-hint:focus-visible {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
-}
-
-.finishing-attr-sub {
-  margin: 0 0 0.3rem;
-  font-size: 0.88rem;
-  color: var(--muted);
-}
-
-.finishing-attr-stall {
-  margin: 0.35rem 0 0;
-  font-size: 0.88rem;
-  color: #d4b896;
 }
 
 .panel.panel-gate-invalid {
@@ -489,8 +471,7 @@ textarea.has-doc-hint:focus-visible {
   text-align: center;
 }
 
-.skill-ratings-col-paths.num,
-.skill-dot-total {
+.skill-ratings-col-paths.num {
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
@@ -514,12 +495,6 @@ textarea.has-doc-hint:focus-visible {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem;
-}
-
-.skill-dot-total {
-  min-width: 1.25rem;
-  font-weight: 600;
-  color: var(--accent);
 }
 
 .skill-ratings-clear {
@@ -758,6 +733,16 @@ textarea.has-doc-hint:focus-visible {
   min-height: 2.35rem;
 }
 
+/* Mythos fourth Deed — full width under Pantheon / Patron / Parent row. */
+.paths-mythos-deed-field {
+  grid-column: 1 / -1;
+}
+
+.paths-mythos-deed-hint {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
 .grid-2 .field-calling-row {
   grid-column: 1 / -1;
 }
@@ -781,6 +766,41 @@ textarea.has-doc-hint:focus-visible {
 
 .field-calling-row .calling-inline-dots {
   flex: 0 0 auto;
+}
+
+/* Hero / Titanic: Knack chips grouped under the Calling row they match first (or “Any Calling”). */
+.calling-knack-chip-group {
+  margin: 0.65rem 0 0.5rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  /* Inset surface aligned with dark theme — light wash + --muted titles read as illegible grey-on-grey. */
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.calling-knack-chip-group-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.chips.chips--calling-knack-subgroup {
+  margin-top: 0;
+}
+
+.calling-visitation-hero-intro {
+  margin: 0 0 0.4rem;
+}
+
+.calling-visitation-hero-rules {
+  margin: 0 0 0.25rem;
+}
+
+.calling-visitation-hero-list {
+  margin: 0.15rem 0 0;
+  padding-left: 1.25rem;
 }
 
 .field label {
@@ -836,6 +856,13 @@ textarea.has-doc-hint:focus-visible {
   border-color: #e3c56f;
 }
 
+/* Finishing attributes: darker fill for dots already fixed before this step’s bonus */
+.finishing-attr-block .dot.filled.dot-finishing-locked-fill {
+  background: radial-gradient(circle at 30% 25%, #c9a85a, #7a5c22);
+  border-color: #8a6a32;
+  filter: brightness(0.88);
+}
+
 .dot:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
@@ -882,6 +909,16 @@ textarea.has-doc-hint:focus-visible {
   flex-wrap: wrap;
   gap: 0.35rem;
   align-items: flex-start;
+}
+
+/* Purviews step: patron innate panel stacks intro then chips before Mythos Awareness */
+.purviews-patron-innate-panel .purviews-patron-innate-intro {
+  margin-top: 0;
+  margin-bottom: 0.45rem;
+}
+
+.purviews-patron-innate-panel .purviews-patron-innate-chips {
+  margin-top: 0.1rem;
 }
 
 /* Purviews step: selected chip expands to show innate text (not choosable like Boons) */

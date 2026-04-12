@@ -112,6 +112,54 @@ const MYTHOS_INVERTED_CALLING_TWIN = {
   torturer: "warrior",
 };
 
+/** Standard Storypath Calling ids that MotM replaces with an inverted Calling in the chooser. */
+const MYTHOS_NORMAL_CALLING_IDS = new Set([
+  "creator",
+  "guardian",
+  "healer",
+  "lover",
+  "leader",
+  "sage",
+  "warrior",
+]);
+
+/**
+ * MotM Mythos: patron data may list a standard Calling id; the wizard only offers the inverted Calling (e.g. Sage → Cosmos).
+ * @param {string} [callingId]
+ * @returns {string}
+ */
+export function mythosPatronCallingIdForChooser(callingId) {
+  const id = String(callingId ?? "").trim();
+  if (!id) return id;
+  const twin = mythosCallingTwinId(id);
+  if (twin && MYTHOS_NORMAL_CALLING_IDS.has(id)) return twin;
+  return id;
+}
+
+/**
+ * True for the MotM inverted side of a normal↔inverted pair (Cosmos, Destroyer, …). False for standard Callings and unpaired ids (Liminal, Monster, …).
+ * @param {string} [callingId]
+ */
+export function isMythosInvertedTwinCallingId(callingId) {
+  const id = String(callingId ?? "").trim();
+  if (!id) return false;
+  const twin = mythosCallingTwinId(id);
+  return !!(twin && MYTHOS_NORMAL_CALLING_IDS.has(twin));
+}
+
+/**
+ * Wizard Calling pickers: non-Mythos omits MotM inverted twins; Mythos omits the standard side when an inverted twin exists in the bundle.
+ * @param {string} callingId
+ * @param {{ callings?: Record<string, unknown> }} bundle
+ * @param {boolean} mythosPantheon
+ */
+export function callingIdInWizardLibraryChooser(callingId, bundle, mythosPantheon) {
+  const cid = String(callingId || "").trim();
+  if (!cid || cid.startsWith("_") || !bundle?.callings?.[cid]) return false;
+  if (mythosPantheon) return cid === mythosPatronCallingIdForChooser(cid);
+  return !isMythosInvertedTwinCallingId(cid);
+}
+
 /**
  * @param {string} [callingId]
  * @returns {string | null}
@@ -193,6 +241,30 @@ function slotRowCallingTokenSet(rowCallingId, character) {
 }
 
 /**
+ * Origin / single-Calling Calling step: chip group heading (mirrors Hero row vs “Any Calling”).
+ * @param {Record<string, unknown>} k
+ * @param {CharacterLike} character
+ * @returns {"selected" | "any"}
+ */
+export function originCallingKnackChipGroupKey(k, character) {
+  if (!k || typeof k !== "object") return "any";
+  if (k.callingsAny === true || k.calling === "any") return "any";
+  const raw = knackRawCallingIdList(k);
+  if (raw.length === 0) return "any";
+  /** PB / MotM rows that list multiple Callings (“one of …”) — show with the general pool on Origin. */
+  if (new Set(raw).size >= 2) return "any";
+  const knTok = knackCallingTokensForRowMatch(k, character);
+  if (knTok === null || knTok.size === 0) return "any";
+  const cid = String(character?.callingId ?? "").trim();
+  if (!cid) return "any";
+  const rowTok = slotRowCallingTokenSet(cid, character);
+  for (const x of knTok) {
+    if (rowTok.has(x)) return "selected";
+  }
+  return "any";
+}
+
+/**
  * Calling ids from Knack JSON (MotM twin expansion for `mythos_` MotM Knacks only).
  * @param {Record<string, unknown>} k
  * @returns {string[]}
@@ -238,7 +310,7 @@ export function knackAppliesToCallingsLine(k, bundle) {
   return `Applies to: ${names.join(", ")}.`;
 }
 
-function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
+export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
   const slots = character?.callingSlots;
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(slots)) return false;
   if (rowIdx < 0 || rowIdx >= slots.length) return false;
@@ -553,11 +625,11 @@ export function boonPrimaryPurview(b) {
   return g[0] || "";
 }
 
-/** Epic Attribute Purviews: ladder dot 1 is a normal Boon pick, not bundled Purview-Innate UX. */
+/** Epic Attribute Purviews: first catalog Boon is a normal pick, not bundled Purview-Innate UX. */
 const EPIC_PURVIEW_IDS = new Set(["epicDexterity", "epicStamina", "epicStrength"]);
 
 /**
- * True when this `*_dot_01` catalog row is the Purview Innate (or an unfilled ladder placeholder where Innate is separate in PB).
+ * True when this `*_dot_01` catalog row is the Purview Innate (or an unfilled catalog placeholder where Innate is separate in PB).
  * Do not offer as a wizard chip, do not store in `character.boonIds`, and do not list under "Boons" on the sheet.
  * Arcane Calculus dot 1 (Mythos) and Epic Attribute dot 1 remain real Boon picks.
  * @param {Record<string, unknown>} b
@@ -572,11 +644,12 @@ export function boonIsPurviewInnateAutomaticGrant(b, bundle) {
   if (EPIC_PURVIEW_IDS.has(pv)) return false;
   const row = bundle?.purviews?.[pv];
   if (!row || typeof row !== "object") return false;
+  const ladder = Array.isArray(row.boonLadderNames) ? row.boonLadderNames : null;
+  const rung1 = ladder != null && ladder.length >= 1 ? String(ladder[0] ?? "").trim() : "";
+  if (rung1) return false;
   const innateSummary = typeof row.purviewInnateSummary === "string" && row.purviewInnateSummary.trim();
   const innateName = typeof row.purviewInnateName === "string" && row.purviewInnateName.trim();
-  if (innateSummary || innateName) return true;
-  const desc = typeof b.description === "string" ? b.description : "";
-  return desc.includes("Add the proper name");
+  return Boolean(innateSummary || innateName);
 }
 
 /**

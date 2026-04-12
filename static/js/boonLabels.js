@@ -1,8 +1,26 @@
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { boonPrimaryPurview } from "./eligibility.js";
 
+/** English ordinal for Boon position on a Purview (1–12). */
+function ordinalEn(n) {
+  const i = Math.floor(Number(n));
+  if (!Number.isFinite(i) || i < 1) return String(n);
+  const v = i % 100;
+  if (v >= 11 && v <= 13) return `${i}th`;
+  switch (i % 10) {
+    case 1:
+      return `${i}st`;
+    case 2:
+      return `${i}nd`;
+    case 3:
+      return `${i}rd`;
+    default:
+      return `${i}th`;
+  }
+}
+
 /**
- * True when `boons.json` / generator used a generic ladder placeholder instead of a Pandora’s Box title.
+ * True when `boons.json` / generator used a generic placeholder instead of a Pandora’s Box title.
  * @param {string} name
  */
 export function isPlaceholderBoonCatalogName(name) {
@@ -15,7 +33,7 @@ export function isPlaceholderBoonCatalogName(name) {
 }
 
 /**
- * When no official title is in data, show Purview + rung without implying it is the printed Boon name.
+ * When no official title is in data, show ordinal Boon on Purview (not a printed Boon name from the books).
  * @param {string} purviewId
  * @param {number} dot
  * @param {{ purviews?: Record<string, Record<string, unknown>>; pantheons?: Record<string, Record<string, unknown>> }} bundle
@@ -23,13 +41,13 @@ export function isPlaceholderBoonCatalogName(name) {
  */
 function honestBoonRungChipLabel(purviewId, dot, bundle, pantheonId) {
   const disp = purviewDisplayNameForPantheon(purviewId, bundle, pantheonId) || purviewId || "Purview";
-  if (!Number.isFinite(dot)) return disp;
-  return `${disp} (rung ${dot})`;
+  if (!Number.isFinite(dot)) return `Boon on ${disp} Purview`;
+  return `${ordinalEn(dot)} Boon on ${disp} Purview`;
 }
 
 /**
  * Display label for a Boon chip / sheet row: prefer Pandora’s Box names from `purviews.json`,
- * then any non-placeholder `boons.json` name, then an honest rung label (never a fake “• Boon n” title).
+ * then any non-placeholder `boons.json` name, then an honest “Nth Boon on Purview” label (never a fake “• Boon n” title).
  * @param {Record<string, unknown>} b — one entry from bundle.boons
  * @param {{ purviews?: Record<string, Record<string, unknown>>; pantheons?: Record<string, Record<string, unknown>> }} bundle
  * @param {string} [pantheonId] — passed through for Purview display labels (e.g. pantheon Specialty names)
@@ -52,9 +70,9 @@ export function boonDisplayLabel(b, bundle, pantheonId) {
       const raw = byDot[k1] ?? byDot[k2];
       if (typeof raw === "string" && raw.trim()) return raw.trim();
     }
-    const ladder = pv.boonLadderNames;
-    if (Array.isArray(ladder) && ladder.length >= dot) {
-      const raw = ladder[dot - 1];
+    const nameList = pv.boonLadderNames;
+    if (Array.isArray(nameList) && nameList.length >= dot) {
+      const raw = nameList[dot - 1];
       if (typeof raw === "string" && raw.trim()) return raw.trim();
     }
   }

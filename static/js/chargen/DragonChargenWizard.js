@@ -12,6 +12,8 @@ import {
   syncHeroKnackSlotAssignments,
 } from "../eligibility.js";
 import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
+import { buildDragonInteractivePdfFields, downloadInteractiveCharacterPdf } from "../interactivePdfFields.js";
+import { downloadReviewSheetAsPdf } from "../reviewSheetPdf.js";
 
 /** Dragon wizard Review step: mirror main Review tab (sheet vs JSON). */
 let dragonReviewViewMode = "sheet";
@@ -347,10 +349,10 @@ function flightRequiredSkills(bundle, flightId) {
 }
 
 /**
- * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; onExitToScionConcept?: () => void }} ctx
+ * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; onExitToScionConcept?: () => void; scrollStepIntoView?: () => void }} ctx
  */
 export function renderDragonChargen(ctx) {
-  const { root, character, bundle, render, onExitToScionConcept } = ctx;
+  const { root, character, bundle, render, onExitToScionConcept, scrollStepIntoView } = ctx;
   ensureDragonShape(character, bundle);
   const d = character.dragon;
   const step = STEPS[d.stepIndex] || "welcome";
@@ -369,6 +371,7 @@ export function renderDragonChargen(ctx) {
         persistDragonFromDom(character, bundle);
         d.stepIndex = idx;
         render();
+        scrollStepIntoView?.();
       });
       nav.appendChild(btn);
     });
@@ -1161,10 +1164,65 @@ export function renderDragonChargen(ctx) {
     btnPrint.textContent = "Print sheet";
     btnPrint.title = "Print the character sheet (browser print dialog).";
 
+    const btnMrGonePdf = document.createElement("button");
+    btnMrGonePdf.type = "button";
+    btnMrGonePdf.className = "btn secondary";
+    btnMrGonePdf.textContent = "Download MrGone Sheet";
+    btnMrGonePdf.title =
+      "Fills the community four-page AcroForm Dragon Heir PDF. Server needs that template file and PyMuPDF.";
+    btnMrGonePdf.addEventListener("click", async () => {
+      persistDragonFromDom(character, bundle);
+      const fresh = {
+        tier: character.tier,
+        tierId: character.tier,
+        tierName: tierMeta?.name || character.tier,
+        tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+        characterName: character.characterName ?? "",
+        concept: character.concept,
+        deeds: character.deeds,
+        notes: character.notes ?? "",
+        ...buildDragonReviewSnapshot(character, bundle),
+      };
+      const fields = buildDragonInteractivePdfFields(fresh, bundle);
+      const nm = String(fresh.characterName ?? "").trim() || "character";
+      btnMrGonePdf.disabled = true;
+      try {
+        await downloadInteractiveCharacterPdf("dragon", fields, nm);
+      } catch (e) {
+        console.error(e);
+        window.alert(e instanceof Error ? e.message : String(e));
+      } finally {
+        btnMrGonePdf.disabled = false;
+      }
+    });
+    const btnThisSheetPdf = document.createElement("button");
+    btnThisSheetPdf.type = "button";
+    btnThisSheetPdf.className = "btn secondary";
+    btnThisSheetPdf.textContent = "Download This Sheet";
+    btnThisSheetPdf.title =
+      "PDF from the on-screen sheet via headless Chromium when available (see server Playwright setup). Not the MrGone AcroForm file.";
+    btnThisSheetPdf.addEventListener("click", async () => {
+      persistDragonFromDom(character, bundle);
+      const el = wrap.querySelector(".review-sheet-panel.character-sheet");
+      const nm = String(character.characterName ?? "").trim() || "character";
+      btnThisSheetPdf.disabled = true;
+      try {
+        if (!el) throw new Error("Character sheet is not visible. Switch to Character sheet view and try again.");
+        await downloadReviewSheetAsPdf(el, nm);
+      } catch (e) {
+        console.error(e);
+        window.alert(e instanceof Error ? e.message : String(e));
+      } finally {
+        btnThisSheetPdf.disabled = false;
+      }
+    });
+
     toolbar.appendChild(lab);
     toolbar.appendChild(btnSheet);
     toolbar.appendChild(btnJson);
     toolbar.appendChild(btnPrint);
+    toolbar.appendChild(btnMrGonePdf);
+    toolbar.appendChild(btnThisSheetPdf);
     wrap.appendChild(toolbar);
 
     const sheet = buildCharacterSheet(exportData, bundle);
@@ -1224,6 +1282,7 @@ export function renderDragonChargen(ctx) {
       }
       if (d.stepIndex > 0) d.stepIndex -= 1;
       render();
+      scrollStepIntoView?.();
     });
     actions.appendChild(back);
   }
@@ -1323,6 +1382,7 @@ export function renderDragonChargen(ctx) {
       }
       d.stepIndex += 1;
       render();
+      scrollStepIntoView?.();
     });
     actions.appendChild(next);
   }
