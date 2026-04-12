@@ -460,7 +460,8 @@ export function buildCharacterSheet(data, bundle) {
   const pathGrid = document.createElement("div");
   pathGrid.className = "cs-two-col";
   pathGrid.appendChild(fieldBlock("Pantheon", data.pantheon));
-  pathGrid.appendChild(fieldBlock("Divine parent", data.parentDeity));
+  const patronLabel = String(data.patronKind ?? "deity").trim() === "titan" ? "Titan parent" : "Divine parent";
+  pathGrid.appendChild(fieldBlock(patronLabel, data.parentDeity));
   pathGrid.appendChild(fieldBlock("Favored Approach", data.favoredApproach));
   pathGrid.appendChild(
     fieldBlock(

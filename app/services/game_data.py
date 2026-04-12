@@ -70,6 +70,28 @@ def load_bundle() -> dict[str, Any]:
                 if isinstance(v, dict):
                     merged_b[k] = v
             bundle["boons"] = merged_b
+    tr_k = bundle.pop("knacksTitansRising", None)
+    if isinstance(tr_k, dict):
+        base_kn = bundle.get("knacks")
+        if isinstance(base_kn, dict):
+            merged_tr = dict(base_kn)
+            for k, v in tr_k.items():
+                if k == "_meta" or not k:
+                    continue
+                if isinstance(v, dict):
+                    merged_tr[k] = v
+            bundle["knacks"] = merged_tr
+    titans_table = bundle.pop("titans", None)
+    if isinstance(titans_table, dict):
+        pant_table = bundle.get("pantheons")
+        by = titans_table.get("titansByPantheon")
+        if isinstance(pant_table, dict) and isinstance(by, dict):
+            for pid, rows in by.items():
+                if not isinstance(pid, str) or not isinstance(rows, list):
+                    continue
+                pant = pant_table.get(pid)
+                if isinstance(pant, dict):
+                    pant["titans"] = rows
     myth_inn = bundle.pop("mythosPurviewInnates", None)
     if isinstance(myth_inn, dict):
         base_p = bundle.get("purviews")

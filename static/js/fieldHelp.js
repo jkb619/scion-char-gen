@@ -69,6 +69,10 @@ export const HELP = {
     example: "Òrìshà, Theoi, Æsir — sets your two automatic Society Path Skills.",
     source: cite("origin", "Pantheon list (Character Creation)", "95"),
   },
+  "p-patron-kind": {
+    example: "Deity: parent list from Origin Appendix 2 gods. Titan: parent list from Titanomachy data (data/titans.json).",
+    source: "Scion_Origin_(Revised_Download).pdf (Appendix 2); Scion_-_Titanomachy_(Final_Download).pdf",
+  },
   "p-deity": {
     example: "Odin — lists patron Purviews from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign Purviews).",
     source: `${cite("origin", "Appendix 2: Pantheons (gods, Callings, Purviews)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,

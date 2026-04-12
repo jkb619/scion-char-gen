@@ -352,6 +352,8 @@ function defaultCharacter() {
     /** 0–5 filled dots between pantheon Virtue extremes (left → right in virtues.json order). */
     virtueSpectrum: 0,
     parentDeityId: "",
+    /** `"deity"` = God parent from `pantheons.*.deities`; `"titan"` = Titan parent from merged `pantheons.*.titans` (Titanomachy). */
+    patronKind: "deity",
     pathRank: { primary: "origin", secondary: "role", tertiary: "society" },
     pathSkills: { origin: [], role: [], society: [] },
     skillDots: skills,
@@ -594,7 +596,7 @@ function renderMythosInnatePowerPanel(wrap) {
     "Optionally commit to the <strong>Awareness Innate</strong> for <strong>one</strong> Purview from your <strong>divine parent’s</strong> list below (MotM pp. 49–59). Once confirmed, you cannot revert.";
   fieldset.appendChild(awIntro);
 
-  const heroTier = normalizedTierId(character.tier) === "hero";
+  const heroTier = normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic";
   const rowPv = document.createElement("div");
   rowPv.className = "field mythos-innate-awareness-row" + (heroTier ? " mythos-innate-awareness-row--hero-inline" : "");
   const labPv = document.createElement("label");
@@ -879,17 +881,31 @@ function selectedPantheon() {
   return bundle.pantheons[character.pantheonId] || null;
 }
 
+function patronKindIsTitan() {
+  return String(character?.patronKind ?? "deity").trim() === "titan";
+}
+
+/** Patron rows for the Paths dropdown: Gods from `deities` or Titans from merged `titans` (see data/titans.json). */
+function patronListForPantheon(p) {
+  if (!p || typeof p !== "object") return [];
+  if (patronKindIsTitan()) {
+    const t = p.titans;
+    return Array.isArray(t) ? t : [];
+  }
+  const d = p.deities;
+  return Array.isArray(d) ? d : [];
+}
+
 function deityList() {
   const p = selectedPantheon();
-  const arr = p?.deities || [];
-  return [...arr].sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), undefined, { sensitivity: "base" }));
+  return [...patronListForPantheon(p)].sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), undefined, { sensitivity: "base" }));
 }
 
 /** Divine parent row from `pantheons.json`, or null if none / not found. */
 function selectedDeityRecord() {
   const p = selectedPantheon();
   if (!p || !character.parentDeityId) return null;
-  return (p.deities || []).find((d) => d.id === character.parentDeityId) || null;
+  return patronListForPantheon(p).find((d) => d.id === character.parentDeityId) || null;
 }
 
 /**
@@ -923,7 +939,19 @@ function callingIdsAllowedForCharacter() {
 const HERO_CALLING_ROW_COUNT = 3;
 
 function heroUsesCallingSlots() {
-  return normalizedTierId(character.tier) === "hero";
+  const t = normalizedTierId(character.tier);
+  return t === "hero" || t === "titanic";
+}
+
+/** True after Review → Advance from Mortal to Hero/Titanic: row-0 Calling must stay the Origin pick (dots may still move). */
+function visitationLocksPrimaryCallingChoice() {
+  const log = character.tierAdvancementLog;
+  if (!Array.isArray(log)) return false;
+  return log.some((e) => {
+    const from = normalizedTierId(e?.fromTier);
+    const to = normalizedTierId(e?.toTier);
+    return from === "mortal" && (to === "hero" || to === "titanic");
+  });
 }
 
 function syncCallingAggregatesFromHeroSlots() {
@@ -993,11 +1021,14 @@ function syncCallingToParentDeity() {
     ensureCallingSlotsForHero();
     if (allowed) {
       const allowedSet = new Set(allowed);
-      for (const s of character.callingSlots) {
+      const lockPrimary = visitationLocksPrimaryCallingChoice();
+      for (let si = 0; si < character.callingSlots.length; si += 1) {
+        if (lockPrimary && si === 0) continue;
+        const s = character.callingSlots[si];
         if (s.id && !allowedSet.has(s.id)) s.id = "";
       }
       const cur0 = character.callingSlots[0]?.id || "";
-      if (!allowedSet.has(cur0)) character.callingSlots[0].id = allowed[0] || "";
+      if (!allowedSet.has(cur0) && !lockPrimary) character.callingSlots[0].id = allowed[0] || "";
     }
     syncCallingAggregatesFromHeroSlots();
     return;
@@ -1213,17 +1244,18 @@ function deityDocEntity(deity) {
   ]
     .filter(Boolean)
     .join("\n\n");
+  const src = patronKindIsTitan() ? deity.source || p?.source || "" : p?.source || "";
   return {
     name: deity.name,
-    description: desc || "See Origin Appendix 2 for patron details.",
-    source: p?.source || "",
+    description: desc || (patronKindIsTitan() ? "See Scion: Titanomachy for this Titan’s write-up." : "See Origin Appendix 2 for patron details."),
+    source: src,
   };
 }
 
 function selectedDeityEntity() {
   const p = selectedPantheon();
   if (!p || !character.parentDeityId) return null;
-  return (p.deities || []).find((d) => d.id === character.parentDeityId) || null;
+  return patronListForPantheon(p).find((d) => d.id === character.parentDeityId) || null;
 }
 
 /** Pantheon Signature (Specialty) Purview id from `pantheons.json` — must exist in `purviews.json`. */
@@ -1238,7 +1270,8 @@ function pantheonSignaturePurviewId() {
 /** Hero Æsir: older saves stored Signature as `fortune`; migrate to `wyrd` when parent does not grant Fortune. */
 function migrateAesirLegacyFortuneSignatureToWyrd() {
   if (!bundle?.purviews?.wyrd || !bundle?.pantheons?.aesir) return;
-  if (normalizedTierId(character.tier) !== "hero" || character.pantheonId !== "aesir") return;
+  const tnA = normalizedTierId(character.tier);
+  if ((tnA !== "hero" && tnA !== "titanic") || character.pantheonId !== "aesir") return;
   if (pantheonSignaturePurviewId() !== "wyrd") return;
   const ids = character.purviewIds || [];
   if (ids.includes("wyrd")) return;
@@ -1341,7 +1374,8 @@ function hydratePatronPurviewSlotsFromPurviewIds() {
 function syncPurviewIdsFromPatronSlots() {
   ensurePatronPurviewSlots();
   const picks = character.patronPurviewSlots.filter(Boolean);
-  if (normalizedTierId(character.tier) === "hero") {
+  const tn = normalizedTierId(character.tier);
+  if (tn === "hero" || tn === "titanic") {
     const parent = picks[0] || "";
     const sig = pantheonSignaturePurviewId();
     const merged = [];
@@ -1388,14 +1422,15 @@ function renderPatronPurviewPanel(mount) {
   const panel = document.createElement("div");
   panel.className = "panel patron-purviews-panel";
   const h = document.createElement("h2");
-  h.textContent = "Patron Purviews (divine parent)";
+  h.textContent = "Patron Purviews (parent)";
   panel.appendChild(h);
   const opts = patronPurviewOptionIds();
   const deity = selectedDeityEntity();
   if (!deity) {
     const p = document.createElement("p");
     p.className = "help";
-    p.textContent = "Choose a divine parent to assign patron Purviews from that parent’s list (Origin Appendix 2; Hero Visitation).";
+    p.textContent =
+      "Choose a patron (God or Titan) to assign Purview picks from that parent’s list (Origin Appendix 2 for Gods; Titanomachy for Titans; Hero / Titanic Visitation).";
     panel.appendChild(p);
     mount.appendChild(panel);
     applyHint(panel, "patron-purviews");
@@ -1425,10 +1460,12 @@ function renderPatronPurviewPanel(mount) {
   }
   const intro = document.createElement("p");
   intro.className = "help";
-  if (normalizedTierId(character.tier) === "hero") {
+  const tierPv = normalizedTierId(character.tier);
+  if (tierPv === "hero" || tierPv === "titanic") {
     const sig = pantheonSignaturePurviewId();
     const sigLab = sig ? pantheonSignaturePurviewDisplayLabel() : "— (set pantheon in data)";
-    intro.innerHTML = `At <strong>Hero</strong>, pick <strong>one innate Purview</strong> from this parent’s list below. Your pantheon’s <strong>Signature Purview</strong> (<strong>${sigLab}</strong>) is added automatically on the Purviews step — you do not spend your single pick on it.`;
+    const tierLab = tierPv === "titanic" ? "Titanic (Hero-tier)" : "Hero";
+    intro.innerHTML = `At <strong>${tierLab}</strong>, pick <strong>one innate Purview</strong> from this parent’s list below. Your pantheon’s <strong>Signature Purview</strong> (<strong>${sigLab}</strong>) is added automatically on the Purviews step — you do not spend your single pick on it.`;
   } else {
     intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (same id may not appear twice — changing a slot to one already chosen swaps the two). Other Purviews (Relics, etc.) are chosen on the Purviews step.`;
   }
@@ -1613,7 +1650,8 @@ function ensureFinishingShape() {
     if (f.extraAttributeDots == null) f.extraAttributeDots = 1;
   }
   if (!f.knackOrBirthright) f.knackOrBirthright = "knacks";
-  if (normalizedTierId(character.tier) === "hero" && f.knackOrBirthright === "birthrights") {
+  const tnFin = normalizedTierId(character.tier);
+  if ((tnFin === "hero" || tnFin === "titanic") && f.knackOrBirthright === "birthrights") {
     f.knackOrBirthright = "knacks";
   }
   if (!Array.isArray(f.finishingKnackIds)) f.finishingKnackIds = [];
@@ -1741,7 +1779,7 @@ function birthrightPointCost(bid) {
 /** Mortal / Origin (Finishing): 4 pts. Hero: 7 total on the Birthrights step (not 7+4 combined). Demigod/God: 11 (confirm at table). */
 function maxBirthrightPointsBudget() {
   const t = normalizedTierId(character.tier);
-  if (t === "hero") return 7;
+  if (t === "hero" || t === "titanic") return 7;
   if (t === "demigod" || t === "god") return 11;
   return 4;
 }
@@ -1813,13 +1851,14 @@ function removeFinishingBirthright(index) {
  * Hero does not grant another Finishing step or another 5+1 budget in this wizard.
  */
 function heroFinishingOmittedAfterOriginAdvance() {
-  if (normalizedTierId(character.tier) !== "hero") return false;
+  const tn = normalizedTierId(character.tier);
+  if (tn !== "hero" && tn !== "titanic") return false;
   return (character.tierAdvancementLog || []).some(
     (e) =>
       e &&
       typeof e === "object" &&
       normalizedTierId(e.fromTier) === "mortal" &&
-      normalizedTierId(e.toTier) === "hero",
+      (normalizedTierId(e.toTier) === "hero" || normalizedTierId(e.toTier) === "titanic"),
   );
 }
 
@@ -1827,7 +1866,7 @@ function stepDefsForTier(tierId) {
   const tier = bundle?.tier?.[tierId];
   const raw = tier?.wizardSteps || ["welcome", "concept", "paths", "skills", "attributes", "calling", "finishing", "review"];
   const steps = [...raw];
-  if (normalizedTierId(tierId) === "hero" && heroFinishingOmittedAfterOriginAdvance()) {
+  if ((normalizedTierId(tierId) === "hero" || normalizedTierId(tierId) === "titanic") && heroFinishingOmittedAfterOriginAdvance()) {
     return steps.filter((s) => s !== "finishing");
   }
   return steps;
@@ -1843,7 +1882,8 @@ function tierHasPurviewStep(tierId) {
  * @returns {string} Empty if satisfied; otherwise a short user-facing reason.
  */
 function heroPurviewsPatronPickRequiredAndMissing() {
-  if (normalizedTierId(character.tier) !== "hero") return "";
+  const tn = normalizedTierId(character.tier);
+  if (tn !== "hero" && tn !== "titanic") return "";
   const patronOpts = patronPurviewOptionIds();
   if (patronOpts.length === 0) return "";
   ensurePatronPurviewSlots();
@@ -1874,7 +1914,7 @@ function firstNewWizardStepIndex(oldTierId, newTierId) {
   const oldN = normalizedTierId(oldTierId);
   const newN = normalizedTierId(newTierId);
   /** Visitation: pick Callings & dots before new Hero-only steps (Purviews, …). */
-  if (oldN === "mortal" && newN === "hero") {
+  if (oldN === "mortal" && (newN === "hero" || newN === "titanic")) {
     const steps = stepDefsForTier(newTierId);
     const ci = steps.indexOf("calling");
     if (ci >= 0) return ci;
@@ -1919,10 +1959,11 @@ function applyTierAdvancementFromBundle() {
     },
   ];
   character.tier = next;
-  if (normalizedTierId(cur) === "mortal" && normalizedTierId(next) === "hero") {
+  const nextN = normalizedTierId(next);
+  if (normalizedTierId(cur) === "mortal" && (nextN === "hero" || nextN === "titanic")) {
     initHeroCallingSlotsAfterVisitation();
   }
-  if (normalizedTierId(next) === "hero") restrictHeroPurviewsToPatronList();
+  if (nextN === "hero" || nextN === "titanic") restrictHeroPurviewsToPatronList();
   syncLegendToTier();
   ensureFinishingShape();
   captureFinishingSkillBaseline();
@@ -2103,10 +2144,18 @@ function renderPaths(root) {
         <div class="field"><label>Role Path phrase</label><textarea id="p-role"></textarea></div>
         <div class="field"><label>Society / Pantheon Path phrase</label><textarea id="p-soc"></textarea></div>
       </div>
-      <div class="paths-pantheon-deity-row">
-        <div class="field paths-pantheon-field"><label>Pantheon</label><select id="p-pantheon"></select></div>
-        <div class="field paths-deity-field"><label>Divine parent</label><select id="p-deity"></select></div>
+      <div class="paths-pantheon-deity-stack">
+        <div class="field paths-pantheon-field"><label for="p-pantheon">Pantheon</label><select id="p-pantheon"></select></div>
+        <div class="field paths-patron-kind-field">
+          <label for="p-patron-kind">Patron type</label>
+          <select id="p-patron-kind" name="patronKind" autocomplete="off" aria-label="Patron type">
+            <option value="deity">Deity</option>
+            <option value="titan">Titan</option>
+          </select>
+        </div>
+        <div class="field paths-deity-field"><label id="p-deity-label" for="p-deity">Parent</label><select id="p-deity"></select></div>
       </div>
+      <p class="help paths-patron-lineage-hint">Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.</p>
     </div>
     <aside id="p-pantheon-virtues" class="pantheon-virtues-panel" aria-live="polite"></aside>
     <div id="p-virtue-spectrum-mount" class="p-virtue-spectrum-mount"></div>
@@ -2150,6 +2199,8 @@ function renderPaths(root) {
   const fillDeities = () => {
     character.pantheonId = ps.value;
     const ds = document.getElementById("p-deity");
+    const lab = document.getElementById("p-deity-label");
+    if (lab) lab.textContent = patronKindIsTitan() ? "Titan parent" : "Divine parent";
     ds.innerHTML = `<option value="">—</option>`;
     for (const d of deityList()) {
       const o = document.createElement("option");
@@ -2177,7 +2228,21 @@ function renderPaths(root) {
     render();
   });
   fillDeities();
+  const pkSel = document.getElementById("p-patron-kind");
+  if (pkSel) {
+    pkSel.value = patronKindIsTitan() ? "titan" : "deity";
+    pkSel.addEventListener("change", () => {
+      persistPathsPhrasesFromDom();
+      character.patronKind = pkSel.value === "titan" ? "titan" : "deity";
+      character.parentDeityId = "";
+      fillDeities();
+      onPatronPurviewContextChange();
+      syncCallingToParentDeity();
+      render();
+    });
+  }
   document.getElementById("p-mythos-deity-empty")?.remove();
+  document.getElementById("p-titan-patron-empty")?.remove();
   if (isMythosPantheonSelected() && deityList().length === 0) {
     const deitySel = document.getElementById("p-deity");
     const w = document.createElement("p");
@@ -2185,6 +2250,14 @@ function renderPaths(root) {
     w.className = "help";
     w.textContent =
       "No divine parents are listed for the Mythos pantheon in pantheons.json yet. Add deity entries (id, name, callings, purviews) from Masks of the Mythos, or extract text with scripts/ingest_masks_of_the_mythos_pdf.py and merge manually.";
+    deitySel?.parentElement?.appendChild(w);
+  } else if (patronKindIsTitan() && deityList().length === 0) {
+    const deitySel = document.getElementById("p-deity");
+    const w = document.createElement("p");
+    w.id = "p-titan-patron-empty";
+    w.className = "help";
+    w.textContent =
+      "No Titans are listed for this pantheon in data/titans.json yet — pick another pantheon, switch patron type to God, or add titans under titansByPantheon for this id.";
     deitySel?.parentElement?.appendChild(w);
   }
   document.getElementById("p-deity").addEventListener("change", (e) => {
@@ -2213,7 +2286,7 @@ function renderPaths(root) {
     );
     if (row) vm.appendChild(row);
   }
-  ["p-origin", "p-role", "p-soc", "p-pantheon", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
+  ["p-origin", "p-role", "p-soc", "p-pantheon", "p-patron-kind", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
 }
 
 function renderSkills(root) {
@@ -2614,21 +2687,30 @@ function renderCalling(root) {
     const visPanel = document.createElement("div");
     visPanel.className = "calling-visitation-panel panel";
     const visH = document.createElement("h2");
-    visH.textContent = "Visitation (Origin → Hero)";
+    const visTier = normalizedTierId(character.tier);
+    visH.textContent = visTier === "titanic" ? "Visitation (Origin → Titanic)" : "Visitation (Origin → Hero)";
     visPanel.appendChild(visH);
     const visP = document.createElement("p");
     visP.className = "help";
     visP.innerHTML =
-      "If you are advancing from Mortal, use <strong>Review → Advance to Hero</strong> (not Finishing) to reach this step. Add two more Callings (<strong>three</strong> total). New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots.";
+      visTier === "titanic"
+        ? "Use <strong>Review → Advance</strong> from Mortal when your table supports it, or start at <strong>Titanic</strong> on Welcome. After a Mortal tier-up, <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (dots can move). Assign <strong>three</strong> Callings and <strong>five</strong> dots (each at least one). <strong>Titans Rising:</strong> include <strong>at least one Titanic Calling</strong> (Adversary, Destroyer, Monster, Primeval, Tyrant). Knack budget equals the sum of row dots."
+        : "If you are advancing from Mortal, use <strong>Review → Advance to Hero</strong> (not Finishing) to reach this step. <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (only its dots can move here); pick two new Callings in rows 2–3. New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots.";
     visPanel.appendChild(visP);
     wrap.appendChild(visPanel);
+    const lockPrimaryCallingSelect = visitationLocksPrimaryCallingChoice();
     for (let rowIdx = 0; rowIdx < HERO_CALLING_ROW_COUNT; rowIdx += 1) {
       const slot = character.callingSlots[rowIdx];
       const fieldH = document.createElement("div");
       fieldH.className = "field field-calling-row field-calling-row--hero";
       const labH = document.createElement("label");
       labH.htmlFor = `f-calling-hero-${rowIdx}`;
-      labH.textContent = rowIdx === 0 ? "Calling 1 (primary)" : `Calling ${rowIdx + 1}`;
+      labH.textContent =
+        rowIdx === 0
+          ? lockPrimaryCallingSelect
+            ? "Calling 1 (primary — from Origin, locked)"
+            : "Calling 1 (primary)"
+          : `Calling ${rowIdx + 1}`;
       fieldH.appendChild(labH);
       const rowH = document.createElement("div");
       rowH.className = "calling-select-dots-row";
@@ -2654,14 +2736,18 @@ function renderCalling(root) {
         selH.appendChild(o);
       }
       selH.value = curId && callingEntries.some(([cid]) => cid === curId) ? curId : "";
-      selH.addEventListener("change", () => {
-        ensureCallingSlotsForHero();
-        character.callingSlots[rowIdx].id = selH.value || "";
-        rebalanceHeroCallingSlotDotsOverFive();
-        syncCallingAggregatesFromHeroSlots();
-        pruneStaleKnackIds();
-        render();
-      });
+      if (rowIdx === 0 && lockPrimaryCallingSelect) {
+        selH.disabled = true;
+      } else {
+        selH.addEventListener("change", () => {
+          ensureCallingSlotsForHero();
+          character.callingSlots[rowIdx].id = selH.value || "";
+          rebalanceHeroCallingSlotDotsOverFive();
+          syncCallingAggregatesFromHeroSlots();
+          pruneStaleKnackIds();
+          render();
+        });
+      }
       rowH.appendChild(selH);
       const dotsWrapH = document.createElement("div");
       dotsWrapH.className = "dots calling-inline-dots";
@@ -2708,7 +2794,25 @@ function renderCalling(root) {
           : "");
       wrap.appendChild(wHero);
     }
+    if (normalizedTierId(character.tier) === "titanic" && !missingCallingPick && dotSumHero >= 5) {
+      const hasTitanCalling = character.callingSlots.some((s) => TITANIC_CALLING_IDS_SM_KNACKS.has(String(s?.id || "").trim()));
+      if (!hasTitanCalling) {
+        const wTr = document.createElement("p");
+        wTr.className = "warn";
+        wTr.innerHTML =
+          "<strong>Titans Rising (Titanic Rules):</strong> assign <strong>at least one</strong> of your three Calling rows to a <strong>Titanic Calling</strong> — Adversary, Destroyer, Monster, Primeval, or Tyrant.";
+        wrap.appendChild(wTr);
+      }
+    }
     applyHint(document.getElementById("f-calling-hero-0"), "f-calling");
+    if (lockPrimaryCallingSelect) {
+      const h0 = document.getElementById("f-calling-hero-0");
+      if (h0) {
+        const lockNote =
+          "This Calling was chosen at Origin; it cannot change after Visitation (you can still move Calling dots across the three rows).";
+        h0.title = h0.title ? `${h0.title}\n\n${lockNote}` : lockNote;
+      }
+    }
   } else {
     const field = document.createElement("div");
     field.className = "field field-calling-row";
@@ -2785,7 +2889,7 @@ function renderCalling(root) {
   const smTitanicKnackNote = hasTitanicSaintsMonstersKnackCalling()
     ? ` <strong>Saints & Monsters:</strong> ${typeof smTitanicNoteRaw === "string" && smTitanicNoteRaw.trim() ? smTitanicNoteRaw.trim() : "Titanic Calling Knacks from Chapter Four appear as chips with ids prefixed <code>sm_</code> and this book in hints."}`
     : "";
-  knackPanel.innerHTML = `<h2>Knacks</h2><p class="help">Each chip is tagged <strong>Mortal</strong> or <strong>Immortal</strong> (data: <code>knackKind</code>). What you can choose depends on your Calling, tier, and optional gates. Use <cite>Pandora’s Box</cite> at the table for full mechanics.${knackOriginNote}${mythosKnackNote}${smTitanicKnackNote} Picks that no longer fit stay visible so you can clear them. Knacks already taken as <strong>extra Finishing Knacks</strong> are omitted here so you cannot pick the same Knack twice.</p>`;
+  knackPanel.innerHTML = `<h2>Knacks</h2><p class="help">Each chip is tagged <strong>Mortal</strong> or <strong>Immortal</strong> (data: <code>knackKind</code>). <strong>Muted / disabled</strong> chips are Knacks you still pass the <strong>Calling / tier / patron-type / Purview / pantheon</strong> rules in the data for, but your current <strong>per-row dot budgets</strong> (or the one-Immortal cap) cannot pay for them yet—raise dots on a matching Calling row until they become clickable. <strong>Titans Rising</strong> (<code>tr_*</code>) and <strong>S&amp;M Titanic Calling</strong> (<code>sm_*</code>) entries use the same rules: they show up whenever those gates pass (often a <strong>Titanic Calling</strong> row or <code>callingsAny</code> on the card). Use <cite>Pandora’s Box</cite> at the table for full mechanics.${knackOriginNote}${mythosKnackNote}${smTitanicKnackNote} Picks that no longer fit stay visible so you can clear them. Knacks already taken as <strong>extra Finishing Knacks</strong> are omitted here so you cannot pick the same Knack twice.</p>`;
   const chips = document.createElement("div");
   chips.className = "chips";
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
@@ -2798,14 +2902,20 @@ function renderCalling(root) {
       return (a[1].name || a[0]).localeCompare(b[1].name || b[0]);
     });
   for (const [kid, k] of knackEntries) {
-    const eligible = knackEligibleForCallingStep(k, character, bundle);
     const baseOk = knackEligible(k, character, bundle);
+    const eligible = knackEligibleForCallingStep(k, character, bundle);
     const on = character.knackIds.includes(kid);
-    if (!eligible && !on) continue;
-    if (eligible && !on && finishingKnackSet.has(kid)) continue;
+    if (!baseOk && !on) continue;
+    if (!on && finishingKnackSet.has(kid)) continue;
+    const slotBlocked = baseOk && !eligible && !on;
     const chip = document.createElement("button");
     chip.type = "button";
-    chip.className = "chip" + (on ? " on" : "") + (!eligible && on ? " chip-unqualified" : "");
+    chip.className =
+      "chip" +
+      (on ? " on" : "") +
+      (!eligible && on ? " chip-unqualified" : "") +
+      (slotBlocked ? " chip-knack-slot-blocked" : "");
+    chip.disabled = slotBlocked;
     if (!eligible && on) {
       chip.title = baseOk
         ? heroUsesCallingSlots()
@@ -2815,6 +2925,7 @@ function renderCalling(root) {
     }
     setKnackChipContents(chip, k);
     chip.addEventListener("click", () => {
+      if (chip.disabled) return;
       const set = new Set(character.knackIds);
       const finSet = new Set(character.finishing?.finishingKnackIds || []);
       if (set.has(kid)) set.delete(kid);
@@ -2825,6 +2936,11 @@ function renderCalling(root) {
     });
     const appliesLine = knackAppliesToCallingsLine(k, bundle);
     applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
+    if (slotBlocked) {
+      const gateHint =
+        "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack.";
+      chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
+    }
     if (on && heroUsesCallingSlots() && character.knackSlotById && character.knackSlotById[kid] != null && Array.isArray(character.callingSlots)) {
       const ri = character.knackSlotById[kid];
       const rowId = String(character.callingSlots[ri]?.id || "").trim();
@@ -2867,7 +2983,8 @@ function renderPurviews(root) {
     sigPanel.appendChild(sigH);
     const sigIntro = document.createElement("p");
     sigIntro.className = "help";
-    sigIntro.innerHTML = `Besides <strong>one innate Purview</strong> from your divine parent’s list, Heroes of <strong>${pPant?.name || character.pantheonId}</strong> gain this pantheon’s Signature (Specialty) Purview. It is kept on your sheet automatically and does not use your single parent pick.`;
+    const tierLab2 = tierNorm === "titanic" ? "Titanic Scions" : "Heroes";
+    sigIntro.innerHTML = `Besides <strong>one innate Purview</strong> from your patron’s list, <strong>${tierLab2}</strong> of <strong>${pPant?.name || character.pantheonId}</strong> gain this pantheon’s Signature (Specialty) Purview. It is kept on your sheet automatically and does not use your single parent pick.`;
     sigPanel.appendChild(sigIntro);
     const sigVal = document.createElement("p");
     if (sig) {
@@ -3370,9 +3487,9 @@ function renderFinishing(root) {
   if (tierFin === "mortal") {
     intro.innerHTML =
       "<strong>Origin p. 99 — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> (Birthright templates — see <cite>Scion: Hero</cite> p. 201 for post-Visitation detail). Budgets below are table limits; place dots and picks in the sections that follow.";
-  } else if (tierFin === "hero") {
-    intro.innerHTML =
-      "<strong>Hero — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> here only. At <strong>Origin</strong> you already chose either <em>two extra Knacks</em> or <em>four Birthright points</em> on Finishing — that is not repeated at Hero. Tier <strong>Birthrights</strong> (seven points) are on the <strong>Birthrights</strong> step; <strong>Calling</strong> is where you place Knacks from your Hero Calling dots.";
+  } else if (tierFin === "hero" || tierFin === "titanic") {
+    const lab = tierFin === "titanic" ? "Titanic" : "Hero";
+    intro.innerHTML = `<strong>${lab} — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> here only. At <strong>Origin</strong> you already chose either <em>two extra Knacks</em> or <em>four Birthright points</em> on Finishing — that is not repeated at ${lab}. Tier <strong>Birthrights</strong> (seven points) are on the <strong>Birthrights</strong> step; <strong>Calling</strong> is where you place Knacks from your Calling rows.`;
   } else {
     intro.innerHTML =
       "<strong>Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> toward your tier Birthrights budget (see <cite>Scion: Demigod</cite> / <cite>God</cite> and the Birthrights step). Budgets below are table limits.";
@@ -3381,11 +3498,11 @@ function renderFinishing(root) {
 
   const budget = document.createElement("div");
   budget.className = "grid-2";
-  if (tierFin === "hero") {
+  if (tierFin === "hero" || tierFin === "titanic") {
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
     <div class="field"><label>Extra attribute dot(s) (budget)</label><input type="number" id="fin-attr" min="0" max="10" /></div>
-    <p class="help" id="fin-focus-hero-note">Extra Knacks from Origin Finishing stay in your save; this step does not offer them again. Birthrights at Hero (seven points) are on the <strong>Birthrights</strong> step.</p>`;
+    <p class="help" id="fin-focus-hero-note">Extra Knacks from Origin Finishing stay in your save; this step does not offer them again. Birthrights at Hero/Titanic (seven points) are on the <strong>Birthrights</strong> step.</p>`;
   } else {
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
@@ -3481,8 +3598,8 @@ function renderFinishing(root) {
   }
   wrap.appendChild(atPanel);
 
-  /* Hero: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
-  if (tierFin !== "hero") {
+  /* Hero / Titanic: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
+  if (tierFin !== "hero" && tierFin !== "titanic") {
     const knBr = document.createElement("section");
     knBr.className = "panel finishing-place-panel";
     if (character.finishing.knackOrBirthright === "knacks") {
@@ -3772,7 +3889,7 @@ function renderReview(root) {
 function buildExportObject() {
   ensureFinishingShape();
   const p = selectedPantheon();
-  const deity = (p?.deities || []).find((d) => d.id === character.parentDeityId);
+  const deity = patronListForPantheon(p).find((d) => d.id === character.parentDeityId);
   const baseAttrs = { ...character.attributes };
   for (const id of Object.keys(bundle.attributes)) {
     if (baseAttrs[id] == null) baseAttrs[id] = 1;
@@ -3780,8 +3897,9 @@ function buildExportObject() {
   const finalAttrs = applyFavoredApproach(baseAttrs);
   const tierMeta = bundle.tier?.[character.tier];
   const heroSeven = getTierAdvancementRule("mortal")?.heroBirthrightDotTotal ?? 7;
+  const tnEx = normalizedTierId(character.tier);
   const heroUnused =
-    character.tier === "hero" ? Math.max(0, heroSeven - finishingBirthrightPointsUsed()) : null;
+    tnEx === "hero" || tnEx === "titanic" ? Math.max(0, heroSeven - finishingBirthrightPointsUsed()) : null;
   return {
     tier: character.tier,
     tierId: character.tier,
@@ -3800,6 +3918,7 @@ function buildExportObject() {
     pantheonId: character.pantheonId || "",
     parentDeity: deity?.name || "",
     parentDeityId: character.parentDeityId || "",
+    patronKind: patronKindIsTitan() ? "titan" : "deity",
     virtueSpectrum: Math.max(0, Math.min(5, Math.round(Number(character.virtueSpectrum) || 0))),
     pathPriority: character.pathRank,
     pathSkills: character.pathSkills,
@@ -3890,14 +4009,34 @@ function importCharacterFromExportPayload(data) {
     typeof data.pantheonId === "string" && data.pantheonId.trim() ? data.pantheonId.trim() : base.pantheonId;
   if (pantheonId && !bundle.pantheons?.[pantheonId]) pantheonId = "";
 
+  let patronKind = typeof data.patronKind === "string" && data.patronKind.trim() === "titan" ? "titan" : "deity";
+
   let parentDeityId = typeof data.parentDeityId === "string" && data.parentDeityId.trim() ? data.parentDeityId.trim() : "";
   if (!parentDeityId && data.parentDeity && pantheonId && bundle.pantheons?.[pantheonId]) {
     const label = String(data.parentDeity).trim();
-    const dMatch = (bundle.pantheons[pantheonId].deities || []).find((d) => d.id === label || d.name === label);
+    const pant = bundle.pantheons[pantheonId];
+    const list =
+      patronKind === "titan"
+        ? Array.isArray(pant.titans)
+          ? pant.titans
+          : []
+        : Array.isArray(pant.deities)
+          ? pant.deities
+          : [];
+    const dMatch = list.find((d) => d.id === label || d.name === label);
     if (dMatch) parentDeityId = dMatch.id;
   }
   if (pantheonId && parentDeityId) {
-    const ok = (bundle.pantheons[pantheonId]?.deities || []).some((d) => d.id === parentDeityId);
+    const pant = bundle.pantheons[pantheonId];
+    const list =
+      patronKind === "titan"
+        ? Array.isArray(pant?.titans)
+          ? pant.titans
+          : []
+        : Array.isArray(pant?.deities)
+          ? pant.deities
+          : [];
+    const ok = list.some((d) => d.id === parentDeityId);
     if (!ok) parentDeityId = "";
   }
 
@@ -4045,7 +4184,8 @@ function importCharacterFromExportPayload(data) {
   if (isOriginPlayTier(tier)) callingDots = 1;
   else callingDots = Math.max(1, Math.min(5, callingDots));
   let callingSlots = null;
-  if (normalizedTierId(tier) === "hero" && Array.isArray(data.callingSlots) && data.callingSlots.length >= 3) {
+  const tierNormImp = normalizedTierId(tier);
+  if ((tierNormImp === "hero" || tierNormImp === "titanic") && Array.isArray(data.callingSlots) && data.callingSlots.length >= 3) {
     callingSlots = data.callingSlots.slice(0, 3).map((x) =>
       x && typeof x === "object"
         ? {
@@ -4061,6 +4201,7 @@ function importCharacterFromExportPayload(data) {
     callingId,
     pantheonId,
     parentDeityId,
+    patronKind,
     purviewIds,
     legendRating,
     awarenessRating,
@@ -4140,6 +4281,7 @@ function importCharacterFromExportPayload(data) {
   return {
     ...base,
     tier,
+    patronKind,
     characterName: typeof data.characterName === "string" ? data.characterName : "",
     concept: typeof data.concept === "string" ? data.concept : "",
     deeds,
@@ -4217,6 +4359,12 @@ function normalizeCharacterStateAfterLoad() {
     character.callingDots = 1;
   }
   syncLegendToTier();
+  character.patronKind = String(character.patronKind ?? "deity").trim().toLowerCase() === "titan" ? "titan" : "deity";
+  const pantNorm = bundle?.pantheons?.[character.pantheonId];
+  if (pantNorm && character.parentDeityId) {
+    const okPat = patronListForPantheon(pantNorm).some((d) => d && d.id === character.parentDeityId);
+    if (!okPat) character.parentDeityId = "";
+  }
   syncAwarenessWithPantheon();
   if (!Array.isArray(character.tierAdvancementLog)) character.tierAdvancementLog = [];
   ensureSkillDots();
@@ -4273,6 +4421,8 @@ function persistPathsPhrasesFromDom() {
 function persistPathsStepFromDom() {
   persistPathsPhrasesFromDom();
   character.pantheonId = document.getElementById("p-pantheon")?.value || "";
+  const pk = document.getElementById("p-patron-kind")?.value;
+  character.patronKind = pk === "titan" ? "titan" : "deity";
   character.parentDeityId = document.getElementById("p-deity")?.value || "";
   syncAwarenessWithPantheon();
   ensurePatronPurviewSlots();
@@ -4325,7 +4475,7 @@ function persistFromForm() {
     character.finishing.extraSkillDots = Number(document.getElementById("fin-skill")?.value || 0);
     character.finishing.extraAttributeDots = Number(document.getElementById("fin-attr")?.value || 0);
     character.finishing.knackOrBirthright =
-      normalizedTierId(character.tier) === "hero"
+      normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic"
         ? "knacks"
         : document.getElementById("fin-focus")?.value || "knacks";
     character.fatebindings = document.getElementById("fin-fatebindings")?.value ?? "";

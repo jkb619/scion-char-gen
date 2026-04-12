@@ -61,13 +61,13 @@
   "titanic": {
     "id": "titanic",
     "name": "Titanic Scion",
-    "alsoKnownAs": "Maelstrom-touched Scion (Saints & Monsters)",
-    "description": "Scions whose nature skews toward Titanic Callings and Maelstrom Hearts—Epicenters replace standard universal Purview Innates while the bond is unsuppressed.",
-    "mechanicalEffects": "Use Saints & Monsters Titanic chargen: Titanic Calling, universal Purviews with Epicenter text (see bundle epicenters), Maelstrom Hearts, Collateral or Tension alternates, and Titanic Mutations (recorded in the wizard’s Titanic extras step).",
+    "alsoKnownAs": "Titan-blooded Hero-tier Scion (Saints & Monsters + Titans Rising)",
+    "description": "Scions whose nature skews toward Titanic Callings and Maelstrom Hearts—Epicenters replace standard universal Purview Innates while the bond is unsuppressed. Use Patron type “Titan” on Paths with titans from Titanomachy data.",
+    "mechanicalEffects": "Follow Titans Rising ch. 1 with Saints & Monsters as the mechanical hub: at least one Titanic Calling among your three Visitation rows, universal Purviews with Epicenter text (bundle.epicenters), Maelstrom Hearts, Collateral or Tension alternates, and Titanic Mutations (wizard Titanic extras step). Extra Titanic Knacks from Titans Rising merge as tr_* in Knacks.",
     "typicalLegendRange": "2–4 (Hero-like band; confirm with Storyguide)",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "titanicExtras", "finishing", "review"],
     "patronPurviewSlotCount": 1,
-    "purviewsChargenNote": "Titanic: each universal Purview you take uses Epicenter summaries from Saints & Monsters (bundle.epicenters) in place of the usual Innate until you imbue Legend to suppress Epicenter effects (see PDF). Patron Purview picks still follow your divine parent’s list where applicable.",
-    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Scions & Maelstroms' Hearts"
+    "purviewsChargenNote": "Titanic: each universal Purview you take uses Epicenter summaries from Saints & Monsters (bundle.epicenters) in place of the usual Innate until you imbue Legend to suppress Epicenter effects (see PDF). Patron Purview picks follow your Titan or God parent’s list from the data (Paths).",
+    "source": "TItans_Rising_(Final_Download).pdf ch. 1; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf; Scion_-_Titanomachy_(Final_Download).pdf (Titan patrons)"
   }
 }

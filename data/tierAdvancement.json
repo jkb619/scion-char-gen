@@ -15,7 +15,8 @@
       "Assign Boons (Hero Step 8, p. 189).",
       "Set Legend in the app header when your chronicle calls for it (p. 172).",
       "Mythos pantheon (Masks of the Mythos): this app ships MotM patrons, virtues (Humanity / Nihilism), Signature Purview Arcane Calculus, and MotM Calling names in data — still use the book for Knacks/Boons tables, relics, Fatebindings, and other MotM-only rules when you advance.",
-      "Companion pantheons (Mysteries of the World): Loa of Haiti, Nemetondevos of Gaul, and Yazata of Persia—including patrons, virtues, and Signature Purviews Nemeton and Asha—are in data; use the PDF for Cults, Druid Path details, Covenant, and full Signature Boon write-ups."
+      "Companion pantheons (Mysteries of the World): Loa of Haiti, Nemetondevos of Gaul, and Yazata of Persia—including patrons, virtues, and Signature Purviews Nemeton and Asha—are in data; use the PDF for Cults, Druid Path details, Covenant, and full Signature Boon write-ups.",
+      "Titan-blooded Scions: pick the Welcome tier **Titanic Scion** (or your Storyguide’s equivalent) instead of Hero when using Titans Rising + Saints & Monsters; on Paths set **Patron type** to **Titan** and choose a Titan from data/titans.json (Titanomachy patrons)."
     ]
   },
   "hero": {

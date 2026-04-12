@@ -1,6 +1,6 @@
 /**
  * Knack / Boon eligibility for chargen UI (data-driven gates in JSON + character state).
- * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number> }} CharacterLike
+ * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number> }} CharacterLike
  */
 
 const TIER_RANK = { mortal: 0, sorcerer: 0, hero: 1, titanic: 1, demigod: 2, god: 3 };
@@ -17,9 +17,10 @@ function normalizedTierIdEligibility(tierId) {
   return raw;
 }
 
-/** Hero tier uses three Calling rows in the wizard (`callingSlots`); Knacks use per-row dot budgets. */
+/** Hero and Titanic tiers use three Calling rows in the wizard (`callingSlots`); Knacks use per-row dot budgets. */
 export function heroUsesCallingSlotRows(character) {
-  return normalizedTierIdEligibility(character?.tier) === "hero";
+  const t = normalizedTierIdEligibility(character?.tier);
+  return t === "hero" || t === "titanic";
 }
 
 function sumHeroCallingSlotDots(character) {
@@ -503,6 +504,12 @@ export function knackEligible(k, character, _bundle) {
     if (!deityReq.includes(character.parentDeityId)) return false;
   }
 
+  const patronKinds = k.patronKindAnyOf;
+  if (Array.isArray(patronKinds) && patronKinds.length) {
+    const cur = String(character?.patronKind ?? "deity").trim() === "titan" ? "titan" : "deity";
+    if (!patronKinds.includes(cur)) return false;
+  }
+
   const leg = k.legendMin != null ? Number(k.legendMin) : null;
   if (leg != null && !Number.isNaN(leg)) {
     const lr = Math.round(Number(character.legendRating) || 0);
@@ -607,6 +614,12 @@ export function boonEligible(b, character, bundle) {
   const deityBoonReq = b.deityAnyOf;
   if (Array.isArray(deityBoonReq) && deityBoonReq.length) {
     if (!deityBoonReq.includes(character.parentDeityId)) return false;
+  }
+
+  const patronKindsB = b.patronKindAnyOf;
+  if (Array.isArray(patronKindsB) && patronKindsB.length) {
+    const curB = String(character?.patronKind ?? "deity").trim() === "titan" ? "titan" : "deity";
+    if (!patronKindsB.includes(curB)) return false;
   }
 
   const pathPrimaryReq = b.pathRankPrimaryAnyOf;

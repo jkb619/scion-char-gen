@@ -28,7 +28,9 @@
     "boonsSaintsMonsters",
     "epicenters",
     "mythosPurviewInnates",
-    "purviewStandardInnates"
+    "purviewStandardInnates",
+    "titans",
+    "knacksTitansRising"
   ],
   "api": {
     "manifest": "/api/manifest",

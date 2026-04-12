@@ -1,0 +1,266 @@
+{
+  "_meta": {
+    "title": "Titan patrons (Scion: Titanomachy)",
+    "note": "Titan write-ups and patron lists follow Scion: Titanomachy (capital-T Titans in the Titanomachy). Titans Rising expands tier rules and extra Knacks (see knacksTitansRising.json). Patron Purviews and Callings here drive the same wizard fields as divine parents (Origin p. 94+; Titans Rising ch. 1 Titanic Rules).",
+    "sourcePdf": "Scion_-_Titanomachy_(Final_Download).pdf",
+    "structure": "titansByPantheon maps pantheon ids (keys of pantheons.json) to arrays of { id, name, callings[], purviews[], source }."
+  },
+  "titansByPantheon": {
+    "aesir": [
+      {
+        "id": "titan_jord",
+        "name": "Jörð",
+        "callings": ["guardian", "lover", "primeval"],
+        "purviews": ["beauty", "earth", "epicStamina", "fertility", "passion"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Æsir"
+      },
+      {
+        "id": "titan_nidhoggr",
+        "name": "Níðhöggr",
+        "callings": ["monster", "destroyer", "adversary"],
+        "purviews": ["chaos", "death", "deception", "epicStamina", "fertility", "journeys"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Æsir"
+      },
+      {
+        "id": "titan_surtr",
+        "name": "Surtr",
+        "callings": ["destroyer", "warrior", "tyrant"],
+        "purviews": ["death", "epicStamina", "fire", "forge", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Æsir"
+      },
+      {
+        "id": "titan_ymir",
+        "name": "Ymir",
+        "callings": ["primeval", "monster", "destroyer"],
+        "purviews": ["chaos", "death", "earth", "epicStrength", "frost", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Æsir"
+      }
+    ],
+    "deva": [
+      {
+        "id": "titan_banasura",
+        "name": "Banasura, the Thousand-Armed King",
+        "callings": ["destroyer", "tyrant", "warrior"],
+        "purviews": ["epicStrength", "order", "prosperity", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Devá (patron Purviews paraphrased; confirm at table)"
+      },
+      {
+        "id": "titan_rangda",
+        "name": "Rangda, the Witch-Queen of Bali",
+        "callings": ["adversary", "monster", "sage"],
+        "purviews": ["beasts", "chaos", "death", "deception", "passion"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Devá"
+      },
+      {
+        "id": "titan_saita",
+        "name": "Saita, the Untold Story",
+        "callings": ["liminal", "trickster", "adversary"],
+        "purviews": ["deception", "fortune", "order", "passion"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Devá"
+      }
+    ],
+    "kami": [
+      {
+        "id": "titan_fujin",
+        "name": "Fūjin",
+        "callings": ["destroyer", "primeval", "tyrant"],
+        "purviews": ["chaos", "journeys", "sky", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Kami (confirm Purview ids vs PB)"
+      },
+      {
+        "id": "titan_goki",
+        "name": "Goki",
+        "callings": ["guardian", "judge", "monster"],
+        "purviews": ["darkness", "death", "epicStamina", "health"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Kami"
+      },
+      {
+        "id": "titan_namazu",
+        "name": "Namazu",
+        "callings": ["destroyer", "monster", "primeval"],
+        "purviews": ["earth", "epicStrength", "fertility", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Kami"
+      },
+      {
+        "id": "titan_raijin",
+        "name": "Raijin",
+        "callings": ["destroyer", "primeval", "tyrant"],
+        "purviews": ["passion", "sky", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Kami"
+      }
+    ],
+    "manitou": [
+      {
+        "id": "titan_ae_pungishimook",
+        "name": "Ae-pungishimook",
+        "callings": ["judge", "liminal", "primeval"],
+        "purviews": ["chaos", "death", "deception", "epicDexterity", "epicStamina", "fertility", "fire", "order", "sky"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Manitou"
+      },
+      {
+        "id": "titan_aniwye",
+        "name": "Aniwye",
+        "callings": ["destroyer", "monster", "hunter"],
+        "purviews": ["beasts", "death", "epicStamina", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Manitou"
+      },
+      {
+        "id": "titan_mishibizhiw",
+        "name": "Mishibizhiw",
+        "callings": ["monster", "destroyer", "primeval"],
+        "purviews": ["beasts", "death", "journeys", "water", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Manitou"
+      },
+      {
+        "id": "titan_misiginebig",
+        "name": "Misiginebig",
+        "callings": ["monster", "tyrant", "hunter"],
+        "purviews": ["beasts", "death", "water", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Manitou"
+      }
+    ],
+    "netjer": [
+      {
+        "id": "titan_apep",
+        "name": "Apep, the Serpent of Chaos",
+        "callings": ["adversary", "monster", "warrior"],
+        "purviews": ["beasts", "chaos", "darkness"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Netjer"
+      },
+      {
+        "id": "titan_aten",
+        "name": "Aten, the One True Sun",
+        "callings": ["tyrant", "sage", "destroyer"],
+        "purviews": ["epicStamina", "fire", "health", "order", "sky", "sun"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Netjer (confirm specialty Purviews in PB)"
+      },
+      {
+        "id": "titan_isfet",
+        "name": "Isfet, the Disharmonious",
+        "callings": ["adversary", "destroyer", "trickster"],
+        "purviews": ["chaos", "death", "deception", "epicDexterity", "order"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Netjer"
+      }
+    ],
+    "shen": [
+      {
+        "id": "titan_ao_guang",
+        "name": "Ào Guāng",
+        "callings": ["tyrant", "trickster", "adversary"],
+        "purviews": ["beasts", "deception", "epicStamina", "prosperity", "water"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Shén"
+      },
+      {
+        "id": "titan_kuafu",
+        "name": "Kuāfù",
+        "callings": ["destroyer", "warrior", "primeval"],
+        "purviews": ["earth", "epicStamina", "epicStrength", "fire", "journeys"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Shén"
+      },
+      {
+        "id": "titan_su_daji",
+        "name": "Su Dáji",
+        "callings": ["adversary", "lover", "monster"],
+        "purviews": ["beasts", "deception", "epicDexterity", "passion"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Shén"
+      },
+      {
+        "id": "titan_white_eyebrow",
+        "name": "The White Eyebrow, Betrayer of Shaolin",
+        "callings": ["adversary", "warrior", "trickster"],
+        "purviews": ["artistry", "deception", "epicDexterity", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Shén"
+      }
+    ],
+    "teotl": [
+      {
+        "id": "titan_citlali",
+        "name": "Citlali, Tzitzimime from Behind the Stars",
+        "callings": ["destroyer", "monster", "hunter"],
+        "purviews": ["darkness", "death", "sky", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Teōtl"
+      },
+      {
+        "id": "titan_coyolxauhqui",
+        "name": "Coyolxāuhqui",
+        "callings": ["destroyer", "warrior", "tyrant"],
+        "purviews": ["moon", "war", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Teōtl"
+      },
+      {
+        "id": "titan_tenoch",
+        "name": "Tenoch, Quinametzin of the First Sun",
+        "callings": ["leader", "tyrant", "warrior"],
+        "purviews": ["earth", "epicStrength", "fire", "prosperity", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Teōtl"
+      },
+      {
+        "id": "titan_tlaltecuhtli",
+        "name": "Tlaltecuhtli, the Hungry",
+        "callings": ["monster", "primeval", "destroyer"],
+        "purviews": ["earth", "fertility", "health", "passion"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Teōtl"
+      }
+    ],
+    "theoi": [
+      {
+        "id": "titan_cronus",
+        "name": "Cronus",
+        "callings": ["tyrant", "destroyer", "leader"],
+        "purviews": ["death", "epicStamina", "fertility", "order", "sky"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Theoi"
+      },
+      {
+        "id": "titan_echidna",
+        "name": "Echidna",
+        "callings": ["monster", "lover", "primeval"],
+        "purviews": ["beasts", "earth", "fertility", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Theoi"
+      },
+      {
+        "id": "titan_gaia_theoi",
+        "name": "Gaea (Titan aspect)",
+        "callings": ["primeval", "creator", "tyrant"],
+        "purviews": ["earth", "fertility", "health", "order", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Theoi; Mantles per Titanomachy"
+      }
+    ],
+    "tuathaDeDanann": [
+      {
+        "id": "titan_balor",
+        "name": "Balor, the Evil Eye",
+        "callings": ["destroyer", "tyrant", "warrior"],
+        "purviews": ["death", "epicStamina", "fire", "war"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Tuatha Dé Danann"
+      },
+      {
+        "id": "titan_belenus",
+        "name": "Belenus the Bright",
+        "callings": ["healer", "leader", "lover"],
+        "purviews": ["fire", "health", "passion", "sky", "sun"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Tuatha Dé Danann"
+      },
+      {
+        "id": "titan_bres",
+        "name": "Bres the Beautiful",
+        "callings": ["adversary", "leader", "lover"],
+        "purviews": ["beauty", "epicStamina", "fertility", "prosperity"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Tuatha Dé Danann"
+      },
+      {
+        "id": "titan_cernunnos_titan",
+        "name": "Cernunnos, the Horned One (Titan aspect)",
+        "callings": ["hunter", "liminal", "primeval"],
+        "purviews": ["beasts", "death", "earth", "fertility", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Tuatha Dé Danann"
+      },
+      {
+        "id": "titan_domnu",
+        "name": "Domnu, Mother of Titans",
+        "callings": ["primeval", "tyrant", "monster"],
+        "purviews": ["chaos", "darkness", "death", "water", "wild"],
+        "source": "Scion_-_Titanomachy_(Final_Download).pdf — Titans of the Tuatha Dé Danann"
+      }
+    ]
+  }
+}
