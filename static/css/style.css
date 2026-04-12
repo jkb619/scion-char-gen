@@ -1099,6 +1099,42 @@ textarea.has-doc-hint:focus-visible {
   text-transform: capitalize;
 }
 
+/* Tags library: each row = type · category, then display name (id only in tooltip) */
+.tags-lib-list-btn {
+  gap: 0.15rem;
+}
+
+.tags-lib-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--muted);
+  text-transform: none;
+}
+
+.tags-lib-type {
+  font-weight: 700;
+  color: var(--accent-2);
+  text-transform: capitalize;
+}
+
+.tags-lib-category {
+  font-weight: 600;
+  color: #c5b89a;
+  text-transform: capitalize;
+}
+
+.tags-lib-list-name {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 0.08rem;
+}
+
 .br-editor-search {
   width: 100%;
   margin-top: 0.35rem;

@@ -38,12 +38,26 @@ export function normalizeTagIdArray(arr) {
   return [...new Set(arr.map((x) => String(x).trim()).filter(Boolean))];
 }
 
+/** @param {any} e */
+export function formatTagPointCostLine(e) {
+  if (e?.pointCost === null) return "null";
+  const pc = e?.pointCost;
+  if (pc === undefined) return "";
+  if (typeof pc !== "number" || !Number.isFinite(pc)) return "";
+  const alt = e?.pointCostAlt;
+  const u = "\u2212"; // minus sign
+  const core = pc < 0 ? `${u}${Math.abs(pc)}` : String(pc);
+  if (typeof alt === "number" && Number.isFinite(alt)) return `${core} / ${alt}`;
+  return core;
+}
+
 /**
  * @param {HTMLElement} parent
- * @param {{ bundle: any; selectedIds: string[]; roleFilter: string[]; onChange: (ids: string[]) => void }} opts
+ * @param {{ bundle: any; selectedIds: string[]; roleFilter: string[]; onChange: (ids: string[]) => void;
+ *   tagAddBlockReason?: (tagId: string, currentSelectedIds: string[]) => string | null }} opts
  */
 export function appendTagChecklist(parent, opts) {
-  const { bundle, selectedIds, roleFilter, onChange } = opts;
+  const { bundle, selectedIds, roleFilter, onChange, tagAddBlockReason } = opts;
   const wrap = document.createElement("div");
   wrap.className = "tag-checklist field";
   const lab = document.createElement("label");
@@ -72,6 +86,13 @@ export function appendTagChecklist(parent, opts) {
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.checked = sel.has(tid);
+    if (!cb.checked && typeof tagAddBlockReason === "function") {
+      const block = tagAddBlockReason(tid, normalizeTagIdArray([...sel]));
+      if (block) {
+        cb.disabled = true;
+        row.title = block;
+      }
+    }
     cb.addEventListener("change", () => {
       if (cb.checked) sel.add(tid);
       else sel.delete(tid);
@@ -80,7 +101,10 @@ export function appendTagChecklist(parent, opts) {
     const span = document.createElement("span");
     span.className = "tag-check-label";
     const cat = tag?.category ? ` · ${tag.category}` : "";
-    span.textContent = `${tag?.name || tid}${cat}`;
+    const cost = formatTagPointCostLine(tag);
+    const costBit =
+      cost === "null" ? " · cost: —" : cost ? ` · cost: ${cost}` : "";
+    span.textContent = `${tag?.name || tid}${cat}${costBit}`;
     row.appendChild(cb);
     row.appendChild(span);
     grid.appendChild(row);

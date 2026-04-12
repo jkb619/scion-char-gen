@@ -31,7 +31,8 @@
         "what": "Worshippers, shrines, and rites that support your Legend and provide narrative leverage.",
         "typicalDots": "1–4"
       }
-    ]
+    ],
+    "pbRelicCatalog": "Keys prefixed `pb_relic_` are sample Relics auto-extracted from SCION_Pandoras_Box_(Revised_Download).pdf (Birthrights chapter: title + (•) rating + Purviews/Motif). OCR-garbled titles were removed or corrected; confirm every pick against your PDF before play. `god_relic_mjolnir` was added from Scion_God_Second_Edition_(Final_Download).pdf (same title pattern). Other supplements were not bulk-imported: auto-extract picks up TOC noise; extend this file manually for Dragon / Demigod-only Relics."
   },
   "relic": {
     "id": "relic",
@@ -178,5 +179,1722 @@
     "description": "Fans who ‘donate’ Legend through memes and midnight watch parties.",
     "mechanicalEffects": "Small cult: narrative leverage, rumor control, minor Resources.",
     "source": "Scion_Hero_(Final_Download).pdf"
+  },
+  "pb_relic_amulet_of_dagon": {
+    "id": "pb_relic_amulet_of_dagon",
+    "name": "AMULET OF DAGON (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_amulet_of_the_hound": {
+    "id": "pb_relic_amulet_of_the_hound",
+    "name": "AMULET OF THE HOUND (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_apocalyptic_aegis": {
+    "id": "pb_relic_apocalyptic_aegis",
+    "name": "APOCALYPTIC AEGIS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_balmung": {
+    "id": "pb_relic_balmung",
+    "name": "BALMUNG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_basts_gaze": {
+    "id": "pb_relic_basts_gaze",
+    "name": "BAST’S GAZE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_bennus_plume": {
+    "id": "pb_relic_bennus_plume",
+    "name": "BENNU’S PLUME (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_bolt_of_perun": {
+    "id": "pb_relic_bolt_of_perun",
+    "name": "BOLT OF PERUN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_clarent_the_sword_of_peace": {
+    "id": "pb_relic_clarent_the_sword_of_peace",
+    "name": "CLARENT, THE SWORD OF PEACE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_cursed_copper_goods": {
+    "id": "pb_relic_cursed_copper_goods",
+    "name": "CURSED COPPER GOODS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_dagdas_basket": {
+    "id": "pb_relic_dagdas_basket",
+    "name": "DAGDA’S BASKET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_dagons_compass": {
+    "id": "pb_relic_dagons_compass",
+    "name": "DAGON’S COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_darkhan_windhorse": {
+    "id": "pb_relic_darkhan_windhorse",
+    "name": "DARKHAN WINDHORSE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_demonic_ayoyotes": {
+    "id": "pb_relic_demonic_ayoyotes",
+    "name": "DEMONIC AYOYOTES (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_designated_constellation": {
+    "id": "pb_relic_designated_constellation",
+    "name": "DESIGNATED CONSTELLATION (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_elder_sign_amulet": {
+    "id": "pb_relic_elder_sign_amulet",
+    "name": "ELDER SIGN AMULET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_erich_zanns_viol": {
+    "id": "pb_relic_erich_zanns_viol",
+    "name": "ERICH ZANN’S VIOL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_etiquette_and_protocol": {
+    "id": "pb_relic_etiquette_and_protocol",
+    "name": "ETIQUETTE AND PROTOCOL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_excalibur_the_sword_of_victory": {
+    "id": "pb_relic_excalibur_the_sword_of_victory",
+    "name": "EXCALIBUR, THE SWORD OF VICTORY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_facemelter": {
+    "id": "pb_relic_facemelter",
+    "name": "FACEMELTER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_fame_pole_star": {
+    "id": "pb_relic_fame_pole_star",
+    "name": "FAME POLE STAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_fearsome_nights_necklace": {
+    "id": "pb_relic_fearsome_nights_necklace",
+    "name": "FEARSOME NIGHT’S NECKLACE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_feather_cloak": {
+    "id": "pb_relic_feather_cloak",
+    "name": "FEATHER CLOAK (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_fenrirs_fang": {
+    "id": "pb_relic_fenrirs_fang",
+    "name": "FENRIR’S FANG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_galatine": {
+    "id": "pb_relic_galatine",
+    "name": "GALATINE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_giantsbane": {
+    "id": "pb_relic_giantsbane",
+    "name": "GIANTSBANE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_goibnius_iron_ale": {
+    "id": "pb_relic_goibnius_iron_ale",
+    "name": "GOIBNIU’S IRON ALE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_golden_stag": {
+    "id": "pb_relic_golden_stag",
+    "name": "GOLDEN STAG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_green_glass_sword": {
+    "id": "pb_relic_green_glass_sword",
+    "name": "GREEN GLASS SWORD (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_haunted_hobby_horse": {
+    "id": "pb_relic_haunted_hobby_horse",
+    "name": "HAUNTED HOBBY HORSE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_hill_striding_moccasins": {
+    "id": "pb_relic_hill_striding_moccasins",
+    "name": "HILL-STRIDING MOCCASINS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_hurricane_jar": {
+    "id": "pb_relic_hurricane_jar",
+    "name": "HURRICANE JAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_internalized_instructions": {
+    "id": "pb_relic_internalized_instructions",
+    "name": "INTERNALIZED INSTRUCTIONS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_irish_muscle_car": {
+    "id": "pb_relic_irish_muscle_car",
+    "name": "IRISH MUSCLE CAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_jade_seal": {
+    "id": "pb_relic_jade_seal",
+    "name": "JADE SEAL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_kampilan": {
+    "id": "pb_relic_kampilan",
+    "name": "KAMPILAN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_knuckles_of_the_mountain": {
+    "id": "pb_relic_knuckles_of_the_mountain",
+    "name": "KNUCKLES OF THE MOUNTAIN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_kukulkans_feather": {
+    "id": "pb_relic_kukulkans_feather",
+    "name": "K’UK’ULKAN’S FEATHER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×1. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_lightning_axe": {
+    "id": "pb_relic_lightning_axe",
+    "name": "LIGHTNING AXE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_magatama": {
+    "id": "pb_relic_magatama",
+    "name": "MAGATAMA (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_mermaids_scale": {
+    "id": "pb_relic_mermaids_scale",
+    "name": "MERMAID’S SCALE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_mi_go_brain_cylinder": {
+    "id": "pb_relic_mi_go_brain_cylinder",
+    "name": "MI-GO BRAIN CYLINDER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_monkeys_paw_of_the_second_sun": {
+    "id": "pb_relic_monkeys_paw_of_the_second_sun",
+    "name": "MONKEY’S PAW OF THE SECOND SUN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_moonlight_bow": {
+    "id": "pb_relic_moonlight_bow",
+    "name": "MOONLIGHT BOW (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_murine_pipe": {
+    "id": "pb_relic_murine_pipe",
+    "name": "MURINE PIPE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_uis_fishhook": {
+    "id": "pb_relic_uis_fishhook",
+    "name": "UI’S FISHHOOK (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_nezhas_heart": {
+    "id": "pb_relic_nezhas_heart",
+    "name": "NEZHA’S HEART (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_oni_shout": {
+    "id": "pb_relic_oni_shout",
+    "name": "ONI-SHOUT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_oyohualli": {
+    "id": "pb_relic_oyohualli",
+    "name": "OYOHUALLI (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_philosophers_stone": {
+    "id": "pb_relic_philosophers_stone",
+    "name": "PHILOSOPHER’S STONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_rhongomiant": {
+    "id": "pb_relic_rhongomiant",
+    "name": "RHONGOMIANT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_scepter_of_the_only_god": {
+    "id": "pb_relic_scepter_of_the_only_god",
+    "name": "SCEPTER OF THE ONLY GOD (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_scionheiser_x_series_wireless_microphone": {
+    "id": "pb_relic_scionheiser_x_series_wireless_microphone",
+    "name": "SCIONHEISER X-SERIES WIRELESS MICROPHONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sequence": {
+    "id": "pb_relic_sequence",
+    "name": "SEQUENCE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sharur_smasher_of_thousands": {
+    "id": "pb_relic_sharur_smasher_of_thousands",
+    "name": "SHARUR, SMASHER OF THOUSANDS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_silk_spider_shawl": {
+    "id": "pb_relic_silk_spider_shawl",
+    "name": "SILK SPIDER SHAWL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sleipnir": {
+    "id": "pb_relic_sleipnir",
+    "name": "SLEIPNIR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_smoking_mirror": {
+    "id": "pb_relic_smoking_mirror",
+    "name": "SMOKING MIRROR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_heir_marks_so_they_cannot_escape_storm_hags_breath": {
+    "id": "pb_relic_heir_marks_so_they_cannot_escape_storm_hags_breath",
+    "name": "heir marks so they cannot escape STORM HAG’S BREATH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_storm_satchel": {
+    "id": "pb_relic_storm_satchel",
+    "name": "STORM SATCHEL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×1. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sun_falcon_cap": {
+    "id": "pb_relic_sun_falcon_cap",
+    "name": "SUN FALCON CAP (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sword_of_kadath": {
+    "id": "pb_relic_sword_of_kadath",
+    "name": "SWORD OF KADATH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_taiko_of_the_thunders": {
+    "id": "pb_relic_taiko_of_the_thunders",
+    "name": "TAIKO OF THE THUNDERS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_tezcatlipocas_foot": {
+    "id": "pb_relic_tezcatlipocas_foot",
+    "name": "TEZCATLIPOCA’S FOOT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_alert": {
+    "id": "pb_relic_the_alert",
+    "name": "THE ALERT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_diamond_compass": {
+    "id": "pb_relic_the_diamond_compass",
+    "name": "THE DIAMOND COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_dragons_bounty": {
+    "id": "pb_relic_the_dragons_bounty",
+    "name": "THE DRAGON’S BOUNTY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_emerald_tablet": {
+    "id": "pb_relic_the_emerald_tablet",
+    "name": "THE EMERALD TABLET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_eye_of_horus": {
+    "id": "pb_relic_the_eye_of_horus",
+    "name": "THE EYE OF HORUS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_s_a_guide_animal_granted_by_mictlan_the_glass_compas": {
+    "id": "pb_relic_s_a_guide_animal_granted_by_mictlan_the_glass_compas",
+    "name": "s a Guide animal granted by Mictlan THE GLASS COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_holy_grail": {
+    "id": "pb_relic_the_holy_grail",
+    "name": "THE HOLY GRAIL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_omplication_to_their_next_action_the_immortal_serum": {
+    "id": "pb_relic_omplication_to_their_next_action_the_immortal_serum",
+    "name": "omplication to their next action THE IMMORTAL SERUM (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_ivory_key": {
+    "id": "pb_relic_the_ivory_key",
+    "name": "THE IVORY KEY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_kitty": {
+    "id": "pb_relic_the_kitty",
+    "name": "THE KITTY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_stone_compass": {
+    "id": "pb_relic_the_stone_compass",
+    "name": "THE STONE COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×1. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_sword_that_cuts_grass": {
+    "id": "pb_relic_the_sword_that_cuts_grass",
+    "name": "THE SWORD THAT CUTS GRASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_twofold_guise": {
+    "id": "pb_relic_twofold_guise",
+    "name": "TWOFOLD GUISE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×1. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_tyrfing": {
+    "id": "pb_relic_tyrfing",
+    "name": "TYRFING (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_uaithne_harp_of_the_dagda": {
+    "id": "pb_relic_uaithne_harp_of_the_dagda",
+    "name": "UAITHNE, HARP OF THE DAGDA (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_verity": {
+    "id": "pb_relic_verity",
+    "name": "VERITY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_volcanic_amulet": {
+    "id": "pb_relic_volcanic_amulet",
+    "name": "VOLCANIC AMULET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_waka_canoe": {
+    "id": "pb_relic_waka_canoe",
+    "name": "WAKA CANOE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_wasteland_prosthetic_arm": {
+    "id": "pb_relic_wasteland_prosthetic_arm",
+    "name": "WASTELAND PROSTHETIC ARM (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_whetstone_of_judgement": {
+    "id": "pb_relic_whetstone_of_judgement",
+    "name": "WHETSTONE OF JUDGEMENT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_white_water_harpoon": {
+    "id": "pb_relic_white_water_harpoon",
+    "name": "WHITE WATER HARPOON (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_windcutter": {
+    "id": "pb_relic_windcutter",
+    "name": "WINDCUTTER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_xiuhcoatl_the_flaming_serpent": {
+    "id": "pb_relic_xiuhcoatl_the_flaming_serpent",
+    "name": "XIUHCOATL, THE FLAMING SERPENT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_yithian_mind_stone": {
+    "id": "pb_relic_yithian_mind_stone",
+    "name": "YITHIAN MIND STONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_zipacnas_tooth": {
+    "id": "pb_relic_zipacnas_tooth",
+    "name": "ZIPACNA’S TOOTH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_canthrig_bwt": {
+    "id": "pb_relic_canthrig_bwt",
+    "name": "CANTHRIG BWT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_hunters_horn": {
+    "id": "pb_relic_hunters_horn",
+    "name": "HUNTER’S HORN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_binding_nail": {
+    "id": "pb_relic_binding_nail",
+    "name": "BINDING NAIL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sharkskin_coat": {
+    "id": "pb_relic_sharkskin_coat",
+    "name": "SHARKSKIN COAT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_pocket_merlin": {
+    "id": "pb_relic_pocket_merlin",
+    "name": "POCKET MERLIN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×2. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_yorubaland_racer": {
+    "id": "pb_relic_yorubaland_racer",
+    "name": "YORUBALAND RACER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_measurer_of_seas": {
+    "id": "pb_relic_measurer_of_seas",
+    "name": "MEASURER OF SEAS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_gede_boa": {
+    "id": "pb_relic_gede_boa",
+    "name": "Gede Boa (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×4. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_tezcatlipocas_mirror": {
+    "id": "pb_relic_tezcatlipocas_mirror",
+    "name": "Tezcatlipoca’s Mirror (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_zmei_fang_necklace": {
+    "id": "pb_relic_zmei_fang_necklace",
+    "name": "Zmei-Fang Necklace (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_owlpedia": {
+    "id": "pb_relic_owlpedia",
+    "name": "Owlpedia (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×3. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_der_konig_in_gelb": {
+    "id": "pb_relic_der_konig_in_gelb",
+    "name": "Der König in Gelb (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Sample Relic from Pandora’s Box Birthrights — printed rating •×5. Paraphrased index row only; use the PDF for Tags, Flaws, Knacks, Evocation, and linked Purviews.",
+    "mechanicalEffects": "Apply Pandora’s Box Relic rules at the table; set linked Purview/Knack access in this app’s Relic fields as your SG agrees.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "god_relic_mjolnir": {
+    "id": "god_relic_mjolnir",
+    "name": "Mjolnir (God-tier sample)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Parsed from Scion: God Second Edition PDF as a titled Relic (•×4). Confirm full write-up, ownership, and Fatebinding hooks in-book.",
+    "mechanicalEffects": "Use Pandora’s Box Relic construction + God-tier guidance at the table; wire Purviews/Knacks in this app as your SG agrees.",
+    "source": "Scion_God_Second_Edition_(Final_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
   }
 }

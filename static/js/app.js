@@ -26,12 +26,23 @@ import { apiUrl } from "./apiBase.js";
 
 /** Lazy-loaded so optional data-editor modules cannot block the main wizard graph (or `init`). */
 let editorsLoadPromise = null;
+
+/** Match `app.js?v=…` on the module URL so editor chunks reload when the HTML cache-buster changes. */
+function editorImportUrl(relPath) {
+  try {
+    const v = new URL(import.meta.url).searchParams.get("v");
+    return v ? `${relPath}?v=${encodeURIComponent(v)}` : relPath;
+  } catch {
+    return relPath;
+  }
+}
+
 function loadEditorsOnce() {
   if (!editorsLoadPromise) {
     editorsLoadPromise = Promise.all([
-      import("./birthrightsEditor.js"),
-      import("./tagsEditor.js"),
-      import("./equipmentEditor.js"),
+      import(editorImportUrl("./birthrightsEditor.js")),
+      import(editorImportUrl("./tagsEditor.js")),
+      import(editorImportUrl("./equipmentEditor.js")),
     ]).then(([br, tg, eq]) => ({
       mountBirthrightsDataEditor: br.mountBirthrightsDataEditor,
       mountTagsDataEditor: tg.mountTagsDataEditor,

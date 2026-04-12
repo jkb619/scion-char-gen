@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Mundane and minor mythical equipment. tagIds reference ids in tags.json (filter appliesTo includes \"equipment\" in editors).",
+    "note": "Mundane and minor mythical equipment. tagIds reference ids in tags.json (filter appliesTo includes \"equipment\" in editors). Many `eqDa*` entries summarize Divine Armory appendix gear (7711-Divine_Armory*.pdf); confirm tags at the table.",
     "equipmentTypes": [
       "weapon",
       "armor",
@@ -45,5 +45,447 @@
     "description": "Glassing distance targets or city skylines.",
     "mechanicalEffects": "Enhancement to Survey / perception pools when fiction fits.",
     "source": "Equipment (table)"
+  },
+  "eqDaKnife": {
+    "id": "eqDaKnife",
+    "name": "Knife (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "concealableWeapon",
+      "thrown"
+    ],
+    "description": "General-purpose blade; easy to hide or throw.",
+    "mechanicalEffects": "Divine Armory appendix total 1 tag point; confirm Stunts with SG.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix List of Weapons."
+  },
+  "eqDaSword": {
+    "id": "eqDaSword",
+    "name": "Sword (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "weaponVersatile"
+    ],
+    "mechanicalEffects": "Appendix total 2; useful for varied stunts per Versatile weapon tag.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaSpear": {
+    "id": "eqDaSpear",
+    "name": "Spear (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "reach",
+      "defensiveWeapon"
+    ],
+    "mechanicalEffects": "Appendix total 3; Defensive from Divine Armory (paraphrase in tags.json).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaBattleAx": {
+    "id": "eqDaBattleAx",
+    "name": "Battle ax (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "brutal",
+      "piercing",
+      "twoHanded",
+      "unconcealable"
+    ],
+    "mechanicalEffects": "Appendix total 1 (heavy two-hander with flaw credits).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaBrassKnuckles": {
+    "id": "eqDaBrassKnuckles",
+    "name": "Brass knuckles (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "bashing",
+      "melee",
+      "concealableWeapon",
+      "worn"
+    ],
+    "mechanicalEffects": "Appendix total 3.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaWhip": {
+    "id": "eqDaWhip",
+    "name": "Whip (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "bashing",
+      "melee",
+      "reach",
+      "grappling"
+    ],
+    "mechanicalEffects": "Appendix total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaShield": {
+    "id": "eqDaShield",
+    "name": "Shield (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "bashing",
+      "melee",
+      "pushing",
+      "defensiveWeapon"
+    ],
+    "mechanicalEffects": "Appendix total 3; also usable as protection fiction — compare to shield tag on armor side.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaHatchet": {
+    "id": "eqDaHatchet",
+    "name": "Hatchet (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "thrown"
+    ],
+    "mechanicalEffects": "Appendix melee entry total 0.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaRapier": {
+    "id": "eqDaRapier",
+    "name": "Rapier (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "piercing"
+    ],
+    "mechanicalEffects": "Appendix total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaIceAx": {
+    "id": "eqDaIceAx",
+    "name": "Ice ax (Divine Armory)",
+    "equipmentType": "tool",
+    "tagIds": [
+      "lethal",
+      "melee",
+      "piercing",
+      "weaponTool"
+    ],
+    "mechanicalEffects": "Appendix total 3; climbing tool + weapon.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaBow": {
+    "id": "eqDaBow",
+    "name": "Bow (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "ranged",
+      "twoHanded",
+      "arcing"
+    ],
+    "mechanicalEffects": "Appendix base 0 before arrows; ammunition swaps tags per same book.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaCrossbow": {
+    "id": "eqDaCrossbow",
+    "name": "Crossbow (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "firearm",
+      "lethal",
+      "piercing",
+      "ranged",
+      "resetWeapon"
+    ],
+    "mechanicalEffects": "Appendix total 1.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaPistol": {
+    "id": "eqDaPistol",
+    "name": "Pistol (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "firearm",
+      "lethal",
+      "piercing",
+      "ranged",
+      "resetWeapon"
+    ],
+    "mechanicalEffects": "Appendix total 1.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaLightRevolver": {
+    "id": "eqDaLightRevolver",
+    "name": "Light revolver (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "concealableWeapon",
+      "firearm",
+      "lethal",
+      "piercing",
+      "ranged"
+    ],
+    "mechanicalEffects": "Appendix total 3.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaAssaultRifle": {
+    "id": "eqDaAssaultRifle",
+    "name": "Assault rifle (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "automatic",
+      "firearm",
+      "lethal",
+      "piercing",
+      "ranged",
+      "twoHanded"
+    ],
+    "mechanicalEffects": "Appendix total 3.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaHuntingRifle": {
+    "id": "eqDaHuntingRifle",
+    "name": "Hunting rifle (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "firearm",
+      "lethal",
+      "weaponLoud",
+      "piercing",
+      "ranged",
+      "twoHanded"
+    ],
+    "mechanicalEffects": "Appendix total 0.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaSniperRifle": {
+    "id": "eqDaSniperRifle",
+    "name": "Sniper rifle (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "firearm",
+      "lethal",
+      "longRange",
+      "piercing",
+      "unconcealable"
+    ],
+    "mechanicalEffects": "Appendix total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaShotgun": {
+    "id": "eqDaShotgun",
+    "name": "Shotgun, generic (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "firearm",
+      "lethal",
+      "weaponLoud",
+      "piercing",
+      "pushing",
+      "ranged"
+    ],
+    "mechanicalEffects": "Appendix ‘Generic Shotgun’ total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaBoomerang": {
+    "id": "eqDaBoomerang",
+    "name": "Boomerang (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "arcing",
+      "bashing",
+      "returning",
+      "stun",
+      "thrown"
+    ],
+    "mechanicalEffects": "Appendix total 3.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaSubmachineGun": {
+    "id": "eqDaSubmachineGun",
+    "name": "Submachine gun (Divine Armory)",
+    "equipmentType": "weapon",
+    "tagIds": [
+      "automatic",
+      "firearm",
+      "lethal",
+      "ranged"
+    ],
+    "mechanicalEffects": "Appendix total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaHeavyMachineGun": {
+    "id": "eqDaHeavyMachineGun",
+    "name": "Heavy machine gun (Divine Armory)",
+    "equipmentType": "heavy",
+    "tagIds": [
+      "automatic",
+      "brutal",
+      "firearm",
+      "lethal",
+      "weaponLoud",
+      "piercing",
+      "ranged",
+      "twoHanded",
+      "unconcealable"
+    ],
+    "mechanicalEffects": "Appendix: Scale 1 damage, usually mounted; confirm Scale and crew with SG.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaFragGrenade": {
+    "id": "eqDaFragGrenade",
+    "name": "Frag grenade (Divine Armory)",
+    "equipmentType": "accessory",
+    "tagIds": [
+      "arcing",
+      "lethal",
+      "weaponLoud",
+      "messy",
+      "shockwave",
+      "thrown"
+    ],
+    "mechanicalEffects": "Appendix: Scale 2 damage in area; one use.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix tactical weapons."
+  },
+  "eqDaFlashbang": {
+    "id": "eqDaFlashbang",
+    "name": "Flashbang (Divine Armory)",
+    "equipmentType": "accessory",
+    "tagIds": [
+      "arcing",
+      "shockwave",
+      "weaponSoftMajor",
+      "stun",
+      "thrown"
+    ],
+    "mechanicalEffects": "Appendix uses major weapon Soft tier (−3); confirm area effects with SG.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaRocketLauncherDisposable": {
+    "id": "eqDaRocketLauncherDisposable",
+    "name": "Disposable rocket launcher (Divine Armory)",
+    "equipmentType": "heavy",
+    "tagIds": [
+      "concealableWeapon",
+      "firearm",
+      "lethal",
+      "weaponLoud",
+      "messy",
+      "ranged",
+      "shockwave",
+      "twoHanded"
+    ],
+    "mechanicalEffects": "Appendix: Scale 2, single shot; Concealable reflects packed carry in the supplement’s fiction.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaFlamethrower": {
+    "id": "eqDaFlamethrower",
+    "name": "Flamethrower (Divine Armory)",
+    "equipmentType": "heavy",
+    "tagIds": [
+      "arcing",
+      "automatic",
+      "burns",
+      "firearm",
+      "lethal",
+      "shortRange"
+    ],
+    "mechanicalEffects": "Appendix total 2; Burns tag from Divine Armory.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix tactical weapons."
+  },
+  "eqDaLeatherArmor": {
+    "id": "eqDaLeatherArmor",
+    "name": "Leather armor (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "softArmor",
+      "weighty"
+    ],
+    "mechanicalEffects": "Appendix total 0; map ‘Armored: Soft’ to softArmor tag.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix armor."
+  },
+  "eqDaBulletproofVest": {
+    "id": "eqDaBulletproofVest",
+    "name": "Bulletproof vest (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "softArmor",
+      "resistant",
+      "weighty"
+    ],
+    "mechanicalEffects": "Appendix: Resistant (bulletproof); Resistant tag in app covers typed resistance.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaChainMail": {
+    "id": "eqDaChainMail",
+    "name": "Chain mail (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "hardArmor",
+      "resistant",
+      "weighty"
+    ],
+    "mechanicalEffects": "Appendix: Hard (1) + Resistant (arrows) + Weighty; confirm Hard dots with SG.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaFullPlate": {
+    "id": "eqDaFullPlate",
+    "name": "Full plate (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "hardArmor",
+      "cumbersome"
+    ],
+    "mechanicalEffects": "Appendix: Hard (3) + Cumbersome; use hardArmor note for second box cost if purchased.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaBombSuit": {
+    "id": "eqDaBombSuit",
+    "name": "Bomb suit (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "hardArmor",
+      "cumbersome",
+      "weighty",
+      "slotHelm"
+    ],
+    "mechanicalEffects": "Appendix total 0 with heavy Hard and multiple flaws.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaHazmatSuit": {
+    "id": "eqDaHazmatSuit",
+    "name": "Hazmat suit (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "resistant",
+      "slotHelm"
+    ],
+    "mechanicalEffects": "Appendix: Resistant (bioweapons, gas) at higher magnitude; not full rigid armor.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaHuntingSuit": {
+    "id": "eqDaHuntingSuit",
+    "name": "Hunting suit (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "softArmor",
+      "camouflageArmor",
+      "cumbersome"
+    ],
+    "mechanicalEffects": "Appendix total 2.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
+  },
+  "eqDaSegmentedArmor": {
+    "id": "eqDaSegmentedArmor",
+    "name": "Segmented armor (Divine Armory)",
+    "equipmentType": "armor",
+    "tagIds": [
+      "hardArmor",
+      "weighty"
+    ],
+    "mechanicalEffects": "Appendix total 0; overlapping plates fiction.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf; appendix."
   }
 }
