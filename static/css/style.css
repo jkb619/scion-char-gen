@@ -260,6 +260,68 @@ textarea.has-doc-hint:focus-visible {
   margin: 0.25rem 0;
 }
 
+.path-skill-overflow-panel {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(201, 162, 77, 0.08);
+}
+
+.path-skill-overflow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.35rem 0;
+}
+
+.path-skill-overflow-row + .path-skill-overflow-row {
+  border-top: 1px solid var(--border);
+}
+
+.path-skill-overflow-label {
+  flex: 1 1 12rem;
+  font-size: 0.95rem;
+}
+
+.path-skill-overflow-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.finishing-arena-budget {
+  margin: 0.35rem 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.finishing-attr-block {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.finishing-attr-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.finishing-attr-sub {
+  margin: 0 0 0.3rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.finishing-attr-stall {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: #d4b896;
+}
+
 .panel.panel-gate-invalid {
   border-color: #c94a4a;
   box-shadow: 0 0 0 1px rgba(201, 74, 74, 0.45);

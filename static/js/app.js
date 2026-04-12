@@ -350,9 +350,6 @@ let stepIndex = 0;
  */
 let skillsGateIssues = [];
 
-/** When `pathLayoutHash()` changes, Path 3/2/1 math is reapplied to `skillDots` (Skills step: ratings are path-driven only). */
-let lastPathLayoutHashForSkillDots = null;
-
 /** Review step: `"sheet"` (default) or `"json"`. */
 let reviewViewMode = "sheet";
 
@@ -375,6 +372,10 @@ function defaultCharacter() {
     patronKind: "deity",
     pathRank: { primary: "origin", secondary: "role", tertiary: "society" },
     pathSkills: { origin: [], role: [], society: [] },
+    /** Extra Path dots after capping overlap at 5 (Origin p. 97); only Path Skills may receive them. */
+    pathSkillRedistribution: {},
+    /** Last `pathLayoutHash()` used for `pathSkillRedistribution`; mismatch clears redistribution. */
+    pathSkillRedistSourceHash: null,
     skillDots: skills,
     skillSpecialties: {},
     attributes: {},
@@ -827,7 +828,7 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
   applyGameDataHint(dotsTd, skillMeta);
 }
 
-function computePathSkillDots() {
+function computeRawPathSkillDots() {
   const dots = {};
   for (const id of skillIds()) dots[id] = 0;
   const rankToDots = { primary: 3, secondary: 2, tertiary: 1 };
@@ -840,8 +841,130 @@ function computePathSkillDots() {
       dots[sid] += add;
     }
   }
-  for (const id of skillIds()) dots[id] = Math.min(5, dots[id]);
   return dots;
+}
+
+/** Union of Skills listed on any of the three Paths (redistribution targets only). */
+function pathSkillUnionSet() {
+  ensurePathSkillArrays();
+  const u = new Set();
+  for (const pk of PATH_KEYS) {
+    for (const sid of character.pathSkills[pk] || []) {
+      if (!sid || String(sid).startsWith("_")) continue;
+      if (bundle?.skills?.[sid]) u.add(sid);
+    }
+  }
+  return u;
+}
+
+function pathSkillTrimmedLostAndUnion() {
+  const raw = computeRawPathSkillDots();
+  const trimmed = {};
+  let lost = 0;
+  for (const sid of skillIds()) {
+    const r = raw[sid] || 0;
+    const ex = Math.max(0, r - 5);
+    lost += ex;
+    trimmed[sid] = r - ex;
+  }
+  return { raw, trimmed, lost, union: pathSkillUnionSet() };
+}
+
+function sumPathSkillRedistribution(G) {
+  let s = 0;
+  if (!G || typeof G !== "object") return 0;
+  for (const v of Object.values(G)) {
+    const n = Math.round(Number(v));
+    if (Number.isFinite(n) && n > 0) s += n;
+  }
+  return s;
+}
+
+function sanitizePathSkillRedistribution(trimmed, lost, union, G0) {
+  const G = {};
+  if (lost <= 0) return G;
+  for (const sid of union) {
+    const g0 = Math.max(0, Math.round(Number(G0[sid]) || 0));
+    if (g0 <= 0) continue;
+    const cap = Math.max(0, 5 - (trimmed[sid] || 0));
+    if (cap <= 0) continue;
+    G[sid] = Math.min(g0, cap);
+  }
+  let sumG = sumPathSkillRedistribution(G);
+  if (sumG > lost) {
+    const order = [...union].sort();
+    let excess = sumG - lost;
+    for (const sid of order) {
+      while (excess > 0 && (G[sid] || 0) > 0) {
+        G[sid] -= 1;
+        excess -= 1;
+      }
+    }
+  }
+  const out = {};
+  for (const [k, v] of Object.entries(G)) {
+    if (v > 0) out[k] = v;
+  }
+  return out;
+}
+
+/** If imported `skillDots` already reflect a legal redistribution, recover `pathSkillRedistribution` (one-time after load). */
+function tryInferPathSkillRedistribution(prevDots, trimmed, lost, union) {
+  const infer = {};
+  if (lost <= 0) return null;
+  for (const sid of union) {
+    const prev = Math.max(0, Math.round(Number(prevDots[sid]) || 0));
+    const t = trimmed[sid] || 0;
+    const d = Math.max(0, prev - t);
+    if (d > 0) infer[sid] = d;
+  }
+  if (sumPathSkillRedistribution(infer) !== lost) return null;
+  for (const sid of skillIds()) {
+    const t = trimmed[sid] || 0;
+    const g = infer[sid] || 0;
+    if (t + g > 5) return null;
+  }
+  return infer;
+}
+
+function inferPathSkillOverflowFromImportedDotsOnce() {
+  if (!bundle) return;
+  if (String(character.chargenLineage ?? "scion").trim() === "dragonHeir") return;
+  ensurePathSkillArrays();
+  const { trimmed, lost, union } = pathSkillTrimmedLostAndUnion();
+  if (lost <= 0) return;
+  const cur = character.pathSkillRedistribution;
+  if (cur && typeof cur === "object" && sumPathSkillRedistribution(cur) > 0) return;
+  const infer = tryInferPathSkillRedistribution(character.skillDots, trimmed, lost, union);
+  if (!infer) return;
+  character.pathSkillRedistribution = infer;
+}
+
+function pathSkillOverflowDotsPending() {
+  const { lost } = pathSkillTrimmedLostAndUnion();
+  if (lost <= 0) return 0;
+  return Math.max(0, lost - sumPathSkillRedistribution(character.pathSkillRedistribution));
+}
+
+function bumpPathSkillRedistribution(sid, delta) {
+  const { trimmed, lost, union } = pathSkillTrimmedLostAndUnion();
+  if (!union.has(sid)) return;
+  const G = { ...(character.pathSkillRedistribution || {}) };
+  const cur = G[sid] || 0;
+  const placed = sumPathSkillRedistribution(G);
+  const pending = lost - placed;
+  if (delta > 0) {
+    if (pending <= 0) return;
+    const cap = Math.max(0, 5 - (trimmed[sid] || 0) - cur);
+    if (cap <= 0) return;
+    G[sid] = cur + 1;
+  } else {
+    if (cur <= 0) return;
+    if (G[sid] <= 1) delete G[sid];
+    else G[sid] = cur - 1;
+  }
+  character.pathSkillRedistribution = G;
+  applyPathMathToSkillDots();
 }
 
 function pathLayoutHash() {
@@ -855,11 +978,36 @@ function pathLayoutHash() {
   });
 }
 
-/** Overwrite skill ratings from Path priority + Path Skills (3 / 2 / 1 cumulative, max 5). */
+/**
+ * Overwrite skill ratings from Path priority + Path Skills (3 / 2 / 1 cumulative).
+ * Overlap above 5 is not dropped: `pathSkillRedistribution` holds dots moved to other Path Skills (Origin p. 97).
+ */
 function applyPathMathToSkillDots() {
   ensureSkillDots();
-  const rec = computePathSkillDots();
-  Object.assign(character.skillDots, rec);
+  ensurePathSkillArrays();
+  const h = pathLayoutHash();
+  if (character.pathSkillRedistSourceHash == null) {
+    character.pathSkillRedistSourceHash = h;
+  } else if (character.pathSkillRedistSourceHash !== h) {
+    character.pathSkillRedistribution = {};
+    character.pathSkillRedistSourceHash = h;
+  }
+  if (!character.pathSkillRedistribution || typeof character.pathSkillRedistribution !== "object") {
+    character.pathSkillRedistribution = {};
+  }
+  const { trimmed, lost, union } = pathSkillTrimmedLostAndUnion();
+  let G = sanitizePathSkillRedistribution(trimmed, lost, union, character.pathSkillRedistribution);
+  if (lost <= 0) {
+    G = {};
+    character.pathSkillRedistribution = {};
+  } else {
+    character.pathSkillRedistribution = G;
+  }
+  for (const sid of skillIds()) {
+    const t = trimmed[sid] || 0;
+    const g = G[sid] || 0;
+    character.skillDots[sid] = t + g;
+  }
   for (const sid of skillIds()) {
     if ((character.skillDots[sid] || 0) < 3) delete character.skillSpecialties[sid];
   }
@@ -1563,6 +1711,16 @@ function attributeArenaSums(attrs) {
   return sums;
 }
 
+/** Pre–Favored dots from Finishing only in one arena (sum of current − Attributes-step snapshot per Attribute there). */
+function finishingArenaExtraDelta(attrs, baseline, arena) {
+  if (!baseline || typeof baseline !== "object") return 0;
+  let d = 0;
+  for (const id of ARENAS[arena]) {
+    d += Math.max(0, (attrs[id] ?? 1) - (baseline[id] ?? 1));
+  }
+  return d;
+}
+
 function arenaForAttribute(attrId) {
   for (const arena of ARENA_ORDER) {
     if (ARENAS[arena].includes(attrId)) return arena;
@@ -1634,7 +1792,8 @@ function attrMinWhileNormalizingPools(attrId) {
 
 /**
  * If an arena uses more extra dots than its pool (e.g. after changing arena priority or importing JSON),
- * lower pre–Favored ratings until it fits (Origin p. 97). Never skips solely because Finishing touched Attributes.
+ * lower pre–Favored ratings until it fits (Origin p. 97). When an Attributes-step snapshot exists, each arena’s
+ * allowed total includes Finishing bumps above that snapshot (Origin p. 98 — no arena restriction on that dot).
  */
 function normalizeCharacterAttributesToPools() {
   ensureFinishingShape();
@@ -1650,7 +1809,10 @@ function normalizeCharacterAttributesToPools() {
     const pool = arenaPools()[arena];
     const ids = ARENAS[arena];
     let sum = ids.reduce((s, id) => s + Math.max(0, (attrs[id] ?? 1) - 1), 0);
-    while (sum > pool) {
+    while (true) {
+      const cap =
+        pool + (baseIsObj && baseLine ? finishingArenaExtraDelta(attrs, baseLine, arena) : 0);
+      if (sum <= cap) break;
       let hi = null;
       for (const id of ids) {
         const v = attrs[id] ?? 1;
@@ -1698,6 +1860,19 @@ function validateAttributes(attrs) {
   const hasB = baseline && typeof baseline === "object";
   const baseSums = hasB ? attributeArenaSums(baseline) : null;
   const msgs = [];
+  let totalFinishingAttrBump = 0;
+  if (hasB) {
+    for (const aid of Object.keys(baseline)) {
+      if (String(aid).startsWith("_")) continue;
+      totalFinishingAttrBump += Math.max(0, (attrs[aid] ?? 1) - (baseline[aid] ?? 1));
+    }
+    const finAttrBudget = Math.max(0, Math.round(Number(character.finishing?.extraAttributeDots) || 0));
+    if (totalFinishingAttrBump > finAttrBudget) {
+      msgs.push(
+        `Raised ${totalFinishingAttrBump} total pre–Favored dot(s) above the Attributes-step snapshot but only ${finAttrBudget} Finishing Attribute dot(s) are allowed (Origin p. 98).`,
+      );
+    }
+  }
   for (const arena of ARENA_ORDER) {
     const s = sums[arena];
     const p = pools[arena];
@@ -1709,9 +1884,10 @@ function validateAttributes(attrs) {
         );
       }
     }
-    if (s > p) {
+    const finDelta = hasB ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
+    if (s > p + finDelta) {
       msgs.push(
-        `${arena} arena: at most ${p} extra dots beyond the free 1 in each Attribute (you have ${s}; Origin p. 97).`,
+        `${arena} arena: at most ${p} extra dots from the Attributes step, plus up to ${finDelta} from your Finishing Attribute dot(s) in this arena (you have ${s}; Origin pp. 97–98).`,
       );
     } else if (s < p) {
       msgs.push(
@@ -1833,8 +2009,8 @@ function maxAttrFinishing(attrId) {
   const budget = character.finishing.extraAttributeDots || 0;
   const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
   const fromLegend = maxPreFavoredUnderLegendCap(attrId, attrs);
-  const fromArena = maxAttrRatingForArena(attrId, attrs);
-  return Math.min(5, fromBudget, fromLegend, fromArena);
+  /** Origin p. 98: Finishing Attribute dot may go on any one Attribute; p. 97 five-dot cap still applies — no arena pool on this bump. */
+  return Math.min(5, fromBudget, fromLegend);
 }
 
 function buildCharacterAttrsPre() {
@@ -1845,19 +2021,47 @@ function buildCharacterAttrsPre() {
   return attrs;
 }
 
-/** Lowest final dot (post–Favored) for this attr if only its pre rating is at the finishing baseline. */
-function minFinalAttrFinishing(attrId) {
-  const bAt = character.finishing.attrBaseline || {};
-  const attrs = buildCharacterAttrsPre();
-  attrs[attrId] = bAt[attrId] ?? 1;
-  return applyFavoredApproach(attrs)[attrId];
-}
-
 /** Highest final dot allowed after finishing budget + legend cap, given current pre on other attrs. */
 function maxFinalAttrFinishing(attrId) {
   const attrs = buildCharacterAttrsPre();
   const maxPre = maxAttrFinishing(attrId);
   return applyFavoredApproach({ ...attrs, [attrId]: maxPre })[attrId];
+}
+
+/** Pre–Favored extra dots by arena (Finishing may exceed the p. 97 pool in one arena; Origin p. 98). */
+function finishingAttributeArenaBudgetSummaryText() {
+  const attrs = buildCharacterAttrsPre();
+  const pools = arenaPools();
+  const sums = attributeArenaSums(attrs);
+  return ARENA_ORDER.map((arena) => {
+    const p = pools[arena];
+    const u = sums[arena];
+    return `${arena} ${u} / ${p}`;
+  }).join(" · ");
+}
+
+/** When an Attribute cannot gain +1 from Finishing: dot on another line, or five-dot cap after Favored Approach. */
+function finishingAttributeCannotRaiseNote(attrId) {
+  const attrs = buildCharacterAttrsPre();
+  const pre = attrs[attrId] ?? 1;
+  const maxP = maxAttrFinishing(attrId);
+  if (maxP > pre) return "";
+  const b = character.finishing.attrBaseline || {};
+  const budget = character.finishing.extraAttributeDots || 0;
+  const placedOthers = Object.keys(bundle.attributes)
+    .filter((oid) => oid !== attrId)
+    .reduce((s, oid) => s + Math.max(0, (attrs[oid] ?? 1) - (b[oid] ?? 1)), 0);
+  const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
+  const fromLegend = maxPreFavoredUnderLegendCap(attrId, attrs);
+  const m = Math.min(5, fromBudget, fromLegend);
+
+  if (fromBudget === m && budget > 0 && placedOthers >= budget) {
+    return "Your Finishing attribute dot is on another Attribute right now; lower that Attribute first to move +1 here.";
+  }
+  if (fromLegend === m && pre >= fromLegend) {
+    return "Raising pre–Favored here would break the 5 cap after Favored Approach.";
+  }
+  return "";
 }
 
 function birthrightPointCost(bid) {
@@ -2464,12 +2668,18 @@ function renderSkills(root) {
   ensureSkillDots();
   ensurePathSkillArrays();
   ensureSocietyDefaultAssetSkills();
-  const pathHash = pathLayoutHash();
-  if (lastPathLayoutHashForSkillDots !== pathHash) {
-    lastPathLayoutHashForSkillDots = pathHash;
-    applyPathMathToSkillDots();
+  applyPathMathToSkillDots();
+  const pathGate = validateAllPathSkillsDetailed();
+  skillsGateIssues = pathGate.ok ? [] : [...pathGate.issues];
+  if (pathGate.ok) {
+    const pend = pathSkillOverflowDotsPending();
+    if (pend > 0) {
+      skillsGateIssues.push({
+        pathKey: null,
+        message: `Path overlap would put a Skill above 5 dots (Origin p. 97). Move exactly ${pend} excess Path dot(s) onto other Path Skills using the controls below — not into non-Path Skills. Finishing Touches (p. 98) are separate.`,
+      });
+    }
   }
-  if (validateAllPathSkillsDetailed().ok) skillsGateIssues = [];
   const wrap = document.createElement("div");
   if (skillsGateIssues.length > 0) {
     const box = document.createElement("div");
@@ -2491,8 +2701,73 @@ function renderSkills(root) {
   const intro = document.createElement("p");
   intro.className = "help";
   intro.textContent =
-    "Assign three Skills to each Path, then prioritize which Path is primary, secondary, or tertiary. Skill ratings follow 3/2/1 Path math whenever you change Path picks or priority (Origin p. 97); dot rows here are read-only.";
+    "Assign three Skills to each Path, then prioritize which Path is primary, secondary, or tertiary. Skill ratings follow 3/2/1 Path math whenever you change Path picks or priority (Origin p. 97). If a Skill would exceed 5 dots from overlap, you must redistribute the excess onto other Path Skills only (same page); dot rows stay read-only.";
   wrap.appendChild(intro);
+
+  const ovMeta = pathSkillTrimmedLostAndUnion();
+  if (pathGate.ok && ovMeta.lost > 0) {
+    const placed = sumPathSkillRedistribution(character.pathSkillRedistribution);
+    const pending = Math.max(0, ovMeta.lost - placed);
+    const overNames = [];
+    for (const sid of ovMeta.union) {
+      if ((ovMeta.raw[sid] || 0) > 5) overNames.push(bundle.skills[sid]?.name || sid);
+    }
+    const ovPanel = document.createElement("div");
+    ovPanel.className = "panel path-skill-overflow-panel";
+    const ovTitle = document.createElement("h2");
+    ovTitle.textContent = "Redistribute Path overlap (mandatory)";
+    ovPanel.appendChild(ovTitle);
+    const ovP = document.createElement("p");
+    ovP.className = "help";
+    ovP.innerHTML =
+      (overNames.length
+        ? `<strong>${overNames.join(", ")}</strong> would be above 5 dots from cumulative Path picks alone. `
+        : "") +
+      `Cap each Skill at 5 from Path math, then place <strong>${ovMeta.lost}</strong> overflow dot(s) on other Path Skills. ` +
+      `<strong>${pending}</strong> still to place.`;
+    ovPanel.appendChild(ovP);
+    const unionSorted = [...ovMeta.union].sort((a, b) =>
+      String(bundle.skills[a]?.name || a).localeCompare(String(bundle.skills[b]?.name || b), undefined, {
+        sensitivity: "base",
+      }),
+    );
+    for (const sid of unionSorted) {
+      const t = ovMeta.trimmed[sid] || 0;
+      const g = character.pathSkillRedistribution[sid] || 0;
+      const row = document.createElement("div");
+      row.className = "path-skill-overflow-row";
+      const lab = document.createElement("span");
+      lab.className = "path-skill-overflow-label";
+      lab.textContent = `${bundle.skills[sid]?.name || sid} — ${t + g} / 5 (${t} from Paths + ${g} overflow)`;
+      row.appendChild(lab);
+      const cap = document.createElement("div");
+      cap.className = "path-skill-overflow-actions";
+      const minus = document.createElement("button");
+      minus.type = "button";
+      minus.className = "btn secondary";
+      minus.textContent = "−1 overflow";
+      minus.disabled = g <= 0;
+      minus.addEventListener("click", () => {
+        bumpPathSkillRedistribution(sid, -1);
+        render();
+      });
+      const plus = document.createElement("button");
+      plus.type = "button";
+      plus.className = "btn secondary";
+      plus.textContent = "+1 overflow";
+      const room = Math.max(0, 5 - t - g);
+      plus.disabled = pending <= 0 || room <= 0;
+      plus.addEventListener("click", () => {
+        bumpPathSkillRedistribution(sid, 1);
+        render();
+      });
+      cap.appendChild(minus);
+      cap.appendChild(plus);
+      row.appendChild(cap);
+      ovPanel.appendChild(row);
+    }
+    wrap.appendChild(ovPanel);
+  }
 
   const rankGrid = document.createElement("div");
   rankGrid.className = "grid-2";
@@ -2621,7 +2896,6 @@ function renderSkills(root) {
           }
         }
         if (viol) viol.textContent = "";
-        skillsGateIssues = [];
         character.pathSkills[pk] = next;
         render();
       });
@@ -2639,7 +2913,7 @@ function renderSkills(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Ratings follow Path priority (3 / 2 / 1) when Path Skills or priority change; dots here are read-only. At 3+ dots, add free Specialties (Origin pp. 59–60, 97).";
+    "Ratings follow Path priority (3 / 2 / 1) when Path Skills or priority change; dots here are read-only. If overlap would exceed 5 in a Skill, use the overflow controls above (Origin p. 97). At 3+ dots, add free Specialties (Origin pp. 59–60, 97).";
   list.appendChild(help);
 
   const table = document.createElement("table");
@@ -2676,7 +2950,7 @@ function renderAttributes(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). The same 6 / 4 / 2 caps apply to all pre–Favored ratings (including Finishing attribute dot(s); place them only where the arena still has room — Origin pp. 97 & 99). Dot rows show final ratings after Favored Approach.";
+    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). On this step only the 6 / 4 / 2 arena totals apply (Origin p. 97). The separate Finishing Attribute dot (Origin p. 98) is spent later on the Finishing step and may go on any one Attribute, still capped at five dots after Favored Approach. Dot rows show final ratings after Favored Approach.";
   wrap.appendChild(help);
 
   const rankRow = document.createElement("div");
@@ -3741,16 +4015,33 @@ function renderFinishing(root) {
 
   const atPanel = document.createElement("section");
   atPanel.className = "panel finishing-place-panel";
-  atPanel.innerHTML =
-    "<h2>Attributes — spend finishing dot(s)</h2><p class='help'>Dots show <strong>final</strong> ratings after Favored Approach (same as the Attributes step). Stored values stay pre–Favored; you cannot go below your last Attributes-step snapshot. Each arena may never exceed its 6 / 4 / 2 pre–Favored extra-dot cap (Origin p. 97); leave slack on the Attributes step if you plan to spend Finishing attribute dot(s) in that arena (p. 99).</p>";
+  const atH = document.createElement("h2");
+  atH.textContent = "Attributes — spend finishing dot(s)";
+  atPanel.appendChild(atH);
+  const atHelp = document.createElement("p");
+  atHelp.className = "help";
+  atHelp.textContent =
+    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded). The book does not tie it to the 6 / 4 / 2 arenas; it still cannot break the five-dot-per-Attribute cap after Favored Approach (Origin p. 97). Dots show final ratings; picks cannot go below your Attributes-step snapshot on each Attribute.";
+  atPanel.appendChild(atHelp);
+  const atArena = document.createElement("p");
+  atArena.className = "help finishing-arena-budget";
+  atArena.textContent = `Pre–Favored extra dots by arena (current / Attributes-step allowance): ${finishingAttributeArenaBudgetSummaryText()}. A value above the allowance is allowed when it comes from this Finishing dot.`;
+  atPanel.appendChild(atArena);
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
   for (const id of Object.keys(bundle.attributes)) {
     const meta = bundle.attributes[id];
-    const minFinal = minFinalAttrFinishing(id);
+    if (!meta || String(id).startsWith("_")) continue;
     const maxFinal = maxFinalAttrFinishing(id);
     const finalVal = finAttrFinal[id] ?? 1;
-    atPanel.appendChild(
+    const preV = finAttrBase[id] ?? 1;
+    const block = document.createElement("div");
+    block.className = "finishing-attr-block";
+    const sub = document.createElement("p");
+    sub.className = "help finishing-attr-sub";
+    sub.textContent = `Pre–Favored ${preV} · final (after Approach) ${finalVal}`;
+    block.appendChild(sub);
+    block.appendChild(
       renderFinalAttrDotRow(
         meta.name,
         finalVal,
@@ -3764,9 +4055,17 @@ function renderFinishing(root) {
           render();
         },
         meta,
-        minFinal,
+        1,
       ),
     );
+    const stall = finishingAttributeCannotRaiseNote(id);
+    if (stall) {
+      const sn = document.createElement("p");
+      sn.className = "help finishing-attr-stall";
+      sn.textContent = stall;
+      block.appendChild(sn);
+    }
+    atPanel.appendChild(block);
   }
   wrap.appendChild(atPanel);
 
@@ -4112,6 +4411,9 @@ function buildExportObject() {
     virtueSpectrum: Math.max(0, Math.min(5, Math.round(Number(character.virtueSpectrum) || 0))),
     pathPriority: character.pathRank,
     pathSkills: character.pathSkills,
+    ...(sumPathSkillRedistribution(character.pathSkillRedistribution) > 0
+      ? { pathSkillRedistribution: { ...character.pathSkillRedistribution } }
+      : {}),
     skills: character.skillDots,
     skillSpecialties: { ...character.skillSpecialties },
     attributesBeforeFavored: baseAttrs,
@@ -4270,6 +4572,16 @@ function importCharacterFromExportPayload(data) {
     const v = sk[sid];
     if (v == null || Number.isNaN(Number(v))) continue;
     skillDots[sid] = Math.max(0, Math.min(5, Math.round(Number(v))));
+  }
+
+  const pathSkillRedistribution = {};
+  const psr = data.pathSkillRedistribution;
+  if (psr && typeof psr === "object") {
+    for (const [k, v] of Object.entries(psr)) {
+      if (!validSkill.has(k)) continue;
+      const n = Math.round(Number(v));
+      if (Number.isFinite(n) && n > 0) pathSkillRedistribution[k] = n;
+    }
   }
 
   const attrs = { ...base.attributes };
@@ -4484,6 +4796,8 @@ function importCharacterFromExportPayload(data) {
     parentDeityId,
     pathRank,
     pathSkills,
+    pathSkillRedistribution,
+    pathSkillRedistSourceHash: null,
     skillDots,
     skillSpecialties: spec,
     attributes: attrs,
@@ -4618,7 +4932,11 @@ function normalizeCharacterStateAfterLoad() {
   if (tierHasPurviewStep(character.tier)) restrictHeroPurviewsToPatronList();
   trimBirthrightPicksToBudget();
   pruneStaleBoonIds();
-  lastPathLayoutHashForSkillDots = null;
+  if (character.chargenLineage !== "dragonHeir") {
+    ensurePathSkillArrays();
+    inferPathSkillOverflowFromImportedDotsOnce();
+    applyPathMathToSkillDots();
+  }
   if (isOriginPlayTier(character.tier)) {
     normalizeCharacterAttributesToPools();
   }
@@ -4880,9 +5198,21 @@ function render() {
       persistFromForm();
       /* Use same `step` as this render (stepDefsForTier + stepIndex) so gate matches visible screen. */
       if (step === "skills") {
+        applyPathMathToSkillDots();
         const gate = validateAllPathSkillsDetailed();
         if (!gate.ok) {
           skillsGateIssues = gate.issues;
+          render();
+          return;
+        }
+        if (pathSkillOverflowDotsPending() > 0) {
+          const pend = pathSkillOverflowDotsPending();
+          skillsGateIssues = [
+            {
+              pathKey: null,
+              message: `Redistribute Path overflow: ${pend} dot(s) still unplaced (Origin p. 97 — max 5 per Skill from Paths; excess only onto other Path Skills).`,
+            },
+          ];
           render();
           return;
         }
