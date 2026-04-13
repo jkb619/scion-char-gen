@@ -1,9 +1,12 @@
 /**
- * Four-page Review sheet for Scion: Dragon Heir — aligned with the community “interactive”
- * Dragon four-pager (Mr. Gone / lnodiv lineage). Filled from `buildExportObject()` + `dragon` blob.
+ * Four-page Review sheet for Scion: Dragon Heir — layout mirrors the MCG (Deity) four-pager
+ * (`cs-mcg-*` structure) with Dragon data; palette comes from `.character-sheet--dragon-heir` CSS.
  */
 
 import { applyGameDataHint } from "./fieldHelp.js";
+import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
+import { birthrightTagLabels } from "./birthrightTags.js";
+import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 
 const LEFT_SKILLS = [
   "academics",
@@ -26,12 +29,13 @@ const RIGHT_SKILLS = [
   "technology",
 ];
 
-/** Mental | Physical | Social columns; Power / Finesse / Resilience rows (Dragon sheet p.1). */
-const ATTR_COLS = [
-  { arena: "Mental", ids: ["intellect", "cunning", "resolve"], approaches: ["Power", "Finesse", "Resilience"] },
-  { arena: "Physical", ids: ["might", "dexterity", "stamina"], approaches: ["Power", "Finesse", "Resilience"] },
-  { arena: "Social", ids: ["presence", "manipulation", "composure"], approaches: ["Power", "Finesse", "Resilience"] },
-];
+const ARENA_ORDER = ["Mental", "Physical", "Social"];
+const ARENAS = {
+  Mental: ["intellect", "cunning", "resolve"],
+  Physical: ["might", "dexterity", "stamina"],
+  Social: ["presence", "manipulation", "composure"],
+};
+const APPROACH_FOR_ATTR = { might: "Power", dexterity: "Finesse", stamina: "Resilience" };
 
 /**
  * @param {HTMLElement} el
@@ -54,24 +58,11 @@ export function fillDragonFourPageLayout(el, api) {
 
   function dotTrack(n) {
     const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-dragon-dot-track";
+    wrap.className = "cs-dot-track";
     const v = Math.max(0, Math.min(5, Number(n) || 0));
     for (let i = 1; i <= 5; i += 1) {
       const dot = document.createElement("span");
       dot.className = "cs-dot" + (i <= v ? " on" : "");
-      dot.setAttribute("aria-hidden", "true");
-      wrap.appendChild(dot);
-    }
-    return wrap;
-  }
-
-  function remembranceTrack() {
-    const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-dragon-dot-track";
-    const center = d.remembranceTrackCenter !== false;
-    for (let i = 1; i <= 5; i += 1) {
-      const dot = document.createElement("span");
-      dot.className = "cs-dot" + (center && i === 3 ? " on" : "");
       dot.setAttribute("aria-hidden", "true");
       wrap.appendChild(dot);
     }
@@ -85,41 +76,160 @@ export function fillDragonFourPageLayout(el, api) {
     return p;
   }
 
-  function bandTitle(text) {
-    const t = document.createElement("div");
-    t.className = "cs-dragon-band";
-    t.textContent = text;
-    return t;
+  function mcgSheetTick() {
+    const tick = document.createElement("span");
+    tick.className = "cs-mcg-sheet-tick";
+    tick.setAttribute("aria-hidden", "true");
+    return tick;
   }
 
-  function lineField(label, value) {
+  function mcgLinedField(label, value) {
     const w = document.createElement("div");
-    w.className = "cs-dragon-line";
+    w.className = "cs-mcg-line-field";
     const l = document.createElement("span");
-    l.className = "cs-dragon-line-label";
+    l.className = "cs-mcg-line-label";
     l.textContent = label;
     const v = document.createElement("div");
-    v.className = "cs-dragon-line-value";
+    v.className = "cs-mcg-line-value";
     v.textContent = value == null || value === "" ? "" : String(value);
     w.appendChild(l);
     w.appendChild(v);
     return w;
   }
 
-  function checkbox() {
-    const tick = document.createElement("span");
-    tick.className = "cs-dragon-sheet-tick";
-    tick.setAttribute("aria-hidden", "true");
-    return tick;
+  function mcgSectionTitle(text) {
+    const t = document.createElement("div");
+    t.className = "cs-mcg-band-title";
+    t.textContent = text;
+    return t;
+  }
+
+  function mcgCheckboxRow(labels) {
+    const r = document.createElement("div");
+    r.className = "cs-mcg-check-row cs-mcg-check-row--stub";
+    for (const lab of labels) {
+      const x = document.createElement("span");
+      x.className = "cs-mcg-check cs-mcg-check--stub";
+      x.appendChild(mcgSheetTick());
+      x.appendChild(document.createTextNode(" " + lab));
+      r.appendChild(x);
+    }
+    return r;
+  }
+
+  function mcgDeedSheetRow(label, text) {
+    const row = document.createElement("div");
+    row.className = "cs-mcg-deed-row";
+    const lab = document.createElement("span");
+    lab.className = "cs-mcg-deed-label";
+    lab.textContent = label;
+    const val = document.createElement("div");
+    val.className = "cs-mcg-deed-value";
+    val.textContent = text == null || text === "" ? "" : String(text);
+    const tick = mcgSheetTick();
+    tick.title = "Track when resolved at the table.";
+    row.appendChild(lab);
+    row.appendChild(val);
+    row.appendChild(tick);
+    return row;
+  }
+
+  function mcgHardArmorRow() {
+    const w = document.createElement("div");
+    w.className = "cs-mcg-line-field cs-mcg-hard-armor-row";
+    const l = document.createElement("span");
+    l.className = "cs-mcg-line-label";
+    l.textContent = "Hard armor";
+    const ticks = document.createElement("div");
+    ticks.className = "cs-mcg-hard-armor-ticks";
+    ticks.appendChild(mcgSheetTick());
+    ticks.appendChild(mcgSheetTick());
+    const v = document.createElement("div");
+    v.className = "cs-mcg-line-value";
+    w.appendChild(l);
+    w.appendChild(ticks);
+    w.appendChild(v);
+    return w;
+  }
+
+  function mcgBrRuledBlock(label, text) {
+    const w = document.createElement("div");
+    w.className = "cs-mcg-br-ruled-field";
+    const l = document.createElement("span");
+    l.className = "cs-mcg-line-label";
+    l.textContent = label;
+    const v = document.createElement("div");
+    v.className = "cs-mcg-br-ruled-value";
+    v.textContent = text == null || text === "" ? "" : String(text);
+    w.appendChild(l);
+    w.appendChild(v);
+    return w;
+  }
+
+  /** @param {"origin"|"role"|"flight"} key */
+  function dragonPathColumn(key) {
+    const col = document.createElement("div");
+    col.className = "cs-mcg-path-col";
+    const head = document.createElement("div");
+    head.className = "cs-mcg-path-head";
+    head.textContent =
+      key === "flight" ? "Flight path" : `${key.charAt(0).toUpperCase()}${key.slice(1)} path`;
+    col.appendChild(head);
+    col.appendChild(mcgLinedField("Path", (paths[key] || "").trim()));
+    const skLab = document.createElement("div");
+    skLab.className = "cs-mcg-subhead";
+    skLab.textContent = "Skills";
+    col.appendChild(skLab);
+    const ul = document.createElement("ul");
+    ul.className = "cs-mcg-path-skills";
+    const ids = Array.isArray(pathSkills[key]) ? pathSkills[key] : [];
+    if (!ids.length) {
+      const li = document.createElement("li");
+      li.textContent = "—";
+      ul.appendChild(li);
+    } else {
+      for (const sid of ids) {
+        const li = document.createElement("li");
+        li.textContent = skillName(sid);
+        ul.appendChild(li);
+      }
+    }
+    col.appendChild(ul);
+    col.appendChild(mcgLinedField("Contacts", ""));
+    col.appendChild(mcgCheckboxRow(["Invoked", "Suspended", "Revoked"]));
+    return col;
+  }
+
+  function skillRowMcg(sid) {
+    const row = document.createElement("div");
+    row.className = "cs-mcg-skill-row";
+    const nm = document.createElement("span");
+    nm.className = "cs-mcg-skill-name";
+    nm.textContent = skillName(sid);
+    const n = Math.max(0, Math.min(5, Math.round(Number(skillDots[sid]) || 0)));
+    row.appendChild(nm);
+    row.appendChild(dotTrack(n));
+    const sp = document.createElement("span");
+    sp.className = "cs-mcg-skill-spec";
+    sp.textContent = specs[sid] || "";
+    row.appendChild(sp);
+    return row;
   }
 
   function knackLabel(id) {
     const kid = String(id || "").trim();
     if (!kid) return "";
-    return bundle?.knacks?.[kid]?.name || bundle?.dragonKnacks?.[kid]?.name || kid;
+    return (
+      bundle?.dragonCallingKnacks?.[kid]?.name ||
+      bundle?.knacks?.[kid]?.name ||
+      bundle?.dragonKnacks?.[kid]?.name ||
+      kid
+    );
   }
 
-  function buildKnackLines() {
+  function buildDragonKnackSheetRows() {
+    const out =
+      /** @type {{ knackId: string; title: string; description: string; mechanicalEffects: string; source: string }[]} */ ([]);
     const ids = /** @type {string[]} */ ([]);
     const push = (arr) => {
       for (const x of arr || []) {
@@ -131,11 +241,25 @@ export function fillDragonFourPageLayout(el, api) {
     push(d.callingKnackIds);
     push(d.draconicKnackIds);
     push(d.finishingCallingKnackIds);
-    return ids.map((id) => knackLabel(id));
+    for (const id of ids) {
+      const k =
+        bundle?.dragonCallingKnacks?.[id] ||
+        bundle?.knacks?.[id] ||
+        bundle?.dragonKnacks?.[id] ||
+        /** @type {Record<string, unknown>} */ ({});
+      out.push({
+        knackId: id,
+        title: knackLabel(id),
+        description: String(k?.description ?? "").trim(),
+        mechanicalEffects: String(k?.mechanicalEffects ?? "").trim(),
+        source: String(k?.source ?? "").trim(),
+      });
+    }
+    return out;
   }
 
   function buildEquipmentRows() {
-    const out = /** @type {{ title: string; tags: string }[]} */ ([]);
+    const out = /** @type {{ title: string; tags: string; description?: string }}[] */ ([]);
     const eqBundle = bundle?.equipment || {};
     const tagBundle = bundle?.tags || {};
     const ids = Array.isArray(data.sheetEquipmentIds) ? data.sheetEquipmentIds : [];
@@ -146,13 +270,15 @@ export function fillDragonFourPageLayout(el, api) {
       const tagIds = Array.isArray(eq.tagIds) ? eq.tagIds : [];
       const tags =
         tagIds.length > 0 ? tagIds.map((tid) => tagBundle[tid]?.name || tid).filter(Boolean).join(", ") : "";
-      out.push({ title: eq.name || eid, tags });
+      const desc = typeof eq.description === "string" ? eq.description.trim() : "";
+      out.push({ title: eq.name || eid, tags, description: desc });
     }
     return out;
   }
 
-  function buildSpellRows() {
-    const out = /** @type {{ name: string; effect: string }[]} */ ([]);
+  /** @returns {({ sp: Record<string, unknown>; mag: Record<string, unknown> } | null)[]} */
+  function buildSpellSlots() {
+    const out = /** @type {({ sp: Record<string, unknown>; mag: Record<string, unknown> } | null)[]} */ ([]);
     const known = Array.isArray(d.knownMagics) ? d.knownMagics : [];
     const spellsBy = d.spellsByMagicId && typeof d.spellsByMagicId === "object" ? d.spellsByMagicId : {};
     for (const mid of known) {
@@ -160,20 +286,17 @@ export function fillDragonFourPageLayout(el, api) {
       const mag = bundle?.dragonMagic?.[mid];
       const sid = String(spellsBy[mid] || "").trim();
       const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === sid) : null;
-      const namePart = [mag?.name || mid, sp?.name].filter(Boolean).join(" — ");
-      out.push({ name: namePart, effect: String(sp?.summary || "").trim() });
+      if (sp && mag && typeof sp === "object" && typeof mag === "object") out.push({ sp, mag });
     }
     const bm = String(d.bonusSpell?.magicId || "").trim();
     const bs = String(d.bonusSpell?.spellId || "").trim();
     if (bm && bs) {
       const mag = bundle?.dragonMagic?.[bm];
       const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === bs) : null;
-      out.push({
-        name: `Bonus — ${mag?.name || bm} — ${sp?.name || bs}`,
-        effect: String(sp?.summary || "").trim(),
-      });
+      if (sp && mag && typeof sp === "object" && typeof mag === "object") out.push({ sp, mag });
     }
-    return out;
+    while (out.length < 11) out.push(null);
+    return out.slice(0, 11);
   }
 
   function allBirthrightPicks() {
@@ -188,239 +311,307 @@ export function fillDragonFourPageLayout(el, api) {
   const deeds = data.deeds && typeof data.deeds === "object" ? data.deeds : {};
   const healthSpec = originHealthInjurySlots(Number(finalA.stamina ?? 1));
   const injuryPenalty = { bruised: "+1d", injured: "+2d", maimed: "+4d" };
-
-  /* —— Page 1 —— */
-  const p1 = page();
-  const logo = document.createElement("div");
-  logo.className = "cs-dragon-logo";
-  logo.innerHTML =
-    '<div class="cs-dragon-logo-scion" aria-hidden="true">Scion</div><div class="cs-dragon-logo-sub">Dragon</div>';
-  p1.appendChild(logo);
-
-  const idBlock = document.createElement("div");
-  idBlock.className = "cs-dragon-id-block";
-  idBlock.appendChild(lineField("Name", data.characterName));
-  idBlock.appendChild(lineField("Flight / Dragon", data.flightName || data.flightId || ""));
-  idBlock.appendChild(lineField("Player", ""));
+  const charName = String(data.characterName ?? "").trim();
   const chronicle = String(data.tierName || data.trackTierLabel || "").trim();
-  idBlock.appendChild(lineField("Chronicle", chronicle));
-  p1.appendChild(idBlock);
-
-  p1.appendChild(bandTitle("Skills"));
-  const skWrap = document.createElement("div");
-  skWrap.className = "cs-dragon-skills-2col";
-  const skL = document.createElement("div");
-  const skR = document.createElement("div");
-  skL.className = "cs-dragon-skill-col";
-  skR.className = "cs-dragon-skill-col";
-  const skillRow = (sid) => {
-    const row = document.createElement("div");
-    row.className = "cs-dragon-skill-row";
-    row.appendChild(checkbox());
-    const nm = document.createElement("span");
-    nm.className = "cs-dragon-skill-name";
-    nm.textContent = skillName(sid);
-    row.appendChild(nm);
-    const sp = document.createElement("span");
-    sp.className = "cs-dragon-skill-spec";
-    sp.textContent = specs[sid] || "";
-    row.appendChild(sp);
-    const n = Math.max(0, Math.min(5, Math.round(Number(skillDots[sid]) || 0)));
-    row.appendChild(dotTrack(n));
-    return row;
+  const pr = d.pathRank && typeof d.pathRank === "object" ? d.pathRank : {};
+  const rkLab = (rk) => {
+    const v = String(pr[rk] || "").trim();
+    if (v === "flight") return "Flight";
+    if (v === "role") return "Role";
+    return "Origin";
   };
-  for (const sid of LEFT_SKILLS) skL.appendChild(skillRow(sid));
-  for (const sid of RIGHT_SKILLS) skR.appendChild(skillRow(sid));
+
+  /* —— Page 1 (MCG spine) —— */
+  const p1 = page();
+  const top = document.createElement("div");
+  top.className = "cs-mcg-p1-top";
+  const rowA = document.createElement("div");
+  rowA.className = "cs-mcg-header-rows";
+  rowA.appendChild(mcgLinedField("Name", charName || "—"));
+  rowA.appendChild(mcgLinedField("Player", ""));
+  rowA.appendChild(mcgLinedField("Flight", data.flightName || data.flightId || "—"));
+  const rowB = document.createElement("div");
+  rowB.className = "cs-mcg-header-rows";
+  rowB.appendChild(mcgLinedField("Concept", data.concept || "—"));
+  rowB.appendChild(mcgLinedField("Chronicle", chronicle || "Dragon Heir"));
+  const inhSummary = [
+    data.inheritance != null ? `Track ${data.inheritance}` : "",
+    data.inheritanceMilestone ? String(data.inheritanceMilestone) : "",
+  ]
+    .filter(Boolean)
+    .join(" — ");
+  rowB.appendChild(mcgLinedField("Inheritance", inhSummary || "—"));
+  top.appendChild(rowA);
+  top.appendChild(rowB);
+  p1.appendChild(top);
+
+  p1.appendChild(mcgSectionTitle("Paths"));
+  const pathsRow = document.createElement("div");
+  pathsRow.className = "cs-mcg-paths-3";
+  pathsRow.appendChild(dragonPathColumn("origin"));
+  pathsRow.appendChild(dragonPathColumn("role"));
+  pathsRow.appendChild(dragonPathColumn("flight"));
+  p1.appendChild(pathsRow);
+
+  const prio = document.createElement("p");
+  prio.className = "cs-mcg-path-priority";
+  prio.textContent = `Path priority — Primary: ${rkLab("primary")} · Secondary: ${rkLab("secondary")} · Tertiary: ${rkLab("tertiary")}`;
+  p1.appendChild(prio);
+
+  p1.appendChild(mcgSectionTitle("Skills"));
+  const skWrap = document.createElement("div");
+  skWrap.className = "cs-mcg-skills-2col";
+  const skL = document.createElement("div");
+  skL.className = "cs-mcg-skill-col";
+  const skR = document.createElement("div");
+  skR.className = "cs-mcg-skill-col";
+  for (const sid of LEFT_SKILLS) skL.appendChild(skillRowMcg(sid));
+  for (const sid of RIGHT_SKILLS) skR.appendChild(skillRowMcg(sid));
   skWrap.appendChild(skL);
   skWrap.appendChild(skR);
   p1.appendChild(skWrap);
 
-  p1.appendChild(bandTitle("Attributes"));
-  const ag = document.createElement("div");
-  ag.className = "cs-dragon-attr-grid";
+  p1.appendChild(mcgSectionTitle("Attributes"));
+  const attrGrid = document.createElement("div");
+  attrGrid.className = "cs-mcg-attr-grid";
   const corner = document.createElement("div");
-  corner.className = "cs-dragon-attr-corner";
-  ag.appendChild(corner);
-  for (const col of ATTR_COLS) {
+  corner.className = "cs-mcg-attr-corner";
+  attrGrid.appendChild(corner);
+  for (const lab of ["Power", "Finesse", "Resilience"]) {
     const h = document.createElement("div");
-    h.className = "cs-dragon-attr-colhead";
-    h.textContent = col.arena;
-    ag.appendChild(h);
+    h.className = "cs-mcg-attr-colhead";
+    h.textContent = lab;
+    attrGrid.appendChild(h);
   }
-  for (let r = 0; r < 3; r += 1) {
-    const approach = document.createElement("div");
-    approach.className = "cs-dragon-attr-approach";
-    approach.textContent = ["Power", "Finesse", "Resilience"][r];
-    ag.appendChild(approach);
-    for (const col of ATTR_COLS) {
-      const aid = col.ids[r];
+  for (const arena of ARENA_ORDER) {
+    const rn = document.createElement("div");
+    rn.className = "cs-mcg-attr-arena-label";
+    rn.textContent = arena;
+    attrGrid.appendChild(rn);
+    for (const aid of ARENAS[arena]) {
       const cell = document.createElement("div");
-      cell.className = "cs-dragon-attr-cell";
+      cell.className = "cs-mcg-attr-cell";
       const lab = document.createElement("div");
-      lab.className = "cs-dragon-attr-cell-label";
-      lab.textContent = `${attrName(aid)} (${col.approaches[r]})`;
+      lab.className = "cs-mcg-attr-cell-label";
+      const approach = APPROACH_FOR_ATTR[aid];
+      lab.textContent = approach ? `${attrName(aid)} (${approach})` : attrName(aid);
       cell.appendChild(lab);
       cell.appendChild(dotTrack(finalA[aid] ?? 1));
-      ag.appendChild(cell);
+      attrGrid.appendChild(cell);
     }
   }
-  p1.appendChild(ag);
+  p1.appendChild(attrGrid);
 
-  const mid = document.createElement("div");
-  mid.className = "cs-dragon-p1-mid";
-  const pathCol = document.createElement("div");
-  pathCol.className = "cs-dragon-path-col";
-  pathCol.appendChild(bandTitle("Paths / contacts"));
-  const pathDefs = [
-    { key: "origin", title: "Origin path" },
-    { key: "role", title: "Role path" },
-    { key: "flight", title: "Flight path" },
-  ];
-  for (const { key, title } of pathDefs) {
-    const box = document.createElement("div");
-    box.className = "cs-dragon-path-block";
-    box.appendChild(lineField(title, paths[key] || ""));
-    const skLab = document.createElement("div");
-    skLab.className = "cs-dragon-subhead";
-    skLab.textContent = "Skills";
-    box.appendChild(skLab);
-    const ids = Array.isArray(pathSkills[key]) ? pathSkills[key] : [];
-    const skLine = document.createElement("div");
-    skLine.className = "cs-dragon-path-skills-line";
-    skLine.textContent = ids.length ? ids.map((id) => skillName(id)).join(", ") : "—";
-    box.appendChild(skLine);
-    box.appendChild(lineField("Contacts", ""));
-    pathCol.appendChild(box);
+  const p1Bot = document.createElement("div");
+  p1Bot.className = "cs-mcg-p1-bottom";
+  const leftCol = document.createElement("div");
+  leftCol.className = "cs-mcg-p1-left";
+  leftCol.appendChild(mcgSectionTitle("Legendary titles"));
+  for (let i = 0; i < 6; i += 1) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line";
+    leftCol.appendChild(ln);
   }
-  mid.appendChild(pathCol);
-
-  const deedsCol = document.createElement("div");
-  deedsCol.className = "cs-dragon-deeds-col";
-  deedsCol.appendChild(bandTitle("Deeds"));
-  const deedRow = (lab, checked) => {
-    const r = document.createElement("label");
-    r.className = "cs-dragon-deed-row";
-    const cb = checkbox();
-    cb.checked = checked;
-    r.appendChild(cb);
-    r.appendChild(document.createTextNode(" " + lab));
-    return r;
-  };
-  deedsCol.appendChild(deedRow("Worldly Short", Boolean(String(deeds.short || "").trim())));
-  deedsCol.appendChild(deedRow("Worldly Long", Boolean(String(deeds.long || "").trim())));
-  deedsCol.appendChild(deedRow("Draconic", Boolean(String(d.deedName || "").trim())));
-  deedsCol.appendChild(document.createElement("div")).className = "cs-dragon-spacer";
-  const remLab = document.createElement("div");
-  remLab.className = "cs-dragon-subhead";
-  remLab.textContent = "Remembrance";
-  deedsCol.appendChild(remLab);
-  deedsCol.appendChild(remembranceTrack());
-  deedsCol.appendChild(bandTitle("Equipment"));
-  const eqRows = buildEquipmentRows();
-  const eqT = document.createElement("table");
-  eqT.className = "cs-dragon-eq-table";
-  const thead = document.createElement("thead");
-  thead.innerHTML = "<tr><th>Item</th><th>Tags</th></tr>";
-  eqT.appendChild(thead);
-  const tb = document.createElement("tbody");
-  for (let i = 0; i < 8; i += 1) {
-    const tr = document.createElement("tr");
-    const r = eqRows[i];
-    const a = document.createElement("td");
-    const b = document.createElement("td");
-    if (r) {
-      a.textContent = r.title;
-      b.textContent = r.tags;
-    }
-    tr.appendChild(a);
-    tr.appendChild(b);
-    tb.appendChild(tr);
-  }
-  eqT.appendChild(tb);
-  deedsCol.appendChild(eqT);
-  mid.appendChild(deedsCol);
-  p1.appendChild(mid);
-
-  const bot = document.createElement("div");
-  bot.className = "cs-dragon-p1-bot";
-  const inhCol = document.createElement("div");
-  inhCol.className = "cs-dragon-bot-col";
-  inhCol.appendChild(bandTitle("Inheritance"));
-  const inhNote = document.createElement("div");
-  inhNote.className = "cs-dragon-inh-note";
-  inhNote.textContent = [
-    data.inheritance != null ? `Track: ${data.inheritance}` : "",
-    data.inheritanceMilestone ? String(data.inheritanceMilestone) : "",
-    data.inheritanceBand ? `(${String(data.inheritanceBand)})` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  inhCol.appendChild(inhNote);
-  const inhStacks = document.createElement("div");
-  inhStacks.className = "cs-dragon-inh-stacks";
-  const inhFill = Math.min(4, Math.max(0, Math.round(Number(data.inheritance) || 0)));
-  for (let i = 0; i < 4; i += 1) {
-    const cell = document.createElement("div");
-    cell.className = "cs-dragon-inh-stack";
-    const dot = document.createElement("span");
-    dot.className = "cs-dot" + (i < inhFill ? " on" : "");
-    dot.setAttribute("aria-hidden", "true");
-    cell.appendChild(dot);
-    cell.appendChild(checkbox());
-    inhStacks.appendChild(cell);
-  }
-  inhCol.appendChild(inhStacks);
-  inhCol.appendChild(bandTitle("Callings"));
+  leftCol.appendChild(mcgSectionTitle("Callings"));
   const slots = Array.isArray(d.callingSlots) ? d.callingSlots : [];
-  for (let i = 0; i < 3; i += 1) {
+  const pushCallingRow = (label, dots) => {
     const row = document.createElement("div");
-    row.className = "cs-dragon-calling-row";
-    const slot = slots[i];
+    row.className = "cs-mcg-calling-line";
     const nm = document.createElement("span");
-    const cid = String(slot?.id || "").trim();
-    nm.textContent = cid ? bundle?.callings?.[cid]?.name || cid : "—";
+    nm.textContent = label;
     row.appendChild(nm);
-    row.appendChild(dotTrack(Math.max(1, Math.min(5, Math.round(Number(slot?.dots) || 1)))));
-    inhCol.appendChild(row);
+    row.appendChild(dotTrack(dots));
+    leftCol.appendChild(row);
+  };
+  for (let i = 0; i < 3; i += 1) {
+    const slot = slots[i];
+    if (slot) {
+      const cid = String(slot.id || "").trim();
+      const label = cid ? bundle?.callings?.[cid]?.name || cid : "—";
+      pushCallingRow(label, Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1))));
+    } else {
+      pushCallingRow("—", 1);
+    }
   }
-  bot.appendChild(inhCol);
+  leftCol.appendChild(mcgLinedField("Guide", ""));
+  leftCol.appendChild(mcgSectionTitle("Deeds"));
+  leftCol.appendChild(mcgDeedSheetRow("Draconic", d.deedName || ""));
+  leftCol.appendChild(mcgDeedSheetRow("Short-term", deeds.short));
+  leftCol.appendChild(mcgDeedSheetRow("Long-term", deeds.long));
+  leftCol.appendChild(mcgDeedSheetRow("Band", deeds.band));
 
-  const midBot = document.createElement("div");
-  midBot.className = "cs-dragon-bot-col";
-  midBot.appendChild(bandTitle("Momentum"));
-  const mom = document.createElement("div");
-  mom.className = "cs-dragon-square-row";
+  const rightCol = document.createElement("div");
+  rightCol.className = "cs-mcg-p1-right";
+  const inhStack = document.createElement("div");
+  inhStack.className = "cs-mcg-track-stack";
+  const inhBlock = document.createElement("div");
+  inhBlock.className = "cs-mcg-legend-with-pool";
+  const inhL = document.createElement("span");
+  inhL.className = "cs-mcg-track-label";
+  inhL.textContent = "Inheritance";
+  const inhDotsCell = document.createElement("div");
+  inhDotsCell.className = "cs-mcg-legend-dots-cell";
+  const inhFill = Math.min(4, Math.max(0, Math.round(Number(data.inheritance) || 0)));
+  const inhTrack = document.createElement("div");
+  inhTrack.className = "cs-mcg-legend-pool-track";
+  for (let i = 1; i <= 4; i += 1) {
+    const col = document.createElement("div");
+    col.className = "cs-mcg-legend-pool-col";
+    const dot = document.createElement("span");
+    dot.className = "cs-dot" + (i <= inhFill ? " on" : "");
+    dot.setAttribute("aria-hidden", "true");
+    col.appendChild(dot);
+    const lab = document.createElement("label");
+    lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
+    const inp = document.createElement("input");
+    inp.type = "checkbox";
+    inp.className = "cs-mcg-pool-check-input";
+    lab.appendChild(inp);
+    col.appendChild(lab);
+    inhTrack.appendChild(col);
+  }
+  inhDotsCell.appendChild(inhTrack);
+  inhBlock.appendChild(inhL);
+  inhBlock.appendChild(inhDotsCell);
+  inhStack.appendChild(inhBlock);
+  rightCol.appendChild(inhStack);
+  rightCol.appendChild(mcgLinedField("Omen", ""));
+  const remTxt =
+    d.remembranceTrackCenter === false
+      ? "Track: custom (center off in wizard)"
+      : "Track: centered (default)";
+  rightCol.appendChild(mcgLinedField("Remembrance", remTxt));
+
+  const diceGrid = document.createElement("div");
+  diceGrid.className = "cs-mcg-dice-track-grid";
+  const momL = document.createElement("span");
+  momL.className = "cs-mcg-track-label";
+  momL.textContent = "Momentum (track at table)";
+  const momSq = document.createElement("span");
+  momSq.className = "cs-mcg-square-track";
+  for (let i = 0; i < 12; i += 1) {
+    const s = document.createElement("span");
+    s.className = "cs-mcg-sq";
+    momSq.appendChild(s);
+  }
+  const divL = document.createElement("span");
+  divL.className = "cs-mcg-track-label";
+  divL.textContent = "Divinity dice (higher tiers)";
+  const divSq = document.createElement("span");
+  divSq.className = "cs-mcg-square-track cs-mcg-square-track--10";
   for (let i = 0; i < 10; i += 1) {
     const s = document.createElement("span");
-    s.className = "cs-dragon-sq";
-    mom.appendChild(s);
+    s.className = "cs-mcg-sq";
+    divSq.appendChild(s);
   }
-  midBot.appendChild(mom);
-  midBot.appendChild(bandTitle("Experience"));
-  midBot.appendChild(lineField("Total", ""));
-  midBot.appendChild(lineField("Spent", ""));
-  midBot.appendChild(lineField("Remaining", ""));
-  const spent = document.createElement("div");
-  spent.className = "cs-dragon-spent-on";
-  const sl = document.createElement("div");
-  sl.className = "cs-dragon-subhead";
-  sl.textContent = "Spent on";
-  spent.appendChild(sl);
-  for (let i = 0; i < 4; i += 1) {
-    const ln = document.createElement("div");
-    ln.className = "cs-dragon-write-line";
-    spent.appendChild(ln);
-  }
-  midBot.appendChild(spent);
-  bot.appendChild(midBot);
+  diceGrid.appendChild(momL);
+  diceGrid.appendChild(momSq);
+  diceGrid.appendChild(divL);
+  diceGrid.appendChild(divSq);
+  rightCol.appendChild(diceGrid);
 
-  const healthCol = document.createElement("div");
-  healthCol.className = "cs-dragon-bot-col";
-  healthCol.appendChild(bandTitle("Health"));
+  p1Bot.appendChild(leftCol);
+  p1Bot.appendChild(rightCol);
+  p1.appendChild(p1Bot);
+
+  const foot = document.createElement("footer");
+  foot.className = "cs-mcg-sheet-footer";
+  foot.textContent =
+    "Dragon Heir sheet — same four-page layout spine as the MCG (Deity) community sheet; jade palette. Rules text lives in Scion: Dragon.";
+  p1.appendChild(foot);
+
+  /* —— Page 2 (MCG-style sheet / combat) —— */
+  const p2 = page();
+  p2.appendChild(mcgSectionTitle("Enhancements"));
+  const enh = document.createElement("div");
+  enh.className = "cs-mcg-enh-grid";
+  for (let c = 0; c < 2; c += 1) {
+    const tbl = document.createElement("table");
+    tbl.className = "cs-mcg-mini-table";
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+    ["Enhancement", "Bonus"].forEach((h) => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    tbl.appendChild(thead);
+    const tb = document.createElement("tbody");
+    for (let r = 0; r < 4; r += 1) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td></td><td></td>";
+      tb.appendChild(tr);
+    }
+    tbl.appendChild(tb);
+    enh.appendChild(tbl);
+  }
+  p2.appendChild(enh);
+
+  p2.appendChild(mcgSectionTitle("Equipment"));
+  const eqRows = buildEquipmentRows();
+  const eqT = document.createElement("table");
+  eqT.className = "cs-mcg-eq-table";
+  const eqH = document.createElement("thead");
+  eqH.innerHTML = "<tr><th>Item</th><th>Tags / notes</th></tr>";
+  eqT.appendChild(eqH);
+  const eqB = document.createElement("tbody");
+  const maxEq = 7;
+  for (let i = 0; i < maxEq; i += 1) {
+    const tr = document.createElement("tr");
+    const r = eqRows[i];
+    const td1 = document.createElement("td");
+    const td2 = document.createElement("td");
+    if (r) {
+      td1.textContent = r.title;
+      td2.textContent = [r.tags, r.description].filter(Boolean).join(" — ");
+    }
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    eqB.appendChild(tr);
+  }
+  eqT.appendChild(eqB);
+  p2.appendChild(eqT);
+
+  p2.appendChild(mcgSectionTitle("Deed names"));
+  const deedGrid = document.createElement("div");
+  deedGrid.className = "cs-dragon-deed-names";
+  const deedNameLines = [d.deedName, deeds.short, deeds.long, deeds.band].map((x) => String(x || "").trim());
+  for (let i = 0; i < 4; i += 1) {
+    const row = document.createElement("div");
+    row.className = "cs-dragon-deed-name-row";
+    const t = document.createElement("span");
+    t.className = "cs-dragon-deed-name-text";
+    t.textContent = deedNameLines[i] || "";
+    row.appendChild(t);
+    row.appendChild(mcgSheetTick());
+    deedGrid.appendChild(row);
+  }
+  p2.appendChild(deedGrid);
+
+  const p2mid = document.createElement("div");
+  p2mid.className = "cs-mcg-p2-mid";
+  const descCol = document.createElement("div");
+  descCol.appendChild(mcgSectionTitle("Description"));
+  for (const lab of ["Age", "Date of birth", "Hair", "Eyes", "Height", "Weight", "Race / kin", "Nationality", "Gender"]) {
+    descCol.appendChild(mcgLinedField(lab, ""));
+  }
+  const combCol = document.createElement("div");
+  combCol.appendChild(mcgSectionTitle("Combat"));
+  combCol.appendChild(mcgLinedField("Movement", String(data.movementDice ?? "")));
+  combCol.appendChild(mcgLinedField("Defense", String(data.defense ?? "")));
+  combCol.appendChild(mcgLinedField("Initiative", ""));
+  combCol.appendChild(mcgLinedField("Soft armor", ""));
+  combCol.appendChild(mcgHardArmorRow());
+  p2mid.appendChild(descCol);
+  p2mid.appendChild(combCol);
+  p2.appendChild(p2mid);
+
+  p2.appendChild(mcgSectionTitle("Health"));
   const hNote = document.createElement("p");
   hNote.className = "cs-health-note";
   hNote.textContent = `Stamina (after Favored): ${healthSpec.stamina}. Bruised slots: ${healthSpec.bruisedCount}.`;
-  healthCol.appendChild(hNote);
+  p2.appendChild(hNote);
   const healthTrack = document.createElement("div");
   healthTrack.className = "cs-health-track";
   for (const slot of healthSpec.slots) {
@@ -445,191 +636,171 @@ export function fillDragonFourPageLayout(el, api) {
     cell.appendChild(box);
     healthTrack.appendChild(cell);
   }
-  healthCol.appendChild(healthTrack);
-  healthCol.appendChild(lineField("Movement dice", String(data.movementDice ?? "")));
-  healthCol.appendChild(lineField("Defense roll", String(data.defense ?? "")));
-  healthCol.appendChild(lineField("Initiative roll", ""));
-  bot.appendChild(healthCol);
-  p1.appendChild(bot);
+  p2.appendChild(healthTrack);
 
-  const foot = document.createElement("footer");
-  foot.className = "cs-dragon-footer-legend";
-  foot.textContent = "c — Complication · d — Difficulty · e — Enhancement";
-  p1.appendChild(foot);
-
-  /* —— Page 2 —— */
-  const p2 = page();
-  p2.appendChild(bandTitle("Deed names"));
-  const deedGrid = document.createElement("div");
-  deedGrid.className = "cs-dragon-deed-names";
-  const deedNameLines = [d.deedName, deeds.short, deeds.long, deeds.band].map((x) => String(x || "").trim());
-  for (let i = 0; i < 4; i += 1) {
-    const row = document.createElement("div");
-    row.className = "cs-dragon-deed-name-row";
-    const t = document.createElement("span");
-    t.className = "cs-dragon-deed-name-text";
-    t.textContent = deedNameLines[i] || "";
-    row.appendChild(t);
-    row.appendChild(checkbox());
-    deedGrid.appendChild(row);
+  p2.appendChild(mcgSectionTitle("Experience"));
+  p2.appendChild(mcgLinedField("Total", ""));
+  p2.appendChild(mcgLinedField("Remaining", ""));
+  const spent = document.createElement("div");
+  spent.className = "cs-mcg-write-block";
+  const sl = document.createElement("span");
+  sl.className = "cs-mcg-subhead";
+  sl.textContent = "Spent on";
+  spent.appendChild(sl);
+  for (let i = 0; i < 3; i += 1) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line";
+    spent.appendChild(ln);
   }
-  p2.appendChild(deedGrid);
+  p2.appendChild(spent);
 
-  p2.appendChild(bandTitle("Birthrights"));
+  p2.appendChild(mcgSectionTitle("History & notes"));
+  const hist = document.createElement("div");
+  hist.className = "cs-mcg-history";
+  hist.textContent = [data.notes, data.sheetNotesExtra].map((x) => String(x || "").trim()).filter(Boolean).join("\n\n");
+  p2.appendChild(hist);
+
+  /* —— Page 3 — Knacks + Dragon Magic (spells) —— */
+  const p3 = page();
+  p3.appendChild(mcgSectionTitle("Knacks"));
+  const knackRows = buildDragonKnackSheetRows();
+  const nk = document.createElement("div");
+  nk.className = "cs-mcg-knack-grid";
+  for (let i = 0; i < 16; i += 1) {
+    const blk = document.createElement("div");
+    blk.className = "cs-mcg-knack-block";
+    const r = knackRows[i];
+    const head = document.createElement("div");
+    head.className = "cs-mcg-knack-row-head";
+    const t = document.createElement("span");
+    t.className = "cs-mcg-knack-text";
+    t.textContent = r ? r.title : "";
+    head.appendChild(t);
+    head.appendChild(mcgSheetTick());
+    blk.appendChild(head);
+    const note = document.createElement("div");
+    note.className = "cs-mcg-knack-note";
+    if (r) {
+      const desc = (r.description || "").trim();
+      const mech = (r.mechanicalEffects || "").trim();
+      const bits = [desc, mech].filter(Boolean);
+      note.textContent = bits.join(" ").slice(0, 320);
+      const kid = String(r.knackId || "").trim();
+      const kObj =
+        bundle?.dragonCallingKnacks?.[kid] || bundle?.knacks?.[kid] || bundle?.dragonKnacks?.[kid] || null;
+      if (kObj) applyGameDataHint(blk, kObj);
+    }
+    blk.appendChild(note);
+    nk.appendChild(blk);
+  }
+  p3.appendChild(nk);
+
+  p3.appendChild(mcgSectionTitle("Dragon Magic — Spells"));
+  const spellSlots = buildSpellSlots();
+  const spellStack = document.createElement("div");
+  spellStack.className = "cs-dragon-spell-plate-stack";
+  for (let i = 0; i < spellSlots.length; i += 1) {
+    const slot = spellSlots[i];
+    const card = document.createElement("div");
+    card.className = "cs-dragon-spell-plate-card";
+    if (slot) appendDragonSpellBoonStylePlate(card, slot.sp, slot.mag);
+    else appendDragonSpellBoonStylePlate(card, undefined, undefined, { sheetBlank: true });
+    spellStack.appendChild(card);
+  }
+  p3.appendChild(spellStack);
+
+  /* —— Page 4 — Conditions, Birthrights, Fatebinding (MCG tail) —— */
+  const p4 = page();
+  p4.appendChild(mcgSectionTitle("Conditions"));
+  const cond = document.createElement("div");
+  cond.className = "cs-mcg-cond-cols";
+  for (let c = 0; c < 2; c += 1) {
+    const col = document.createElement("div");
+    for (let i = 0; i < 8; i += 1) {
+      const ln = document.createElement("div");
+      ln.className = "cs-mcg-write-line";
+      col.appendChild(ln);
+    }
+    cond.appendChild(col);
+  }
+  p4.appendChild(cond);
+
+  p4.appendChild(mcgSectionTitle("Birthrights"));
   const brGrid = document.createElement("div");
-  brGrid.className = "cs-dragon-br-grid";
+  brGrid.className = "cs-mcg-br-grid";
   for (const pick of allBirthrightPicks()) {
     const bid = String(pick.id || "").trim();
     const br = bundle?.birthrights?.[bid];
     const blk = document.createElement("div");
-    blk.className = "cs-dragon-br-block";
+    blk.className = "cs-mcg-br-block";
     const head = document.createElement("div");
-    head.className = "cs-dragon-br-head";
+    head.className = "cs-mcg-br-head";
     const nm = document.createElement("span");
     nm.textContent = br?.name || bid;
     head.appendChild(nm);
     head.appendChild(dotTrack(Math.min(5, Math.max(1, Math.round(Number(pick.dots) || 1)))));
     blk.appendChild(head);
-    const descLab = document.createElement("div");
-    descLab.className = "cs-dragon-br-desc-label";
-    descLab.textContent = "Description:";
-    blk.appendChild(descLab);
-    const desc = document.createElement("div");
-    desc.className = "cs-dragon-br-desc";
-    desc.textContent = String(br?.description || br?.mechanicalEffects || "").trim().slice(0, 600);
-    blk.appendChild(desc);
-    for (let j = 0; j < 4; j += 1) {
-      const ln = document.createElement("div");
-      ln.className = "cs-dragon-write-line";
-      blk.appendChild(ln);
-    }
+    blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
+    const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
+    blk.appendChild(mcgLinedField("Tags", tagStr));
+    blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
+    blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
+    const rd = br?.relicDetails;
+    const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
+    blk.appendChild(
+      mcgLinedField("Purview", pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, "") : ""),
+    );
+    blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
+    blk.appendChild(mcgLinedField("Enhancement", ""));
     if (br) applyGameDataHint(blk, br);
     brGrid.appendChild(blk);
   }
   while (brGrid.children.length < 8) {
     const blk = document.createElement("div");
-    blk.className = "cs-dragon-br-block";
+    blk.className = "cs-mcg-br-block";
     const head = document.createElement("div");
-    head.className = "cs-dragon-br-head";
+    head.className = "cs-mcg-br-head";
     head.appendChild(document.createElement("span"));
     head.appendChild(dotTrack(0));
     blk.appendChild(head);
-    const dl = document.createElement("div");
-    dl.className = "cs-dragon-br-desc-label";
-    dl.textContent = "Description:";
-    blk.appendChild(dl);
-    const emptyDesc = document.createElement("div");
-    emptyDesc.className = "cs-dragon-br-desc";
-    blk.appendChild(emptyDesc);
-    for (let j = 0; j < 4; j += 1) {
-      const ln = document.createElement("div");
-      ln.className = "cs-dragon-write-line";
-      blk.appendChild(ln);
-    }
+    blk.appendChild(mcgLinedField("Type", ""));
+    blk.appendChild(mcgLinedField("Tags", ""));
+    blk.appendChild(mcgBrRuledBlock("Description", ""));
+    blk.appendChild(mcgBrRuledBlock("Mechanics", ""));
+    blk.appendChild(mcgLinedField("Purview", ""));
+    blk.appendChild(mcgLinedField("Motif", ""));
+    blk.appendChild(mcgLinedField("Enhancement", ""));
     brGrid.appendChild(blk);
   }
-  p2.appendChild(brGrid);
+  p4.appendChild(brGrid);
 
-  /* —— Page 3 —— */
-  const p3 = page();
-  p3.appendChild(bandTitle("Knacks"));
-  const knackLines = buildKnackLines();
-  const rowsPerCol = 38;
-  const nk = document.createElement("div");
-  nk.className = "cs-dragon-knack-cols";
-  for (let c = 0; c < 2; c += 1) {
-    const col = document.createElement("div");
-    col.className = "cs-dragon-knack-col";
-    for (let r = 0; r < rowsPerCol; r += 1) {
-      const line = document.createElement("div");
-      line.className = "cs-dragon-knack-line";
-      line.textContent = knackLines[c * rowsPerCol + r] || "";
-      col.appendChild(line);
-    }
-    nk.appendChild(col);
+  p4.appendChild(mcgSectionTitle("Fatebinding"));
+  const fbLines = String(data.fatebindings || "")
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const fbGrid = document.createElement("div");
+  fbGrid.className = "cs-mcg-fb-grid";
+  for (let i = 0; i < 14; i += 1) {
+    const blk = document.createElement("div");
+    blk.className = "cs-mcg-fb-block";
+    blk.appendChild(mcgLinedField("Name", fbLines[i] || ""));
+    blk.appendChild(mcgLinedField("Strength", ""));
+    blk.appendChild(mcgCheckboxRow(["Invoke", "Compel"]));
+    fbGrid.appendChild(blk);
   }
-  p3.appendChild(nk);
+  p4.appendChild(fbGrid);
 
-  p3.appendChild(bandTitle("Spells / magic"));
-  const spellRows = buildSpellRows();
-  const spT = document.createElement("table");
-  spT.className = "cs-dragon-spell-table";
-  const spHead = document.createElement("thead");
-  spHead.innerHTML = "<tr><th>Name</th><th>Effect</th></tr>";
-  spT.appendChild(spHead);
-  const spB = document.createElement("tbody");
-  const maxSpells = 11;
-  for (let i = 0; i < maxSpells; i += 1) {
-    const tr = document.createElement("tr");
-    const sr = spellRows[i];
-    const a = document.createElement("td");
-    const b = document.createElement("td");
-    a.className = "cs-dragon-spell-name";
-    b.className = "cs-dragon-spell-effect";
-    if (sr) {
-      a.textContent = sr.name;
-      b.textContent = sr.effect;
-    }
-    tr.appendChild(a);
-    tr.appendChild(b);
-    spB.appendChild(tr);
-  }
-  spT.appendChild(spB);
-  p3.appendChild(spT);
-
-  /* —— Page 4 —— */
-  const p4 = page();
-  p4.appendChild(bandTitle("History"));
-  const hist = document.createElement("div");
-  hist.className = "cs-dragon-history";
-  hist.textContent = [data.notes, data.sheetNotesExtra].map((x) => String(x || "").trim()).filter(Boolean).join("\n\n");
-  p4.appendChild(hist);
-
-  p4.appendChild(bandTitle("Description"));
-  const descWrap = document.createElement("div");
-  descWrap.className = "cs-dragon-desc-block";
-  for (const lab of [
-    "Age",
-    "Date of birth",
-    "Hair",
-    "Eyes",
-    "Race",
-    "Nationality",
-    "Height",
-    "Weight",
-    "Pronoun",
-  ]) {
-    descWrap.appendChild(lineField(lab, ""));
-  }
-  p4.appendChild(descWrap);
-
-  p4.appendChild(bandTitle("Draconic form"));
+  p4.appendChild(mcgSectionTitle("Draconic profile"));
   const drac = document.createElement("div");
-  drac.className = "cs-dragon-draconic";
-  const dHelp = document.createElement("div");
-  dHelp.className = "cs-dragon-help";
-  dHelp.textContent =
-    "Use for scale, Feats of Scale, Transformation, and other draconic profile notes (Dragon).";
-  drac.appendChild(dHelp);
-  for (let i = 0; i < 15; i += 1) {
-    const ln = document.createElement("div");
-    ln.className = "cs-dragon-write-line";
-    drac.appendChild(ln);
-  }
+  drac.className = "cs-mcg-history";
+  drac.textContent =
+    "Feats of Scale, Transformation, scale notes — use free space on print or extended notes (Dragon).";
   p4.appendChild(drac);
 
-  const fate = String(data.fatebindings || "").trim();
-  if (fate) {
-    p4.appendChild(bandTitle("Notes (export)"));
-    const fx = document.createElement("div");
-    fx.className = "cs-dragon-fate";
-    fx.textContent = fate;
-    p4.appendChild(fx);
-  }
-
   const fin = document.createElement("footer");
-  fin.className = "cs-dragon-sheet-footer";
+  fin.className = "cs-mcg-sheet-footer";
   fin.textContent =
-    "Layout: four-page Scion: Dragon community sheet style. Rules and full spell text live in Scion: Dragon; this view summarizes wizard data.";
+    "Dragon Heir — MCG-layout four page sheet (Deity-style flow) with Heir data from the wizard. Full spell and Knack text in Scion: Dragon.";
   p4.appendChild(fin);
 }

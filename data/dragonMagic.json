@@ -1,116 +1,1306 @@
 {
   "_meta": {
-    "note": "Dragon Magics and sample Spells are paraphrased titles only; full mechanics and costs live in Scion: Dragon. Lydia’s example ties Serpent signature to Purification (p. 113).",
-    "source": "Scion_Dragon_(Final_Download).pdf, Step Six: Dragon Magic (p. 112) and Dragon Magic chapters"
-  },
-  "purification": {
-    "id": "purification",
-    "name": "Purification",
-    "description": "Cleansing, sanctifying, or unmaking spiritual taint and corruption in people, places, or bonds.",
-    "spells": [
-      { "id": "soothingAura", "name": "Soothing Aura", "summary": "Calm hostile or panicked targets in an area; support / restoration tilt." },
-      { "id": "burnImpurity", "name": "Burn Impurity", "summary": "Focus cleansing force to scour a specific corruption or curse vector." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113)"
-  },
-  "luck": {
-    "id": "luck",
-    "name": "Luck",
-    "description": "Bend coincidence and fortune; subtle reroutes of risk and opportunity.",
-    "spells": [
-      { "id": "twistOutcome", "name": "Twist Outcome", "summary": "Spend Inheritance to nudge a roll’s outcome category after the fact (table-dependent)." },
-      { "id": "jinxTrail", "name": "Jinx Trail", "summary": "Lay bad luck on a target’s next risky action." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Flight lists (e.g. Draq p. 41)"
-  },
-  "understanding": {
-    "id": "understanding",
-    "name": "Understanding",
-    "description": "Read motives, patterns, and hidden truths; consume or channel insight.",
-    "spells": [
-      { "id": "readDesire", "name": "Read Desire", "summary": "Surface a subject’s strongest want or fear in the scene." },
-      { "id": "borrowedWisdom", "name": "Borrowed Wisdom", "summary": "Lean on draconic memory to answer one concrete question at a cost." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Joka Flight list (p. 51)"
-  },
-  "decay": {
-    "id": "decay",
-    "name": "Decay",
-    "description": "Accelerate rot, ruin, and entropy in matter, institutions, or resolve.",
-    "spells": [
-      { "id": "witherObject", "name": "Wither Object", "summary": "Stress structures or gear; environmental hazard tilt." },
-      { "id": "gnawWill", "name": "Gnaw Will", "summary": "Erode a social tie or commitment over time." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Lindwurm / Lóng lists (pp. 61, 70)"
-  },
-  "flight": {
-    "id": "flight",
-    "name": "Flight",
-    "description": "True draconic mobility—wings, winds, pressure tricks—without relying on mundane transport alone.",
-    "spells": [
-      { "id": "aerialMobility", "name": "Aerial Mobility", "summary": "Sustained personal flight or controlled leaps at scale (per Dragon Magic)." },
-      { "id": "downdraftSlam", "name": "Downdraft Slam", "summary": "Bring aerial force to bear against a zone or target." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113); Lóng list (p. 70)"
-  },
-  "elementalManipulationWater": {
-    "id": "elementalManipulationWater",
-    "name": "Elemental Manipulation (Water)",
-    "description": "Shape, summon, or deny water and aqueous phenomena.",
-    "spells": [
-      { "id": "flashFlood", "name": "Flash Flood", "summary": "Surge water through a controlled corridor or room." },
-      { "id": "visionDistantShore", "name": "Vision of the Distant Shore", "summary": "Scry through standing water you have a bond to (per example naming)." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113)"
-  },
-  "weatherControl": {
-    "id": "weatherControl",
-    "name": "Weather Control",
-    "description": "Call or banish storms, pressure fronts, and sky-scale omens.",
-    "spells": [
-      { "id": "suddenSquall", "name": "Sudden Squall", "summary": "Localize harsh weather against pursuers or structures." },
-      { "id": "clearSkies", "name": "Clear Skies", "summary": "Break an ongoing weather effect in a region." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Serpent list (p. 91)"
-  },
-  "illusions": {
-    "id": "illusions",
-    "name": "Illusions",
-    "description": "Weave believable false images, sounds, and tracks.",
-    "spells": [
-      { "id": "maskAura", "name": "Mask Aura", "summary": "Hide draconic tells from casual supernatural scrutiny." },
-      { "id": "phantomCrowd", "name": "Phantom Crowd", "summary": "Populate a scene with illusory extras." }
-    ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Serpent / Joka lists"
+    "note": "Spell stat lines (Cost, Duration, Subject, Range, Action) extracted from Scion: Dragon (Final) PDF text; some entries hand-corrected where layout scrambled lines. Default Action Simple per p.150. Full rules text remains in the book.",
+    "source": "Scion_Dragon_(Final_Download).pdf \u2014 Dragon Magic & Signature Magic",
+    "spellStatLines": "Explicit fields + mechanicalEffects tag block for boonTrackedMechanicalFields.",
+    "legacyIds": "Chargen-only spell ids from earlier app builds are appended where needed (e.g. burnImpurity, twistOutcome) so old exports still resolve.",
+    "companion": "Scion: Dragon Companion adds further Signature options (e.g. Oracular Fury); not yet merged into this table."
   },
   "animalControl": {
     "id": "animalControl",
     "name": "Animal Control",
-    "description": "Command, borrow senses from, or become one with beasts.",
+    "description": "Bolster commanded people and beasts; compel, bond, merge, and direct animals.",
     "spells": [
-      { "id": "beastMessenger", "name": "Beast Messenger", "summary": "Dispatch animals with a simple geas." },
-      { "id": "packFury", "name": "Pack Fury", "summary": "Rally mundane animals against a chosen threat." }
+      {
+        "id": "mentalCommand",
+        "name": "Mental Command",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "Multiple targets",
+        "prerequisite": "Master of Beasts",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nSubject: Multiple targets\nAction: Simple"
+      },
+      {
+        "id": "friendOfBeasts",
+        "name": "Friend Of Beasts",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One day",
+        "subject": "One animal",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One day\nSubject: One animal\nAction: Simple"
+      },
+      {
+        "id": "masterOfBeasts",
+        "name": "Master of Beasts",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Self (you understand and influence animals; see Dragon p.151)",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Self (you understand and influence animals; see Dragon p.151)\nAction: Simple"
+      },
+      {
+        "id": "mergeWithBeast",
+        "name": "Merge with Beast",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One non-legendary creature within Short range initially\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "One non-legendary creature within Short range initially"
+      },
+      {
+        "id": "mastersSong",
+        "name": "Master's Song",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "Multiple animals",
+        "prerequisite": "Friend of Beasts",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nSubject: Multiple animals\nAction: Simple"
+      },
+      {
+        "id": "beastMessenger",
+        "name": "Beast Messenger",
+        "summary": "Dispatch animals with a simple geas.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One day",
+        "subject": "One animal",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One day\nSubject: One animal\nAction: Simple"
+      },
+      {
+        "id": "packFury",
+        "name": "Pack Fury",
+        "summary": "Rally mundane animals against a chosen threat.",
+        "cost": "Spend 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Multiple animals within Medium range",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: One scene\nSubject: Multiple animals within Medium range\nAction: Simple"
+      }
     ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Serpent list (p. 91)"
+    "source": "Scion_Dragon_(Final_Download).pdf"
   },
-  "transformation": {
-    "id": "transformation",
-    "name": "Transformation",
-    "description": "Draconic hybrid or war-forms; partial shapeshifting tied to Heir tricks.",
+  "decay": {
+    "id": "decay",
+    "name": "Decay",
+    "description": "Entropy and ruin \u2014 bonds, bodies, fields, and totality of annihilation.",
     "spells": [
-      { "id": "scaledHide", "name": "Scaled Hide", "summary": "Temporary armored skin or beast-markers." },
-      { "id": "serpentineSpine", "name": "Serpentine Spine", "summary": "Contortion and reach tricks while mostly human." }
+      {
+        "id": "frayed",
+        "name": "Frayed",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance or Spend 1 Inheritance\nDuration: Instant\nSubject: One target\nAction: Simple",
+        "cost": "Imbue 1 Inheritance or Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One target"
+      },
+      {
+        "id": "untouchable",
+        "name": "Untouchable",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Self",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple"
+      },
+      {
+        "id": "acceleratedDecay",
+        "name": "Accelerated Decay",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "subject": "A single object",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: A single object\nAction: Simple"
+      },
+      {
+        "id": "toxicCorruption",
+        "name": "Toxic Corruption",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Free",
+        "subject": "One range band",
+        "mechanicalEffects": "Cost: Free\nSubject: One range band\nAction: Simple"
+      },
+      {
+        "id": "totalAnnihilation",
+        "name": "Total Annihilation",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One Field",
+        "prerequisite": "Accelerated Decay",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "witherObject",
+        "name": "Wither Object",
+        "summary": "Stress structures or gear; environmental hazard tilt.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "subject": "A single object",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: A single object\nAction: Simple"
+      },
+      {
+        "id": "gnawWill",
+        "name": "Gnaw Will",
+        "summary": "Erode a social tie or commitment over time.",
+        "cost": "Imbue 1 Inheritance or Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One target",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance or Spend 1 Inheritance\nDuration: Instant\nSubject: One target\nAction: Simple"
+      }
     ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Draq list (p. 41)"
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "elementalManipulationAir": {
+    "id": "elementalManipulationAir",
+    "name": "Elemental Manipulation (Air)",
+    "description": "Winds, breath, gales, buffeting, and carried voices.",
+    "spells": [
+      {
+        "id": "breathOfLife",
+        "name": "Breath Of Life",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance or None\nDuration: Condition\nSubject: Self\nAction: Simple",
+        "cost": "Imbue 1 Inheritance or None",
+        "duration": "Condition",
+        "subject": "Self"
+      },
+      {
+        "id": "skywardGale",
+        "name": "Skyward Gale",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "One round",
+        "subject": "One Range Band",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: One round\nSubject: One Range Band\nAction: Simple"
+      },
+      {
+        "id": "windBlast",
+        "name": "Wind Blast",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "windOfWings",
+        "name": "Wind Of Wings",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "A single Range Band",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: A single Range Band\nAction: Simple"
+      },
+      {
+        "id": "wordsOnTheWind",
+        "name": "Words On The Wind",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue or spend 1 Inheritance",
+        "subject": "Earth within Medium range",
+        "prerequisite": "Command the Solid Earth",
+        "mechanicalEffects": "Cost: Imbue or spend 1 Inheritance\nSubject: Earth within Medium range\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "elementalManipulationEarth": {
+    "id": "elementalManipulationEarth",
+    "name": "Elemental Manipulation (Earth)",
+    "description": "Stone, metal, earth \u2014 bonds, constructs, armor, reshaping, roars.",
+    "spells": [
+      {
+        "id": "adamantBonds",
+        "name": "Adamant Bonds",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "One target",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One target\nAction: Simple"
+      },
+      {
+        "id": "animateEarth",
+        "name": "Animate Earth",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue or spend 1 Inheritance\nDuration: Indefinite\nSubject: Earth within Medium range\nAction: Simple",
+        "cost": "Imbue or spend 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Earth within Medium range"
+      },
+      {
+        "id": "armorOfEarth",
+        "name": "Armor Of Earth",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "commandTheSolidEarth",
+        "name": "Command The Solid Earth",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Earth within Long range",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Earth within Long range\nAction: Simple"
+      },
+      {
+        "id": "earthRoar",
+        "name": "Earth Roar",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One Field\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
   },
   "elementalManipulationFire": {
     "id": "elementalManipulationFire",
     "name": "Elemental Manipulation (Fire)",
-    "description": "Shape flame, heat shimmer, and burning hazards.",
+    "description": "Flame control, burning and restoring, awe, mastery, shaping.",
     "spells": [
-      { "id": "heatShroud", "name": "Heat Shroud", "summary": "Ward an ally or object from cold / soak fire briefly." },
-      { "id": "breathLine", "name": "Breath Line", "summary": "Directed gout of fire along a narrow arc." }
+      {
+        "id": "ashesToAshes",
+        "name": "Ashes To Ashes",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One target",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One target\nAction: Simple"
+      },
+      {
+        "id": "emberSkin",
+        "name": "Ember Skin",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None",
+        "duration": "One scene",
+        "mechanicalEffects": "Cost: None\nDuration: One scene\nAction: Simple"
+      },
+      {
+        "id": "fieryAwe",
+        "name": "Fiery Awe",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "fireMastery",
+        "name": "Fire Mastery",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One fire you can perceive within Long range\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One fire you can perceive within Long range"
+      },
+      {
+        "id": "fireShaping",
+        "name": "Fire Shaping",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One fire",
+        "prerequisite": "Fire Mastery",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One fire\nAction: Simple"
+      },
+      {
+        "id": "heatShroud",
+        "name": "Heat Shroud",
+        "summary": "Ward an ally or object from cold / soak fire briefly.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One target within Medium range",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "breathLine",
+        "name": "Breath Line",
+        "summary": "Directed gout of fire along a narrow arc.",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One target or narrow zone within Short range",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One target or narrow zone within Short range\nAction: Simple"
+      }
     ],
-    "source": "Scion_Dragon_(Final_Download).pdf, Draq list (p. 41)"
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "elementalManipulationFrost": {
+    "id": "elementalManipulationFrost",
+    "name": "Elemental Manipulation (Frost)",
+    "description": "Cold immunity, flash freeze, ice art, rime aura, searing cold strike.",
+    "spells": [
+      {
+        "id": "coolDown",
+        "name": "Cool Down",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "A single target within Medium range",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: A single target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "flashFreeze",
+        "name": "Flash Freeze",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Condition",
+        "subject": "One fire",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Condition\nSubject: One fire\nAction: Simple"
+      },
+      {
+        "id": "iceSculpting",
+        "name": "Ice Sculpting",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None or Imbue 1 Inheritance",
+        "subject": "One target of up to Scale size 2",
+        "mechanicalEffects": "Cost: None or Imbue 1 Inheritance\nSubject: One target of up to Scale size 2\nAction: Simple"
+      },
+      {
+        "id": "rime",
+        "name": "Rime",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None or Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: None or Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "searingCold",
+        "name": "Searing Cold",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "All enemies in one range band",
+        "prerequisite": "Flash Freeze",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: All enemies in one range band\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "elementalManipulationWater": {
+    "id": "elementalManipulationWater",
+    "name": "Elemental Manipulation (Water)",
+    "description": "Floods, fine control, majesty over bodies of water, scrying, mastery.",
+    "spells": [
+      {
+        "id": "flashFlood",
+        "name": "Flash Flood",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "hydraulicOverride",
+        "name": "Hydraulic Override",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene or Instant (person vs object, see Dragon p.156)\nSubject: One person, object, or water source within Medium range\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene or Instant (person vs object, see Dragon p.156)",
+        "subject": "One person, object, or water source within Medium range"
+      },
+      {
+        "id": "oceanicMajesty",
+        "name": "Oceanic Majesty",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "A body of water",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: A body of water\nAction: Simple"
+      },
+      {
+        "id": "visionOfTheDistantShore",
+        "name": "Vision Of The Distant Shore",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "waterMastery",
+        "name": "Water Mastery",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant or one scene",
+        "subject": "One target",
+        "prerequisite": "Oceanic Majesty",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant or one scene\nSubject: One target\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "fear": {
+    "id": "fear",
+    "name": "Fear",
+    "description": "Panic and dread \u2014 gaze, room tone, presence, looming terror.",
+    "spells": [
+      {
+        "id": "calmMind",
+        "name": "Calm Mind",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Self"
+      },
+      {
+        "id": "paralyzingGaze",
+        "name": "Paralyzing Gaze",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "One character",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nSubject: One character\nAction: Simple"
+      },
+      {
+        "id": "readTheRoom",
+        "name": "Read The Room",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "intimidatingPresence",
+        "name": "Intimidating Presence",
+        "summary": "",
+        "action": "Simple",
+        "subject": "One Field",
+        "mechanicalEffects": "Subject: One Field\nAction: Simple"
+      },
+      {
+        "id": "loomingPresence",
+        "name": "Looming Presence",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "Multiple Targets",
+        "prerequisite": "Intimidating Presence",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: Multiple Targets\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "flight": {
+    "id": "flight",
+    "name": "Flight",
+    "description": "True flight, telekinesis, companions, speed, acrobatics in the air.",
+    "spells": [
+      {
+        "id": "acrobaticFlight",
+        "name": "Acrobatic Flight",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "prerequisite": "Aerial Mobility",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "aerialMobility",
+        "name": "Aerial Mobility",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nAction: Simple"
+      },
+      {
+        "id": "companionFlight",
+        "name": "Companion Flight",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "prerequisite": "Aerial Mobility or Telekinesis",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "swiftAsLightning",
+        "name": "Swift As Lightning",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "One target within Medium range",
+        "prerequisite": "Aerial Mobility or Telekinesis",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "telekinesis",
+        "name": "Telekinesis",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None or Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Multiple targets within Medium range",
+        "mechanicalEffects": "Cost: None or Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Multiple targets within Medium range\nAction: Simple"
+      },
+      {
+        "id": "downdraftSlam",
+        "name": "Downdraft Slam",
+        "summary": "Bring aerial force to bear against a zone or target.",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One Range Band within Long range",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One Range Band within Long range\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "illusions": {
+    "id": "illusions",
+    "name": "Illusions",
+    "description": "Disguise, misdirection, piercing deception, auras, impersonation.",
+    "spells": [
+      {
+        "id": "clearSight",
+        "name": "Clear Sight",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "disguise",
+        "name": "Disguise",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "eyesTurnedAway",
+        "name": "Eyes Turned Away",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "Self or by touch",
+        "prerequisite": "Disguise",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: Self or by touch\nAction: Simple"
+      },
+      {
+        "id": "illusoryAura",
+        "name": "Illusory Aura",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "impersonation",
+        "name": "Impersonation",
+        "summary": "",
+        "action": "Simple",
+        "duration": "One Day",
+        "mechanicalEffects": "Duration: One Day\nAction: Simple"
+      },
+      {
+        "id": "maskAura",
+        "name": "Mask Aura",
+        "summary": "Hide draconic tells from casual supernatural scrutiny.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Self",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple"
+      },
+      {
+        "id": "phantomCrowd",
+        "name": "Phantom Crowd",
+        "summary": "Populate a scene with illusory extras.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One Field",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One Field\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "luck": {
+    "id": "luck",
+    "name": "Luck",
+    "description": "Fortune's armor and favor, second chances, stolen luck, physical luck.",
+    "spells": [
+      {
+        "id": "armorOfFortune",
+        "name": "Armor Of Fortune",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple",
+        "duration": "One scene",
+        "subject": "Self"
+      },
+      {
+        "id": "fortuneSFavor",
+        "name": "Fortune'S Favor",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None or Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: None or Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "secondChances",
+        "name": "Second Chances",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None",
+        "duration": "Instant",
+        "subject": "One target within Medium range",
+        "mechanicalEffects": "Cost: None\nDuration: Instant\nSubject: One target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "stolenLuck",
+        "name": "Stolen Luck",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One target within Medium range",
+        "prerequisite": "Second Chances",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "swiftFortune",
+        "name": "Swift Fortune",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: None\nDuration: Indefinite\nSubject: Self\nAction: Simple",
+        "cost": "None",
+        "duration": "Indefinite",
+        "subject": "Self"
+      },
+      {
+        "id": "twistOutcome",
+        "name": "Twist Outcome",
+        "summary": "Spend Inheritance to nudge a roll\u2019s outcome category after the fact (table-dependent).",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One roll outcome you or an ally just resolved (SG/table)",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One roll outcome you or an ally just resolved (SG/table)\nAction: Simple"
+      },
+      {
+        "id": "jinxTrail",
+        "name": "Jinx Trail",
+        "summary": "Lay bad luck on a target\u2019s next risky action.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One character",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One character\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "transformation": {
+    "id": "transformation",
+    "name": "Transformation",
+    "description": "Forms, hiding, objects, others, and substance shifts.",
+    "spells": [
+      {
+        "id": "shiftShape",
+        "name": "Shift Shape",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Self\nAction: Simple",
+        "duration": "Indefinite",
+        "subject": "Self"
+      },
+      {
+        "id": "hideBeneathNotice",
+        "name": "Hide Beneath Notice",
+        "summary": "",
+        "action": "Simple",
+        "subject": "One object with Close range",
+        "mechanicalEffects": "Subject: One object with Close range\nAction: Simple"
+      },
+      {
+        "id": "transformObject",
+        "name": "Transform Object",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Permanent",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Permanent\nSubject: One object within Close range\nAction: Simple",
+        "subject": "One object within Close range"
+      },
+      {
+        "id": "transformOther",
+        "name": "Transform Other",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "Multiple targets within Short range",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nSubject: Multiple targets within Short range\nAction: Simple"
+      },
+      {
+        "id": "transformSubstance",
+        "name": "Transform Substance",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue or Spend 1 Inheritance",
+        "duration": "Three turns",
+        "subject": "Any single object within Medium range",
+        "prerequisite": "Transform Object",
+        "mechanicalEffects": "Cost: Imbue or Spend 1 Inheritance\nDuration: Three turns\nSubject: Any single object within Medium range\nAction: Simple"
+      },
+      {
+        "id": "scaledHide",
+        "name": "Scaled Hide",
+        "summary": "Temporary armored skin or beast-markers.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Self",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple"
+      },
+      {
+        "id": "serpentineSpine",
+        "name": "Serpentine Spine",
+        "summary": "Contortion and reach tricks while mostly human.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "Self",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "understanding": {
+    "id": "understanding",
+    "name": "Understanding",
+    "description": "Foreknowledge, session insight, documents, lies, deep history.",
+    "spells": [
+      {
+        "id": "foresight",
+        "name": "Foresight",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One target within Medium range",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One target within Medium range\nAction: Simple"
+      },
+      {
+        "id": "glimpseTheFuture",
+        "name": "Glimpse The Future",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Free",
+        "duration": "One session",
+        "mechanicalEffects": "Cost: Free\nDuration: One session\nAction: Simple"
+      },
+      {
+        "id": "penetratingInsight",
+        "name": "Penetrating Insight",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "piercingGaze",
+        "name": "Piercing Gaze",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "visionOfTheAges",
+        "name": "Vision Of The Ages",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nAction: Simple"
+      },
+      {
+        "id": "readDesire",
+        "name": "Read Desire",
+        "summary": "Surface a subject\u2019s strongest want or fear in the scene.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One character",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One character\nAction: Simple"
+      },
+      {
+        "id": "borrowedWisdom",
+        "name": "Borrowed Wisdom",
+        "summary": "Lean on draconic memory to answer one concrete question at a cost.",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "Self",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: Self\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "weatherControl": {
+    "id": "weatherControl",
+    "name": "Weather Control",
+    "description": "Altered, lethal, localized, resisted, and unnatural weather.",
+    "spells": [
+      {
+        "id": "unnaturalWeather",
+        "name": "Unnatural Weather",
+        "summary": "",
+        "action": "Simple",
+        "prerequisite": "Alter Weather",
+        "mechanicalEffects": "Cost: None\nDuration: Indefinite\nSubject: Self (sense and call weather; prerequisite spells may apply)\nAction: Simple",
+        "cost": "None",
+        "duration": "Indefinite",
+        "subject": "Self (sense and call weather; prerequisite spells may apply)"
+      },
+      {
+        "id": "alterWeather",
+        "name": "Alter Weather",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "lethalWeather",
+        "name": "Lethal Weather",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "All enemies in one range band",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: All enemies in one range band\nAction: Simple"
+      },
+      {
+        "id": "localizedWeather",
+        "name": "Localized Weather",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None",
+        "mechanicalEffects": "Cost: None\nAction: Simple"
+      },
+      {
+        "id": "resistWeather",
+        "name": "Resist Weather",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One Day",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One Day\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "suddenSquall",
+        "name": "Sudden Squall",
+        "summary": "Localize harsh weather against pursuers or structures.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One scene",
+        "subject": "One Field",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "clearSkies",
+        "name": "Clear Skies",
+        "summary": "Break an ongoing weather effect in a region.",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One Field or visible weather pattern",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: One Field or visible weather pattern\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "purification": {
+    "id": "purification",
+    "name": "Purification",
+    "description": "Serpent cleansing \u2014 food, aura, organizations, land, region-scale purge.",
+    "spells": [
+      {
+        "id": "cleanse",
+        "name": "Cleanse",
+        "summary": "",
+        "action": "Simple",
+        "cost": "None",
+        "duration": "Instant",
+        "subject": "All food and drink within Medium range",
+        "mechanicalEffects": "Cost: None\nDuration: Instant\nSubject: All food and drink within Medium range\nAction: Simple"
+      },
+      {
+        "id": "soothingAura",
+        "name": "Soothing Aura",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "subject": "Every living thing not hostile to you within",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: Every living thing not hostile to you within\nAction: Simple"
+      },
+      {
+        "id": "purifyOrganization",
+        "name": "Purify Organization",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One week",
+        "subject": "One organization",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One week\nSubject: One organization\nAction: Simple"
+      },
+      {
+        "id": "reclaimTheEarth",
+        "name": "Reclaim The Earth",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "removeTheUnnatural",
+        "name": "Remove The Unnatural",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "One year",
+        "subject": "Any defined region no more than four square",
+        "prerequisite": "Cleanse",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: One year\nSubject: Any defined region no more than four square\nAction: Simple"
+      },
+      {
+        "id": "burnImpurity",
+        "name": "Burn Impurity",
+        "summary": "Focus cleansing force to scour a specific corruption or curse vector.",
+        "cost": "Imbue 1 Inheritance or Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One supernatural taint, curse vector, or bond corruption the SG agrees fits Purification",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance or Spend 1 Inheritance\nDuration: Instant\nSubject: One supernatural taint, curse vector, or bond corruption the SG agrees fits Purification\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "pandemonium": {
+    "id": "pandemonium",
+    "name": "Pandemonium (Draq Signature)",
+    "description": "Draq chaos in life, crowds, organizations, paralysis, anarchy.",
+    "spells": [
+      {
+        "id": "vortex",
+        "name": "Vortex",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One day",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One day\nAction: Simple"
+      },
+      {
+        "id": "minorChaos",
+        "name": "Minor Chaos",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Free or Imbue 1 Inheritance",
+        "duration": "One day",
+        "subject": "Self and multiple targets within Short range.",
+        "mechanicalEffects": "Cost: Free or Imbue 1 Inheritance\nDuration: One day\nSubject: Self and multiple targets within Short range.\nAction: Simple"
+      },
+      {
+        "id": "organizationalChaos",
+        "name": "Organizational Chaos",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "subject": "A single person or organization",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: A single person or organization\nAction: Simple"
+      },
+      {
+        "id": "paralyzingDisorder",
+        "name": "Paralyzing Disorder",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One machine or character",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One machine or character\nAction: Simple"
+      },
+      {
+        "id": "violentAnarchy",
+        "name": "Violent Anarchy",
+        "summary": "",
+        "action": "Simple",
+        "subject": "Multiple characters in one Field",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: Multiple characters in one Field\nAction: Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "refinement": {
+    "id": "refinement",
+    "name": "Refinement (Joka Signature)",
+    "description": "Joka consume, destroy, convert energy, matter, and information.",
+    "spells": [
+      {
+        "id": "absorbInformation",
+        "name": "Absorb Information",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One object",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One object\nAction: Simple"
+      },
+      {
+        "id": "finalDestruction",
+        "name": "Final Destruction",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One object within Close range (refined annihilation; Dragon p.163)\nAction: Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One object within Close range (refined annihilation; Dragon p.163)"
+      },
+      {
+        "id": "transformEnergy",
+        "name": "Transform Energy",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Instant",
+        "subject": "One source of energy within Medium range",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One source of energy within Medium range\nAction: Simple"
+      },
+      {
+        "id": "transmutation",
+        "name": "Transmutation",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One target within Short range",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nSubject: One target within Short range\nAction: Simple"
+      },
+      {
+        "id": "transmuteInformation",
+        "name": "Transmute Information",
+        "summary": "",
+        "action": "Simple",
+        "subject": "One source of information you touch",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: One source of information you touch\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "avarice": {
+    "id": "avarice",
+    "name": "Avarice (Lindwurm Signature)",
+    "description": "Lindwurm hunger for wealth \u2014 hoards, craving, greed, radiance, stockpiles.",
+    "spells": [
+      {
+        "id": "cursedHoard",
+        "name": "Cursed Hoard",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Condition",
+        "subject": "Multiple items",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Condition\nSubject: Multiple items\nAction: Simple"
+      },
+      {
+        "id": "irresistibleCraving",
+        "name": "Irresistible Craving",
+        "summary": "",
+        "action": "Simple",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Condition\nSubject: One target\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Condition",
+        "subject": "One target"
+      },
+      {
+        "id": "overwhelmingGreed",
+        "name": "Overwhelming Greed",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Permanent",
+        "subject": "One Field",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Permanent\nSubject: One Field\nAction: Simple"
+      },
+      {
+        "id": "radiantWealth",
+        "name": "Radiant Wealth",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: Self\nAction: Simple",
+        "duration": "One scene",
+        "subject": "Self"
+      },
+      {
+        "id": "stockYourHoard",
+        "name": "Stock Your Hoard",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Instant\nSubject: One theft target or location (see Dragon p.164)\nAction: Simple",
+        "duration": "Instant",
+        "subject": "One theft target or location (see Dragon p.164)"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "dragonBlessings": {
+    "id": "dragonBlessings",
+    "name": "Blessings (L\u00f3ng Signature)",
+    "description": "L\u00f3ng boons \u2014 power, luck, perfection, distant defense, land.",
+    "spells": [
+      {
+        "id": "blessingOfDraconicPower",
+        "name": "Blessing Of Draconic Power",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "One character you must touch",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One character you must touch\nAction: Simple"
+      },
+      {
+        "id": "blessingOfLuck",
+        "name": "Blessing Of Luck",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Condition",
+        "subject": "One target within Close range",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Condition\nSubject: One target within Close range\nAction: Simple"
+      },
+      {
+        "id": "blessingOfPerfection",
+        "name": "Blessing Of Perfection",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "subject": "One task",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One scene\nSubject: One task\nAction: Simple",
+        "duration": "One scene"
+      },
+      {
+        "id": "defenseFromAfar",
+        "name": "Defense From Afar",
+        "summary": "",
+        "action": "Simple",
+        "subject": "One character you must touch",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One month\nSubject: One character you must touch\nAction: Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "One month"
+      },
+      {
+        "id": "landBlessing",
+        "name": "Land Blessing",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "Any defined region no more than four square kilometers",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Varies\nSubject: Any defined region no more than four square kilometers\nAction: Simple",
+        "duration": "Varies"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "teleportation": {
+    "id": "teleportation",
+    "name": "Teleportation (Naga Signature)",
+    "description": "Naga space tricks \u2014 pockets, prison, jump, lair, core teleport.",
+    "spells": [
+      {
+        "id": "createPocketRealm",
+        "name": "Create Pocket Realm",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "While you remain inside",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: While you remain inside\nSubject: Self and up to Inheritance \u00d7 2 companions\nAction: Simple",
+        "subject": "Self and up to Inheritance \u00d7 2 companions"
+      },
+      {
+        "id": "imprison",
+        "name": "Imprison",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One target within Close range\nAction: Simple",
+        "duration": "Indefinite",
+        "subject": "One target within Close range"
+      },
+      {
+        "id": "jump",
+        "name": "Jump",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Instant",
+        "prerequisite": "Pocket Lair",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: Self and willing targets within Long range\nAction: Simple",
+        "subject": "Self and willing targets within Long range"
+      },
+      {
+        "id": "pocketLair",
+        "name": "Pocket Lair",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Permanent",
+        "prerequisite": "Create Pocket Realm",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Permanent\nSubject: Your pocket realm\nAction: Simple",
+        "subject": "Your pocket realm"
+      },
+      {
+        "id": "teleportation",
+        "name": "Teleportation",
+        "summary": "",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Two rounds",
+        "subject": "Self and up to Inheritance willing companions",
+        "prerequisite": "Jump",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Two rounds\nSubject: Self and up to Inheritance willing companions\nAction: Simple"
+      }
+    ],
+    "source": "Scion_Dragon_(Final_Download).pdf"
   }
 }

@@ -1202,6 +1202,39 @@ textarea.has-doc-hint:focus-visible {
   margin: 0.5rem 0 0 1.25rem;
 }
 
+.dragon-br-pick-li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  margin-bottom: 0.45rem;
+}
+
+/* Dragon Magic step: bonus Spell — space Magic type chips from Spell chips + subheading */
+.dragon-bonus-spell-field .dragon-bonus-spell-magic-chips {
+  margin-bottom: 0.15rem;
+}
+.dragon-bonus-spell-field .dragon-bonus-spell-spells-head {
+  margin-top: 1.35rem;
+  margin-bottom: 0.45rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.dragon-wizard-spell-block {
+  margin-bottom: 0.75rem;
+}
+
+.dragon-wizard-spell-plate-wrap {
+  margin-top: 0.55rem;
+}
+
+.dragon-wizard-spell-plate-wrap--bonus {
+  margin-top: 0.65rem;
+}
+
 .step-actions {
   display: flex;
   gap: 0.5rem;

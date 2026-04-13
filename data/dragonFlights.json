@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Flight Path lists two required Skills; the player picks a third Path Skill (Dragon p. 112). Remembrance axis labels from Flight Remembrances (p. 120).",
+    "note": "Flight Path lists two required Skills; the player picks a third Path Skill (Dragon p. 112). Remembrance axis labels from Flight Remembrances (p. 120). `signatureMagicId` matches the Ch. 2 Signature Dragon Magic summary (Dragon pp. 41–93): Pandemonium (Draq), Refinement (Joka), Avarice (Lindwurms), Blessings (Lóng → `dragonBlessings` in `dragonMagic.json`), Teleportation (Naga), Purification (Serpent).",
     "source": "Scion_Dragon_(Final_Download).pdf, Chapter 2 Flight Path blocks (pp. 42, 53, 63, 73, 84, 93) and Remembrances (p. 120)"
   },
   "draq": {
@@ -9,7 +9,7 @@
     "pathSkillChoicesRequired": ["subterfuge", "survival"],
     "remembranceCipher": "Chaos",
     "remembranceDefection": "Order",
-    "signatureMagicId": "luck",
+    "signatureMagicId": "pandemonium",
     "favoredDraconicKnackIds": ["devastatingDragonsPresence", "poisonBlood"]
   },
   "joka": {
@@ -18,7 +18,7 @@
     "pathSkillChoicesRequired": ["integrity", "survival"],
     "remembranceCipher": "Indulgence",
     "remembranceDefection": "Moderation",
-    "signatureMagicId": "understanding",
+    "signatureMagicId": "refinement",
     "favoredDraconicKnackIds": ["powerTastingBite", "seizingJaws"]
   },
   "lindwurm": {
@@ -27,7 +27,7 @@
     "pathSkillChoicesRequired": ["closeCombat", "survival"],
     "remembranceCipher": "Duty",
     "remembranceDefection": "Consciousness",
-    "signatureMagicId": "decay",
+    "signatureMagicId": "avarice",
     "favoredDraconicKnackIds": ["fadeAway", "massiveBeastShape"]
   },
   "long": {
@@ -36,7 +36,7 @@
     "pathSkillChoicesRequired": ["empathy", "leadership"],
     "remembranceCipher": "Pride",
     "remembranceDefection": "Humility",
-    "signatureMagicId": "flight",
+    "signatureMagicId": "dragonBlessings",
     "favoredDraconicKnackIds": ["bottomlessLung", "draconicMajesty"]
   },
   "naga": {
@@ -45,7 +45,7 @@
     "pathSkillChoicesRequired": ["culture", "survival"],
     "remembranceCipher": "One-of-Many",
     "remembranceDefection": "One-of-None",
-    "signatureMagicId": "elementalManipulationWater",
+    "signatureMagicId": "teleportation",
     "favoredDraconicKnackIds": ["snappingHydrasForm", "skinksRegrowth"]
   },
   "serpent": {

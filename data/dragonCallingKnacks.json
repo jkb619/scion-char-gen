@@ -1,0 +1,931 @@
+{
+  "_meta": {
+    "note": "Heir Calling Knack catalog from Scion: Dragon (Calling Knacks chapter, pp. 139–146; index pp. 6616–7866). Heirs use this unified list — not Pandora’s Box / deity-titan `knacks.json`. Paraphrased summaries only; confirm costs and tags in the PDF at play.",
+    "callingIdCrosswalk": {
+      "collector": "creator",
+      "destroyer": "destroyer",
+      "guardian": "guardian",
+      "healer": "healer",
+      "judge": "judge",
+      "ruler": "leader",
+      "mystic": "sage",
+      "nomad": "liminal",
+      "predator": "hunter",
+      "primeval": "primeval",
+      "watcher": "trickster"
+    },
+    "callingIdCrosswalkNote": "Dragon names the eleven archetypes differently than this app’s `callings.json` labels; each knack’s `callings` array stores the bundle Calling id used for three-row matching in chargen."
+  },
+  "dragon_heir_collector_bottomless_stash": {
+    "id": "dragon_heir_collector_bottomless_stash",
+    "name": "Bottomless Stash",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_discerning_collector": {
+    "id": "dragon_heir_collector_discerning_collector",
+    "name": "Discerning Collector",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_infinite_pockets": {
+    "id": "dragon_heir_collector_infinite_pockets",
+    "name": "Infinite Pockets",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_obsessive_tally": {
+    "id": "dragon_heir_collector_obsessive_tally",
+    "name": "Obsessive Tally",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_one_for_the_collection": {
+    "id": "dragon_heir_collector_one_for_the_collection",
+    "name": "One for the Collection",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_scent_of_treasure": {
+    "id": "dragon_heir_collector_scent_of_treasure",
+    "name": "Scent of Treasure",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_collector_wireless_alarm": {
+    "id": "dragon_heir_collector_wireless_alarm",
+    "name": "Wireless Alarm",
+    "callings": [
+      "creator"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Collector); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
+  },
+  "dragon_heir_destroyer_armor_shearing_jaws": {
+    "id": "dragon_heir_destroyer_armor_shearing_jaws",
+    "name": "Armor-Shearing Jaws",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_devourer_of_stone": {
+    "id": "dragon_heir_destroyer_devourer_of_stone",
+    "name": "Devourer of Stone",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_enhanced_impact": {
+    "id": "dragon_heir_destroyer_enhanced_impact",
+    "name": "Enhanced Impact",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_leeching_strength": {
+    "id": "dragon_heir_destroyer_leeching_strength",
+    "name": "Leeching Strength",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_render_of_cities": {
+    "id": "dragon_heir_destroyer_render_of_cities",
+    "name": "Render of Cities",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_terrible_dragon_roar": {
+    "id": "dragon_heir_destroyer_terrible_dragon_roar",
+    "name": "Terrible Dragon Roar",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_destroyer_world_eater": {
+    "id": "dragon_heir_destroyer_world_eater",
+    "name": "World-Eater",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Destroyer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Destroyer (p. 140)"
+  },
+  "dragon_heir_guardian_bestow_responsibility": {
+    "id": "dragon_heir_guardian_bestow_responsibility",
+    "name": "Bestow Responsibility",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_clarity_of_purpose": {
+    "id": "dragon_heir_guardian_clarity_of_purpose",
+    "name": "Clarity of Purpose",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_imbue_talisman": {
+    "id": "dragon_heir_guardian_imbue_talisman",
+    "name": "Imbue Talisman",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_honed_alertness": {
+    "id": "dragon_heir_guardian_honed_alertness",
+    "name": "Honed Alertness",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_vigilant_protector": {
+    "id": "dragon_heir_guardian_vigilant_protector",
+    "name": "Vigilant Protector",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_living_pillar": {
+    "id": "dragon_heir_guardian_living_pillar",
+    "name": "Living Pillar",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_guardian_warning_sense": {
+    "id": "dragon_heir_guardian_warning_sense",
+    "name": "Warning Sense",
+    "callings": [
+      "guardian"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Guardian); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Guardian (pp. 140–141)"
+  },
+  "dragon_heir_healer_absorb_ailment": {
+    "id": "dragon_heir_healer_absorb_ailment",
+    "name": "Absorb Ailment",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_combat_medic": {
+    "id": "dragon_heir_healer_combat_medic",
+    "name": "Combat Medic",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_herd_immunity": {
+    "id": "dragon_heir_healer_herd_immunity",
+    "name": "Herd Immunity",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_instant_diagnosis": {
+    "id": "dragon_heir_healer_instant_diagnosis",
+    "name": "Instant Diagnosis",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_internal_refinery": {
+    "id": "dragon_heir_healer_internal_refinery",
+    "name": "Internal Refinery",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_rapid_regrowth": {
+    "id": "dragon_heir_healer_rapid_regrowth",
+    "name": "Rapid Regrowth",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_healer_violent_purification": {
+    "id": "dragon_heir_healer_violent_purification",
+    "name": "Violent Purification",
+    "callings": [
+      "healer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Healer); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Healer (pp. 141–142)"
+  },
+  "dragon_heir_judge_enforcers_eye": {
+    "id": "dragon_heir_judge_enforcers_eye",
+    "name": "Enforcer's Eye",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_lie_detector": {
+    "id": "dragon_heir_judge_lie_detector",
+    "name": "Lie Detector",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_one_more_question": {
+    "id": "dragon_heir_judge_one_more_question",
+    "name": "One More Question!",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_the_pain_of_dishonesty": {
+    "id": "dragon_heir_judge_the_pain_of_dishonesty",
+    "name": "The Pain of Dishonesty",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_petty_tyrant": {
+    "id": "dragon_heir_judge_petty_tyrant",
+    "name": "Petty Tyrant",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_seat_of_power": {
+    "id": "dragon_heir_judge_seat_of_power",
+    "name": "Seat of Power",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_judge_terror_of_the_guilty": {
+    "id": "dragon_heir_judge_terror_of_the_guilty",
+    "name": "Terror of the Guilty",
+    "callings": [
+      "judge"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Judge); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
+  },
+  "dragon_heir_ruler_invulnerable_master": {
+    "id": "dragon_heir_ruler_invulnerable_master",
+    "name": "Invulnerable Master",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_invoke_anger": {
+    "id": "dragon_heir_ruler_invoke_anger",
+    "name": "Invoke Anger",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_irrepressible_charisma": {
+    "id": "dragon_heir_ruler_irrepressible_charisma",
+    "name": "Irrepressible Charisma",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_loyal_servant": {
+    "id": "dragon_heir_ruler_loyal_servant",
+    "name": "Loyal Servant",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_pack_alpha": {
+    "id": "dragon_heir_ruler_pack_alpha",
+    "name": "Pack Alpha",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_perfect_poise": {
+    "id": "dragon_heir_ruler_perfect_poise",
+    "name": "Perfect Poise",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_ruler_fearless_presence": {
+    "id": "dragon_heir_ruler_fearless_presence",
+    "name": "Fearless Presence",
+    "callings": [
+      "leader"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Ruler); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
+  },
+  "dragon_heir_mystic_joyous_revelation": {
+    "id": "dragon_heir_mystic_joyous_revelation",
+    "name": "Joyous Revelation",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_mystic_linked_to_the_past": {
+    "id": "dragon_heir_mystic_linked_to_the_past",
+    "name": "Linked to the Past",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_mystic_omniglot_translation": {
+    "id": "dragon_heir_mystic_omniglot_translation",
+    "name": "Omniglot Translation",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_mystic_presence_of_magic": {
+    "id": "dragon_heir_mystic_presence_of_magic",
+    "name": "Presence of Magic",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_mystic_sage_counsel": {
+    "id": "dragon_heir_mystic_sage_counsel",
+    "name": "Sage Counsel",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_mystic_immortal_mastermind": {
+    "id": "dragon_heir_mystic_immortal_mastermind",
+    "name": "Immortal Mastermind",
+    "callings": [
+      "sage"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Mystic); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
+  },
+  "dragon_heir_nomad_ever_moving": {
+    "id": "dragon_heir_nomad_ever_moving",
+    "name": "Ever Moving",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_friends_anywhere": {
+    "id": "dragon_heir_nomad_friends_anywhere",
+    "name": "Friends Anywhere",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_internal_compass": {
+    "id": "dragon_heir_nomad_internal_compass",
+    "name": "Internal Compass",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_the_long_road_to_anywhere": {
+    "id": "dragon_heir_nomad_the_long_road_to_anywhere",
+    "name": "The Long Road to Anywhere",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_cross_the_distance": {
+    "id": "dragon_heir_nomad_cross_the_distance",
+    "name": "Cross the Distance",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_traveling_companions": {
+    "id": "dragon_heir_nomad_traveling_companions",
+    "name": "Traveling Companions",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_nomad_unfettered": {
+    "id": "dragon_heir_nomad_unfettered",
+    "name": "Unfettered",
+    "callings": [
+      "liminal"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Nomad); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
+  },
+  "dragon_heir_predator_apex_predator": {
+    "id": "dragon_heir_predator_apex_predator",
+    "name": "Apex Predator",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_blood_in_the_water": {
+    "id": "dragon_heir_predator_blood_in_the_water",
+    "name": "Blood in the Water",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_implacable_killer": {
+    "id": "dragon_heir_predator_implacable_killer",
+    "name": "Implacable Killer",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_most_dangerous_prey": {
+    "id": "dragon_heir_predator_most_dangerous_prey",
+    "name": "Most Dangerous Prey",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_quenched_with_blood": {
+    "id": "dragon_heir_predator_quenched_with_blood",
+    "name": "Quenched with Blood",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_perfect_camouflage": {
+    "id": "dragon_heir_predator_perfect_camouflage",
+    "name": "Perfect Camouflage",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_predator_send_the_pack": {
+    "id": "dragon_heir_predator_send_the_pack",
+    "name": "Send the Pack",
+    "callings": [
+      "hunter"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Predator); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
+  },
+  "dragon_heir_primeval_a_dragons_territory": {
+    "id": "dragon_heir_primeval_a_dragons_territory",
+    "name": "A Dragon's Territory",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_calling_wind_and_flame": {
+    "id": "dragon_heir_primeval_calling_wind_and_flame",
+    "name": "Calling Wind and Flame",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_consuming_embodiment": {
+    "id": "dragon_heir_primeval_consuming_embodiment",
+    "name": "Consuming Embodiment",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_master_of_the_world": {
+    "id": "dragon_heir_primeval_master_of_the_world",
+    "name": "Master of the World",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_messenger_of_the_infinite": {
+    "id": "dragon_heir_primeval_messenger_of_the_infinite",
+    "name": "Messenger of the Infinite",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_purifying_force": {
+    "id": "dragon_heir_primeval_purifying_force",
+    "name": "Purifying Force",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_primeval_something_from_nothing": {
+    "id": "dragon_heir_primeval_something_from_nothing",
+    "name": "Something from Nothing",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Primeval); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
+  },
+  "dragon_heir_watcher_complete_privacy": {
+    "id": "dragon_heir_watcher_complete_privacy",
+    "name": "Complete Privacy",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_eyes_in_the_blinds": {
+    "id": "dragon_heir_watcher_eyes_in_the_blinds",
+    "name": "Eyes in the Blinds",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_flawless_observer": {
+    "id": "dragon_heir_watcher_flawless_observer",
+    "name": "Flawless Observer",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_indisputable_analysis": {
+    "id": "dragon_heir_watcher_indisputable_analysis",
+    "name": "Indisputable Analysis",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_keen_eyed_watcher": {
+    "id": "dragon_heir_watcher_keen_eyed_watcher",
+    "name": "Keen-Eyed Watcher",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_surveyors_watchful_eye": {
+    "id": "dragon_heir_watcher_surveyors_watchful_eye",
+    "name": "Surveyor's Watchful Eye",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  },
+  "dragon_heir_watcher_unobtrusive_visitor": {
+    "id": "dragon_heir_watcher_unobtrusive_visitor",
+    "name": "Unobtrusive Visitor",
+    "callings": [
+      "trickster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "heir",
+    "description": "Heir Calling Knack (Watcher); unified Calling Knack list — no separate Heroic/Immortal tier for slot cost.",
+    "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
+  }
+}

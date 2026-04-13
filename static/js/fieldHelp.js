@@ -23,9 +23,27 @@ export function docHint(example, source) {
 
 /** @type {Record<string, { example: string; source: string }>} */
 export const HELP = {
+  "welcome-line-select": {
+    example: "Deity: Mortal through God. Titan: Titanic Hero through God. Dragon: Heir — Inheritance on Welcome. Sorcerer: Saints & Monsters Ch. 3 track (no Visitation tier list).",
+    source: `${cite("origin", "Character Creation (tiers)", "94–106")}; Scion_-_Titanomachy_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf (Sorcerer).`,
+  },
+  "welcome-tier-select": {
+    example: "Mortal/Origin through God on Deity, or Titanic through God on Titan. Hidden for Dragon (Inheritance) and Sorcerer (dedicated wizard in tier.json).",
+    source: `${cite("origin", "Character Creation", "94–106")}; TItans_Rising_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf.`,
+  },
+  "welcome-dragon-inheritance-select": {
+    example: "Inheritance 1 (Hatchling) through 10 (True Dragon / Apotheosis): where you are on the Heir curve (Scion: Dragon).",
+    source: "Scion_Dragon_(Final_Download).pdf (Inheritance track, pp. 117–119).",
+  },
+
   "tier-advance": {
     example: "After Review, bump the sheet to the next core tier (Mortal → Hero → Demigod → God) using the Visitation / Apotheosis steps in the cited chapter.",
     source: `${cite("hero", "Visitation (Origin to Hero)", "172")}; ${cite("demigod", "Apotheosis / Second Visitation", "16+")}; ${cite("god", "Apotheosis / Godhood", "")}.`,
+  },
+
+  "dragon-inheritance-advance": {
+    example: "Between stories, move the Heir up one Inheritance dot (Hatchling → … → True Dragon). Apply milestone Knacks, Spells, Calling dots, etc. from Scion: Dragon — your Storyguide may gate jumps.",
+    source: "Scion_Dragon_(Final_Download).pdf (Inheritance & Character Advancement, pp. 117–119).",
   },
 
   "f-char-name": {
@@ -52,6 +70,11 @@ export const HELP = {
     example: "A goal the whole band pursues together; often decided in session one.",
     source: cite("origin", "Deeds (group / band)", "94"),
   },
+  "d-deed-name": {
+    example: "“Seal the broken gate before the eclipse”; a punchy title for the Draconic deed line on the Heir sheet.",
+    source:
+      "Scion_Dragon_(Final_Download).pdf — Heir Deeds (p. 110) and Finishing / sheet notes (p. 112); compare Origin Deed procedure in Scion: Origin (Revised) pp. 94–95.",
+  },
 
   "p-origin": {
     example: "“Globetrotting Army Brat”; “Daughter of Harlem”; formative backstory phrase.",
@@ -64,6 +87,14 @@ export const HELP = {
   "p-soc": {
     example: "“Daughter of Oya Iyansan”; “Loki-Defying Vanaheim Refugee”; cult, pantheon, or group tie.",
     source: cite("origin", "Step Two: Paths — Society / Pantheon Path", "96–97"),
+  },
+  "p-flight-path": {
+    example: "“Serpent-flight courier in the tri-city sprawl”; brood, Flight culture, or draconic society tie (Dragon p. 112).",
+    source: "Scion_Dragon_(Final_Download).pdf — Paths / Flight Path (confirm wording at table).",
+  },
+  "p-dragon-flight": {
+    example: "Wyrm, Serpent, etc. — sets signature Dragon Magic and which two Skills the Flight Path must include.",
+    source: "Scion_Dragon_(Final_Download).pdf — Flights / broods (chargen).",
   },
   "p-pantheon": {
     example: "Òrìshà, Theoi, Æsir — sets your two automatic Society Path Skills.",

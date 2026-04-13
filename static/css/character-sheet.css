@@ -1537,6 +1537,12 @@
   --drg-stone: #2a3d32;
   --drg-jade: #4a7c62;
   --drg-muted: #3d5246;
+  /* Reused MCG layout blocks (cs-mcg-*) read --cs-* tokens from .character-sheet */
+  --cs-ink: var(--drg-ink);
+  --cs-paper: var(--drg-paper);
+  --cs-line: var(--drg-line);
+  --cs-accent: var(--drg-jade);
+  --cs-muted: var(--drg-muted);
   max-width: 52rem;
   margin: 0 auto;
   background:
@@ -1562,6 +1568,66 @@
 
 .character-sheet--dragon-heir .cs-page--dragon:last-of-type {
   margin-bottom: 0;
+}
+
+/* MCG-style sections on Dragon pages: override hardcoded browns / parchment where needed */
+.character-sheet--dragon-heir .cs-mcg-band-title {
+  background: linear-gradient(180deg, #3a4f42, #1e2a22);
+  color: #f4faf6;
+  border-color: #0f1511;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.character-sheet--dragon-heir .cs-mcg-path-col,
+.character-sheet--dragon-heir .cs-mcg-skill-col,
+.character-sheet--dragon-heir .cs-mcg-attr-cell,
+.character-sheet--dragon-heir .cs-mcg-history {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--drg-line);
+}
+
+.character-sheet--dragon-heir .cs-mcg-skill-row {
+  border-bottom-color: rgba(90, 120, 100, 0.42);
+}
+
+.character-sheet--dragon-heir .cs-mcg-knack-block {
+  border-bottom-color: rgba(90, 120, 100, 0.42);
+}
+
+.character-sheet--dragon-heir .cs-mcg-mini-table th,
+.character-sheet--dragon-heir .cs-mcg-eq-table th {
+  background: rgba(45, 74, 56, 0.12);
+}
+
+.character-sheet--dragon-heir .cs-mcg-sq {
+  border-color: var(--drg-line);
+  background: rgba(220, 232, 223, 0.92);
+}
+
+.character-sheet--dragon-heir .cs-mcg-sheet-tick {
+  border-color: var(--drg-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--dragon-heir .cs-mcg-pool-check input.cs-mcg-pool-check-input {
+  border-color: var(--drg-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--dragon-heir .cs-mcg-pool-check input.cs-mcg-pool-check-input:checked {
+  background: var(--drg-jade);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.95);
+}
+
+.character-sheet--dragon-heir .cs-mcg-br-block,
+.character-sheet--dragon-heir .cs-mcg-fb-block,
+.character-sheet--dragon-heir .cs-mcg-cond-cols > div {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--drg-line);
+}
+
+.character-sheet--dragon-heir .cs-mcg-sheet-footer {
+  border-top-color: var(--drg-line);
 }
 
 .cs-dragon-logo {
@@ -1983,6 +2049,78 @@
 
 .cs-dragon-spell-name {
   width: 32%;
+}
+
+/* Dragon spells: Boon-style line blocks (Name, Magic, Cost, …) */
+.cs-dragon-spell-plate-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.cs-dragon-spell-plate-card {
+  break-inside: avoid;
+}
+
+.cs-dragon-spell-plate {
+  border: 1px solid var(--drg-line);
+  border-radius: 3px;
+  padding: 0.28rem 0.38rem 0.35rem;
+  font-size: 0.68rem;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.cs-dragon-spell-plate--blank {
+  min-height: 1.35rem;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Wizard: no placeholder copy; keep a light box so layout does not collapse */
+.cs-dragon-spell-plate--empty-silent {
+  min-height: 2.25rem;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cs-dragon-spell-plate-line {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr;
+  gap: 0.2rem 0.45rem;
+  align-items: baseline;
+  border-bottom: 1px dotted rgba(122, 154, 134, 0.35);
+  padding: 0.1rem 0;
+}
+
+.cs-dragon-spell-plate-lines .cs-dragon-spell-plate-line:last-child {
+  border-bottom: none;
+}
+
+.cs-dragon-spell-plate-label {
+  font-weight: 600;
+  color: rgba(35, 55, 42, 0.88);
+  text-transform: uppercase;
+  font-size: 0.58rem;
+  letter-spacing: 0.03em;
+}
+
+.cs-dragon-spell-plate-value {
+  font-size: 0.7rem;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.cs-dragon-spell-plate-note {
+  margin-top: 0.25rem;
+  padding-top: 0.2rem;
+  border-top: 1px solid rgba(122, 154, 134, 0.28);
+  font-size: 0.65rem;
+  line-height: 1.3;
+  white-space: pre-wrap;
+  color: rgba(30, 45, 36, 0.92);
+}
+
+.cs-dragon-spell-plate-empty {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
 }
 
 .cs-dragon-history {

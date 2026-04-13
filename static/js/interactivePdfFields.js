@@ -5,9 +5,26 @@
  */
 
 import { apiUrl } from "./apiBase.js";
+import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { boonDisplayLabel } from "./boonLabels.js";
 import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+
+/** @param {Record<string, unknown> | null | undefined} sp */
+function dragonSpellPdfEffectLine(sp) {
+  if (!sp || typeof sp !== "object") return "";
+  const t = boonTrackedMechanicalFields(sp);
+  const bits = [];
+  const summ = String(sp.summary || "").trim();
+  if (summ) bits.push(`Summary: ${summ}`);
+  if (t.cost) bits.push(`Cost: ${t.cost}`);
+  if (t.duration) bits.push(`Duration: ${t.duration}`);
+  if (t.subject) bits.push(`Target: ${t.subject}`);
+  if (t.range) bits.push(`Range: ${t.range}`);
+  if (t.action) bits.push(`Action: ${t.action}`);
+  if (t.clash) bits.push(`Clash: ${t.clash}`);
+  return bits.join(" · ").slice(0, 480);
+}
 
 const SKILL_ROW_IDS = [
   "academics",
@@ -296,7 +313,12 @@ export function buildDragonInteractivePdfFields(data, bundle) {
     for (const id of arr || []) {
       const kid = String(id || "").trim();
       if (!kid) continue;
-      knackNames.push(bundle.knacks?.[kid]?.name || bundle.dragonKnacks?.[kid]?.name || kid);
+      knackNames.push(
+        bundle.dragonCallingKnacks?.[kid]?.name ||
+          bundle.knacks?.[kid]?.name ||
+          bundle.dragonKnacks?.[kid]?.name ||
+          kid,
+      );
     }
   };
   pushKn(d.callingKnackIds);
@@ -314,7 +336,7 @@ export function buildDragonInteractivePdfFields(data, bundle) {
     const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === sid) : null;
     spellRows.push({
       name: [mag?.name || mid, sp?.name].filter(Boolean).join(" — "),
-      effect: String(sp?.summary || "").trim(),
+      effect: dragonSpellPdfEffectLine(sp),
     });
   }
   const bm = String(d.bonusSpell?.magicId || "").trim();
@@ -324,7 +346,7 @@ export function buildDragonInteractivePdfFields(data, bundle) {
     const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === bs) : null;
     spellRows.push({
       name: `Bonus — ${mag?.name || bm} — ${sp?.name || bs}`,
-      effect: String(sp?.summary || "").trim(),
+      effect: dragonSpellPdfEffectLine(sp),
     });
   }
   for (let i = 0; i < 10; i += 1) {

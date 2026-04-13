@@ -29,6 +29,7 @@ import { birthrightTagIds, birthrightTagLabels } from "./birthrightTags.js";
 import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.js";
 import { apiUrl } from "./apiBase.js";
+import { wirePickerRowFilter, wireSortableTableColumns } from "./pickerTableUtils.js";
 import { buildScionInteractivePdfFields, downloadInteractiveCharacterPdf } from "./interactivePdfFields.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
 import {
@@ -36,7 +37,6 @@ import {
   persistDragonFromDom,
   ensureDragonShape,
   isDragonHeirChargen,
-  defaultDragonState,
   buildDragonReviewSnapshot,
 } from "./chargen/DragonChargenWizard.js";
 
@@ -1058,6 +1058,201 @@ function pantheonList() {
     (p) => p && typeof p === "object" && p.id && !String(p.id).startsWith("_"),
   );
   return list.sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), undefined, { sensitivity: "base" }));
+}
+
+/** Pantheons with at least one divine parent (Paths when Patron type is Deity). */
+function pantheonListForDeityParents() {
+  return pantheonList().filter((p) => Array.isArray(p.deities) && p.deities.length > 0);
+}
+
+/** Pantheons with Titan patrons merged from Titanomachy (`pantheon.titans`). */
+function pantheonListForTitanPatrons() {
+  return pantheonList().filter((p) => Array.isArray(p.titans) && p.titans.length > 0);
+}
+
+function pantheonOptionsForCurrentPatronKind() {
+  return patronKindIsTitan() ? pantheonListForTitanPatrons() : pantheonListForDeityParents();
+}
+
+const WELCOME_DEITY_TIER_ORDER = ["mortal", "hero", "demigod", "god"];
+const WELCOME_TITAN_TIER_ORDER = ["mortal", "titanic", "demigod", "god"];
+/** Max Inheritance dot on the Heir track (Scion: Dragon pp. 117–119). */
+const DRAGON_INHERITANCE_MAX = 10;
+
+/** Inheritance labels when `dragonTier.json` is missing from the bundle (matches data/dragonTier.json). */
+const DRAGON_INHERITANCE_WELCOME_STAGES = [
+  ["1", "Hatchling"],
+  ["2", "Asset"],
+  ["3", "Seeker"],
+  ["4", "Agent"],
+  ["5", "Conspirator"],
+  ["6", "Cabalist"],
+  ["7", "Arcanist"],
+  ["8", "Vizier"],
+  ["9", "Mastermind"],
+  ["10", "True Dragon"],
+];
+
+/** @param {string} tierId */
+function welcomeTierRowLabel(tierId) {
+  const row = bundle?.tier?.[tierId];
+  const nm = row?.name || tierId;
+  if (tierId === "titanic") return "Hero (Titanic Scion)";
+  return nm;
+}
+
+/** @returns {{ line: "deity"|"titan"|"dragon"|"sorcerer"; payload: string }} */
+function welcomePartsFromCharacter() {
+  if (String(character.chargenLineage ?? "").trim() === "dragonHeir") {
+    ensureDragonShape(character, bundle);
+    const inh = String(Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character.dragon?.inheritance) || 1))));
+    return { line: "dragon", payload: inh };
+  }
+  const kt = normalizedTierId(character.tier);
+  if (kt === "sorcerer") {
+    return { line: "sorcerer", payload: "sorcerer" };
+  }
+  if (patronKindIsTitan()) {
+    return { line: "titan", payload: kt === "titanic" ? "titanic" : kt };
+  }
+  return { line: "deity", payload: kt };
+}
+
+/** Encoded track for confirm logic (`deity:mortal`, `dragon:5`, `sorcerer:sorcerer`, …). */
+function welcomeTrackValueFromCharacter() {
+  const p = welcomePartsFromCharacter();
+  if (p.line === "dragon") return `dragon:${p.payload}`;
+  if (p.line === "sorcerer") return "sorcerer:sorcerer";
+  return `${p.line}:${p.payload}`;
+}
+
+/**
+ * @param {HTMLSelectElement} sel
+ * @param {"deity"|"titan"} lineKind
+ */
+function fillWelcomeTierSelect(sel, lineKind) {
+  sel.innerHTML = "";
+  if (lineKind === "deity") {
+    for (const tid of WELCOME_DEITY_TIER_ORDER) {
+      const meta = bundle.tier?.[tid];
+      if (!meta || typeof meta !== "object") continue;
+      const o = document.createElement("option");
+      o.value = tid;
+      o.textContent = welcomeTierRowLabel(tid);
+      sel.appendChild(o);
+    }
+  } else if (lineKind === "titan") {
+    for (const tid of WELCOME_TITAN_TIER_ORDER) {
+      const meta = bundle.tier?.[tid];
+      if (!meta || typeof meta !== "object") continue;
+      const o = document.createElement("option");
+      o.value = tid;
+      o.textContent = welcomeTierRowLabel(tid);
+      sel.appendChild(o);
+    }
+  }
+}
+
+/**
+ * Inheritance 1–10 for Dragon Welcome (separate row from Scion tier).
+ * @param {HTMLSelectElement} sel
+ */
+function fillWelcomeDragonInheritanceSelect(sel) {
+  sel.innerHTML = "";
+  const inhTable = bundle?.dragonTier?.inheritanceTrack;
+  const keys =
+    inhTable && typeof inhTable === "object"
+      ? Object.keys(inhTable)
+          .filter((k) => !String(k).startsWith("_") && inhTable[k] && typeof inhTable[k] === "object")
+          .sort((a, b) => Number(a) - Number(b))
+      : [];
+  if (keys.length > 0) {
+    for (const k of keys) {
+      const row = inhTable[k];
+      const o = document.createElement("option");
+      o.value = k;
+      o.textContent = row.name || `Inheritance ${k}`;
+      if (typeof row.summary === "string" && row.summary.trim()) o.title = row.summary.trim();
+      sel.appendChild(o);
+    }
+  } else {
+    for (const [id, name] of DRAGON_INHERITANCE_WELCOME_STAGES) {
+      const o = document.createElement("option");
+      o.value = id;
+      o.textContent = name;
+      sel.appendChild(o);
+    }
+  }
+}
+
+/** First valid tier option id for a line (after switching line). */
+function welcomeDefaultPayloadForLine(lineKind) {
+  const order = lineKind === "titan" ? WELCOME_TITAN_TIER_ORDER : WELCOME_DEITY_TIER_ORDER;
+  const found = order.find((tid) => bundle.tier?.[tid] && typeof bundle.tier[tid] === "object");
+  return found || "mortal";
+}
+
+function welcomeDefaultDragonInheritance() {
+  return "1";
+}
+
+/**
+ * @param {string} encoded
+ */
+function applyWelcomeTrackChangeNoConfirm(encoded) {
+  const idx = encoded.indexOf(":");
+  const lane = idx === -1 ? "deity" : encoded.slice(0, idx);
+  const payload = idx === -1 ? "mortal" : encoded.slice(idx + 1);
+  if (lane === "dragon") {
+    character.chargenLineage = "dragonHeir";
+    ensureDragonShape(character, bundle);
+    character.dragon.pastConcept = false;
+    /** Heir line uses Mortal/Origin on the shared spine; Inheritance is the Dragon curve (Welcome). */
+    character.tier = "mortal";
+    const raw = String(payload || "").trim();
+    let inhStr = welcomeDefaultDragonInheritance();
+    /** `dragon:5` or legacy `dragon:mortal:5` / `dragon:hero:5` — last numeric segment wins. */
+    if (/^\d+$/.test(raw)) {
+      inhStr = raw;
+    } else {
+      const segs = raw.split(":").filter(Boolean);
+      for (let i = segs.length - 1; i >= 0; i -= 1) {
+        if (/^\d+$/.test(segs[i])) {
+          inhStr = segs[i];
+          break;
+        }
+      }
+    }
+    character.dragon.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inhStr) || 1)));
+    character.patronKind = "deity";
+    return;
+  }
+  if (lane === "sorcerer") {
+    character.chargenLineage = "scion";
+    delete character.dragon;
+    character.patronKind = "deity";
+    character.tier = "sorcerer";
+    return;
+  }
+  character.chargenLineage = "scion";
+  delete character.dragon;
+  if (lane === "titan") {
+    character.patronKind = "titan";
+    character.tier = payload === "titanic" ? "titanic" : normalizedTierId(payload);
+  } else {
+    character.patronKind = "deity";
+    character.tier = normalizedTierId(payload);
+  }
+}
+
+/** @param {string} prev @param {string} next */
+function welcomeTrackChangeIsHeavy(prev, next) {
+  if (prev === next) return false;
+  const pl = prev.split(":")[0];
+  const nl = next.split(":")[0];
+  if (pl === "dragon" && nl === "dragon") return false;
+  if (pl === "sorcerer" && nl === "sorcerer") return false;
+  return true;
 }
 
 /** Loaded `masksOfTheMythos.json` (Scion: Masks of the Mythos supplement hooks), or null. */
@@ -2158,112 +2353,6 @@ function birthrightPointCost(bid) {
   return bundle.birthrights[bid]?.pointCost ?? 1;
 }
 
-/** Live substring filter on table rows using `data-filter-text` on each `<tr>`. */
-function wirePickerRowFilter(searchInput, tbody) {
-  const apply = () => {
-    const f = String(searchInput.value || "")
-      .trim()
-      .toLowerCase();
-    for (const tr of tbody.querySelectorAll("tr")) {
-      const key = (tr.getAttribute("data-filter-text") || "").toLowerCase();
-      tr.style.display = !f || key.includes(f) ? "" : "none";
-    }
-  };
-  searchInput.addEventListener("input", apply);
-  searchInput.addEventListener("search", apply);
-}
-
-/**
- * Click / Enter / Space on sortable headers reorders tbody rows. `columnSpecs[i]` null = not sortable.
- * @param {HTMLTableSectionElement} thead
- * @param {HTMLTableSectionElement} tbody
- * @param {(null | { get: (tr: HTMLTableRowElement) => string | number, numeric?: boolean })[]} columnSpecs
- */
-function wireSortableTableColumns(thead, tbody, columnSpecs) {
-  const row = thead.querySelector("tr");
-  if (!row) return;
-  const ths = [...row.querySelectorAll("th")];
-  if (ths.length === 0) return;
-  const state = { idx: null, dir: 1 };
-
-  const clearSortUi = () => {
-    for (const th of ths) {
-      th.removeAttribute("aria-sort");
-      const ind = th.querySelector(".sort-indicator");
-      if (ind) ind.textContent = "";
-    }
-  };
-
-  columnSpecs.forEach((spec, idx) => {
-    if (!spec || typeof spec.get !== "function") return;
-    const th = ths[idx];
-    if (!th) return;
-    const orig = th.textContent.trim();
-    th.textContent = "";
-    const lab = document.createElement("span");
-    lab.className = "sort-col-label";
-    lab.textContent = orig || "\u00a0";
-    const ind = document.createElement("span");
-    ind.className = "sort-indicator";
-    ind.setAttribute("aria-hidden", "true");
-    th.appendChild(lab);
-    th.appendChild(ind);
-    th.classList.add("sortable-col-header");
-    th.title = "Sort by this column; click again to reverse order.";
-
-    const sortRows = () => {
-      const rows = [...tbody.querySelectorAll("tr")];
-      const mult = state.dir;
-      const get = spec.get;
-      const numeric = spec.numeric === true;
-      rows.sort((a, b) => {
-        const va = get(a);
-        const vb = get(b);
-        if (numeric) {
-          const na = Number(va);
-          const nb = Number(vb);
-          const naN = Number.isNaN(na);
-          const nbN = Number.isNaN(nb);
-          if (naN && nbN) return 0;
-          if (naN) return 1 * mult;
-          if (nbN) return -1 * mult;
-          if (na !== nb) return mult * (na - nb);
-          return 0;
-        }
-        const sa = String(va).toLowerCase();
-        const sb = String(vb).toLowerCase();
-        if (sa < sb) return -1 * mult;
-        if (sa > sb) return 1 * mult;
-        return 0;
-      });
-      rows.forEach((r) => tbody.appendChild(r));
-    };
-
-    const activate = () => {
-      if (state.idx !== idx) {
-        state.idx = idx;
-        state.dir = 1;
-      } else {
-        state.dir *= -1;
-      }
-      clearSortUi();
-      th.setAttribute("aria-sort", state.dir === 1 ? "ascending" : "descending");
-      ind.textContent = state.dir === 1 ? " \u25b2" : " \u25bc";
-      sortRows();
-    };
-
-    th.style.cursor = "pointer";
-    th.tabIndex = 0;
-    th.addEventListener("click", activate);
-    th.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        activate();
-      }
-    });
-  });
-}
-
 /** Tag display names for an equipment row (from `tags.json` when present). */
 function equipmentTagLabelList(eq) {
   return (Array.isArray(eq?.tagIds) ? eq.tagIds : [])
@@ -2394,10 +2483,16 @@ function heroFinishingOmittedAfterOriginAdvance() {
 }
 
 function stepDefsForTier(tierId) {
-  const tier = bundle?.tier?.[tierId];
+  /** Dragon Heir: shared pantheon/Origin spine only; Heir track is the Dragon tab. */
+  const id = isDragonHeirChargen(character) ? "mortal" : normalizedTierId(tierId);
+  const tier = bundle?.tier?.[id];
   const raw = tier?.wizardSteps || ["welcome", "concept", "paths", "skills", "attributes", "calling", "finishing", "review"];
   const steps = [...raw];
-  if ((normalizedTierId(tierId) === "hero" || normalizedTierId(tierId) === "titanic") && heroFinishingOmittedAfterOriginAdvance()) {
+  if (
+    !isDragonHeirChargen(character) &&
+    (normalizedTierId(tierId) === "hero" || normalizedTierId(tierId) === "titanic") &&
+    heroFinishingOmittedAfterOriginAdvance()
+  ) {
     return steps.filter((s) => s !== "finishing");
   }
   return steps;
@@ -2534,22 +2629,13 @@ function updateHeaderTierDisplay() {
     const inh = String(d.inheritance ?? "1");
     const m = bundle.dragonTier?.inheritanceTrack?.[inh];
     el.title =
-      "Heirs use Inheritance (1–9) instead of Legend for this line. Flight, Dragon Magic, and Draconic Knacks follow Scion: Dragon chargen (pp. 110–119).";
+      "Heirs use Inheritance (1–10; True Dragon at 10) instead of Legend for this line. Chargen follows the shared Origin spine plus the Dragon tab (Scion: Dragon pp. 110–119).";
     const tierLine = document.createElement("div");
     tierLine.className = "header-tier-line";
     const fl = bundle.dragonFlights[d.flightId];
-    tierLine.textContent = fl?.name ? `Dragon Heir — ${fl.name}` : "Dragon Heir (pick Flight on Paths)";
+    const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inh}`;
+    tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Paths)`;
     el.appendChild(tierLine);
-    const row = document.createElement("div");
-    row.className = "header-legend-row";
-    const lab = document.createElement("span");
-    lab.className = "header-legend-label";
-    lab.textContent = "Inheritance";
-    row.appendChild(lab);
-    const sp = document.createElement("span");
-    sp.textContent = `${m?.name || "—"} (${inh})`;
-    row.appendChild(sp);
-    el.appendChild(row);
     return;
   }
   el.title =
@@ -2561,7 +2647,11 @@ function updateHeaderTierDisplay() {
   const t = bundle.tier[character.tier];
   const tierLine = document.createElement("div");
   tierLine.className = "header-tier-line";
-  tierLine.textContent = t?.name ? `Tier: ${t.name}` : `Tier: ${character.tier}`;
+  const tn = normalizedTierId(character.tier);
+  const linePrefix = tn === "sorcerer" ? "Sorcerer" : patronKindIsTitan() ? "Titan" : "Deity";
+  let tierSlab = t?.name || character.tier;
+  if (tn === "titanic") tierSlab = "Hero (Titanic Scion)";
+  tierLine.textContent = `${linePrefix}-${tierSlab}`;
   el.appendChild(tierLine);
   const legRow = document.createElement("div");
   legRow.className = "header-legend-row";
@@ -2593,7 +2683,10 @@ function scrollWizardStepIntoView() {
 function renderNav() {
   const nav = document.getElementById("wizard-nav");
   nav.innerHTML = "";
-  const steps = stepDefsForTier(character.tier);
+  let steps = stepDefsForTier(character.tier);
+  if (isDragonHeirChargen(character) && character.dragon?.pastConcept !== true) {
+    steps = steps.slice(0, 2);
+  }
   steps.forEach((id, idx) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -2627,45 +2720,169 @@ function panel(title, inner) {
 }
 
 function renderWelcome(root) {
+  const parts = welcomePartsFromCharacter();
+  const curEnc = welcomeTrackValueFromCharacter();
   const t = bundle.tier[character.tier];
   const body = document.createElement("div");
   const tierPick = document.createElement("div");
   tierPick.className = "field welcome-tier-field";
-  const lab = document.createElement("label");
-  lab.htmlFor = "welcome-tier-select";
-  lab.textContent = "Character tier (chargen track)";
-  tierPick.appendChild(lab);
-  const sel = document.createElement("select");
-  sel.id = "welcome-tier-select";
-  const tierOpts = Object.entries(bundle.tier || {})
-    .filter(([tid, meta]) => tid && !String(tid).startsWith("_") && meta && typeof meta === "object")
-    .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" }));
-  for (const [tid, meta] of tierOpts) {
+
+  const lineRow = document.createElement("div");
+  lineRow.className = "field";
+  const labLine = document.createElement("label");
+  labLine.htmlFor = "welcome-line-select";
+  labLine.textContent = "Line (Deity, Titan, Dragon, or Sorcerer)";
+  lineRow.appendChild(labLine);
+  const lineSel = document.createElement("select");
+  lineSel.id = "welcome-line-select";
+  for (const [val, label] of [
+    ["deity", "Deity"],
+    ["titan", "Titan"],
+    ["dragon", "Dragon"],
+    ["sorcerer", "Sorcerer"],
+  ]) {
     const o = document.createElement("option");
-    o.value = tid;
-    o.textContent = meta.name || tid;
-    sel.appendChild(o);
+    o.value = val;
+    o.textContent = label;
+    lineSel.appendChild(o);
   }
-  sel.value = character.tier && bundle.tier?.[character.tier] ? character.tier : "mortal";
-  sel.addEventListener("change", () => {
-    const next = sel.value;
-    if (next === character.tier) return;
-    if (
-      !window.confirm(
-        "Changing tier may invalidate Knacks, Purviews, Boons, and Birthrights picks. Continue?",
-      )
-    ) {
-      sel.value = character.tier;
-      return;
+  lineSel.value = parts.line;
+  lineSel.setAttribute("data-last-line", parts.line);
+  lineRow.appendChild(lineSel);
+  tierPick.appendChild(lineRow);
+
+  const tierRow = document.createElement("div");
+  tierRow.className = "field";
+  const labTier = document.createElement("label");
+  labTier.htmlFor = "welcome-tier-select";
+  labTier.id = "welcome-tier-select-label";
+  labTier.textContent = "Tier";
+  tierRow.appendChild(labTier);
+  const tierSel = document.createElement("select");
+  tierSel.id = "welcome-tier-select";
+  if (parts.line === "dragon" || parts.line === "sorcerer") {
+    tierRow.style.display = "none";
+    tierSel.innerHTML = "";
+  } else {
+    fillWelcomeTierSelect(tierSel, /** @type {"deity"|"titan"} */ (parts.line));
+    tierSel.value = parts.payload;
+    if (![...tierSel.options].some((o) => o.value === tierSel.value)) {
+      tierSel.value = tierSel.options[0]?.value || parts.payload;
     }
-    character.tier = next;
+  }
+  tierRow.appendChild(tierSel);
+  tierPick.appendChild(tierRow);
+
+  const inheritRow = document.createElement("div");
+  inheritRow.className = "field welcome-dragon-inheritance-field";
+  inheritRow.style.display = parts.line === "dragon" ? "" : "none";
+  const labInh = document.createElement("label");
+  labInh.htmlFor = "welcome-dragon-inheritance-select";
+  labInh.textContent = "Inheritance (stage)";
+  inheritRow.appendChild(labInh);
+  const inhSel = document.createElement("select");
+  inhSel.id = "welcome-dragon-inheritance-select";
+  fillWelcomeDragonInheritanceSelect(inhSel);
+  inhSel.value = parts.line === "dragon" ? parts.payload : welcomeDefaultDragonInheritance();
+  if (![...inhSel.options].some((o) => o.value === inhSel.value)) {
+    inhSel.value = inhSel.options[0]?.value || welcomeDefaultDragonInheritance();
+  }
+  inheritRow.appendChild(inhSel);
+  tierPick.appendChild(inheritRow);
+
+  const setTrackLast = (enc) => {
+    tierPick.setAttribute("data-track-last", enc);
+  };
+  setTrackLast(curEnc);
+
+  const applyFromSelects = () => {
+    const line = /** @type {"deity"|"titan"|"dragon"|"sorcerer"} */ (lineSel.value);
+    const next =
+      line === "dragon"
+        ? `dragon:${inhSel.value || welcomeDefaultDragonInheritance()}`
+        : line === "sorcerer"
+          ? "sorcerer:sorcerer"
+          : `${line}:${tierSel.value}`;
+    const prev = tierPick.getAttribute("data-track-last") || curEnc;
+    if (next === prev) return;
+    if (welcomeTrackChangeIsHeavy(prev, next)) {
+      if (
+        !window.confirm(
+          "Changing chargen track may invalidate Knacks, Purviews, Boons, Birthrights, or Dragon Heir data. Continue?",
+        )
+      ) {
+        const p = welcomePartsFromCharacter();
+        lineSel.value = p.line;
+        if (p.line === "dragon") {
+          tierRow.style.display = "none";
+          tierSel.innerHTML = "";
+          inheritRow.style.display = "";
+          fillWelcomeDragonInheritanceSelect(inhSel);
+          inhSel.value = p.payload;
+          if (![...inhSel.options].some((o) => o.value === inhSel.value)) inhSel.value = inhSel.options[0]?.value || welcomeDefaultDragonInheritance();
+        } else if (p.line === "sorcerer") {
+          tierRow.style.display = "none";
+          tierSel.innerHTML = "";
+          inheritRow.style.display = "none";
+        } else {
+          tierRow.style.display = "";
+          inheritRow.style.display = "none";
+          fillWelcomeTierSelect(tierSel, /** @type {"deity"|"titan"} */ (p.line));
+          tierSel.value = p.payload;
+          if (![...tierSel.options].some((o) => o.value === tierSel.value)) tierSel.value = tierSel.options[0]?.value || p.payload;
+        }
+        lineSel.setAttribute("data-last-line", p.line);
+        return;
+      }
+    }
+    applyWelcomeTrackChangeNoConfirm(next);
+    setTrackLast(next);
     stepIndex = 0;
     reviewViewMode = "sheet";
     normalizeCharacterStateAfterLoad();
     render();
     scrollWizardStepIntoView();
+  };
+
+  lineSel.addEventListener("change", () => {
+    const line = /** @type {"deity"|"titan"|"dragon"|"sorcerer"} */ (lineSel.value);
+    const prevLine = lineSel.getAttribute("data-last-line") || "";
+    if (line !== prevLine) {
+      if (line === "dragon") {
+        tierRow.style.display = "none";
+        tierSel.innerHTML = "";
+        inheritRow.style.display = "";
+        fillWelcomeDragonInheritanceSelect(inhSel);
+        inhSel.value = welcomeDefaultDragonInheritance();
+      } else if (line === "sorcerer") {
+        tierRow.style.display = "none";
+        tierSel.innerHTML = "";
+        inheritRow.style.display = "none";
+      } else {
+        tierRow.style.display = "";
+        inheritRow.style.display = "none";
+        fillWelcomeTierSelect(tierSel, /** @type {"deity"|"titan"} */ (line));
+        tierSel.value = welcomeDefaultPayloadForLine(line);
+      }
+    }
+    lineSel.setAttribute("data-last-line", line);
+    applyFromSelects();
   });
-  tierPick.appendChild(sel);
+  tierSel.addEventListener("change", () => {
+    applyFromSelects();
+  });
+  inhSel.addEventListener("change", () => {
+    applyFromSelects();
+  });
+
+  applyHint(lineSel, "welcome-line-select");
+  if (parts.line !== "dragon" && parts.line !== "sorcerer") applyHint(tierSel, "welcome-tier-select");
+  applyHint(inhSel, "welcome-dragon-inheritance-select");
+  const trHelp = document.createElement("p");
+  trHelp.className = "help";
+  trHelp.textContent =
+    "Pick a line, then tier (Mortal/Origin through God on Deity, Titanic on Titan). Dragon Heir picks Inheritance 1–10 (True Dragon at 10). Sorcerer (Saints & Monsters) is its own line — no Visitation tier list. Dragon uses the shared Origin spine plus the Dragon tab after Concept.";
+  tierPick.appendChild(trHelp);
   body.appendChild(tierPick);
   const intro = document.createElement("div");
   intro.innerHTML = `<p class="help">${t?.description || ""}</p>
@@ -2679,13 +2896,7 @@ function renderWelcome(root) {
 function renderConcept(root) {
   const wrap = document.createElement("div");
   wrap.innerHTML = `
-    <div class="field"><label for="f-chargen-lineage">Character line</label>
-      <select id="f-chargen-lineage" autocomplete="off">
-        <option value="scion">Deity/Titan (Scion)</option>
-        <option value="dragonHeir">Dragon (Heir)</option>
-      </select>
-    </div>
-    <p class="help" id="f-chargen-lineage-blurb">Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon switches to the Heir wizard after this step (<em>Scion: Dragon</em>).</p>
+    <p class="help" id="f-chargen-lineage-blurb">Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon Heir uses the Dragon tab after Concept (Inheritance is chosen on Welcome).</p>
     <div class="field"><label>Character name</label><input type="text" id="f-char-name" autocomplete="name" spellcheck="false" /></div>
     <div class="field"><label>Concept</label><textarea id="f-concept"></textarea></div>
     <div class="field"><label>Player / Group notes</label><textarea id="f-notes"></textarea></div>
@@ -2718,40 +2929,14 @@ function renderConcept(root) {
       }
     }
   };
-  const lineageSel = document.getElementById("f-chargen-lineage");
-  lineageSel.value = isDragonHeirChargen(character) ? "dragonHeir" : "scion";
   applyDeedLabels(isDragonHeirChargen(character));
-  lineageSel.addEventListener("change", () => {
-    const next = lineageSel.value === "dragonHeir" ? "dragonHeir" : "scion";
-    if (next === character.chargenLineage) return;
-    if (character.chargenLineage === "dragonHeir" && next === "scion") {
-      const progressed =
-        (character.dragon?.stepIndex ?? 0) > 0 || !!(String(character.dragon?.flightId ?? "").trim());
-      if (
-        progressed &&
-        !window.confirm(
-          "Switch back to Deity/Titan (Scion)? Heir data on this character will be removed from the sheet state.",
-        )
-      ) {
-        lineageSel.value = "dragonHeir";
-        return;
-      }
-      character.chargenLineage = "scion";
-      delete character.dragon;
-    } else {
-      character.chargenLineage = "dragonHeir";
-      character.dragon = defaultDragonState();
-    }
-    applyDeedLabels(isDragonHeirChargen(character));
-    render();
-  });
   document.getElementById("f-char-name").value = character.characterName ?? "";
   document.getElementById("f-concept").value = character.concept;
   document.getElementById("f-notes").value = character.notes;
   document.getElementById("f-deed-short").value = character.deeds.short;
   document.getElementById("f-deed-long").value = character.deeds.long;
   document.getElementById("f-deed-band").value = character.deeds.band;
-  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band", "f-chargen-lineage"].forEach((id) =>
+  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band"].forEach((id) =>
     applyHint(document.getElementById(id), id),
   );
 }
@@ -2765,7 +2950,7 @@ function renderPaths(root) {
         <div class="field"><label>Role Path phrase</label><textarea id="p-role"></textarea></div>
         <div class="field"><label>Society / Pantheon Path phrase</label><textarea id="p-soc"></textarea></div>
       </div>
-      <div class="paths-pantheon-deity-stack">
+      <div class="paths-pantheon-deity-stack" id="paths-pantheon-deity-stack">
         <div class="field paths-pantheon-field"><label for="p-pantheon">Pantheon</label><select id="p-pantheon"></select></div>
         <div class="field paths-patron-kind-field">
           <label for="p-patron-kind">Patron type</label>
@@ -2814,15 +2999,21 @@ function renderPaths(root) {
   }
   const ps = document.getElementById("p-pantheon");
   ps.innerHTML = `<option value="">—</option>`;
-  for (const p of pantheonList()) {
+  for (const p of pantheonOptionsForCurrentPatronKind()) {
     const o = document.createElement("option");
     o.value = p.id;
     o.textContent = p.name;
     applyGameDataHint(o, p);
     ps.appendChild(o);
   }
+  const allowedPantheonIds = new Set(pantheonOptionsForCurrentPatronKind().map((p) => p.id));
+  if (character.pantheonId && !allowedPantheonIds.has(character.pantheonId)) {
+    character.pantheonId = "";
+    character.parentDeityId = "";
+  }
   ps.value = character.pantheonId;
   const fillDeities = () => {
+    if (isDragonHeirChargen(character)) return;
     character.pantheonId = ps.value;
     const ds = document.getElementById("p-deity");
     const lab = document.getElementById("p-deity-label");
@@ -2839,6 +3030,7 @@ function renderPaths(root) {
     ds.value = character.parentDeityId;
   };
   ps.addEventListener("change", () => {
+    if (isDragonHeirChargen(character)) return;
     persistPathsPhrasesFromDom();
     character.virtueSpectrum = 0;
     character.parentDeityId = "";
@@ -2858,6 +3050,7 @@ function renderPaths(root) {
   if (pkSel) {
     pkSel.value = patronKindIsTitan() ? "titan" : "deity";
     pkSel.addEventListener("change", () => {
+      if (isDragonHeirChargen(character)) return;
       persistPathsPhrasesFromDom();
       character.patronKind = pkSel.value === "titan" ? "titan" : "deity";
       character.parentDeityId = "";
@@ -2887,7 +3080,71 @@ function renderPaths(root) {
       "No Titans are listed for this pantheon in data/titans.json yet — pick another pantheon, switch patron type to God, or add titans under titansByPantheon for this id.";
     deitySel?.parentElement?.appendChild(w);
   }
+  const stackEl = document.getElementById("paths-pantheon-deity-stack");
+  const lineageHint = wrap.querySelector(".paths-patron-lineage-hint");
+  const pkField = document.getElementById("p-patron-kind")?.closest(".field");
+  const deityField = document.getElementById("p-deity")?.closest(".field");
+  const pantheonField = document.getElementById("p-pantheon")?.closest(".field");
+  const socTa0 = document.getElementById("p-soc");
+  const socLab0 = socTa0?.parentElement?.querySelector("label");
+  if (isDragonHeirChargen(character)) {
+    ensureDragonShape(character, bundle);
+    if (stackEl) stackEl.hidden = true;
+    if (pkField) pkField.hidden = true;
+    if (deityField) deityField.hidden = true;
+    if (pantheonField) pantheonField.hidden = true;
+    if (lineageHint) {
+      lineageHint.textContent =
+        "Dragon Heirs choose a Flight here instead of a Scion pantheon; full Heir chargen continues on the Dragon tab.";
+    }
+    if (socLab0) socLab0.textContent = "Flight Path phrase";
+    let mount = document.getElementById("p-dragon-flight-mount");
+    if (!mount && stackEl?.parentElement) {
+      mount = document.createElement("div");
+      mount.id = "p-dragon-flight-mount";
+      mount.className = "field paths-dragon-flight-field";
+      mount.innerHTML = `<label for="p-dragon-flight">Flight (Dragon Heir)</label><select id="p-dragon-flight"><option value="">—</option></select>`;
+      stackEl.parentElement.insertBefore(mount, stackEl.nextSibling);
+    }
+    const fs = document.getElementById("p-dragon-flight");
+    if (fs && fs.options.length <= 1) {
+      for (const [fid, meta] of Object.entries(bundle.dragonFlights || {})) {
+        if (String(fid).startsWith("_") || !meta || typeof meta !== "object") continue;
+        const o = document.createElement("option");
+        o.value = fid;
+        o.textContent = meta.name || fid;
+        applyGameDataHint(o, meta);
+        fs.appendChild(o);
+      }
+    }
+    if (fs) {
+      fs.value = character.dragon?.flightId || "";
+      applyHint(fs, "p-dragon-flight");
+    }
+    ps.disabled = true;
+    const pkEl0 = document.getElementById("p-patron-kind");
+    if (pkEl0) pkEl0.disabled = true;
+    const deSel = document.getElementById("p-deity");
+    if (deSel) deSel.disabled = true;
+  } else {
+    document.getElementById("p-dragon-flight-mount")?.remove();
+    if (stackEl) stackEl.hidden = false;
+    if (pkField) pkField.hidden = false;
+    if (deityField) deityField.hidden = false;
+    if (pantheonField) pantheonField.hidden = false;
+    if (lineageHint) {
+      lineageHint.textContent =
+        "Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.";
+    }
+    if (socLab0) socLab0.textContent = "Society / Pantheon Path phrase";
+    ps.disabled = false;
+    const pkEl1 = document.getElementById("p-patron-kind");
+    if (pkEl1) pkEl1.disabled = false;
+    const deSel2 = document.getElementById("p-deity");
+    if (deSel2) deSel2.disabled = false;
+  }
   document.getElementById("p-deity").addEventListener("change", (e) => {
+    if (isDragonHeirChargen(character)) return;
     persistPathsPhrasesFromDom();
     character.parentDeityId = e.target.value;
     ensureSocietyDefaultAssetSkills();
@@ -2896,7 +3153,9 @@ function renderPaths(root) {
   });
   document.getElementById("p-origin").value = character.paths.origin;
   document.getElementById("p-role").value = character.paths.role;
-  document.getElementById("p-soc").value = character.paths.society;
+  document.getElementById("p-soc").value = isDragonHeirChargen(character)
+    ? String(character.dragon?.paths?.flight ?? character.paths.society ?? "")
+    : character.paths.society;
   const mythDeedWrap = document.getElementById("p-mythos-deed-wrap");
   const mythDeedTa = document.getElementById("p-mythos-deed");
   if (mythDeedWrap && mythDeedTa) {
@@ -2925,9 +3184,13 @@ function renderPaths(root) {
     );
     if (row) vm.appendChild(row);
   }
-  ["p-origin", "p-role", "p-soc", "p-pantheon", "p-patron-kind", "p-deity", "p-mythos-deed"].forEach((id) =>
-    applyHint(document.getElementById(id), id),
-  );
+  applyHint(document.getElementById("p-origin"), "p-origin");
+  applyHint(document.getElementById("p-role"), "p-role");
+  applyHint(document.getElementById("p-soc"), isDragonHeirChargen(character) ? "p-flight-path" : "p-soc");
+  if (!isDragonHeirChargen(character)) {
+    ["p-pantheon", "p-patron-kind", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
+  }
+  applyHint(document.getElementById("p-mythos-deed"), "p-mythos-deed");
 }
 
 function renderSkills(root) {
@@ -4159,7 +4422,7 @@ function renderBirthrights(root) {
   catalog.appendChild(h2);
   const sum = document.createElement("p");
   sum.className = "help";
-  sum.textContent = `Points used: ${used} / ${cap}. “Add” spends that row’s point cost; remove picks below to free points.`;
+  sum.textContent = `Points used: ${used} / ${cap}. “Add” spends that row’s point cost; remove picks below to free points. The same catalog entry may be added more than once if your budget allows (each pick is separate).`;
   catalog.appendChild(sum);
 
   const pickBar = document.createElement("div");
@@ -4217,6 +4480,10 @@ function renderBirthrights(root) {
       render();
     });
     applyGameDataHint(btn, br);
+    const addHint = btn.disabled
+      ? `Not enough points left for this cost (${cost}). Remove picks below to free budget—you can add the same template again once it fits.`
+      : "Adds another pick of this template if you want several of the same Birthright (each costs its points).";
+    btn.title = btn.title ? `${btn.title}\n\n${addHint}` : addHint;
     tdAct.appendChild(btn);
     tr.appendChild(tdName);
     tr.appendChild(tdType);
@@ -4644,7 +4911,7 @@ function renderFinishing(root) {
       }
     } else {
       const cap = maxBirthrightPointsBudget();
-      knBr.innerHTML = `<h2>Birthrights (up to ${cap} points)</h2><p class='help'>Add templates or examples below; each pick costs its listed points (data). Remove picks to free points. These picks count toward your tier Birthrights budget (same list as the Birthrights step).</p>`;
+      knBr.innerHTML = `<h2>Birthrights (up to ${cap} points)</h2><p class='help'>Add templates or examples below; each pick costs its listed points (data). Remove picks to free points. The same catalog entry may be picked more than once if your budget allows. These picks count toward your tier Birthrights budget (same list as the Birthrights step).</p>`;
       const used = finishingBirthrightPointsUsed();
       const pts = document.createElement("p");
       pts.className = "help";
@@ -4706,6 +4973,10 @@ function renderFinishing(root) {
         btn.textContent = "Add";
         btn.disabled = usedBr + cost > capBr;
         applyGameDataHint(btn, br);
+        const addHintFin = btn.disabled
+          ? `Not enough points left for this cost (${cost}). Remove picks below to free budget—you can add the same template again once it fits.`
+          : "Adds another pick of this template if you want several of the same Birthright (each costs its points).";
+        btn.title = btn.title ? `${btn.title}\n\n${addHintFin}` : addHintFin;
         btn.addEventListener("click", () => {
           if (finishingBirthrightPointsUsed() + cost > capBr) return;
           addFinishingBirthright(bid);
@@ -5651,6 +5922,7 @@ function normalizeCharacterStateAfterLoad() {
   character.chargenLineage = lineageRaw === "dragonHeir" ? "dragonHeir" : "scion";
   if (character.chargenLineage === "dragonHeir") {
     ensureDragonShape(character, bundle);
+    character.tier = "mortal";
     return;
   }
   if (!character.deeds || typeof character.deeds !== "object") {
@@ -5739,7 +6011,12 @@ function normalizeCharacterStateAfterLoad() {
 function persistPathsPhrasesFromDom() {
   character.paths.origin = document.getElementById("p-origin")?.value || "";
   character.paths.role = document.getElementById("p-role")?.value || "";
-  character.paths.society = document.getElementById("p-soc")?.value || "";
+  const socVal = document.getElementById("p-soc")?.value || "";
+  character.paths.society = socVal;
+  if (isDragonHeirChargen(character)) {
+    ensureDragonShape(character, bundle);
+    character.dragon.paths.flight = socVal;
+  }
   const mythTa = document.getElementById("p-mythos-deed");
   const mythWrap = document.getElementById("p-mythos-deed-wrap");
   if (mythTa && mythWrap && !mythWrap.hidden && character.deeds) {
@@ -5750,6 +6027,10 @@ function persistPathsPhrasesFromDom() {
 /** Paths step: phrases, pantheon, divine parent, patron Purview slots → `character` + merged `purviewIds`. */
 function persistPathsStepFromDom() {
   persistPathsPhrasesFromDom();
+  if (isDragonHeirChargen(character)) {
+    persistDragonFromDom(character, bundle);
+    return;
+  }
   character.pantheonId = document.getElementById("p-pantheon")?.value || "";
   const pk = document.getElementById("p-patron-kind")?.value;
   character.patronKind = pk === "titan" ? "titan" : "deity";
@@ -5782,6 +6063,22 @@ function persistSkillSpecialtiesFromForm() {
 
 function persistFromForm() {
   if (isDragonHeirChargen(character)) {
+    ensureDragonShape(character, bundle);
+    const d = character.dragon;
+    if (d.pastConcept !== true) {
+      const step = stepDefsForTier(character.tier)[stepIndex];
+      if (step === "concept") {
+        character.characterName = document.getElementById("f-char-name")?.value || "";
+        character.concept = document.getElementById("f-concept")?.value || "";
+        character.notes = document.getElementById("f-notes")?.value || "";
+        character.deeds.short = document.getElementById("f-deed-short")?.value || "";
+        character.deeds.long = document.getElementById("f-deed-long")?.value || "";
+        character.deeds.band = document.getElementById("f-deed-band")?.value || "";
+      }
+      if (step === "paths") persistPathsPhrasesFromDom();
+      persistDragonFromDom(character, bundle);
+      return;
+    }
     persistDragonFromDom(character, bundle);
     return;
   }
@@ -5890,29 +6187,33 @@ function render() {
       const p = document.createElement("p");
       p.className = "warn";
       p.textContent =
-        "Dragon Heir data is missing from the game bundle. Add dragonTier, dragonFlights, dragonMagic, and dragonKnacks to data/meta.json, restart the server, and hard-refresh.";
+        "Dragon Heir data is missing from the game bundle. Add dragonTier, dragonCallingKnacks, dragonFlights, dragonMagic, and dragonKnacks to data/meta.json, restart the server, and hard-refresh.";
       root.appendChild(p);
       updateHeaderTierDisplay();
       return;
     }
     ensureDragonShape(character, bundle);
-    root.innerHTML = "";
-    renderDragonChargen({
-      root,
-      character,
-      bundle,
-      render,
-      scrollStepIntoView: scrollWizardStepIntoView,
-      onExitToScionConcept: () => {
-        character.chargenLineage = "scion";
-        delete character.dragon;
-        stepIndex = 1;
-        render();
-        scrollWizardStepIntoView();
-      },
-    });
-    updateHeaderTierDisplay();
-    return;
+    if (character.dragon?.pastConcept !== true && stepIndex > 1) stepIndex = 1;
+    if (character.dragon?.pastConcept === true) {
+      if (wnav) wnav.style.display = "none";
+      root.innerHTML = "";
+      renderDragonChargen({
+        root,
+        character,
+        bundle,
+        render,
+        scrollStepIntoView: scrollWizardStepIntoView,
+        onBackToHeirConcept: () => {
+          persistDragonFromDom(character, bundle);
+          character.dragon.pastConcept = false;
+          stepIndex = 1;
+          render();
+          scrollWizardStepIntoView();
+        },
+      });
+      updateHeaderTierDisplay();
+      return;
+    }
   }
 
   if (!bundle?.tier || typeof bundle.tier !== "object") {
@@ -6026,6 +6327,11 @@ function render() {
           window.alert(pvBlock);
           return;
         }
+      }
+      if (isDragonHeirChargen(character) && step === "concept") {
+        ensureDragonShape(character, bundle);
+        character.dragon.pastConcept = true;
+        character.dragon.stepIndex = 0;
       }
       stepIndex += 1;
       render();

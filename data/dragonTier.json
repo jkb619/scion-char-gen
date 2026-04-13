@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Inheritance rating 1–9 and Lesser Wyrm band paraphrased from Scion: Dragon (traits / advancement). Apotheosis at 10 is out of normal PC scope here.",
+    "note": "Inheritance 1–9 Heir / Lesser Wyrm milestones and Inheritance 10 True Dragon (Apotheosis) paraphrased from Scion: Dragon (pp. 117–119). Starting at 10 is uncommon—confirm with your Storyguide.",
     "source": "Scion_Dragon_(Final_Download).pdf, Inheritance & Character Advancement (pp. 117–119)"
   },
   "inheritanceTrack": {
@@ -12,6 +12,7 @@
     "6": { "id": "6", "name": "Cabalist", "band": "Lesser Wyrm", "summary": "Inner-circle intrigue; +1 Calling dot in patron’s Calling, +1 Spell, +1 Draconic Knack (p. 119)." },
     "7": { "id": "7", "name": "Arcanist", "band": "Lesser Wyrm", "summary": "Expert intriguer; Craving Condition Momentum hook scales; +1 Spell, +1 Draconic Knack (p. 119)." },
     "8": { "id": "8", "name": "Vizier", "band": "Lesser Wyrm", "summary": "Advisor tier; may lose human shape; +1 Spell from patron or signature Flight Magic, +1 Calling dot, +1 preferred Draconic Knack (p. 119)." },
-    "9": { "id": "9", "name": "Mastermind", "band": "Lesser Wyrm", "summary": "Near-draconic perspective; +1 Spell from patron or signature Flight Magic, +1 Calling dot in patron’s Calling, +1 Draconic Knack (p. 119)." }
+    "9": { "id": "9", "name": "Mastermind", "band": "Lesser Wyrm", "summary": "Near-draconic perspective; +1 Spell from patron or signature Flight Magic, +1 Calling dot in patron’s Calling, +1 Draconic Knack (p. 119)." },
+    "10": { "id": "10", "name": "True Dragon", "band": "Apotheosis", "summary": "Heir Apotheosis—true draconic being; ends the Heir path in favor of the dragon’s nature (pp. 117–119). Full mechanics and table text: confirm at the table." }
   }
 }

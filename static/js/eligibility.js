@@ -216,6 +216,22 @@ export function mythosCharacterCallingIdsForKnacks(character) {
   return out;
 }
 
+/**
+ * Resolve a Knack row from the merged deity/titan catalog or the Dragon Heir Calling catalog.
+ * @param {string} kid
+ * @param {{ knacks?: Record<string, unknown>; dragonCallingKnacks?: Record<string, unknown> }} [bundle]
+ * @returns {Record<string, unknown> | null}
+ */
+export function bundleKnackById(kid, bundle) {
+  const k = String(kid ?? "").trim();
+  if (!k || k.startsWith("_")) return null;
+  const main = bundle?.knacks?.[k];
+  if (main && typeof main === "object") return /** @type {Record<string, unknown>} */ (main);
+  const dr = bundle?.dragonCallingKnacks?.[k];
+  if (dr && typeof dr === "object") return /** @type {Record<string, unknown>} */ (dr);
+  return null;
+}
+
 /** Calling-dot–equivalent cost: Heroic (Mortal) Knack = 1; Immortal Knack = 2 (Hero+). */
 export function knackCallingSlotCost(k) {
   if (!k || typeof k !== "object") return 1;
@@ -347,7 +363,7 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
   function dfs(i, rowUsed, slotMap) {
     if (i >= n) return { ...slotMap };
     const kid = ids[i];
-    const kn = bundle?.knacks?.[kid];
+    const kn = bundleKnackById(kid, bundle);
     if (!kn) return null;
     const cost = knackCallingSlotCost(kn);
     for (let r = 0; r < rowCount; r += 1) {
@@ -426,7 +442,7 @@ export function knackIdsCallingSlotsUsed(knackIds, bundle) {
   let sum = 0;
   for (const id of knackIds || []) {
     if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
-    const kn = bundle?.knacks?.[id];
+    const kn = bundleKnackById(id, bundle);
     sum += knackCallingSlotCost(kn);
   }
   return sum;
@@ -435,7 +451,7 @@ export function knackIdsCallingSlotsUsed(knackIds, bundle) {
 export function immortalKnackCountInList(knackIds, bundle) {
   let n = 0;
   for (const id of knackIds || []) {
-    const kn = bundle?.knacks?.[id];
+    const kn = bundleKnackById(id, bundle);
     if (kn?.knackKind === "immortal") n += 1;
   }
   return n;
