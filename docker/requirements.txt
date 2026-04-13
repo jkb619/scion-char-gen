@@ -1,0 +1,6 @@
+# Runtime image: same stack as repo root minus Playwright (PDF review sheet falls back to PyMuPDF).
+fastapi>=0.110,<1
+uvicorn[standard]>=0.27,<1
+jinja2>=3.1,<4
+pypdf>=4.0,<6
+pymupdf>=1.24.0,<2

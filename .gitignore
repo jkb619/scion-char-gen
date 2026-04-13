@@ -1,2 +1,7 @@
-data/_extracted/
+src/data/_extracted/
 .certs/
+
+# Terragrunt / Terraform
+**/.terragrunt-cache/
+**/.terraform/
+terraform/secrets/app-secret.json
