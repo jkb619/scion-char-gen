@@ -235,15 +235,6 @@ function isSorcererLineTier(tierId) {
 }
 
 /**
- * Base Sorcerer (Legend 0) Paths omit Visitation pantheon/parent UI (Saints & Monsters ch. 3).
- * Sorcerer Hero+ keeps that stack for Patron Purviews / Society Asset Skills (Origin p. 97).
- * @param {string} [tierId]
- */
-function sorcererPathsHidePatronStack(tierId) {
-  return isSorcererLineTier(tierId) && !tierHasPurviewStep(tierId);
-}
-
-/**
  * How many Workings a Sorcerer may know at chargen for this tier (S&M p. 65: one at Legend 0; +1 at Legend 1, 5, 9).
  * @param {string} [tierId]
  */
@@ -1324,11 +1315,11 @@ function isMythosPantheonSelected() {
   return String(character?.pantheonId || "").trim() === "mythos";
 }
 
-/** MotM fourth Deed on Paths: only when pantheon is The Mythos (`mythos` in pantheons.json), not Dragon Heir / Sorcerer Legend-0 Paths. */
+/** MotM fourth Deed on Paths: only when pantheon is The Mythos (`mythos` in pantheons.json), not Dragon / Sorcerer line. */
 function pathsStepShowsMythosDeedFields() {
   return (
     isMythosPantheonSelected() &&
-    !sorcererPathsHidePatronStack(character.tier) &&
+    !isSorcererLineTier(character.tier) &&
     !isDragonHeirChargen(character)
   );
 }
@@ -1642,7 +1633,7 @@ function fillPantheonVirtuesDisplay(pantheonId) {
  * not the player’s “one free” pick, so do not carry it forward — Origin pp. 96–97).
  */
 function ensureSocietyDefaultAssetSkills() {
-  if (sorcererPathsHidePatronStack(character.tier)) return;
+  if (isSorcererLineTier(character.tier)) return;
   const assets = societyPatronAssetSkillIds();
   if (!character.pantheonId || assets.length === 0 || assets.length > 3) return;
   const pantheonAssets = pantheonWideSocietyAssetSkillIds();
@@ -1661,7 +1652,7 @@ function ensureSocietyDefaultAssetSkills() {
  * @param {string[]} nextArr
  */
 function societySkillsAllowed(nextArr) {
-  if (sorcererPathsHidePatronStack(character.tier)) return { ok: true };
+  if (isSorcererLineTier(character.tier)) return { ok: true };
   const pantheonId = String(character?.pantheonId ?? "").trim();
   const assets = societyPatronAssetSkillIds();
   if (!pantheonId || !Array.isArray(assets) || assets.length === 0) {
@@ -1710,7 +1701,7 @@ function validateAllPathSkillsDetailed() {
     }
   }
   const soc = Array.isArray(character.pathSkills.society) ? character.pathSkills.society : [];
-  if (soc.length === 3 && !sorcererPathsHidePatronStack(character.tier)) {
+  if (soc.length === 3 && !isSorcererLineTier(character.tier)) {
     const v = societySkillsAllowed(soc);
     if (!v.ok) issues.push({ pathKey: "society", message: v.reason });
   }
@@ -3029,11 +3020,11 @@ function renderPaths(root) {
           </select>
         </div>
         <div class="field paths-deity-field"><label id="p-deity-label" for="p-deity">Parent</label><select id="p-deity"></select></div>
-        <div class="field paths-mythos-deed-field" id="p-mythos-deed-wrap" hidden>
-          <label for="p-mythos-deed">Mythos Deed</label>
-          <textarea id="p-mythos-deed" rows="2" spellcheck="false" placeholder="Fourth Deed slot (Masks of the Mythos)"></textarea>
-          <p class="help paths-mythos-deed-hint">MotM adds a <strong>Mythos</strong> Deed alongside Short-term, Long-term, and Band (see your MotM / table guidance).</p>
-        </div>
+      </div>
+      <div class="field paths-mythos-deed-field" id="p-mythos-deed-wrap" hidden style="display: none">
+        <label for="p-mythos-deed">Mythos Deed</label>
+        <textarea id="p-mythos-deed" rows="2" spellcheck="false" placeholder="Fourth Deed slot (Masks of the Mythos)"></textarea>
+        <p class="help paths-mythos-deed-hint">MotM adds a <strong>Mythos</strong> Deed alongside Short-term, Long-term, and Band (see your MotM / table guidance).</p>
       </div>
       <p class="help paths-patron-lineage-hint">Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.</p>
     </div>
@@ -3063,8 +3054,8 @@ function renderPaths(root) {
     note.innerHTML =
       typeof raw === "string" && raw.trim()
         ? raw
-        : sorcererPathsHidePatronStack(character.tier)
-          ? "<strong>Sorcerer Paths</strong> (Saints & Monsters ch. 3) use Origin’s three-Path structure (Origin p. 95); this tier does not use Visitation patron Purviews or pantheon Society Asset Skills on Paths."
+        : isSorcererLineTier(character.tier)
+          ? "<strong>Sorcerer Paths</strong> (Saints & Monsters ch. 3) use Origin’s three-Path structure (Origin p. 95) without Visitation pantheon or divine parent; Purviews come from the <strong>Magic</strong> Purview and other Sorcery rules in that chapter, not patron lists."
           : "<strong>Patron Purviews</strong> are assigned after Visitation (<strong>Hero</strong> tier and above), not during Origin Mortal chargen. Pantheon and divine parent here still set Society Path Asset Skills (Origin p. 97).";
     patronMount.appendChild(note);
   }
@@ -3084,7 +3075,7 @@ function renderPaths(root) {
   }
   ps.value = character.pantheonId;
   const fillDeities = () => {
-    if (isDragonHeirChargen(character) || sorcererPathsHidePatronStack(character.tier)) return;
+    if (isDragonHeirChargen(character) || isSorcererLineTier(character.tier)) return;
     character.pantheonId = ps.value;
     const ds = document.getElementById("p-deity");
     const lab = document.getElementById("p-deity-label");
@@ -3101,7 +3092,7 @@ function renderPaths(root) {
     ds.value = character.parentDeityId;
   };
   ps.addEventListener("change", () => {
-    if (isDragonHeirChargen(character) || sorcererPathsHidePatronStack(character.tier)) return;
+    if (isDragonHeirChargen(character) || isSorcererLineTier(character.tier)) return;
     persistPathsPhrasesFromDom();
     character.virtueSpectrum = 0;
     character.parentDeityId = "";
@@ -3124,7 +3115,7 @@ function renderPaths(root) {
   if (pkSel) {
     pkSel.value = patronKindIsTitan() ? "titan" : "deity";
     pkSel.addEventListener("change", () => {
-      if (isDragonHeirChargen(character) || sorcererPathsHidePatronStack(character.tier)) return;
+      if (isDragonHeirChargen(character) || isSorcererLineTier(character.tier)) return;
       persistPathsPhrasesFromDom();
       character.patronKind = pkSel.value === "titan" ? "titan" : "deity";
       character.parentDeityId = "";
@@ -3166,7 +3157,10 @@ function renderPaths(root) {
   const socLab0 = socTa0?.parentElement?.querySelector("label");
   if (isDragonHeirChargen(character)) {
     ensureDragonShape(character, bundle);
-    if (stackEl) stackEl.hidden = true;
+    if (stackEl) {
+      stackEl.hidden = true;
+      stackEl.style.display = "none";
+    }
     if (pkField) pkField.hidden = true;
     if (deityField) deityField.hidden = true;
     if (pantheonField) pantheonField.hidden = true;
@@ -3203,15 +3197,18 @@ function renderPaths(root) {
     if (pkEl0) pkEl0.disabled = true;
     const deSel = document.getElementById("p-deity");
     if (deSel) deSel.disabled = true;
-  } else if (sorcererPathsHidePatronStack(character.tier)) {
+  } else if (isSorcererLineTier(character.tier)) {
     document.getElementById("p-dragon-flight-mount")?.remove();
-    if (stackEl) stackEl.hidden = true;
+    if (stackEl) {
+      stackEl.hidden = true;
+      stackEl.style.display = "none";
+    }
     if (pkField) pkField.hidden = true;
     if (deityField) deityField.hidden = true;
     if (pantheonField) pantheonField.hidden = true;
     if (lineageHint) {
       lineageHint.textContent =
-        "Sorcerer (Legend 0): Origin, Role (how you learned Sorcery), and Society Paths per Saints & Monsters ch. 3 — pick three Skills per Path on the Skills step (no pantheon Asset Skill requirement).";
+        "Sorcerer: Origin, Role (how you learned Sorcery), and Society Paths per Saints & Monsters ch. 3 — pick three Skills per Path on the Skills step (no Visitation pantheon or divine parent).";
     }
     if (socLab0) socLab0.textContent = "Society Path phrase";
     ps.disabled = true;
@@ -3226,7 +3223,10 @@ function renderPaths(root) {
     }
   } else {
     document.getElementById("p-dragon-flight-mount")?.remove();
-    if (stackEl) stackEl.hidden = false;
+    if (stackEl) {
+      stackEl.hidden = false;
+      stackEl.style.removeProperty("display");
+    }
     if (pkField) pkField.hidden = false;
     if (deityField) deityField.hidden = false;
     if (pantheonField) pantheonField.hidden = false;
@@ -3242,7 +3242,7 @@ function renderPaths(root) {
     if (deSel2) deSel2.disabled = false;
   }
   document.getElementById("p-deity").addEventListener("change", (e) => {
-    if (isDragonHeirChargen(character) || sorcererPathsHidePatronStack(character.tier)) return;
+    if (isDragonHeirChargen(character) || isSorcererLineTier(character.tier)) return;
     persistPathsPhrasesFromDom();
     character.parentDeityId = e.target.value;
     ensureSocietyDefaultAssetSkills();
@@ -3258,14 +3258,15 @@ function renderPaths(root) {
   const mythDeedTa = document.getElementById("p-mythos-deed");
   if (mythDeedWrap && mythDeedTa) {
     const showMyth = pathsStepShowsMythosDeedFields();
-    mythDeedWrap.hidden = !showMyth;
+    mythDeedWrap.toggleAttribute("hidden", !showMyth);
+    mythDeedWrap.style.display = showMyth ? "" : "none";
     if (typeof character.deeds?.mythos !== "string") character.deeds.mythos = "";
     mythDeedTa.value = character.deeds.mythos || "";
     mythDeedTa.oninput = () => {
       character.deeds.mythos = mythDeedTa.value;
     };
   }
-  const hidePathsVirtuesUi = isDragonHeirChargen(character) || sorcererPathsHidePatronStack(character.tier);
+  const hidePathsVirtuesUi = isDragonHeirChargen(character) || isSorcererLineTier(character.tier);
   const virtuesAside = document.getElementById("p-pantheon-virtues");
   if (hidePathsVirtuesUi) {
     if (virtuesAside) {
@@ -3297,7 +3298,7 @@ function renderPaths(root) {
   applyHint(document.getElementById("p-origin"), "p-origin");
   applyHint(document.getElementById("p-role"), "p-role");
   applyHint(document.getElementById("p-soc"), isDragonHeirChargen(character) ? "p-flight-path" : "p-soc");
-  if (!isDragonHeirChargen(character) && !sorcererPathsHidePatronStack(character.tier)) {
+  if (!isDragonHeirChargen(character) && !isSorcererLineTier(character.tier)) {
     ["p-pantheon", "p-patron-kind", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
   }
   const mythDeedEl = document.getElementById("p-mythos-deed");
@@ -3472,11 +3473,11 @@ function renderSkills(root) {
     chips.appendChild(h);
 
     const assets =
-      pk === "society" && !sorcererPathsHidePatronStack(character.tier) ? societyPatronAssetSkillIds() : [];
+      pk === "society" && !isSorcererLineTier(character.tier) ? societyPatronAssetSkillIds() : [];
     if (pk === "society") {
       const rule = document.createElement("p");
       rule.className = "help society-asset-rule";
-      if (sorcererPathsHidePatronStack(character.tier)) {
+      if (isSorcererLineTier(character.tier)) {
         rule.textContent =
           "Sorcerer Society Path: any three Skills you can justify to the table (Saints & Monsters ch. 3, Step Two; Origin p. 95 for Path structure).";
       } else {
@@ -4233,6 +4234,13 @@ function renderPurviews(root) {
     tierP.className = "help tier-purviews-note";
     tierP.textContent = tierPvNote.trim();
     wrap.appendChild(tierP);
+  }
+  if (isSorcererLineTier(character.tier)) {
+    const smP = document.createElement("p");
+    smP.className = "help sorcerer-purviews-magic-note";
+    smP.innerHTML =
+      "Saints & Monsters ch. 3: Sorcerers do not use Visitation or a divine parent’s patron Purview list. Marvels come from <strong>Workings</strong>; at Heroic band and up, add the <strong>Magic</strong> Purview and its Boons for the same kind of structured powers Scions buy as Purview effects (see that chapter’s <strong>Purview: Magic</strong>). Sources of Power and Paraphernalia (earlier steps) gate how you fuel spells—not pantheon Society Skills.";
+    wrap.appendChild(smP);
   }
   if (singlePatronPurviewTier && character.pantheonId) {
     const sig = pantheonSignaturePurviewId();
@@ -6299,7 +6307,7 @@ function persistPathsStepFromDom() {
     persistDragonFromDom(character, bundle);
     return;
   }
-  if (sorcererPathsHidePatronStack(character.tier)) {
+  if (isSorcererLineTier(character.tier)) {
     return;
   }
   character.pantheonId = document.getElementById("p-pantheon")?.value || "";

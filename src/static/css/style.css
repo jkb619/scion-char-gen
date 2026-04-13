@@ -705,6 +705,11 @@ textarea.has-doc-hint:focus-visible {
   align-items: stretch;
 }
 
+/* [hidden] alone can fail inside flex column layouts; keep Visitation row off-screen for Sorcerer/Dragon. */
+#paths-pantheon-deity-stack[hidden] {
+  display: none !important;
+}
+
 @media (min-width: 48rem) {
   .paths-pantheon-deity-stack {
     grid-template-columns: minmax(0, 1fr) minmax(10.5rem, 13rem) minmax(0, 1fr);
@@ -727,9 +732,15 @@ textarea.has-doc-hint:focus-visible {
   min-height: 2.35rem;
 }
 
-/* Mythos fourth Deed — full width under Pantheon / Patron / Parent row. */
+/* Mythos fourth Deed — below Visitation row; not inside the pantheon grid. */
 .paths-mythos-deed-field {
-  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 56rem;
+}
+
+/* Some browsers/layouts show [hidden] flex children anyway; force off-layout. */
+#p-mythos-deed-wrap[hidden] {
+  display: none !important;
 }
 
 .paths-mythos-deed-hint {
