@@ -218,8 +218,15 @@ function rebalanceDragonCallingSlotDotsOverFive(d) {
 
 const PATH_KEYS = ["origin", "role", "flight"];
 
-/** Welcome + Concept use the main Scion wizard; Heir track starts at Paths. */
-const STEPS = ["paths", "skills", "attributes", "callings", "magic", "birthrights", "finishing", "review"];
+/**
+ * Post-concept Dragon Heir steps (tab ids match the unified main wizard nav).
+ * Paths body: app `renderPaths` (Flight + phrases). Skills+: `renderDragonHeirStepInRoot` (Skills via `renderSkills` in app).
+ * Same ids as Origin Mortal `tier.json` where possible (`calling` singular); Dragon inserts `magic` and `birthrights` before Finishing.
+ */
+export const DRAGON_HEIR_POST_CONCEPT_STEPS = ["paths", "skills", "attributes", "calling", "magic", "birthrights", "finishing", "review"];
+/** Steps rendered inside `renderDragonHeirStepInRoot` (everything after Paths). */
+export const DRAGON_HEIR_SUBMODULE_STEPS = ["skills", "attributes", "calling", "magic", "birthrights", "finishing", "review"];
+const STEPS = DRAGON_HEIR_POST_CONCEPT_STEPS;
 
 /**
  * Calling ids that have at least one Dragon Heir Calling Knack row (`bundle.dragonCallingKnacks`).
@@ -270,7 +277,8 @@ function birthrightsForDragonChargen(bundle) {
 
 /** @param {Record<string, unknown>} character */
 export function isDragonHeirChargen(character) {
-  return String(character?.chargenLineage ?? "").trim() === "dragonHeir";
+  const x = String(character?.chargenLineage ?? "").trim().toLowerCase();
+  return x === "dragonheir" || x === "dragon_heir";
 }
 
 export function defaultDragonState() {
@@ -311,7 +319,8 @@ export function defaultDragonState() {
     inheritance: 1,
     deedName: "",
     remembranceTrackCenter: true,
-    pastConcept: false,
+    /** Legacy field; wizard treats Dragon like Deity Mortal (all tabs usable anytime). Kept for JSON import. */
+    pastConcept: true,
     dragonWizardVersion: 2,
   };
 }
@@ -413,9 +422,8 @@ export function ensureDragonShape(character, bundle) {
   }
   if (!Number.isFinite(Number(d.stepIndex)) || d.stepIndex < 0) d.stepIndex = 0;
   if (d.stepIndex >= STEPS.length) d.stepIndex = STEPS.length - 1;
-  if (d.pastConcept == null) {
-    d.pastConcept = Boolean(String(d.flightId || "").trim()) || rawStepBeforeMigrate > 0;
-  }
+  /** Wizard no longer gates on this (same tab behavior as Deity Mortal); normalize so exports stay consistent. */
+  d.pastConcept = d.pastConcept === true || String(d.pastConcept ?? "").trim().toLowerCase() === "true";
   const dck = bundle?.dragonCallingKnacks;
   if (dck && typeof dck === "object") {
     const allowed = new Set(Object.keys(dck).filter((k) => !k.startsWith("_")));
@@ -637,6 +645,51 @@ function appendDragonSkillRatingDotsCell(tr, sid, skillMeta, val) {
   dotsTd.appendChild(dotsWrap);
   tr.appendChild(dotsTd);
   applyGameDataHint(dotsTd, skillMeta);
+}
+
+/**
+ * Read-only Path-derived Skill ratings — shown on the Skills step with Path picks (Dragon Heir).
+ * @param {HTMLElement} parent
+ * @param {Record<string, unknown>} d
+ * @param {Record<string, unknown>} bundle
+ */
+function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
+  applyDragonPathMathToSkillDots(d, bundle);
+  const list = document.createElement("div");
+  list.className = "panel skill-ratings-panel";
+  const head = document.createElement("h2");
+  head.textContent = "Skill ratings (0–5)";
+  list.appendChild(head);
+  const ratingsHelp = document.createElement("p");
+  ratingsHelp.className = "help";
+  ratingsHelp.textContent =
+    "Ratings follow Path priority 3/2/1 (Dragon p. 111; Origin p. 97). Dots are read-only—change Path Skills or priority above, or change Flight on the Paths step. If overlap would exceed 5 in a Skill, use this step’s redistribution controls below. At 3+ dots, add free Specialties (Origin pp. 59–60).";
+  list.appendChild(ratingsHelp);
+  const tbl = document.createElement("table");
+  tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  ["Skill", "Dots"].forEach((label, idx) => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    if (idx > 0) th.className = "skill-ratings-th-num";
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+  const tb = document.createElement("tbody");
+  for (const sid of skillIds(bundle)) {
+    const sk = bundle.skills[sid];
+    const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
+    const tr = document.createElement("tr");
+    tr.className = "skill-rating-row";
+    appendDragonSkillRatingNameCell(tr, sid, sk, val, d);
+    appendDragonSkillRatingDotsCell(tr, sid, sk, val);
+    tb.appendChild(tr);
+  }
+  tbl.appendChild(tb);
+  list.appendChild(tbl);
+  parent.appendChild(list);
 }
 
 /**
@@ -1618,7 +1671,7 @@ function flightRequiredSkills(bundle, flightId) {
  * @param {DragonState} d
  * @param {Record<string, unknown>} bundle
  */
-function syncDragonFlightPathRequiredSkills(d, bundle) {
+export function syncDragonFlightPathRequiredSkills(d, bundle) {
   const fid = String(d.flightId || "").trim();
   if (!fid) return;
   const req = flightRequiredSkills(bundle, fid).filter((id) => bundle?.skills?.[id] && !String(id).startsWith("_"));
@@ -1643,220 +1696,301 @@ function syncDragonFlightPathRequiredSkills(d, bundle) {
 }
 
 /**
- * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; onBackToHeirConcept?: () => void; scrollStepIntoView?: () => void }} ctx
+ * Path priority, three Skills per Path, and read-only Path-derived dots (Dragon Heir Skills step).
+ * @param {HTMLElement} parent
+ * @param {DragonState} d
+ * @param {Record<string, unknown>} bundle
+ * @param {() => void} render
  */
-export function renderDragonChargen(ctx) {
-  const { root, character, bundle, render, onBackToHeirConcept, scrollStepIntoView } = ctx;
-  ensureDragonShape(character, bundle);
-  const d = character.dragon;
-  const step = STEPS[d.stepIndex] || "paths";
+function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render) {
+  syncDragonFlightPathRequiredSkills(d, bundle);
+  const rule = document.createElement("p");
+  rule.className = "help";
+  rule.id = "d-flight-skill-rule";
+  const reqFlight = flightRequiredSkills(bundle, d.flightId);
+  if (!String(d.flightId || "").trim()) {
+    rule.textContent = "Choose a Flight on the Paths step first; Path Skills depend on it.";
+  } else if (reqFlight.length) {
+    const names = reqFlight.map((id) => bundle.skills[id]?.name || id).join(", ");
+    rule.textContent = `Those Flight skills (${names}) are added automatically; pick one other Skill for this Path (Dragon p. 112).`;
+  } else {
+    rule.textContent =
+      "This Flight does not add fixed Flight Path skills—pick any three Skills for the Flight Path (Dragon p. 112).";
+  }
+  parent.appendChild(rule);
 
-  const nav = document.getElementById("wizard-nav");
-  if (nav) {
-    nav.style.display = "";
-    nav.innerHTML = "";
-    STEPS.forEach((id, idx) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = id.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
-      if (idx === d.stepIndex) btn.classList.add("active");
-      if (idx < d.stepIndex) btn.classList.add("done");
-      btn.addEventListener("click", () => {
-        persistDragonFromDom(character, bundle);
-        const skillsIdx = STEPS.indexOf("skills");
-        if (idx > skillsIdx && skillsIdx >= 0) {
-          applyDragonPathMathToSkillDots(d, bundle);
-          const pendNav = dragonPathSkillOverflowDotsPending(d, bundle);
-          if (pendNav > 0) {
-            window.alert(
-              `Redistribute Path overlap on the Skills step first: ${pendNav} dot(s) still unplaced (Origin p. 97).`,
-            );
+  const rankMount = document.createElement("div");
+  rankMount.className = "grid-2";
+  rankMount.id = "d-path-ranks";
+  ["primary", "secondary", "tertiary"].forEach((rk) => {
+    const field = document.createElement("div");
+    field.className = "field";
+    const lab = document.createElement("label");
+    lab.textContent = `${rk} path`;
+    const sel = document.createElement("select");
+    sel.id = `d-path-rank-${rk}`;
+    for (const pk of PATH_KEYS) {
+      const o = document.createElement("option");
+      o.value = pk;
+      o.textContent = pk.charAt(0).toUpperCase() + pk.slice(1);
+      sel.appendChild(o);
+    }
+    sel.value = d.pathRank[rk] && PATH_KEYS.includes(d.pathRank[rk]) ? d.pathRank[rk] : "origin";
+    sel.addEventListener("change", () => {
+      const prev = { ...d.pathRank };
+      const newPath = sel.value;
+      const oldPath = prev[rk];
+      if (newPath === oldPath) return;
+      const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
+      if (otherRank) d.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
+      else d.pathRank = { ...prev, [rk]: newPath };
+      render();
+    });
+    field.appendChild(lab);
+    field.appendChild(sel);
+    rankMount.appendChild(field);
+  });
+  parent.appendChild(rankMount);
+
+  const panels = document.createElement("div");
+  panels.id = "d-path-skill-panels";
+  for (const pk of PATH_KEYS) {
+    const count = (d.pathSkills[pk] || []).length;
+    const box = document.createElement("div");
+    box.className = "panel" + (count !== 3 ? " panel-gate-invalid" : "");
+    box.id = `d-path-skills-panel-${pk}`;
+    const h = document.createElement("h2");
+    h.className = "path-skills-heading";
+    const pathTitle = pk.charAt(0).toUpperCase() + pk.slice(1);
+    const snip = dragonPathPhraseSnippet(d, pk);
+    if (snip) {
+      h.textContent = `Skills for ${pathTitle} path — ${snip.text}`;
+      if (snip.truncated) h.title = snip.full;
+    } else {
+      h.textContent = `Skills for ${pathTitle} path`;
+      h.title = "Describe this Path on the Paths step; the phrase is shown here to guide Skill choices.";
+    }
+    box.appendChild(h);
+
+    if (pk === "flight" && reqFlight.length >= 1) {
+      const flightRule = document.createElement("p");
+      flightRule.className = "help society-asset-rule";
+      const aNames = reqFlight.map((id) => bundle.skills[id]?.name || id).join(" & ");
+      flightRule.innerHTML = `<strong>Flight Path:</strong> <span class="asset-skill-names">${aNames}</span> are fixed for this Flight — pick exactly <em>${Math.max(0, 3 - reqFlight.length)}</em> more Skill(s) (Dragon p. 112).`;
+      box.appendChild(flightRule);
+    }
+
+    const err = document.createElement("p");
+    err.id = `d-path-skill-violation-${pk}`;
+    err.className = "warn";
+    err.style.minHeight = "1.25em";
+    box.appendChild(err);
+
+    if (count !== 3) {
+      const w = document.createElement("p");
+      w.className = "warn";
+      w.textContent =
+        pk === "flight" && reqFlight.length >= 1
+          ? "Pick one more Skill (highlighted Flight skills are already included)."
+          : "Each Path should have exactly three Skills at creation.";
+      box.appendChild(w);
+    }
+
+    const cdiv = document.createElement("div");
+    cdiv.className = "chips";
+    for (const sid of skillIds(bundle)) {
+      const s = bundle.skills[sid];
+      const chip = document.createElement("button");
+      chip.type = "button";
+      const isOn = (d.pathSkills[pk] || []).includes(sid);
+      const isFlightAsset = pk === "flight" && reqFlight.includes(sid);
+      chip.className = "chip" + (isOn ? " on" : "") + (isFlightAsset ? " chip-pantheon-asset" : "");
+      chip.textContent = s.name;
+      applyGameDataHint(
+        chip,
+        s,
+        isFlightAsset
+          ? {
+              prefix:
+                "Required for this Flight — selected automatically and cannot be removed. Pick your other Flight Path skill(s) per Dragon p. 112.",
+            }
+          : undefined,
+      );
+      chip.addEventListener("click", () => {
+        const set = new Set(d.pathSkills[pk] || []);
+        if (pk === "flight" && reqFlight.includes(sid) && set.has(sid)) {
+          return;
+        }
+        if (set.has(sid)) set.delete(sid);
+        else set.add(sid);
+        const next = [...set];
+        const viol = document.getElementById(`d-path-skill-violation-${pk}`);
+        if (next.length > 3) {
+          if (viol) viol.textContent = "Each Path may only include three Skills.";
+          return;
+        }
+        if (pk === "flight" && reqFlight.length >= 1 && next.length === 3) {
+          const picked = new Set(next);
+          const ok = reqFlight.every((id) => picked.has(id));
+          if (!ok) {
+            if (viol) viol.textContent = "Flight Path must include every Flight-listed required skill.";
             return;
           }
         }
-        d.stepIndex = idx;
+        if (viol) viol.textContent = "";
+        d.pathSkills[pk] = next;
         render();
-        scrollStepIntoView?.();
       });
-      nav.appendChild(btn);
-    });
+      cdiv.appendChild(chip);
+    }
+    box.appendChild(cdiv);
+    panels.appendChild(box);
   }
+  parent.appendChild(panels);
+  appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle);
+}
 
-  root.innerHTML = "";
+/**
+ * @param {DragonState} d
+ * @param {Record<string, unknown>} bundle
+ * @returns {string | null} user-facing alert text when Path Skills are not ready for steps after Skills
+ */
+function dragonPathSkillsAssignmentIncompleteMessage(d, bundle) {
+  if (!String(d.flightId || "").trim()) {
+    return "Choose a Flight on the Paths step.";
+  }
+  for (const pk of PATH_KEYS) {
+    if ((d.pathSkills[pk] || []).length !== 3) {
+      return `Pick exactly three Skills for the ${pk} path.`;
+    }
+  }
+  const req = flightRequiredSkills(bundle, d.flightId);
+  const flSkills = new Set(d.pathSkills.flight || []);
+  if (req.length && !req.every((id) => flSkills.has(id))) {
+    return "Flight Path must include every skill your Flight lists for this Path.";
+  }
+  return null;
+}
 
+/**
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ * @param {string} step
+ * @returns {string | null} alert text if the user cannot leave this step toward Next
+ */
+export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
+  if (!isDragonHeirChargen(character)) return null;
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
   if (step === "paths") {
-    syncDragonFlightPathRequiredSkills(d, bundle);
-    applyDragonPathMathToSkillDots(d, bundle);
-    const wrap = document.createElement("div");
-    wrap.innerHTML = `
-      <div class="field"><label for="d-flight">Flight</label><select id="d-flight"><option value="">—</option></select></div>
-      <div class="paths-step-grid">
-        <div class="field"><label>Origin Path phrase</label><textarea id="d-p-origin"></textarea></div>
-        <div class="field"><label>Role Path phrase</label><textarea id="d-p-role"></textarea></div>
-        <div class="field"><label>Flight Path phrase</label><textarea id="d-p-flight"></textarea></div>
-      </div>
-      <p class="help" id="d-flight-skill-rule"></p>
-      <div class="grid-2" id="d-path-ranks"></div>
-      <div id="d-path-skill-panels"></div>`;
-    root.appendChild(panel("Dragon — Paths", wrap));
-    const fs = document.getElementById("d-flight");
-    for (const [fid, meta] of Object.entries(bundle.dragonFlights || {})) {
-      if (fid.startsWith("_") || !meta || typeof meta !== "object") continue;
-      const o = document.createElement("option");
-      o.value = fid;
-      o.textContent = meta.name || fid;
-      applyGameDataHint(o, meta);
-      fs.appendChild(o);
+    if (!String(d.flightId || "").trim()) {
+      return "Choose a Flight.";
     }
-    fs.value = d.flightId || "";
-    fs.addEventListener("change", () => {
-      d.flightId = fs.value;
-      const fl = bundle.dragonFlights?.[d.flightId];
-      if (fl?.signatureMagicId) {
-        d.knownMagics[0] = String(fl.signatureMagicId);
-      }
-      sanitizeDragonSecondaryKnownMagics(d, bundle);
-      render();
-    });
-    document.getElementById("d-p-origin").value = d.paths.origin;
-    document.getElementById("d-p-role").value = d.paths.role;
-    document.getElementById("d-p-flight").value = d.paths.flight;
-    ["d-p-origin", "d-p-role", "d-p-flight"].forEach((id) => applyHint(document.getElementById(id), id));
-
-    const rule = document.getElementById("d-flight-skill-rule");
-    const req = flightRequiredSkills(bundle, d.flightId);
-    if (req.length) {
-      const names = req.map((id) => bundle.skills[id]?.name || id).join(", ");
-      rule.textContent = `Those Flight skills (${names}) are added automatically; pick one other Skill for this Path (Dragon p. 112).`;
-    } else {
-      rule.textContent = "Pick a Flight to see whether it lists required Flight Path skills.";
-    }
-
-    const rankMount = document.getElementById("d-path-ranks");
-    ["primary", "secondary", "tertiary"].forEach((rk) => {
-      const field = document.createElement("div");
-      field.className = "field";
-      const lab = document.createElement("label");
-      lab.textContent = `${rk} path`;
-      const sel = document.createElement("select");
-      sel.id = `d-path-rank-${rk}`;
-      for (const pk of PATH_KEYS) {
-        const o = document.createElement("option");
-        o.value = pk;
-        o.textContent = pk.charAt(0).toUpperCase() + pk.slice(1);
-        sel.appendChild(o);
-      }
-      sel.value = d.pathRank[rk] && PATH_KEYS.includes(d.pathRank[rk]) ? d.pathRank[rk] : "origin";
-      sel.addEventListener("change", () => {
-        const prev = { ...d.pathRank };
-        const newPath = sel.value;
-        const oldPath = prev[rk];
-        if (newPath === oldPath) return;
-        const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
-        if (otherRank) d.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
-        else d.pathRank = { ...prev, [rk]: newPath };
-        render();
-      });
-      field.appendChild(lab);
-      field.appendChild(sel);
-      rankMount.appendChild(field);
-    });
-
-    const panels = document.getElementById("d-path-skill-panels");
-    const reqFlight = flightRequiredSkills(bundle, d.flightId);
-    for (const pk of PATH_KEYS) {
-      const count = (d.pathSkills[pk] || []).length;
-      const box = document.createElement("div");
-      box.className = "panel" + (count !== 3 ? " panel-gate-invalid" : "");
-      box.id = `d-path-skills-panel-${pk}`;
-      const h = document.createElement("h2");
-      h.className = "path-skills-heading";
-      const pathTitle = pk.charAt(0).toUpperCase() + pk.slice(1);
-      const snip = dragonPathPhraseSnippet(d, pk);
-      if (snip) {
-        h.textContent = `Skills for ${pathTitle} path — ${snip.text}`;
-        if (snip.truncated) h.title = snip.full;
-      } else {
-        h.textContent = `Skills for ${pathTitle} path`;
-        h.title = "Describe this Path above; the phrase is shown here to guide Skill choices.";
-      }
-      box.appendChild(h);
-
-      if (pk === "flight" && reqFlight.length >= 1) {
-        const rule = document.createElement("p");
-        rule.className = "help society-asset-rule";
-        const aNames = reqFlight.map((id) => bundle.skills[id]?.name || id).join(" & ");
-        rule.innerHTML = `<strong>Flight Path:</strong> <span class="asset-skill-names">${aNames}</span> are fixed for this Flight — pick exactly <em>${Math.max(0, 3 - reqFlight.length)}</em> more Skill(s) (Dragon p. 112).`;
-        box.appendChild(rule);
-      }
-
-      const err = document.createElement("p");
-      err.id = `d-path-skill-violation-${pk}`;
-      err.className = "warn";
-      err.style.minHeight = "1.25em";
-      box.appendChild(err);
-
-      if (count !== 3) {
-        const w = document.createElement("p");
-        w.className = "warn";
-        w.textContent =
-          pk === "flight" && reqFlight.length >= 1
-            ? "Pick one more Skill (highlighted Flight skills are already included)."
-            : "Each Path should have exactly three Skills at creation.";
-        box.appendChild(w);
-      }
-
-      const cdiv = document.createElement("div");
-      cdiv.className = "chips";
-      for (const sid of skillIds(bundle)) {
-        const s = bundle.skills[sid];
-        const chip = document.createElement("button");
-        chip.type = "button";
-        const isOn = (d.pathSkills[pk] || []).includes(sid);
-        const isFlightAsset = pk === "flight" && reqFlight.includes(sid);
-        chip.className = "chip" + (isOn ? " on" : "") + (isFlightAsset ? " chip-pantheon-asset" : "");
-        chip.textContent = s.name;
-        applyGameDataHint(
-          chip,
-          s,
-          isFlightAsset
-            ? {
-                prefix:
-                  "Required for this Flight — selected automatically and cannot be removed. Pick your other Flight Path skill(s) per Dragon p. 112.",
-              }
-            : undefined,
-        );
-        chip.addEventListener("click", () => {
-          const set = new Set(d.pathSkills[pk] || []);
-          if (pk === "flight" && reqFlight.includes(sid) && set.has(sid)) {
-            return;
-          }
-          if (set.has(sid)) set.delete(sid);
-          else set.add(sid);
-          const next = [...set];
-          const viol = document.getElementById(`d-path-skill-violation-${pk}`);
-          if (next.length > 3) {
-            if (viol) viol.textContent = "Each Path may only include three Skills.";
-            return;
-          }
-          if (pk === "flight" && reqFlight.length >= 1 && next.length === 3) {
-            const picked = new Set(next);
-            const ok = reqFlight.every((id) => picked.has(id));
-            if (!ok) {
-              if (viol) viol.textContent = "Flight Path must include both listed Flight skills.";
-              return;
-            }
-          }
-          if (viol) viol.textContent = "";
-          d.pathSkills[pk] = next;
-          render();
-        });
-        cdiv.appendChild(chip);
-      }
-      box.appendChild(cdiv);
-      panels.appendChild(box);
-    }
+    return null;
   }
+  if (step === "skills") {
+    const pathGate = dragonPathSkillsAssignmentIncompleteMessage(d, bundle);
+    if (pathGate) return pathGate;
+    applyDragonPathMathToSkillDots(d, bundle);
+    const pendSk = dragonPathSkillOverflowDotsPending(d, bundle);
+    if (pendSk > 0) {
+      return `Redistribute Path overlap: ${pendSk} dot(s) still unplaced (Origin p. 97 — max 5 per Skill from Paths; excess only onto other Path Skills).`;
+    }
+    return null;
+  }
+  if (step === "attributes") {
+    const ve = validateDragonAttributesPreFavored(d);
+    return ve.length ? ve.join("\n") : null;
+  }
+  if (step === "calling") {
+    const sum = d.callingSlots.reduce((s, x) => s + x.dots, 0);
+    const ids = d.callingSlots.map((s) => s.id).filter(Boolean);
+    if (sum !== 5 || ids.length !== 3 || new Set(ids).size !== 3) {
+      return "Assign exactly five Calling dots across three different Callings (minimum one dot each).";
+    }
+    const cap = sum;
+    const used = knackIdsCallingSlotsUsed(d.callingKnackIds, bundle);
+    if (used > cap) {
+      return "Too many Calling Knacks for your Calling dots.";
+    }
+    if (d.draconicKnackIds.length !== 2) {
+      return "Select exactly two Draconic Knacks.";
+    }
+    return null;
+  }
+  if (step === "magic") {
+    if (!d.knownMagics[0] || !d.knownMagics[1] || !d.knownMagics[2]) {
+      return "You need three Dragon Magics (signature is set from Flight; pick two more).";
+    }
+    for (const mid of d.knownMagics) {
+      if (!d.spellsByMagicId[mid]) {
+        return `Choose a Spell for each Magic (${mid}).`;
+      }
+    }
+    if (!d.bonusSpell?.magicId || !d.bonusSpell?.spellId) {
+      return "Choose the bonus Spell (Magic + Spell).";
+    }
+    return null;
+  }
+  if (step === "birthrights") {
+    for (const p of d.birthrightPicks) {
+      const id = String(p?.id || "").trim();
+      if (!id || !bundle.birthrights?.[id]) {
+        return "Each Birthright pick must reference a catalog entry. Remove invalid rows or re-add from the table.";
+      }
+    }
+    const used = dragonBirthrightsDotsPlaced(d.birthrightPicks);
+    if (used !== 7) {
+      return "Birthrights must total exactly seven dots.";
+    }
+    return null;
+  }
+  if (step === "finishing") {
+    applyDragonPathMathToSkillDots(d, bundle);
+    if (dragonFinishingBonusTotal(d) !== 5) {
+      return "Spend exactly five finishing Skill dots (Dragon p. 112).";
+    }
+    if (dragonFinishingAttrDotsPlaced(d, bundle) !== 1) {
+      return "Spend exactly one finishing Attribute dot (Dragon p. 112).";
+    }
+    if (d.finishingFocus === "birthrights") {
+      for (const p of d.finishingBirthrightPicks) {
+        const id = String(p?.id || "").trim();
+        if (!id || !bundle.birthrights?.[id]) {
+          return "Each finishing Birthright pick must reference a catalog entry. Remove invalid rows or re-add from the table.";
+        }
+      }
+      const u = dragonBirthrightsDotsPlaced(d.finishingBirthrightPicks);
+      if (u !== 4) {
+        return "Finishing Birthright bonus must total exactly four dots.";
+      }
+    } else if (d.finishingCallingKnackIds.length !== 2) {
+      return "Pick exactly two extra Calling Knacks, or switch to Birthright bonus.";
+    } else {
+      const sh = dragonKnackShell(character);
+      for (const kid of d.finishingCallingKnackIds) {
+        const k = bundleKnackById(kid, bundle);
+        if (!k || !knackEligible(k, sh, bundle)) {
+          return `Finishing knack no longer valid: ${kid}`;
+        }
+      }
+    }
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Renders one Dragon Heir post-concept step into `root` (unified main wizard; no separate nav/actions).
+ * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; step: string; scrollStepIntoView?: () => void }} ctx
+ */
+export function renderDragonHeirStepInRoot(ctx) {
+  const { root, character, bundle, render, step, scrollStepIntoView } = ctx;
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
+  const si = STEPS.indexOf(step);
+  if (si >= 0) d.stepIndex = si;
+  root.innerHTML = "";
 
   if (step === "skills") {
     applyDragonPathMathToSkillDots(d, bundle);
@@ -1873,7 +2007,7 @@ export function renderDragonChargen(ctx) {
       box.appendChild(title);
       const ul = document.createElement("ul");
       const li = document.createElement("li");
-      li.textContent = `Path overlap would put a Skill above 5 dots (Origin p. 97). Move exactly ${pend} excess Path dot(s) onto other Path Skills using the controls below — not into non-Path Skills.`;
+      li.textContent = `Path overlap would put a Skill above 5 dots (Origin p. 97). Move exactly ${pend} excess Path dot(s) onto other Path Skills using the redistribution controls on this step — not into non-Path Skills.`;
       ul.appendChild(li);
       box.appendChild(ul);
       wrap.appendChild(box);
@@ -1881,8 +2015,9 @@ export function renderDragonChargen(ctx) {
     const intro = document.createElement("p");
     intro.className = "help";
     intro.textContent =
-      "Ratings follow Path priority 3/2/1 (Dragon p. 111; Origin p. 97). Dots are read-only here—change Path picks or priority on the Paths step. If a Skill would exceed 5 dots from overlap, place the overflow on other Path Skills only (same rule as the Deity/Titan Skills tab). At 3+ dots, add free Specialties (Origin pp. 59–60).";
+      "Set Path priority (primary / secondary / tertiary), three Skills per Path, and review derived dot totals here. Path phrases stay on the Paths step. When overlap would exceed 5 dots in a Skill, use the redistribution controls below (Origin p. 97).";
     wrap.appendChild(intro);
+    appendDragonPathSkillsAssignmentSection(wrap, d, bundle, render);
     if (ovMeta.lost > 0) {
       const placed = dragonSumPathSkillRedistribution(d.pathSkillRedistribution);
       const pending = Math.max(0, ovMeta.lost - placed);
@@ -1946,42 +2081,14 @@ export function renderDragonChargen(ctx) {
       }
       wrap.appendChild(ovPanel);
     }
-    const list = document.createElement("div");
-    list.className = "panel skill-ratings-panel";
-    const head = document.createElement("h2");
-    head.textContent = "Skill ratings (0–5)";
-    list.appendChild(head);
-    const ratingsHelp = document.createElement("p");
-    ratingsHelp.className = "help";
-    ratingsHelp.textContent =
-      "Ratings follow Path priority when Path Skills or priority change; dots here are read-only. If overlap would exceed 5 in a Skill, use the overflow controls above (Origin p. 97).";
-    list.appendChild(ratingsHelp);
-    const tbl = document.createElement("table");
-    tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
-    const thead = document.createElement("thead");
-    const hr = document.createElement("tr");
-    ["Skill", "Dots"].forEach((label, idx) => {
-      const th = document.createElement("th");
-      th.textContent = label;
-      if (idx > 0) th.className = "skill-ratings-th-num";
-      hr.appendChild(th);
-    });
-    thead.appendChild(hr);
-    tbl.appendChild(thead);
-    const tb = document.createElement("tbody");
-    for (const sid of skillIds(bundle)) {
-      const sk = bundle.skills[sid];
-      const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
-      const tr = document.createElement("tr");
-      tr.className = "skill-rating-row";
-      appendDragonSkillRatingNameCell(tr, sid, sk, val, d);
-      appendDragonSkillRatingDotsCell(tr, sid, sk, val);
-      tb.appendChild(tr);
+    if (pend <= 0 && !(ovMeta.lost > 0)) {
+      const done = document.createElement("p");
+      done.className = "help";
+      done.textContent =
+        "No Path overlap to fix. Skill ratings above reflect your Path picks; use Back to change Flight or Path phrases on the Paths step.";
+      wrap.appendChild(done);
     }
-    tbl.appendChild(tb);
-    list.appendChild(tbl);
-    wrap.appendChild(list);
-    root.appendChild(panel("Dragon — Skills", wrap));
+    root.appendChild(panel("Skills", wrap));
   }
 
   if (step === "attributes") {
@@ -2124,10 +2231,10 @@ export function renderDragonChargen(ctx) {
 
     wrap.appendChild(derivedRow);
 
-    root.appendChild(panel("Dragon — Attributes", wrap));
+    root.appendChild(panel("Attributes", wrap));
   }
 
-  if (step === "callings") {
+  if (step === "calling") {
     rebalanceDragonCallingSlotDotsOverFive(d);
     const wrap = document.createElement("div");
     wrap.innerHTML = `<p class="help">Three Callings, <strong>five dots</strong> split among them (minimum 1 each). You gain <strong>one Calling Knack per Calling dot</strong> (so <strong>five</strong> Calling Knacks from those dots). Active Calling Knacks cannot exceed your Calling dots total, including Knacks from Birthrights (Dragon pp. 111–112).</p>
@@ -2426,7 +2533,7 @@ export function renderDragonChargen(ctx) {
     dkSection.appendChild(dkChips);
     dkPanel.appendChild(dkSection);
     wrap.appendChild(dkPanel);
-    root.appendChild(panel("Dragon — Callings & Knacks", wrap));
+    root.appendChild(panel("Calling & Knacks", wrap));
   }
 
   if (step === "magic") {
@@ -2628,13 +2735,13 @@ export function renderDragonChargen(ctx) {
     spellPanel.appendChild(bonusWrap);
     wrap.appendChild(spellPanel);
 
-    root.appendChild(panel("Dragon — Dragon Magic", wrap));
+    root.appendChild(panel("Magic", wrap));
   }
 
   if (step === "birthrights") {
     const wrap = document.createElement("div");
     appendDragonHeirBirthrightDeityStyleBlock(wrap, bundle, character, "birthrightPicks", 7, render);
-    root.appendChild(panel("Dragon — Birthrights", wrap));
+    root.appendChild(panel("Birthrights", wrap));
   }
 
   if (step === "finishing") {
@@ -2859,11 +2966,11 @@ export function renderDragonChargen(ctx) {
     if (skBudgetEl) applyHint(skBudgetEl, "fin-skill");
     if (atBudgetEl) applyHint(atBudgetEl, "fin-attr");
 
-    root.appendChild(panel("Dragon — Finishing Touches", wrap));
+    root.appendChild(panel("Finishing Touches", wrap));
   }
 
   if (step === "review") {
-    persistDragonFromDom(character, bundle);
+    persistDragonFromDom(character, bundle, "review");
     const tierMeta = bundle.tier?.[character.tier];
     const exportData = {
       tier: character.tier,
@@ -2907,7 +3014,7 @@ export function renderDragonChargen(ctx) {
     btnThisSheetPdf.title =
       "PDF from the on-screen sheet via headless Chromium when available (see server Playwright setup). Not the MrGone AcroForm file.";
     btnThisSheetPdf.addEventListener("click", async () => {
-      persistDragonFromDom(character, bundle);
+      persistDragonFromDom(character, bundle, "review");
       const el = wrap.querySelector(".review-sheet-panel.character-sheet");
       const nm = String(character.characterName ?? "").trim() || "character";
       btnThisSheetPdf.disabled = true;
@@ -2929,22 +3036,31 @@ export function renderDragonChargen(ctx) {
     toolbar.appendChild(btnThisSheetPdf);
     wrap.appendChild(toolbar);
 
+    const sheet = buildCharacterSheet(exportData, bundle);
+    sheet.classList.add("review-sheet-panel");
+    sheet.hidden = dragonReviewViewMode !== "sheet";
+    wrap.appendChild(sheet);
+
+    const pre = document.createElement("pre");
+    pre.className = "mono review-json-panel";
+    pre.hidden = dragonReviewViewMode !== "json";
+    pre.textContent = JSON.stringify(exportData, null, 2);
+    wrap.appendChild(pre);
+
     const inhCur = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
     const inhTrackRow = bundle?.dragonTier?.inheritanceTrack?.[String(inhCur)];
     const canAdvanceInh = inhCur < DRAGON_INHERITANCE_MAX;
     const nextInh = canAdvanceInh ? inhCur + 1 : null;
     const nextTrackRow = nextInh != null ? bundle?.dragonTier?.inheritanceTrack?.[String(nextInh)] : null;
+    const statusLine = `Inheritance ${inhCur}: ${inhTrackRow?.name || "—"}${inhTrackRow?.band ? ` (${inhTrackRow.band})` : ""}`;
 
     const inhAdvRow = document.createElement("div");
     inhAdvRow.className = "review-advance-row";
-    const inhAdvLab = document.createElement("p");
-    inhAdvLab.className = "help";
-    inhAdvLab.style.margin = "0 0 0.5rem 0";
-    inhAdvLab.textContent = `Inheritance ${inhCur}: ${inhTrackRow?.name || "—"}${inhTrackRow?.band ? ` (${inhTrackRow.band})` : ""}`;
     const btnInhAdv = document.createElement("button");
     btnInhAdv.type = "button";
     btnInhAdv.className = "btn secondary";
     btnInhAdv.id = "btn-dragon-advance-inheritance";
+    btnInhAdv.title = statusLine;
     if (!canAdvanceInh) {
       btnInhAdv.disabled = true;
       btnInhAdv.textContent = "Already at peak Inheritance";
@@ -2962,20 +3078,9 @@ export function renderDragonChargen(ctx) {
       scrollStepIntoView?.();
     });
     applyHint(btnInhAdv, "dragon-inheritance-advance");
-    inhAdvRow.appendChild(inhAdvLab);
+    btnInhAdv.title = `${statusLine}\n\n${btnInhAdv.title}`;
     inhAdvRow.appendChild(btnInhAdv);
     wrap.appendChild(inhAdvRow);
-
-    const sheet = buildCharacterSheet(exportData, bundle);
-    sheet.classList.add("review-sheet-panel");
-    sheet.hidden = dragonReviewViewMode !== "sheet";
-    wrap.appendChild(sheet);
-
-    const pre = document.createElement("pre");
-    pre.className = "mono review-json-panel";
-    pre.hidden = dragonReviewViewMode !== "json";
-    pre.textContent = JSON.stringify(exportData, null, 2);
-    wrap.appendChild(pre);
 
     const applyView = () => {
       btnSheet.className = dragonReviewViewMode === "sheet" ? "btn primary" : "btn secondary";
@@ -3005,169 +3110,16 @@ export function renderDragonChargen(ctx) {
       runPrint();
     });
 
-    root.appendChild(panel("Dragon — Review / Export", wrap));
+    root.appendChild(panel("Review / Export", wrap));
   }
-
-  const actions = document.createElement("div");
-  actions.className = "step-actions";
-  if (d.stepIndex > 0 || (d.stepIndex === 0 && typeof onBackToHeirConcept === "function")) {
-    const back = document.createElement("button");
-    back.type = "button";
-    back.className = "btn secondary";
-    back.textContent = d.stepIndex === 0 ? "Back to Concept" : "Back";
-    back.addEventListener("click", () => {
-      persistDragonFromDom(character, bundle);
-      if (d.stepIndex === 0 && typeof onBackToHeirConcept === "function") {
-        onBackToHeirConcept();
-        return;
-      }
-      if (d.stepIndex > 0) d.stepIndex -= 1;
-      render();
-      scrollStepIntoView?.();
-    });
-    actions.appendChild(back);
-  }
-  if (d.stepIndex < STEPS.length - 1) {
-    const next = document.createElement("button");
-    next.type = "button";
-    next.className = "btn primary";
-    next.textContent = "Next";
-    next.addEventListener("click", () => {
-      persistDragonFromDom(character, bundle);
-      if (step === "paths") {
-        if (!d.flightId) {
-          window.alert("Choose a Flight.");
-          return;
-        }
-        for (const pk of PATH_KEYS) {
-          if ((d.pathSkills[pk] || []).length !== 3) {
-            window.alert(`Pick exactly three Skills for the ${pk} path.`);
-            return;
-          }
-        }
-        const req = new Set(flightRequiredSkills(bundle, d.flightId));
-        const flSkills = new Set(d.pathSkills.flight || []);
-        if (req.size && [...req].some((x) => !flSkills.has(x))) {
-          window.alert("Flight Path must include both of the Flight’s listed skills.");
-          return;
-        }
-      }
-      if (step === "skills") {
-        applyDragonPathMathToSkillDots(d, bundle);
-        const pendSk = dragonPathSkillOverflowDotsPending(d, bundle);
-        if (pendSk > 0) {
-          window.alert(
-            `Redistribute Path overlap: ${pendSk} dot(s) still unplaced (Origin p. 97 — max 5 per Skill from Paths; excess only onto other Path Skills).`,
-          );
-          return;
-        }
-      }
-      if (step === "attributes") {
-        const ve = validateDragonAttributesPreFavored(d);
-        if (ve.length) {
-          window.alert(ve.join("\n"));
-          return;
-        }
-        captureDragonFinishingAttrBaseline(d, bundle);
-      }
-      if (step === "callings") {
-        const sum = d.callingSlots.reduce((s, x) => s + x.dots, 0);
-        const ids = d.callingSlots.map((s) => s.id).filter(Boolean);
-        if (sum !== 5 || ids.length !== 3 || new Set(ids).size !== 3) {
-          window.alert("Assign exactly five Calling dots across three different Callings (minimum one dot each).");
-          return;
-        }
-        const cap = sum;
-        const used = knackIdsCallingSlotsUsed(d.callingKnackIds, bundle);
-        if (used > cap) {
-          window.alert("Too many Calling Knacks for your Calling dots.");
-          return;
-        }
-        if (d.draconicKnackIds.length !== 2) {
-          window.alert("Select exactly two Draconic Knacks.");
-          return;
-        }
-      }
-      if (step === "magic") {
-        if (!d.knownMagics[0] || !d.knownMagics[1] || !d.knownMagics[2]) {
-          window.alert("You need three Dragon Magics (signature is set from Flight; pick two more).");
-          return;
-        }
-        for (const mid of d.knownMagics) {
-          if (!d.spellsByMagicId[mid]) {
-            window.alert(`Choose a Spell for each Magic (${mid}).`);
-            return;
-          }
-        }
-        if (!d.bonusSpell?.magicId || !d.bonusSpell?.spellId) {
-          window.alert("Choose the bonus Spell (Magic + Spell).");
-          return;
-        }
-      }
-      if (step === "birthrights") {
-        for (const p of d.birthrightPicks) {
-          const id = String(p?.id || "").trim();
-          if (!id || !bundle.birthrights?.[id]) {
-            window.alert("Each Birthright pick must reference a catalog entry. Remove invalid rows or re-add from the table.");
-            return;
-          }
-        }
-        const used = dragonBirthrightsDotsPlaced(d.birthrightPicks);
-        if (used !== 7) {
-          window.alert("Birthrights must total exactly seven dots.");
-          return;
-        }
-      }
-      if (step === "finishing") {
-        applyDragonPathMathToSkillDots(d, bundle);
-        if (dragonFinishingBonusTotal(d) !== 5) {
-          window.alert("Spend exactly five finishing Skill dots (Dragon p. 112).");
-          return;
-        }
-        if (dragonFinishingAttrDotsPlaced(d, bundle) !== 1) {
-          window.alert("Spend exactly one finishing Attribute dot (Dragon p. 112).");
-          return;
-        }
-        if (d.finishingFocus === "birthrights") {
-          for (const p of d.finishingBirthrightPicks) {
-            const id = String(p?.id || "").trim();
-            if (!id || !bundle.birthrights?.[id]) {
-              window.alert(
-                "Each finishing Birthright pick must reference a catalog entry. Remove invalid rows or re-add from the table.",
-              );
-              return;
-            }
-          }
-          const u = dragonBirthrightsDotsPlaced(d.finishingBirthrightPicks);
-          if (u !== 4) {
-            window.alert("Finishing Birthright bonus must total exactly four dots.");
-            return;
-          }
-        } else if (d.finishingCallingKnackIds.length !== 2) {
-          window.alert("Pick exactly two extra Calling Knacks, or switch to Birthright bonus.");
-          return;
-        } else {
-          const sh = dragonKnackShell(character);
-          for (const kid of d.finishingCallingKnackIds) {
-            const k = bundleKnackById(kid, bundle);
-            if (!k || !knackEligible(k, sh, bundle)) {
-              window.alert(`Finishing knack no longer valid: ${kid}`);
-              return;
-            }
-          }
-        }
-      }
-      d.stepIndex += 1;
-      render();
-      scrollStepIntoView?.();
-    });
-    actions.appendChild(next);
-  }
-  root.appendChild(actions);
 }
 
-/** @param {Record<string, unknown>} character */
-export function persistDragonFromDom(character, bundle) {
+/**
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ * @param {string | undefined} explicitStep current main-wizard step id (e.g. `"paths"`) when `d.stepIndex` is not authoritative
+ */
+export function persistDragonFromDom(character, bundle, explicitStep) {
   if (!isDragonHeirChargen(character)) return;
   ensureDragonShape(character, bundle);
   const d = character.dragon;
@@ -3175,13 +3127,16 @@ export function persistDragonFromDom(character, bundle) {
   if (mainFl && mainFl.value) {
     d.flightId = mainFl.value;
   }
-  const step = STEPS[d.stepIndex] || "paths";
+  const step = explicitStep ?? (STEPS[d.stepIndex] || "paths");
   if (step === "paths") {
-    d.paths.origin = document.getElementById("d-p-origin")?.value ?? d.paths.origin;
-    d.paths.role = document.getElementById("d-p-role")?.value ?? d.paths.role;
-    d.paths.flight = document.getElementById("d-p-flight")?.value ?? d.paths.flight;
+    const po = document.getElementById("d-p-origin") ?? document.getElementById("p-origin");
+    const pr = document.getElementById("d-p-role") ?? document.getElementById("p-role");
+    const pf = document.getElementById("d-p-flight") ?? document.getElementById("p-soc");
+    if (po) d.paths.origin = po.value ?? d.paths.origin;
+    if (pr) d.paths.role = pr.value ?? d.paths.role;
+    if (pf) d.paths.flight = pf.value ?? d.paths.flight;
     const fv = document.getElementById("d-flight")?.value;
-    if (fv != null) d.flightId = fv;
+    if (fv != null && fv !== "") d.flightId = fv;
   }
   if (step === "attributes") {
     for (let idx = 0; idx < 3; idx += 1) {

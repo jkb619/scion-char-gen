@@ -725,7 +725,7 @@ textarea.has-doc-hint:focus-visible {
   grid-template-columns: 1fr;
   width: 100%;
   max-width: 56rem;
-  align-items: stretch;
+  align-items: start;
 }
 
 /* [hidden] alone can fail inside flex column layouts; keep Visitation row off-screen for Sorcerer/Dragon. */
@@ -743,7 +743,6 @@ textarea.has-doc-hint:focus-visible {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
   box-sizing: border-box;
 }
 
@@ -751,8 +750,11 @@ textarea.has-doc-hint:focus-visible {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  flex: 1 1 auto;
   min-height: 2.35rem;
+}
+
+.paths-titan-patron-empty {
+  max-width: 28rem;
 }
 
 /* Mythos fourth Deed — below Visitation row; not inside the pantheon grid. */

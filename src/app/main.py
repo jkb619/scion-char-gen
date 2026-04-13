@@ -16,6 +16,17 @@ app = FastAPI(title="Scion Character Creator", version="0.1.0")
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
+@app.middleware("http")
+async def disable_cache_for_static_scripts(request: Request, call_next):
+    """ES module imports (e.g. DragonChargenWizard.js) do not inherit `?v=` from app.js; avoid stale submodules in browsers."""
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/static/") and (path.endswith(".js") or path.endswith(".mjs") or path.endswith(".css")):
+        response.headers["Cache-Control"] = "no-store, max-age=0"
+    return response
+
+
 app.include_router(game_data.router)
 app.include_router(interactive_pdf.router)
 app.include_router(review_sheet_pdf.router)
