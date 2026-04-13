@@ -51,12 +51,6 @@ body {
   letter-spacing: 0.04em;
 }
 
-.tagline {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
 .header-actions {
   display: flex;
   align-items: center;

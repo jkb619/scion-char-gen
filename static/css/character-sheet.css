@@ -851,6 +851,14 @@
   margin: 0.18rem 0;
 }
 
+/* Page 2 Description: same six ruled rows as Legendary titles; allow wrap per row. */
+.character-sheet .cs-mcg-write-line--desc {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: var(--cs-ink);
+}
+
 .cs-mcg-calling-line {
   display: flex;
   align-items: center;
@@ -1177,16 +1185,32 @@
   margin: 0.35rem 0 0.5rem;
 }
 
+/* History & notes: ruled lines like birthright “note” blocks; no filled box (shows sheet paper). */
 .cs-mcg-history {
-  min-height: 5.5rem;
-  border: 1px solid var(--cs-line);
-  background: #fffefb;
-  border-radius: 2px;
-  padding: 0.4rem 0.45rem;
+  --cs-history-line: 1.35em;
+  min-height: calc(8 * var(--cs-history-line) + 0.2rem);
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.2rem 0.1rem 0.28rem;
   font-size: 0.78rem;
-  line-height: 1.4;
+  line-height: var(--cs-history-line);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
+  color: var(--cs-ink);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--cs-history-line) - 1px),
+    var(--cs-line) calc(var(--cs-history-line) - 1px),
+    var(--cs-line) var(--cs-history-line)
+  );
+  background-repeat: repeat-x;
+  background-size: 100% var(--cs-history-line);
+  background-position: left top;
 }
 
 .cs-mcg-knack-grid {
@@ -1580,8 +1604,7 @@
 
 .character-sheet--dragon-heir .cs-mcg-path-col,
 .character-sheet--dragon-heir .cs-mcg-skill-col,
-.character-sheet--dragon-heir .cs-mcg-attr-cell,
-.character-sheet--dragon-heir .cs-mcg-history {
+.character-sheet--dragon-heir .cs-mcg-attr-cell {
   background: rgba(255, 255, 255, 0.82);
   border-color: var(--drg-line);
 }
@@ -2124,14 +2147,28 @@
 }
 
 .cs-dragon-history {
-  min-height: 6rem;
-  border: 1px solid var(--drg-line);
-  border-radius: 2px;
-  padding: 0.35rem 0.4rem;
+  min-height: calc(8 * 1.35em + 0.2rem);
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.2rem 0.1rem 0.28rem;
   font-size: 0.78rem;
+  line-height: 1.35em;
   white-space: pre-wrap;
-  background: rgba(255, 255, 255, 0.6);
-  margin-bottom: 0.35rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: var(--drg-ink);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.35em - 1px),
+    var(--drg-line) calc(1.35em - 1px),
+    var(--drg-line) 1.35em
+  );
+  background-repeat: repeat-x;
+  background-size: 100% 1.35em;
+  background-position: left top;
 }
 
 .cs-dragon-desc-block {

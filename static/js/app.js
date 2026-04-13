@@ -5,6 +5,7 @@ import {
   originDefenseFromFinalAttrs,
   originMovementPoolDice,
 } from "./characterSheet.js";
+import { LEGEND_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
 import {
   knackEligible,
   knackEligibleForCallingStep,
@@ -225,9 +226,31 @@ function normalizedTierId(tierId) {
   return lower;
 }
 
-/** Origin / Mortal chargen: Calling rating is always 1 dot (rules). */
+/** Saints & Monsters Sorcerer line — ids in `data/tier.json`. */
+const SORCERER_TIER_IDS = new Set(["sorcerer", "sorcerer_hero", "sorcerer_demigod", "sorcerer_god"]);
+
+/** @param {string} [tierId] */
+function isSorcererLineTier(tierId) {
+  return SORCERER_TIER_IDS.has(normalizedTierId(tierId));
+}
+
+/**
+ * How many Workings a Sorcerer may know at chargen for this tier (S&M p. 65: one at Legend 0; +1 at Legend 1, 5, 9).
+ * @param {string} [tierId]
+ */
+function sorcererWorkingPickCap(tierId) {
+  const t = normalizedTierId(tierId);
+  if (t === "sorcerer") return 1;
+  if (t === "sorcerer_hero") return 2;
+  if (t === "sorcerer_demigod") return 3;
+  if (t === "sorcerer_god") return 4;
+  return 1;
+}
+
+/** Origin / Mortal chargen: Calling rating is always 1 dot (rules). Mortal-band Sorcerer matches Origin Calling limits. */
 function isOriginPlayTier(tierId) {
-  return normalizedTierId(tierId) === "mortal";
+  const t = normalizedTierId(tierId);
+  return t === "mortal" || t === "sorcerer";
 }
 
 /** Max Legend dots on the track per tier (sheet / UI). */
@@ -237,6 +260,9 @@ const LEGEND_DOT_MAX = {
   demigod: 8,
   god: 12,
   sorcerer: 1,
+  sorcerer_hero: 4,
+  sorcerer_demigod: 8,
+  sorcerer_god: 12,
   titanic: 4,
 };
 
@@ -268,7 +294,7 @@ function padPoolSlotArray(arr, n) {
 
 /** Keep `legendPoolDotSpentSlots` / `awarenessPoolDotSpentSlots` aligned with tier (and Mythos for Awareness). */
 function ensureLegendAwarenessPoolSlotArrays() {
-  const legN = legendDotMaxForTier(character.tier);
+  const legN = Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier));
   if (!Array.isArray(character.legendPoolDotSpentSlots)) {
     character.legendPoolDotSpentSlots = Array(legN).fill(false);
     if (character.legendPoolDotSpent === true) character.legendPoolDotSpentSlots[0] = true;
@@ -282,36 +308,6 @@ function ensureLegendAwarenessPoolSlotArrays() {
   } else {
     character.awarenessPoolDotSpentSlots = padPoolSlotArray(character.awarenessPoolDotSpentSlots, awN);
   }
-}
-
-/**
- * Legend dot track (filled = 1..value). Click dot i to set to i; click again on rightmost filled dot to lower by one.
- * @param {boolean} interactive
- */
-function buildLegendDotTrack(value, tierId, interactive) {
-  const max = legendDotMaxForTier(tierId);
-  const v = clampLegendRating(value, tierId);
-  const wrap = document.createElement("span");
-  wrap.className = "legend-dot-track" + (max > 6 ? " legend-dot-track-dense" : "");
-  wrap.setAttribute("role", interactive ? "radiogroup" : "img");
-  wrap.setAttribute("aria-label", `Legend ${v} of ${max}`);
-  for (let i = 1; i <= max; i += 1) {
-    const d = document.createElement("span");
-    d.className = "legend-dot" + (i <= v ? " on" : "");
-    d.setAttribute("aria-hidden", "true");
-    if (interactive) {
-      d.tabIndex = 0;
-      d.addEventListener("click", () => {
-        const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
-        if (cur === i) character.legendRating = Math.max(0, i - 1);
-        else character.legendRating = i;
-        syncLegendToTier();
-        render();
-      });
-    }
-    wrap.appendChild(d);
-  }
-  return wrap;
 }
 
 /** Mythos Awareness: same per-tier cap as Legend (Origin 1, Hero 4, …). */
@@ -436,7 +432,7 @@ function defaultCharacter() {
     patronPurviewSlots: ["", "", "", ""],
     boonIds: [],
     birthrightIds: [],
-    /** 0 = none until set in the header (Legend fluctuates in play; tier advance does not auto-fill dots). */
+    /** 0 = none until set on the Review sheet Legend row (Legend fluctuates in play; tier advance does not auto-fill dots). */
     legendRating: 0,
     /** Masks of the Mythos pantheon only: Awareness 1..tier max (stored as 1 when not Mythos). */
     awarenessRating: 1,
@@ -456,6 +452,8 @@ function defaultCharacter() {
       birthrightPicks: [],
     },
     notes: "",
+    /** Freeform look / vitals / etc. for the sheet “Description” block (page 2). */
+    sheetDescription: "",
     /** Equipment ids from `equipment.json` to list on the printable sheet appendix. */
     sheetEquipmentIds: [],
     /** Free text for the sheet’s Fatebindings page. */
@@ -466,10 +464,15 @@ function defaultCharacter() {
     sorceryProfile: {
       motif: "",
       powerSource: "",
+      /** Optional: `invocation` | `patronage` | `prohibition` | `talisman` — Heroic+ focus (S&M ch. 3). */
+      primaryPowerSource: "",
       invocation: "",
       patronage: "",
       prohibition: "",
       talisman: "",
+      /** @type {string[]} */
+      workingIds: [],
+      techniquesNotes: "",
       notes: "",
     },
     /** Saints & Monsters — Titanic Mutation / Maelstrom notes (freeform; confirm with PDF). */
@@ -495,10 +498,13 @@ function defaultSorceryProfile() {
   return {
     motif: "",
     powerSource: "",
+    primaryPowerSource: "",
     invocation: "",
     patronage: "",
     prohibition: "",
     talisman: "",
+    workingIds: [],
+    techniquesNotes: "",
     notes: "",
   };
 }
@@ -520,6 +526,14 @@ function ensureSorceryProfileShape() {
     for (const k of Object.keys(d)) {
       if (character.sorceryProfile[k] == null) character.sorceryProfile[k] = d[k];
     }
+  }
+  if (!Array.isArray(character.sorceryProfile.workingIds)) character.sorceryProfile.workingIds = [];
+  else {
+    character.sorceryProfile.workingIds = [...new Set(character.sorceryProfile.workingIds.filter((x) => typeof x === "string" && x.trim()))];
+  }
+  const cap = sorcererWorkingPickCap(character.tier);
+  if (character.sorceryProfile.workingIds.length > cap) {
+    character.sorceryProfile.workingIds = character.sorceryProfile.workingIds.slice(0, cap);
   }
 }
 
@@ -776,6 +790,7 @@ function ensureSheetAppendicesShape() {
   );
   if (character.fatebindings == null) character.fatebindings = "";
   if (character.sheetNotesExtra == null) character.sheetNotesExtra = "";
+  if (character.sheetDescription == null || typeof character.sheetDescription !== "string") character.sheetDescription = "";
 }
 
 function skillIds() {
@@ -1076,6 +1091,7 @@ function pantheonOptionsForCurrentPatronKind() {
 
 const WELCOME_DEITY_TIER_ORDER = ["mortal", "hero", "demigod", "god"];
 const WELCOME_TITAN_TIER_ORDER = ["mortal", "titanic", "demigod", "god"];
+const WELCOME_SORCERER_TIER_ORDER = ["sorcerer", "sorcerer_hero", "sorcerer_demigod", "sorcerer_god"];
 /** Max Inheritance dot on the Heir track (Scion: Dragon pp. 117–119). */
 const DRAGON_INHERITANCE_MAX = 10;
 
@@ -1108,10 +1124,10 @@ function welcomePartsFromCharacter() {
     const inh = String(Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character.dragon?.inheritance) || 1))));
     return { line: "dragon", payload: inh };
   }
-  const kt = normalizedTierId(character.tier);
-  if (kt === "sorcerer") {
-    return { line: "sorcerer", payload: "sorcerer" };
+  if (isSorcererLineTier(character.tier)) {
+    return { line: "sorcerer", payload: normalizedTierId(character.tier) };
   }
+  const kt = normalizedTierId(character.tier);
   if (patronKindIsTitan()) {
     return { line: "titan", payload: kt === "titanic" ? "titanic" : kt };
   }
@@ -1122,13 +1138,13 @@ function welcomePartsFromCharacter() {
 function welcomeTrackValueFromCharacter() {
   const p = welcomePartsFromCharacter();
   if (p.line === "dragon") return `dragon:${p.payload}`;
-  if (p.line === "sorcerer") return "sorcerer:sorcerer";
+  if (p.line === "sorcerer") return `sorcerer:${p.payload}`;
   return `${p.line}:${p.payload}`;
 }
 
 /**
  * @param {HTMLSelectElement} sel
- * @param {"deity"|"titan"} lineKind
+ * @param {"deity"|"titan"|"sorcerer"} lineKind
  */
 function fillWelcomeTierSelect(sel, lineKind) {
   sel.innerHTML = "";
@@ -1143,6 +1159,15 @@ function fillWelcomeTierSelect(sel, lineKind) {
     }
   } else if (lineKind === "titan") {
     for (const tid of WELCOME_TITAN_TIER_ORDER) {
+      const meta = bundle.tier?.[tid];
+      if (!meta || typeof meta !== "object") continue;
+      const o = document.createElement("option");
+      o.value = tid;
+      o.textContent = welcomeTierRowLabel(tid);
+      sel.appendChild(o);
+    }
+  } else if (lineKind === "sorcerer") {
+    for (const tid of WELCOME_SORCERER_TIER_ORDER) {
       const meta = bundle.tier?.[tid];
       if (!meta || typeof meta !== "object") continue;
       const o = document.createElement("option");
@@ -1187,6 +1212,10 @@ function fillWelcomeDragonInheritanceSelect(sel) {
 
 /** First valid tier option id for a line (after switching line). */
 function welcomeDefaultPayloadForLine(lineKind) {
+  if (lineKind === "sorcerer") {
+    const found = WELCOME_SORCERER_TIER_ORDER.find((tid) => bundle.tier?.[tid] && typeof bundle.tier[tid] === "object");
+    return found || "sorcerer";
+  }
   const order = lineKind === "titan" ? WELCOME_TITAN_TIER_ORDER : WELCOME_DEITY_TIER_ORDER;
   const found = order.find((tid) => bundle.tier?.[tid] && typeof bundle.tier[tid] === "object");
   return found || "mortal";
@@ -1231,7 +1260,8 @@ function applyWelcomeTrackChangeNoConfirm(encoded) {
     character.chargenLineage = "scion";
     delete character.dragon;
     character.patronKind = "deity";
-    character.tier = "sorcerer";
+    const raw = String(payload || "").trim().toLowerCase();
+    character.tier = SORCERER_TIER_IDS.has(raw) ? raw : "sorcerer";
     return;
   }
   character.chargenLineage = "scion";
@@ -1251,7 +1281,11 @@ function welcomeTrackChangeIsHeavy(prev, next) {
   const pl = prev.split(":")[0];
   const nl = next.split(":")[0];
   if (pl === "dragon" && nl === "dragon") return false;
-  if (pl === "sorcerer" && nl === "sorcerer") return false;
+  if (pl === "sorcerer" && nl === "sorcerer") {
+    const prevPayload = prev.split(":").slice(1).join(":") || "";
+    const nextPayload = next.split(":").slice(1).join(":") || "";
+    return prevPayload !== nextPayload;
+  }
   return true;
 }
 
@@ -1356,7 +1390,7 @@ const HERO_CALLING_ROW_COUNT = 3;
 
 function heroUsesCallingSlots() {
   const t = normalizedTierId(character.tier);
-  return t === "hero" || t === "titanic";
+  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
 }
 
 /** True after Review → Advance from Mortal to Hero/Titanic: row-0 Calling must stay the Origin pick (dots may still move). */
@@ -1366,7 +1400,10 @@ function visitationLocksPrimaryCallingChoice() {
   return log.some((e) => {
     const from = normalizedTierId(e?.fromTier);
     const to = normalizedTierId(e?.toTier);
-    return from === "mortal" && (to === "hero" || to === "titanic");
+    return (
+      (from === "mortal" && (to === "hero" || to === "titanic")) ||
+      (String(e?.fromTier || "").trim() === "sorcerer" && String(e?.toTier || "").trim() === "sorcerer_hero")
+    );
   });
 }
 
@@ -1717,7 +1754,7 @@ function deityOptionLabel(deity) {
   const ids = Array.isArray(deity?.purviews) ? deity.purviews : [];
   if (ids.length === 0) return deity.name;
   const labels = ids.map(purviewLabel);
-  return `${deity.name} — Purviews: ${labels.join(", ")}`;
+  return `${deity.name} — ${labels.join(", ")}`;
 }
 
 /** Rich hover payload for a divine parent option (deities omit `description` in JSON). */
@@ -2235,7 +2272,7 @@ function ensureFinishingShape() {
   }
   if (!f.knackOrBirthright) f.knackOrBirthright = "knacks";
   const tnFin = normalizedTierId(character.tier);
-  if ((tnFin === "hero" || tnFin === "titanic") && f.knackOrBirthright === "birthrights") {
+  if ((tnFin === "hero" || tnFin === "titanic" || tnFin === "sorcerer_hero") && f.knackOrBirthright === "birthrights") {
     f.knackOrBirthright = "knacks";
   }
   if (!Array.isArray(f.finishingKnackIds)) f.finishingKnackIds = [];
@@ -2399,8 +2436,8 @@ function equipmentFilterHaystack(eid, eq) {
 /** Mortal / Origin (Finishing): 4 pts. Hero: 7 total on the Birthrights step (not 7+4 combined). Demigod/God: 11 (confirm at table). */
 function maxBirthrightPointsBudget() {
   const t = normalizedTierId(character.tier);
-  if (t === "hero" || t === "titanic") return 7;
-  if (t === "demigod" || t === "god") return 11;
+  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 7;
+  if (t === "demigod" || t === "god" || t === "sorcerer_demigod" || t === "sorcerer_god") return 11;
   return 4;
 }
 
@@ -2472,13 +2509,14 @@ function removeFinishingBirthright(index) {
  */
 function heroFinishingOmittedAfterOriginAdvance() {
   const tn = normalizedTierId(character.tier);
-  if (tn !== "hero" && tn !== "titanic") return false;
+  if (tn !== "hero" && tn !== "titanic" && tn !== "sorcerer_hero") return false;
   return (character.tierAdvancementLog || []).some(
     (e) =>
       e &&
       typeof e === "object" &&
-      normalizedTierId(e.fromTier) === "mortal" &&
-      (normalizedTierId(e.toTier) === "hero" || normalizedTierId(e.toTier) === "titanic"),
+      ((normalizedTierId(e.fromTier) === "mortal" &&
+        (normalizedTierId(e.toTier) === "hero" || normalizedTierId(e.toTier) === "titanic")) ||
+        (String(e.fromTier || "").trim() === "sorcerer" && String(e.toTier || "").trim() === "sorcerer_hero")),
   );
 }
 
@@ -2490,7 +2528,9 @@ function stepDefsForTier(tierId) {
   const steps = [...raw];
   if (
     !isDragonHeirChargen(character) &&
-    (normalizedTierId(tierId) === "hero" || normalizedTierId(tierId) === "titanic") &&
+    (normalizedTierId(tierId) === "hero" ||
+      normalizedTierId(tierId) === "titanic" ||
+      normalizedTierId(tierId) === "sorcerer_hero") &&
     heroFinishingOmittedAfterOriginAdvance()
   ) {
     return steps.filter((s) => s !== "finishing");
@@ -2539,6 +2579,12 @@ function clearPurviewsAndBoonsIfInapplicableTier() {
 function firstNewWizardStepIndex(oldTierId, newTierId) {
   const oldN = normalizedTierId(oldTierId);
   const newN = normalizedTierId(newTierId);
+  /** Sorcerer Mortal band → Heroic band: set three Calling rows before Paraphernalia / Purviews. */
+  if (oldN === "sorcerer" && newN === "sorcerer_hero") {
+    const steps = stepDefsForTier(newTierId);
+    const ci = steps.indexOf("calling");
+    if (ci >= 0) return ci;
+  }
   /** Visitation: pick Callings & dots before new Hero-only steps (Purviews, …). */
   if (oldN === "mortal" && (newN === "hero" || newN === "titanic")) {
     const steps = stepDefsForTier(newTierId);
@@ -2587,6 +2633,9 @@ function applyTierAdvancementFromBundle() {
   character.tier = next;
   const nextN = normalizedTierId(next);
   if (normalizedTierId(cur) === "mortal" && (nextN === "hero" || nextN === "titanic")) {
+    initHeroCallingSlotsAfterVisitation();
+  }
+  if (String(cur).trim() === "sorcerer" && nextN === "sorcerer_hero") {
     initHeroCallingSlotsAfterVisitation();
   }
   if (nextN === "hero" || nextN === "titanic") restrictHeroPurviewsToPatronList();
@@ -2639,7 +2688,7 @@ function updateHeaderTierDisplay() {
     return;
   }
   el.title =
-    "New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation. Legend starts at 0 (no dots filled); click a dot to set your rating, or the rightmost lit dot again to lower by one.";
+    "New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation. Set Legend on the Review character sheet (Legend row).";
   if (isMythosPantheonSelected()) {
     el.title +=
       " Mythos Scions track Awareness (1–10): click a dot to set, or the rightmost filled dot again to lower by one (minimum 1).";
@@ -2648,19 +2697,11 @@ function updateHeaderTierDisplay() {
   const tierLine = document.createElement("div");
   tierLine.className = "header-tier-line";
   const tn = normalizedTierId(character.tier);
-  const linePrefix = tn === "sorcerer" ? "Sorcerer" : patronKindIsTitan() ? "Titan" : "Deity";
+  const linePrefix = isSorcererLineTier(character.tier) ? "Sorcerer" : patronKindIsTitan() ? "Titan" : "Deity";
   let tierSlab = t?.name || character.tier;
   if (tn === "titanic") tierSlab = "Hero (Titanic Scion)";
   tierLine.textContent = `${linePrefix}-${tierSlab}`;
   el.appendChild(tierLine);
-  const legRow = document.createElement("div");
-  legRow.className = "header-legend-row";
-  const lab = document.createElement("span");
-  lab.className = "header-legend-label";
-  lab.textContent = "Legend";
-  legRow.appendChild(lab);
-  legRow.appendChild(buildLegendDotTrack(character.legendRating ?? 0, character.tier, true));
-  el.appendChild(legRow);
   if (isMythosPantheonSelected()) {
     const awRow = document.createElement("div");
     awRow.className = "header-legend-row";
@@ -2760,11 +2801,11 @@ function renderWelcome(root) {
   tierRow.appendChild(labTier);
   const tierSel = document.createElement("select");
   tierSel.id = "welcome-tier-select";
-  if (parts.line === "dragon" || parts.line === "sorcerer") {
+  if (parts.line === "dragon") {
     tierRow.style.display = "none";
     tierSel.innerHTML = "";
   } else {
-    fillWelcomeTierSelect(tierSel, /** @type {"deity"|"titan"} */ (parts.line));
+    fillWelcomeTierSelect(tierSel, /** @type {"deity"|"titan"|"sorcerer"} */ (parts.line));
     tierSel.value = parts.payload;
     if (![...tierSel.options].some((o) => o.value === tierSel.value)) {
       tierSel.value = tierSel.options[0]?.value || parts.payload;
@@ -2801,7 +2842,7 @@ function renderWelcome(root) {
       line === "dragon"
         ? `dragon:${inhSel.value || welcomeDefaultDragonInheritance()}`
         : line === "sorcerer"
-          ? "sorcerer:sorcerer"
+          ? `sorcerer:${tierSel.value || welcomeDefaultPayloadForLine("sorcerer")}`
           : `${line}:${tierSel.value}`;
     const prev = tierPick.getAttribute("data-track-last") || curEnc;
     if (next === prev) return;
@@ -2821,9 +2862,13 @@ function renderWelcome(root) {
           inhSel.value = p.payload;
           if (![...inhSel.options].some((o) => o.value === inhSel.value)) inhSel.value = inhSel.options[0]?.value || welcomeDefaultDragonInheritance();
         } else if (p.line === "sorcerer") {
-          tierRow.style.display = "none";
-          tierSel.innerHTML = "";
+          tierRow.style.display = "";
           inheritRow.style.display = "none";
+          fillWelcomeTierSelect(tierSel, "sorcerer");
+          tierSel.value = p.payload;
+          if (![...tierSel.options].some((o) => o.value === tierSel.value)) {
+            tierSel.value = tierSel.options[0]?.value || welcomeDefaultPayloadForLine("sorcerer");
+          }
         } else {
           tierRow.style.display = "";
           inheritRow.style.display = "none";
@@ -2855,9 +2900,10 @@ function renderWelcome(root) {
         fillWelcomeDragonInheritanceSelect(inhSel);
         inhSel.value = welcomeDefaultDragonInheritance();
       } else if (line === "sorcerer") {
-        tierRow.style.display = "none";
-        tierSel.innerHTML = "";
+        tierRow.style.display = "";
         inheritRow.style.display = "none";
+        fillWelcomeTierSelect(tierSel, "sorcerer");
+        tierSel.value = welcomeDefaultPayloadForLine("sorcerer");
       } else {
         tierRow.style.display = "";
         inheritRow.style.display = "none";
@@ -2876,12 +2922,12 @@ function renderWelcome(root) {
   });
 
   applyHint(lineSel, "welcome-line-select");
-  if (parts.line !== "dragon" && parts.line !== "sorcerer") applyHint(tierSel, "welcome-tier-select");
+  if (parts.line !== "dragon") applyHint(tierSel, "welcome-tier-select");
   applyHint(inhSel, "welcome-dragon-inheritance-select");
   const trHelp = document.createElement("p");
   trHelp.className = "help";
   trHelp.textContent =
-    "Pick a line, then tier (Mortal/Origin through God on Deity, Titanic on Titan). Dragon Heir picks Inheritance 1–10 (True Dragon at 10). Sorcerer (Saints & Monsters) is its own line — no Visitation tier list. Dragon uses the shared Origin spine plus the Dragon tab after Concept.";
+    "Pick a line, then tier (Mortal/Origin through God on Deity, Titanic on Titan, Mortal- through God-band on Sorcerer). Dragon Heir picks Inheritance 1–10 (True Dragon at 10). Sorcerer uses Saints & Monsters ch. 3 tiers in data/tier.json. Dragon uses the shared Origin spine plus the Dragon tab after Concept.";
   tierPick.appendChild(trHelp);
   body.appendChild(tierPick);
   const intro = document.createElement("div");
@@ -2904,7 +2950,8 @@ function renderConcept(root) {
       <div class="field"><label id="lab-deed-short" for="f-deed-short">Short-term Deed</label><textarea id="f-deed-short"></textarea></div>
       <div class="field"><label id="lab-deed-long" for="f-deed-long">Long-term Deed</label><textarea id="f-deed-long"></textarea></div>
     </div>
-    <div class="field"><label id="lab-deed-band" for="f-deed-band">Band Deed</label><textarea id="f-deed-band"></textarea></div>`;
+    <div class="field"><label id="lab-deed-band" for="f-deed-band">Band Deed</label><textarea id="f-deed-band"></textarea></div>
+    <div class="field"><label for="f-sheet-description">Description</label><textarea id="f-sheet-description" spellcheck="false" aria-label="Description"></textarea></div>`;
   root.appendChild(panel("Concept & Deeds", wrap));
   const applyDeedLabels = (dragon) => {
     const ls = document.getElementById("lab-deed-short");
@@ -2922,10 +2969,11 @@ function renderConcept(root) {
     } else {
       if (ls) ls.textContent = "Short-term Deed";
       if (ll) ll.textContent = "Long-term Deed";
-      if (lb) lb.textContent = "Band Deed";
+      if (lb) lb.textContent = isSorcererLineTier(character.tier) ? "Coven Deed (shared)" : "Band Deed";
       if (blurb) {
-        blurb.textContent =
-          "Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon switches to the Heir wizard after this step (Scion: Dragon).";
+        blurb.textContent = isSorcererLineTier(character.tier)
+          ? "Sorcerer: same Deed structure as Origin (Saints & Monsters ch. 3) — short-term sorcerous deed, long-term goal, and a Coven shared deed. Paths still use pantheon + patron rows if your table ties you to a cult."
+          : "Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon switches to the Heir wizard after this step (Scion: Dragon).";
       }
     }
   };
@@ -2936,7 +2984,8 @@ function renderConcept(root) {
   document.getElementById("f-deed-short").value = character.deeds.short;
   document.getElementById("f-deed-long").value = character.deeds.long;
   document.getElementById("f-deed-band").value = character.deeds.band;
-  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band"].forEach((id) =>
+  document.getElementById("f-sheet-description").value = character.sheetDescription ?? "";
+  ["f-char-name", "f-concept", "f-notes", "f-deed-short", "f-deed-long", "f-deed-band", "f-sheet-description"].forEach((id) =>
     applyHint(document.getElementById(id), id),
   );
 }
@@ -2955,7 +3004,7 @@ function renderPaths(root) {
         <div class="field paths-patron-kind-field">
           <label for="p-patron-kind">Patron type</label>
           <select id="p-patron-kind" name="patronKind" autocomplete="off" aria-label="Patron type">
-            <option value="deity">Deity</option>
+            <option value="deity">Divine</option>
             <option value="titan">Titan</option>
           </select>
         </div>
@@ -3678,7 +3727,12 @@ function renderCalling(root) {
     visPanel.className = "calling-visitation-panel panel";
     const visH = document.createElement("h2");
     const visTier = normalizedTierId(character.tier);
-    visH.textContent = visTier === "titanic" ? "Visitation (Origin → Titanic)" : "Visitation (Origin → Hero)";
+    visH.textContent =
+      visTier === "titanic"
+        ? "Visitation (Origin → Titanic)"
+        : visTier === "sorcerer_hero"
+          ? "Heroic band (Mortal Sorcerer → Heroic Sorcerer)"
+          : "Visitation (Origin → Hero)";
     visPanel.appendChild(visH);
     const visP = document.createElement("div");
     visP.className = "help";
@@ -4313,27 +4367,127 @@ function renderPurviews(root) {
   root.appendChild(panel("Purviews", wrap));
 }
 
+/** @returns {{ id: string, name: string, summary?: string }[]} */
+function sorcererWorkingsCatalogRows() {
+  const rows = saintsMonstersBundle()?.sorcererWorkingsCatalog;
+  if (Array.isArray(rows) && rows.length) {
+    return rows
+      .filter((r) => r && typeof r === "object" && typeof r.id === "string" && r.id.trim() && typeof r.name === "string")
+      .map((r) => ({ id: String(r.id).trim(), name: String(r.name).trim(), summary: typeof r.summary === "string" ? r.summary : "" }));
+  }
+  return [
+    { id: "binding", name: "Binding", summary: "Curses, bindings, and hostile conditions (S&M from p. 66)." },
+    { id: "divining", name: "Divining", summary: "Omens, investigation, and hidden knowledge (S&M from p. 68)." },
+    { id: "summoning", name: "Summoning", summary: "Spirits and entities — calls, bargains, and banishments (S&M from p. 63 onward)." },
+    { id: "wonderment", name: "Wonderment", summary: "Illusions and unreal creations (S&M from p. 64 onward)." },
+    { id: "shapechanging", name: "Shapechanging", summary: "Forms and transformations (S&M from p. 66 onward)." },
+  ];
+}
+
+function renderWorkings(root) {
+  ensureSorceryProfileShape();
+  const cap = sorcererWorkingPickCap(character.tier);
+  const rows = sorcererWorkingsCatalogRows();
+  const wrap = document.createElement("div");
+  const intro = document.createElement("p");
+  intro.className = "help";
+  intro.innerHTML = `The five <strong>Workings</strong> in <cite>Saints & Monsters</cite> ch. 3 (see <strong>Workings, Techniques, and Charms</strong>, p. 65) group sorcery into broad families. Each Working includes an <strong>inherent Technique</strong>, optional <strong>Techniques</strong> as you gain Legend, and <strong>charms</strong>. Pick up to <strong>${cap}</strong> Working <em>names</em> here as sheet reminders — full mechanics stay in the PDF.`;
+  wrap.appendChild(intro);
+
+  const grid = document.createElement("div");
+  grid.className = "grid-2";
+  const sel = new Set(character.sorceryProfile.workingIds || []);
+  for (const row of rows) {
+    const id = row.id;
+    const box = document.createElement("div");
+    box.className = "field workings-pick-block";
+    const lab = document.createElement("label");
+    lab.htmlFor = `f-working-${id}`;
+    lab.innerHTML = `<strong>${row.name}</strong> <span class="mono">(${id})</span>`;
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.id = `f-working-${id}`;
+    cb.value = id;
+    cb.checked = sel.has(id);
+    cb.addEventListener("change", () => {
+      ensureSorceryProfileShape();
+      let next = [...(character.sorceryProfile.workingIds || [])].filter((x) => x !== id);
+      if (cb.checked) next.push(id);
+      const cap2 = sorcererWorkingPickCap(character.tier);
+      while (next.length > cap2) next = next.slice(1);
+      character.sorceryProfile.workingIds = next;
+      render();
+    });
+    const sm = document.createElement("p");
+    sm.className = "help mono";
+    sm.textContent = (row.summary || "").trim() || "—";
+    box.appendChild(lab);
+    box.appendChild(cb);
+    box.appendChild(sm);
+    grid.appendChild(box);
+  }
+  wrap.appendChild(grid);
+  const foot = document.createElement("p");
+  foot.className = "help";
+  const n = (character.sorceryProfile.workingIds || []).length;
+  foot.textContent = `Selected ${n} of ${cap} Working(s). Additional Workings and extra Techniques beyond chargen are milestones and Experience at the table (p. 65).`;
+  wrap.appendChild(foot);
+  root.appendChild(panel("Workings", wrap));
+}
+
 function renderSorcerer(root) {
   ensureSorceryProfileShape();
   const sp = character.sorceryProfile;
-  const wrap = document.createElement("div");
-  wrap.innerHTML = `
-    <p class="help">Record your <strong>Sorcerer</strong> details from <cite>Saints & Monsters</cite> Ch. 3 (Motif, Sources of Power, Invocation, Patronage, Prohibition, Talisman). Use <strong>Purviews</strong> for the <strong>Magic</strong> Purview and <strong>Boons</strong> for Magic Boon picks.</p>
+  const tierLab = bundle.tier?.[character.tier]?.name || "Sorcerer";
+
+  const overview = document.createElement("div");
+  const p1 = document.createElement("p");
+  p1.className = "help";
+  p1.innerHTML = `<strong>${tierLab}.</strong> This step mirrors the <strong>Deity</strong> wizard: same <strong>panel</strong> layout, book citations in help text, and cross-links to <strong>Purviews</strong> / <strong>Boons</strong> / <strong>Birthrights</strong> where Heroic-band Sorcerers spend Paraphernalia. Rules text: <cite>Saints & Monsters</cite> ch. 3 (character creation summary ~pp. 83–85; mechanics ~pp. 63–65).`;
+  overview.appendChild(p1);
+  const p2 = document.createElement("p");
+  p2.className = "help";
+  p2.innerHTML =
+    "<strong>Motif</strong> is how your magic looks and feels; <strong>Sources of Power</strong> are how you refresh and risk Legend (Invocation, Patronage, Prohibition, Talisman — pp. 63–64). At <strong>Heroic band</strong> and up, pick a <strong>primary</strong> source for focus; you can still sketch the others if you blend methods.";
+  overview.appendChild(p2);
+  root.appendChild(panel("Sorcerer overview", overview));
+
+  const detail = document.createElement("div");
+  const primOpts = [
+    ["", "— (Mortal band / undecided)"],
+    ["invocation", "Invocation"],
+    ["patronage", "Patronage"],
+    ["prohibition", "Prohibition"],
+    ["talisman", "Talisman"],
+  ];
+  const primHtml = primOpts.map(([v, lab]) => `<option value="${v}">${lab}</option>`).join("");
+  detail.innerHTML = `
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-source">Sources of Power</label><textarea id="f-sorc-source" rows="3"></textarea></div>
-    <div class="field"><label for="f-sorc-invocation">Invocation</label><textarea id="f-sorc-invocation" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-patronage">Patronage</label><textarea id="f-sorc-patronage" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-prohibition">Prohibition</label><textarea id="f-sorc-prohibition" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-talisman">Talisman</label><textarea id="f-sorc-talisman" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-notes">Sorcery notes</label><textarea id="f-sorc-notes" rows="4"></textarea></div>`;
-  root.appendChild(panel("Sorcerer (Saints & Monsters)", wrap));
+    <div class="field"><label for="f-sorc-primary">Primary source (Heroic+)</label><select id="f-sorc-primary">${primHtml}</select></div>
+    <div class="field"><label for="f-sorc-source">Sources of Power (freeform)</label><textarea id="f-sorc-source" rows="3"></textarea></div>
+    <div class="field"><label for="f-sorc-invocation">Invocation (costs, hubris, disguise)</label><textarea id="f-sorc-invocation" rows="2"></textarea></div>
+    <div class="field"><label for="f-sorc-patronage">Patronage (Fatebinding, compels)</label><textarea id="f-sorc-patronage" rows="2"></textarea></div>
+    <div class="field"><label for="f-sorc-prohibition">Prohibition (Sorcerous Prohibition condition)</label><textarea id="f-sorc-prohibition" rows="2"></textarea></div>
+    <div class="field"><label for="f-sorc-talisman">Talisman (Relic bond, Legend pool)</label><textarea id="f-sorc-talisman" rows="2"></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Inherent + chosen Techniques per Working; charms at the table (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
+  root.appendChild(panel("Sorcerer profile (Motif & sources)", detail));
+
   document.getElementById("f-sorc-motif").value = sp.motif || "";
+  document.getElementById("f-sorc-primary").value = sp.primaryPowerSource || "";
   document.getElementById("f-sorc-source").value = sp.powerSource || "";
   document.getElementById("f-sorc-invocation").value = sp.invocation || "";
   document.getElementById("f-sorc-patronage").value = sp.patronage || "";
   document.getElementById("f-sorc-prohibition").value = sp.prohibition || "";
   document.getElementById("f-sorc-talisman").value = sp.talisman || "";
+  document.getElementById("f-sorc-techniques").value = sp.techniquesNotes || "";
   document.getElementById("f-sorc-notes").value = sp.notes || "";
+
+  const link = document.createElement("div");
+  link.className = "panel";
+  link.innerHTML =
+    "<h2>Magic Purview and Paraphernalia</h2><p class=\"help\">Use the <strong>Purviews</strong> and <strong>Boons</strong> steps for the <strong>Magic</strong> Purview (merged from supplement data). Use <strong>Birthrights</strong> for <strong>Paraphernalia</strong> (Relics, Followers, etc.) at Heroic band and above — same seven-dot default as Hero Scions unless your table adjusts it.</p>";
+  root.appendChild(link);
 }
 
 function renderTitanicExtras(root) {
@@ -4668,15 +4822,23 @@ function renderFinishing(root) {
   ensureSkillDots();
 
   const tierFin = normalizedTierId(character.tier);
+  const heroLikeFinishing = tierFin === "hero" || tierFin === "titanic" || tierFin === "sorcerer_hero";
   const wrap = document.createElement("div");
   const intro = document.createElement("p");
   intro.className = "help";
-  if (tierFin === "mortal") {
+  if (isOriginPlayTier(character.tier)) {
     intro.innerHTML =
-      "<strong>Origin p. 99 — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> (Birthright templates — see <cite>Scion: Hero</cite> p. 201 for post-Visitation detail). Budgets below are table limits; place dots and picks in the sections that follow.";
-  } else if (tierFin === "hero" || tierFin === "titanic") {
-    const lab = tierFin === "titanic" ? "Titanic" : "Hero";
-    intro.innerHTML = `<strong>${lab} — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> here only. At <strong>Origin</strong> you already chose either <em>two extra Knacks</em> or <em>four Birthright points</em> on Finishing — that is not repeated at ${lab}. Tier <strong>Birthrights</strong> (seven points) are on the <strong>Birthrights</strong> step; <strong>Calling</strong> is where you place Knacks from your Calling rows.`;
+      tierFin === "sorcerer"
+        ? "<strong>Saints & Monsters ch. 3 — Finishing:</strong> spend <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> as for Origin characters, then either <em>two extra Knacks</em> or <em>four Birthright points</em> toward optional Paraphernalia (confirm finishing packages with the PDF)."
+        : "<strong>Origin p. 99 — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> (Birthright templates — see <cite>Scion: Hero</cite> p. 201 for post-Visitation detail). Budgets below are table limits; place dots and picks in the sections that follow.";
+  } else if (heroLikeFinishing) {
+    if (tierFin === "sorcerer_hero") {
+      intro.innerHTML =
+        "<strong>Heroic Sorcerer — Finishing:</strong> spend <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> here only. <strong>Paraphernalia</strong> (seven dots) lives on the <strong>Birthrights</strong> step; <strong>Knacks</strong> on the <strong>Calling</strong> step (<cite>Saints & Monsters</cite> ch. 3). If you <strong>advanced</strong> from Mortal Sorcerer and already took Origin-style finishing there, keep budgets consistent with your save.";
+    } else {
+      const lab = tierFin === "titanic" ? "Titanic" : "Hero";
+      intro.innerHTML = `<strong>${lab} — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> here only. At <strong>Origin</strong> you already chose either <em>two extra Knacks</em> or <em>four Birthright points</em> on Finishing — that is not repeated at ${lab}. Tier <strong>Birthrights</strong> (seven points) are on the <strong>Birthrights</strong> step; <strong>Calling</strong> is where you place Knacks from your Calling rows.`;
+    }
   } else {
     intro.innerHTML =
       "<strong>Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> toward your tier Birthrights budget (see <cite>Scion: Demigod</cite> / <cite>God</cite> and the Birthrights step). Budgets below are table limits.";
@@ -4685,7 +4847,7 @@ function renderFinishing(root) {
 
   const budget = document.createElement("div");
   budget.className = "grid-2";
-  if (tierFin === "hero" || tierFin === "titanic") {
+  if (heroLikeFinishing) {
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
     <div class="field"><label>Extra attribute dot(s) (budget)</label><input type="number" id="fin-attr" min="0" max="10" /></div>
@@ -4801,8 +4963,8 @@ function renderFinishing(root) {
   }
   wrap.appendChild(atPanel);
 
-  /* Hero / Titanic: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
-  if (tierFin !== "hero" && tierFin !== "titanic") {
+  /* Hero / Titanic / Heroic Sorcerer: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
+  if (!heroLikeFinishing) {
     const knBr = document.createElement("section");
     knBr.className = "panel finishing-place-panel";
     if (character.finishing.knackOrBirthright === "knacks") {
@@ -5320,6 +5482,14 @@ function renderReview(root) {
         render();
       }
     },
+    onLegendDotClick: (i) => {
+      const maxT = legendDotMaxForTier(character.tier);
+      const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
+      if (cur === i) character.legendRating = Math.max(0, i - 1);
+      else character.legendRating = Math.min(i, maxT);
+      syncLegendToTier();
+      render();
+    },
     getAwarenessPoolSpentAt: (idx) => {
       ensureLegendAwarenessPoolSlotArrays();
       return !!(character.awarenessPoolDotSpentSlots && character.awarenessPoolDotSpentSlots[idx]);
@@ -5355,12 +5525,13 @@ function renderReview(root) {
     btnAdv.id = "btn-advance-tier";
     if (!nextId) {
       btnAdv.disabled = true;
-      btnAdv.textContent =
-        character.tier === "sorcerer"
-          ? "No scripted next tier (Sorcerer)"
-          : character.tier === "god"
-            ? "Already at God tier"
-            : "No further tier";
+      btnAdv.textContent = isSorcererLineTier(character.tier)
+        ? normalizedTierId(character.tier) === "sorcerer_god"
+          ? "Already at top Sorcerer tier"
+          : "No scripted next tier"
+        : character.tier === "god"
+          ? "Already at God tier"
+          : "No further tier";
     } else {
       btnAdv.textContent = `Advance to ${nextMeta?.name || nextId}`;
     }
@@ -5399,6 +5570,18 @@ function buildExportObject() {
       concept: character.concept,
       deeds: character.deeds,
       notes: character.notes ?? "",
+      legendRating: character.legendRating ?? 0,
+      legendDotMax: legendDotMaxForTier(character.tier),
+      legendPoolDotSpentSlots: padPoolSlotArray(
+        character.legendPoolDotSpentSlots || [],
+        Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
+      ),
+      awarenessRating: clampAwarenessRating(character.awarenessRating ?? 1),
+      awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+      awarenessPoolDotSpentSlots: padPoolSlotArray(
+        character.awarenessPoolDotSpentSlots || [],
+        isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+      ),
       ...snap,
     };
   }
@@ -5413,7 +5596,9 @@ function buildExportObject() {
   const heroSeven = getTierAdvancementRule("mortal")?.heroBirthrightDotTotal ?? 7;
   const tnEx = normalizedTierId(character.tier);
   const heroUnused =
-    tnEx === "hero" || tnEx === "titanic" ? Math.max(0, heroSeven - finishingBirthrightPointsUsed()) : null;
+    tnEx === "hero" || tnEx === "titanic" || tnEx === "sorcerer_hero"
+      ? Math.max(0, heroSeven - finishingBirthrightPointsUsed())
+      : null;
   return {
     tier: character.tier,
     tierId: character.tier,
@@ -5423,7 +5608,7 @@ function buildExportObject() {
     legendDotMax: legendDotMaxForTier(character.tier),
     legendPoolDotSpentSlots: padPoolSlotArray(
       character.legendPoolDotSpentSlots || [],
-      legendDotMaxForTier(character.tier),
+      Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
     ),
     awarenessRating: clampAwarenessRating(character.awarenessRating ?? 1),
     awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
@@ -5492,6 +5677,7 @@ function buildExportObject() {
       birthrightsNamed: (character.finishing.birthrightPicks || []).map((id) => bundle.birthrights[id]?.name || id),
     },
     notes: character.notes,
+    sheetDescription: character.sheetDescription ?? "",
     sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
     sheetEquipment: (character.sheetEquipmentIds || [])
       .map((eid) => {
@@ -5724,7 +5910,11 @@ function importCharacterFromExportPayload(data) {
   else callingDots = Math.max(1, Math.min(5, callingDots));
   let callingSlots = null;
   const tierNormImp = normalizedTierId(tier);
-  if ((tierNormImp === "hero" || tierNormImp === "titanic") && Array.isArray(data.callingSlots) && data.callingSlots.length >= 3) {
+  if (
+    (tierNormImp === "hero" || tierNormImp === "titanic" || tierNormImp === "sorcerer_hero") &&
+    Array.isArray(data.callingSlots) &&
+    data.callingSlots.length >= 3
+  ) {
     callingSlots = data.callingSlots.slice(0, 3).map((x) =>
       x && typeof x === "object"
         ? {
@@ -5790,7 +5980,9 @@ function importCharacterFromExportPayload(data) {
   if (data.sorceryProfile && typeof data.sorceryProfile === "object") {
     for (const k of Object.keys(sorceryProfile)) {
       const v = data.sorceryProfile[k];
-      if (typeof v === "string") sorceryProfile[k] = v;
+      if (k === "workingIds" && Array.isArray(v)) {
+        sorceryProfile.workingIds = v.filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim());
+      } else if (typeof v === "string") sorceryProfile[k] = v;
     }
   }
   const titanicProfile = { ...base.titanicProfile };
@@ -5819,7 +6011,7 @@ function importCharacterFromExportPayload(data) {
 
   const chargenLineage = String(data.chargenLineage ?? "scion").trim() === "dragonHeir" ? "dragonHeir" : "scion";
 
-  const legNImp = legendDotMaxForTier(tier);
+  const legNImp = Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(tier));
   let legendPoolDotSpentSlots = padPoolSlotArray([], legNImp);
   if (Array.isArray(data.legendPoolDotSpentSlots) && data.legendPoolDotSpentSlots.length) {
     legendPoolDotSpentSlots = padPoolSlotArray(data.legendPoolDotSpentSlots.map((x) => !!x), legNImp);
@@ -5873,6 +6065,7 @@ function importCharacterFromExportPayload(data) {
     tierAdvancementLog: log,
     finishing: finBase,
     notes: typeof data.notes === "string" ? data.notes : "",
+    sheetDescription: typeof data.sheetDescription === "string" ? data.sheetDescription : "",
     sheetEquipmentIds,
     fatebindings: typeof data.fatebindings === "string" ? data.fatebindings : "",
     sheetNotesExtra: typeof data.sheetNotesExtra === "string" ? data.sheetNotesExtra : "",
@@ -6074,6 +6267,7 @@ function persistFromForm() {
         character.deeds.short = document.getElementById("f-deed-short")?.value || "";
         character.deeds.long = document.getElementById("f-deed-long")?.value || "";
         character.deeds.band = document.getElementById("f-deed-band")?.value || "";
+        character.sheetDescription = document.getElementById("f-sheet-description")?.value || "";
       }
       if (step === "paths") persistPathsPhrasesFromDom();
       persistDragonFromDom(character, bundle);
@@ -6090,6 +6284,7 @@ function persistFromForm() {
     character.deeds.short = document.getElementById("f-deed-short")?.value || "";
     character.deeds.long = document.getElementById("f-deed-long")?.value || "";
     character.deeds.band = document.getElementById("f-deed-band")?.value || "";
+    character.sheetDescription = document.getElementById("f-sheet-description")?.value || "";
   }
   if (step === "paths") persistPathsStepFromDom();
   if (step === "skills") {
@@ -6106,21 +6301,36 @@ function persistFromForm() {
     character.finishing.extraSkillDots = Number(document.getElementById("fin-skill")?.value || 0);
     character.finishing.extraAttributeDots = Number(document.getElementById("fin-attr")?.value || 0);
     character.finishing.knackOrBirthright =
-      normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic"
+      normalizedTierId(character.tier) === "hero" ||
+      normalizedTierId(character.tier) === "titanic" ||
+      normalizedTierId(character.tier) === "sorcerer_hero"
         ? "knacks"
         : document.getElementById("fin-focus")?.value || "knacks";
     character.fatebindings = document.getElementById("fin-fatebindings")?.value ?? "";
     character.sheetNotesExtra = document.getElementById("fin-sheet-notes")?.value ?? "";
   }
+  if (step === "workings") {
+    ensureSorceryProfileShape();
+    const cap = sorcererWorkingPickCap(character.tier);
+    const chosen = [];
+    for (const row of sorcererWorkingsCatalogRows()) {
+      const id = row.id;
+      if (document.getElementById(`f-working-${id}`)?.checked) chosen.push(id);
+    }
+    character.sorceryProfile.workingIds = chosen.slice(0, cap);
+  }
   if (step === "sorcerer") {
     ensureSorceryProfileShape();
     const sp = character.sorceryProfile;
     sp.motif = document.getElementById("f-sorc-motif")?.value ?? "";
+    const pr = document.getElementById("f-sorc-primary")?.value ?? "";
+    sp.primaryPowerSource = pr === "invocation" || pr === "patronage" || pr === "prohibition" || pr === "talisman" ? pr : "";
     sp.powerSource = document.getElementById("f-sorc-source")?.value ?? "";
     sp.invocation = document.getElementById("f-sorc-invocation")?.value ?? "";
     sp.patronage = document.getElementById("f-sorc-patronage")?.value ?? "";
     sp.prohibition = document.getElementById("f-sorc-prohibition")?.value ?? "";
     sp.talisman = document.getElementById("f-sorc-talisman")?.value ?? "";
+    sp.techniquesNotes = document.getElementById("f-sorc-techniques")?.value ?? "";
     sp.notes = document.getElementById("f-sorc-notes")?.value ?? "";
   }
   if (step === "titanicExtras") {
@@ -6263,6 +6473,7 @@ function render() {
   if (step === "purviews") renderPurviews(root);
   if (step === "birthrights") renderBirthrights(root);
   if (step === "boons") renderBoons(root);
+  if (step === "workings") renderWorkings(root);
   if (step === "sorcerer") renderSorcerer(root);
   if (step === "titanicExtras") renderTitanicExtras(root);
   if (step === "finishing") renderFinishing(root);

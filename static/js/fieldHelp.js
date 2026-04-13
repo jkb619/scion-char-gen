@@ -24,11 +24,11 @@ export function docHint(example, source) {
 /** @type {Record<string, { example: string; source: string }>} */
 export const HELP = {
   "welcome-line-select": {
-    example: "Deity: Mortal through God. Titan: Titanic Hero through God. Dragon: Heir — Inheritance on Welcome. Sorcerer: Saints & Monsters Ch. 3 track (no Visitation tier list).",
+    example: "Deity: Mortal through God. Titan: Titanic Hero through God. Dragon: Heir — Inheritance on Welcome. Sorcerer: Mortal-band through God-band tiers (Saints & Monsters ch. 3).",
     source: `${cite("origin", "Character Creation (tiers)", "94–106")}; Scion_-_Titanomachy_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf (Sorcerer).`,
   },
   "welcome-tier-select": {
-    example: "Mortal/Origin through God on Deity, or Titanic through God on Titan. Hidden for Dragon (Inheritance) and Sorcerer (dedicated wizard in tier.json).",
+    example: "Mortal/Origin through God on Deity, Titanic through God on Titan, Sorcerer (Mortal band) through Sorcerer (God band) on the Sorcerer line. Hidden for Dragon (use Inheritance row).",
     source: `${cite("origin", "Character Creation", "94–106")}; TItans_Rising_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf.`,
   },
   "welcome-dragon-inheritance-select": {
@@ -70,6 +70,10 @@ export const HELP = {
     example: "A goal the whole band pursues together; often decided in session one.",
     source: cite("origin", "Deeds (group / band)", "94"),
   },
+  "f-sheet-description": {
+    example: "Age, look, mannerisms, public story—whatever your table wants on the sheet’s Description block.",
+    source: `${cite("origin", "Character Creation", "94–106")} (sheet appearance / details; freeform like the community four-pager).`,
+  },
   "d-deed-name": {
     example: "“Seal the broken gate before the eclipse”; a punchy title for the Draconic deed line on the Heir sheet.",
     source:
@@ -101,11 +105,11 @@ export const HELP = {
     source: cite("origin", "Pantheon list (Character Creation)", "95"),
   },
   "p-patron-kind": {
-    example: "Deity: parent list from Origin Appendix 2 gods. Titan: parent list from Titanomachy data (data/titans.json).",
+    example: "Divine: parent list from Origin Appendix 2. Titan: parent list from Titanomachy data (data/titans.json).",
     source: "Scion_Origin_(Revised_Download).pdf (Appendix 2); Scion_-_Titanomachy_(Final_Download).pdf",
   },
   "p-deity": {
-    example: "Odin — lists patron Purviews from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign Purviews).",
+    example: "Odin — lists patron innate Purview ids from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign them as picks).",
     source: `${cite("origin", "Appendix 2: Pantheons (gods, Callings, Purviews)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
   },
   "p-mythos-deed": {

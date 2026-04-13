@@ -226,6 +226,12 @@ export function buildScionInteractivePdfFields(data, bundle) {
     f,
   );
 
+  packLinesIntoFields(
+    String(data.sheetDescription ?? "").trim(),
+    Array.from({ length: 18 }, (_, i) => `description${i + 1}`),
+    f,
+  );
+
   return f;
 }
 
@@ -378,7 +384,11 @@ export function buildDragonInteractivePdfFields(data, bundle) {
     Array.from({ length: 24 }, (_, i) => `history${i + 1}`),
     f,
   );
-  packLinesIntoFields("", Array.from({ length: 18 }, (_, i) => `description${i + 1}`), f);
+  packLinesIntoFields(
+    String(data.sheetDescription ?? "").trim(),
+    Array.from({ length: 18 }, (_, i) => `description${i + 1}`),
+    f,
+  );
   packLinesIntoFields("", Array.from({ length: 11 }, (_, i) => `notes${i + 1}`), f);
 
   return f;

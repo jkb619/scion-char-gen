@@ -6,6 +6,38 @@ import { applyGameDataHint } from "./fieldHelp.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 
+/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). */
+function sheetLegendDotTrackReadOnly(n, max) {
+  const wrap = document.createElement("span");
+  wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
+  const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
+  const v = Math.max(0, Math.min(cap, Math.round(Number(n) || 0)));
+  for (let i = 1; i <= cap; i += 1) {
+    const d = document.createElement("span");
+    d.className = "cs-dot" + (i <= v ? " on" : "");
+    d.setAttribute("aria-hidden", "true");
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
+/** Read-only Awareness dot row (Mythos). */
+function sheetAwarenessDotTrackReadOnly(n, max) {
+  const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
+  const wrap = document.createElement("span");
+  wrap.className = "cs-dot-track cs-legend-dot-track" + (cap > 6 ? " cs-legend-dot-track-dense" : "");
+  wrap.setAttribute("role", "img");
+  const v = Math.max(1, Math.min(cap, Math.round(Number(n) || 1)));
+  wrap.setAttribute("aria-label", `Awareness ${v} of ${cap}`);
+  for (let i = 1; i <= cap; i += 1) {
+    const d = document.createElement("span");
+    d.className = "cs-dot" + (i <= v ? " on" : "");
+    d.setAttribute("aria-hidden", "true");
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
 /**
  * Origin / Storypath: Defense equals the **highest** Resilience Attribute after Favored Approach
  * (Stamina, Resolve, Composure). See Origin chargen (pp. 98–99) and Resilience / combat notes.
@@ -138,7 +170,8 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
  *   setLegendPoolSpentAt: (idx: number, v: boolean) => void;
  *   getAwarenessPoolSpentAt: (idx: number) => boolean;
  *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
- * } | null | undefined} [sheetHooks] — Review only: one pool-spent checkbox per Legend / Awareness dot
+ *   onLegendDotClick?: (dotIndex1Based: number) => void;
+ * } | null | undefined} [sheetHooks] — Review only: pool checkboxes; optional Legend dot clicks
  */
 export function buildCharacterSheet(data, bundle, sheetHooks) {
   const skills = bundle?.skills || {};
@@ -149,7 +182,38 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     el.dataset.sheetLayout = "dragon4";
     const skillName = (id) => skills[id]?.name || id;
     const attrName = (id) => attrs[id]?.name || id;
-    fillDragonFourPageLayout(el, { data, bundle, skillName, attrName, originHealthInjurySlots });
+    const tid = data.tierId ?? data.tier;
+    const tierKey = String(tid ?? "mortal").trim().toLowerCase();
+    const tierKeyNorm = tierKey === "origin" ? "mortal" : tierKey;
+    const ldmRaw = data.legendDotMax;
+    const legendMax =
+      ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
+        ? Math.max(1, Math.round(Number(ldmRaw)))
+        : (() => {
+            const m = {
+              mortal: 1,
+              hero: 4,
+              demigod: 8,
+              god: 12,
+              sorcerer: 1,
+              sorcerer_hero: 4,
+              sorcerer_demigod: 8,
+              sorcerer_god: 12,
+              titanic: 4,
+            };
+            return m[tierKeyNorm] ?? 1;
+          })();
+    fillDragonFourPageLayout(el, {
+      data,
+      bundle,
+      skillName,
+      attrName,
+      originHealthInjurySlots,
+      sheetHooks: sheetHooks || null,
+      legendMax,
+      legendDotTrackReadOnly: sheetLegendDotTrackReadOnly,
+      awarenessDotTrackReadOnly: sheetAwarenessDotTrackReadOnly,
+    });
     return el;
   }
   const tid = data.tierId ?? data.tier;
@@ -161,7 +225,17 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
       ? Math.max(1, Math.round(Number(ldmRaw)))
       : (() => {
-          const m = { mortal: 1, hero: 4, demigod: 8, god: 12, sorcerer: 1, titanic: 4 };
+          const m = {
+            mortal: 1,
+            hero: 4,
+            demigod: 8,
+            god: 12,
+            sorcerer: 1,
+            sorcerer_hero: 4,
+            sorcerer_demigod: 8,
+            sorcerer_god: 12,
+            titanic: 4,
+          };
           return m[tierKeyNorm] ?? 1;
         })();
 
@@ -177,38 +251,6 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     wrap.className = "cs-dot-track";
     const v = Math.max(0, Math.min(5, Number(n) || 0));
     for (let i = 1; i <= 5; i += 1) {
-      const d = document.createElement("span");
-      d.className = "cs-dot" + (i <= v ? " on" : "");
-      d.setAttribute("aria-hidden", "true");
-      wrap.appendChild(d);
-    }
-    return wrap;
-  }
-
-  function legendDotTrackReadOnly(n, max) {
-    const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
-    const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
-    const v = Math.max(0, Math.min(cap, Math.round(Number(n) || 0)));
-    for (let i = 1; i <= cap; i += 1) {
-      const d = document.createElement("span");
-      d.className = "cs-dot" + (i <= v ? " on" : "");
-      d.setAttribute("aria-hidden", "true");
-      wrap.appendChild(d);
-    }
-    return wrap;
-  }
-
-  /** Mythos Awareness: 1..max dots (max follows tier, same table as Legend). */
-  function awarenessDotTrackReadOnly(n, max) {
-    const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
-    const wrap = document.createElement("span");
-    wrap.className =
-      "cs-dot-track cs-legend-dot-track" + (cap > 6 ? " cs-legend-dot-track-dense" : "");
-    wrap.setAttribute("role", "img");
-    const v = Math.max(1, Math.min(cap, Math.round(Number(n) || 1)));
-    wrap.setAttribute("aria-label", `Awareness ${v} of ${cap}`);
-    for (let i = 1; i <= cap; i += 1) {
       const d = document.createElement("span");
       d.className = "cs-dot" + (i <= v ? " on" : "");
       d.setAttribute("aria-hidden", "true");
@@ -322,8 +364,8 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     moveDice,
     healthSpec,
     dotTrack,
-    legendDotTrackReadOnly,
-    awarenessDotTrackReadOnly,
+    legendDotTrackReadOnly: sheetLegendDotTrackReadOnly,
+    awarenessDotTrackReadOnly: sheetAwarenessDotTrackReadOnly,
     buildVirtueSpectrumElement,
     buildKnackSheetRows,
     buildBoonSheetRows,

@@ -3,7 +3,17 @@
  * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number> }} CharacterLike
  */
 
-const TIER_RANK = { mortal: 0, sorcerer: 0, hero: 1, titanic: 1, demigod: 2, god: 3 };
+const TIER_RANK = {
+  mortal: 0,
+  sorcerer: 0,
+  hero: 1,
+  titanic: 1,
+  sorcerer_hero: 1,
+  demigod: 2,
+  sorcerer_demigod: 2,
+  god: 3,
+  sorcerer_god: 3,
+};
 
 function tierRank(tierId) {
   const t = String(tierId ?? "mortal").trim().toLowerCase();
@@ -20,7 +30,7 @@ function normalizedTierIdEligibility(tierId) {
 /** Hero and Titanic tiers use three Calling rows in the wizard (`callingSlots`); Knacks use per-row dot budgets. */
 export function heroUsesCallingSlotRows(character) {
   const t = normalizedTierIdEligibility(character?.tier);
-  return t === "hero" || t === "titanic";
+  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
 }
 
 function sumHeroCallingSlotDots(character) {

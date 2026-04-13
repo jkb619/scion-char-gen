@@ -3249,6 +3249,7 @@ export function buildDragonReviewSnapshot(character, bundle) {
     sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
     fatebindings: character.fatebindings ?? "",
     sheetNotesExtra: character.sheetNotesExtra ?? "",
+    sheetDescription: character.sheetDescription ?? "",
     dragon: dragonBlob,
   };
 }

@@ -5,7 +5,7 @@
   },
   "aesir": {
     "id": "aesir",
-    "name": "Æsir — Norse Gods",
+    "name": "Æsir — Norse",
     "assetSkills": [
       "closeCombat",
       "occult"
@@ -226,7 +226,7 @@
   },
   "manitou": {
     "id": "manitou",
-    "name": "Manitou — Algonquian Pantheon",
+    "name": "Manitou — Algonquian",
     "assetSkills": [
       "medicine",
       "occult"
@@ -390,7 +390,7 @@
   },
   "theoi": {
     "id": "theoi",
-    "name": "Theoi — Greco-Roman Pantheon",
+    "name": "Theoi — Greco-Roman",
     "assetSkills": [
       "empathy",
       "persuasion"
@@ -596,7 +596,7 @@
   },
   "netjer": {
     "id": "netjer",
-    "name": "Netjer — Egyptian Pantheon",
+    "name": "Netjer — Egyptian",
     "assetSkills": [
       "academics",
       "occult"
@@ -750,7 +750,7 @@
   },
   "kami": {
     "id": "kami",
-    "name": "Kami — Japanese Gods",
+    "name": "Kami — Japanese",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -864,7 +864,7 @@
   },
   "tuathaDeDanann": {
     "id": "tuathaDeDanann",
-    "name": "Tuatha Dé Danann — Irish Gods",
+    "name": "Tuatha Dé Danann — Irish",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -981,7 +981,7 @@
   },
   "orisha": {
     "id": "orisha",
-    "name": "Òrìshà — Yorùbá Pantheon",
+    "name": "Òrìshà — Yorùbá",
     "assetSkills": [
       "medicine",
       "subterfuge"
@@ -1279,7 +1279,7 @@
   },
   "deva": {
     "id": "deva",
-    "name": "Devá — Gods of South Asia",
+    "name": "Devá — South Asia",
     "assetSkills": [
       "athletics",
       "survival"
@@ -1409,7 +1409,7 @@
   },
   "shen": {
     "id": "shen",
-    "name": "Shén — Chinese Pantheon",
+    "name": "Shén — Chinese",
     "assetSkills": [
       "academics",
       "leadership"
@@ -1550,7 +1550,7 @@
   },
   "teotl": {
     "id": "teotl",
-    "name": "Teōtl — Aztec Gods",
+    "name": "Teōtl — Aztec",
     "assetSkills": [
       "culture",
       "empathy"
@@ -1651,7 +1651,7 @@
   },
   "nemetondevos": {
     "id": "nemetondevos",
-    "name": "Nemetondevos — Gods of the Sacred Shrines (Gaul)",
+    "name": "Nemetondevos — Sacred Shrines (Gaul)",
     "assetSkills": [
       "closeCombat",
       "survival"
@@ -2065,7 +2065,7 @@
   },
   "mythos": {
     "id": "mythos",
-    "name": "The Mythos",
+    "name": "The Mythos — Lovecraftian",
     "assetSkills": [
       "academics",
       "occult"
@@ -2298,7 +2298,7 @@
   },
   "anunna": {
     "id": "anunna",
-    "name": "Anunna — Mesopotamian Pantheon",
+    "name": "Anunna — Mesopotamian",
     "assetSkills": [
       "academics",
       "occult"
@@ -2477,7 +2477,7 @@
   },
   "bogovi": {
     "id": "bogovi",
-    "name": "Bogovi — Slavic Pantheon",
+    "name": "Bogovi — Slavic",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -2642,7 +2642,7 @@
   },
   "apu": {
     "id": "apu",
-    "name": "Apu — Andean Pantheon",
+    "name": "Apu — Andean",
     "assetSkills": [
       "athletics",
       "survival"
@@ -2776,7 +2776,7 @@
   },
   "atua": {
     "id": "atua",
-    "name": "Atua — Polynesian Pantheon",
+    "name": "Atua — Polynesian",
     "assetSkills": [
       "culture",
       "closeCombat"
@@ -2908,7 +2908,7 @@
   },
   "balahala": {
     "id": "balahala",
-    "name": "Balahala — Philippine Pantheon",
+    "name": "Balahala — Philippine",
     "assetSkills": [
       "athletics",
       "subterfuge"
@@ -3012,7 +3012,7 @@
   },
   "ilhm": {
     "id": "ilhm",
-    "name": "Ilhm — Persian Pantheon",
+    "name": "Ilhm — Persian",
     "assetSkills": [
       "academics",
       "culture"
@@ -3116,7 +3116,7 @@
   },
   "kuh": {
     "id": "kuh",
-    "name": "K’uh — Maya Pantheon",
+    "name": "K’uh — Maya",
     "assetSkills": [
       "academics",
       "occult"
@@ -3218,7 +3218,7 @@
   },
   "tengri": {
     "id": "tengri",
-    "name": "Tengri — Turko-Mongol Pantheon",
+    "name": "Tengri — Turko-Mongol",
     "assetSkills": [
       "athletics",
       "survival"
@@ -3305,7 +3305,7 @@
   },
   "palas": {
     "id": "palas",
-    "name": "Pālas — Tibetan Pantheon",
+    "name": "Pālas — Tibetan",
     "assetSkills": [
       "academics",
       "occult"
@@ -3394,7 +3394,7 @@
   },
   "zem": {
     "id": "zem",
-    "name": "Zem — Taíno Pantheon",
+    "name": "Zem — Taíno",
     "assetSkills": [
       "medicine",
       "culture"

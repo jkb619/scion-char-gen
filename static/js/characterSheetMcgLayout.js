@@ -4,6 +4,8 @@
  * Filled from `buildExportObject()`; empty lines remain for table play where the app has no field.
  */
 
+import { appendLegendAwarenessDotsWithPools } from "./characterSheetLegendPools.js";
+import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
 import { mergedPurviewIdsForSheet } from "./purviewDisplayName.js";
 import { boonPrimaryPurview } from "./eligibility.js";
 import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
@@ -46,73 +48,13 @@ export function fillMcgFourPageLayout(el, api) {
   } = api;
 
   const charName = String(data.characterName ?? "").trim();
+  const legendPoolCtx = { sheetHooks, legendDotTrackReadOnly, awarenessDotTrackReadOnly };
 
   function mcgSheetTick() {
     const tick = document.createElement("span");
     tick.className = "cs-mcg-sheet-tick";
     tick.setAttribute("aria-hidden", "true");
     return tick;
-  }
-
-  /**
-   * Legend or Mythos Awareness: filled dots with optional per-dot pool-spent checkboxes (Review sheet).
-   * @param {"Legend" | "Awareness"} kind
-   */
-  function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind) {
-    const c = Math.max(1, Math.min(20, Math.round(Number(cap) || 1)));
-    const hooks =
-      sheetHooks &&
-      typeof sheetHooks.getLegendPoolSpentAt === "function" &&
-      typeof sheetHooks.setLegendPoolSpentAt === "function" &&
-      typeof sheetHooks.getAwarenessPoolSpentAt === "function" &&
-      typeof sheetHooks.setAwarenessPoolSpentAt === "function"
-        ? sheetHooks
-        : null;
-    if (!hooks) {
-      if (kind === "Legend") {
-        const v = Math.max(0, Math.min(c, Math.round(Number(filled) || 0)));
-        cell.appendChild(legendDotTrackReadOnly(v, c));
-      } else {
-        const av = Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
-        cell.appendChild(awarenessDotTrackReadOnly(av, c));
-      }
-      return;
-    }
-    const v =
-      kind === "Legend"
-        ? Math.max(0, Math.min(c, Math.round(Number(filled) || 0)))
-        : Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
-    const track = document.createElement("div");
-    track.className = "cs-mcg-legend-pool-track" + (c > 6 ? " cs-mcg-legend-pool-track--dense" : "");
-    for (let i = 1; i <= c; i += 1) {
-      const col = document.createElement("div");
-      col.className = "cs-mcg-legend-pool-col";
-      const dot = document.createElement("span");
-      dot.className = "cs-dot" + (i <= v ? " on" : "");
-      dot.setAttribute("aria-hidden", "true");
-      col.appendChild(dot);
-      const idx = i - 1;
-      const lab = document.createElement("label");
-      lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
-      lab.setAttribute(
-        "aria-label",
-        kind === "Legend" ? `Legend pool from dot ${i} spent` : `Awareness pool from dot ${i} spent`,
-      );
-      const inp = document.createElement("input");
-      inp.type = "checkbox";
-      inp.className = "cs-mcg-pool-check-input";
-      if (kind === "Legend") {
-        inp.checked = !!hooks.getLegendPoolSpentAt(idx);
-        inp.addEventListener("change", () => hooks.setLegendPoolSpentAt(idx, inp.checked));
-      } else {
-        inp.checked = !!hooks.getAwarenessPoolSpentAt(idx);
-        inp.addEventListener("change", () => hooks.setAwarenessPoolSpentAt(idx, inp.checked));
-      }
-      lab.appendChild(inp);
-      col.appendChild(lab);
-      track.appendChild(col);
-    }
-    cell.appendChild(track);
   }
 
   function page() {
@@ -474,7 +416,7 @@ export function fillMcgFourPageLayout(el, api) {
       : 0;
   const legDotsCell = document.createElement("div");
   legDotsCell.className = "cs-mcg-legend-dots-cell";
-  appendLegendAwarenessDotsWithPools(legDotsCell, lv, legendMax, "Legend");
+  appendLegendAwarenessDotsWithPools(legDotsCell, lv, legendMax, "Legend", legendPoolCtx);
   legBlock.appendChild(legL);
   legBlock.appendChild(legDotsCell);
   legStack.appendChild(legBlock);
@@ -498,7 +440,7 @@ export function fillMcgFourPageLayout(el, api) {
     const av = awRaw != null && awRaw !== "" && !Number.isNaN(Number(awRaw)) ? Number(awRaw) : 1;
     const awDotsCell = document.createElement("div");
     awDotsCell.className = "cs-mcg-legend-dots-cell";
-    appendLegendAwarenessDotsWithPools(awDotsCell, av, awarenessMax, "Awareness");
+    appendLegendAwarenessDotsWithPools(awDotsCell, av, awarenessMax, "Awareness", legendPoolCtx);
     awBlock.appendChild(awL);
     awBlock.appendChild(awDotsCell);
     awStack.appendChild(awBlock);
@@ -599,8 +541,11 @@ export function fillMcgFourPageLayout(el, api) {
   p2mid.className = "cs-mcg-p2-mid";
   const descCol = document.createElement("div");
   descCol.appendChild(mcgSectionTitle("Description"));
-  for (const lab of ["Age", "Date of birth", "Hair", "Eyes", "Height", "Weight", "Race / kin", "Nationality", "Gender"]) {
-    descCol.appendChild(mcgLinedField(lab, ""));
+  for (const line of sheetDescriptionLinesForDisplay(data.sheetDescription)) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line cs-mcg-write-line--desc";
+    ln.textContent = line;
+    descCol.appendChild(ln);
   }
   const combCol = document.createElement("div");
   combCol.appendChild(mcgSectionTitle("Combat"));
@@ -662,10 +607,13 @@ export function fillMcgFourPageLayout(el, api) {
   p2.appendChild(spent);
 
   p2.appendChild(mcgSectionTitle("History & notes"));
-  const hist = document.createElement("div");
-  hist.className = "cs-mcg-history";
-  hist.textContent = (data.sheetNotesExtra || data.notes || "").trim() || "";
-  p2.appendChild(hist);
+  const histRaw = String(data.sheetNotesExtra || data.notes || "").trim();
+  for (const line of sheetMultilineSixWriteLines(histRaw)) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line cs-mcg-write-line--desc";
+    ln.textContent = line;
+    p2.appendChild(ln);
+  }
 
   /* —— Page 3 —— */
   const p3 = page();

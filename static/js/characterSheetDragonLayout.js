@@ -3,6 +3,8 @@
  * (`cs-mcg-*` structure) with Dragon data; palette comes from `.character-sheet--dragon-heir` CSS.
  */
 
+import { appendLegendAwarenessDotsWithPools } from "./characterSheetLegendPools.js";
+import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
 import { applyGameDataHint } from "./fieldHelp.js";
 import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
@@ -45,10 +47,24 @@ const APPROACH_FOR_ATTR = { might: "Power", dexterity: "Finesse", stamina: "Resi
  *   skillName: (id: string) => string;
  *   attrName: (id: string) => string;
  *   originHealthInjurySlots: (stamina: number) => { stamina: number; bruisedCount: number; slots: { tier: string; label: string }[] };
+ *   sheetHooks?: object | null;
+ *   legendMax?: number;
+ *   legendDotTrackReadOnly: (n: number, max: number) => HTMLElement;
+ *   awarenessDotTrackReadOnly: (n: number, max: number) => HTMLElement;
  * }} api
  */
 export function fillDragonFourPageLayout(el, api) {
-  const { data, bundle, skillName, attrName, originHealthInjurySlots } = api;
+  const {
+    data,
+    bundle,
+    skillName,
+    attrName,
+    originHealthInjurySlots,
+    sheetHooks,
+    legendDotTrackReadOnly,
+    awarenessDotTrackReadOnly,
+  } = api;
+  const legendPoolCtx = { sheetHooks: sheetHooks ?? null, legendDotTrackReadOnly, awarenessDotTrackReadOnly };
   const d = data.dragon && typeof data.dragon === "object" ? data.dragon : {};
   const finalA = /** @type {Record<string, number>} */ (data.attributesAfterFavored || {});
   const skillDots = /** @type {Record<string, number>} */ (data.skills && typeof data.skills === "object" ? data.skills : {});
@@ -474,6 +490,23 @@ export function fillDragonFourPageLayout(el, api) {
   inhBlock.appendChild(inhL);
   inhBlock.appendChild(inhDotsCell);
   inhStack.appendChild(inhBlock);
+
+  const legBlock = document.createElement("div");
+  legBlock.className = "cs-mcg-legend-with-pool";
+  const legL = document.createElement("span");
+  legL.className = "cs-mcg-track-label";
+  legL.textContent = "Legend";
+  const legDotsCell = document.createElement("div");
+  legDotsCell.className = "cs-mcg-legend-dots-cell";
+  const lv =
+    data.legendRating != null && data.legendRating !== "" && !Number.isNaN(Number(data.legendRating))
+      ? Number(data.legendRating)
+      : 0;
+  appendLegendAwarenessDotsWithPools(legDotsCell, lv, 1, "Legend", legendPoolCtx);
+  legBlock.appendChild(legL);
+  legBlock.appendChild(legDotsCell);
+  inhStack.appendChild(legBlock);
+
   rightCol.appendChild(inhStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
   const remTxt =
@@ -593,8 +626,11 @@ export function fillDragonFourPageLayout(el, api) {
   p2mid.className = "cs-mcg-p2-mid";
   const descCol = document.createElement("div");
   descCol.appendChild(mcgSectionTitle("Description"));
-  for (const lab of ["Age", "Date of birth", "Hair", "Eyes", "Height", "Weight", "Race / kin", "Nationality", "Gender"]) {
-    descCol.appendChild(mcgLinedField(lab, ""));
+  for (const line of sheetDescriptionLinesForDisplay(data.sheetDescription)) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line cs-mcg-write-line--desc";
+    ln.textContent = line;
+    descCol.appendChild(ln);
   }
   const combCol = document.createElement("div");
   combCol.appendChild(mcgSectionTitle("Combat"));
@@ -655,10 +691,13 @@ export function fillDragonFourPageLayout(el, api) {
   p2.appendChild(spent);
 
   p2.appendChild(mcgSectionTitle("History & notes"));
-  const hist = document.createElement("div");
-  hist.className = "cs-mcg-history";
-  hist.textContent = [data.notes, data.sheetNotesExtra].map((x) => String(x || "").trim()).filter(Boolean).join("\n\n");
-  p2.appendChild(hist);
+  const histRaw = [data.notes, data.sheetNotesExtra].map((x) => String(x || "").trim()).filter(Boolean).join("\n\n");
+  for (const line of sheetMultilineSixWriteLines(histRaw)) {
+    const ln = document.createElement("div");
+    ln.className = "cs-mcg-write-line cs-mcg-write-line--desc";
+    ln.textContent = line;
+    p2.appendChild(ln);
+  }
 
   /* —— Page 3 — Knacks + Dragon Magic (spells) —— */
   const p3 = page();
