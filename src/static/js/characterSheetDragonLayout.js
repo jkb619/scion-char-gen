@@ -9,6 +9,7 @@ import { applyGameDataHint } from "./fieldHelp.js";
 import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 
 const LEFT_SKILLS = [
   "academics",
@@ -292,9 +293,9 @@ export function fillDragonFourPageLayout(el, api) {
     return out;
   }
 
-  /** @returns {({ sp: Record<string, unknown>; mag: Record<string, unknown> } | null)[]} */
+  /** @returns {{ sp: Record<string, unknown>; mag: Record<string, unknown> }[]} */
   function buildSpellSlots() {
-    const out = /** @type {({ sp: Record<string, unknown>; mag: Record<string, unknown> } | null)[]} */ ([]);
+    const out = /** @type {{ sp: Record<string, unknown>; mag: Record<string, unknown> }[]} */ ([]);
     const known = Array.isArray(d.knownMagics) ? d.knownMagics : [];
     const spellsBy = d.spellsByMagicId && typeof d.spellsByMagicId === "object" ? d.spellsByMagicId : {};
     for (const mid of known) {
@@ -311,8 +312,7 @@ export function fillDragonFourPageLayout(el, api) {
       const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === bs) : null;
       if (sp && mag && typeof sp === "object" && typeof mag === "object") out.push({ sp, mag });
     }
-    while (out.length < 11) out.push(null);
-    return out.slice(0, 11);
+    return out;
   }
 
   function allBirthrightPicks() {
@@ -734,19 +734,19 @@ export function fillDragonFourPageLayout(el, api) {
   }
   p3.appendChild(nk);
 
-  p3.appendChild(mcgSectionTitle("Dragon Magic — Spells"));
   const spellSlots = buildSpellSlots();
-  const spellStack = document.createElement("div");
-  spellStack.className = "cs-dragon-spell-plate-stack";
-  for (let i = 0; i < spellSlots.length; i += 1) {
-    const slot = spellSlots[i];
-    const card = document.createElement("div");
-    card.className = "cs-dragon-spell-plate-card";
-    if (slot) appendDragonSpellBoonStylePlate(card, slot.sp, slot.mag);
-    else appendDragonSpellBoonStylePlate(card, undefined, undefined, { sheetBlank: true });
-    spellStack.appendChild(card);
+  if (spellSlots.length > 0) {
+    p3.appendChild(mcgSectionTitle("Dragon Magic — Spells"));
+    const spellStack = document.createElement("div");
+    spellStack.className = "cs-dragon-spell-plate-stack";
+    for (const slot of spellSlots) {
+      const card = document.createElement("div");
+      card.className = "cs-dragon-spell-plate-card";
+      appendDragonSpellBoonStylePlate(card, slot.sp, slot.mag);
+      spellStack.appendChild(card);
+    }
+    p3.appendChild(spellStack);
   }
-  p3.appendChild(spellStack);
 
   /* —— Page 4 — Conditions, Birthrights, Fatebinding (MCG tail) —— */
   const p4 = page();
@@ -764,71 +764,57 @@ export function fillDragonFourPageLayout(el, api) {
   }
   p4.appendChild(cond);
 
-  p4.appendChild(mcgSectionTitle("Birthrights"));
-  const brGrid = document.createElement("div");
-  brGrid.className = "cs-mcg-br-grid";
-  for (const pick of allBirthrightPicks()) {
-    const bid = String(pick.id || "").trim();
-    const br = bundle?.birthrights?.[bid];
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-br-block";
-    const head = document.createElement("div");
-    head.className = "cs-mcg-br-head";
-    const nm = document.createElement("span");
-    nm.textContent = br?.name || bid;
-    head.appendChild(nm);
-    head.appendChild(dotTrack(Math.min(5, Math.max(1, Math.round(Number(pick.dots) || 1)))));
-    blk.appendChild(head);
-    blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
-    const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
-    blk.appendChild(mcgLinedField("Tags", tagStr));
-    blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
-    blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
-    const rd = br?.relicDetails;
-    const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
-    blk.appendChild(
-      mcgLinedField("Purview", pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, "") : ""),
-    );
-    blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
-    blk.appendChild(mcgLinedField("Enhancement", ""));
-    if (br) applyGameDataHint(blk, br);
-    brGrid.appendChild(blk);
+  const brPicks = allBirthrightPicks();
+  if (brPicks.length > 0) {
+    p4.appendChild(mcgSectionTitle("Birthrights"));
+    const brGrid = document.createElement("div");
+    brGrid.className = "cs-mcg-br-grid";
+    for (const pick of brPicks) {
+      const bid = String(pick.id || "").trim();
+      const br = bundle?.birthrights?.[bid];
+      const blk = document.createElement("div");
+      blk.className = "cs-mcg-br-block";
+      const head = document.createElement("div");
+      head.className = "cs-mcg-br-head";
+      const nm = document.createElement("span");
+      nm.textContent = br?.name || bid;
+      head.appendChild(nm);
+      head.appendChild(dotTrack(Math.min(5, Math.max(1, Math.round(Number(pick.dots) || 1)))));
+      blk.appendChild(head);
+      blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
+      const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
+      blk.appendChild(mcgLinedField("Tags", tagStr));
+      blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
+      blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
+      const rd = br?.relicDetails;
+      const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
+      blk.appendChild(
+        mcgLinedField("Purview", pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, "") : ""),
+      );
+      blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
+      blk.appendChild(mcgLinedField("Enhancement", ""));
+      if (br) applyGameDataHint(blk, br);
+      brGrid.appendChild(blk);
+    }
+    p4.appendChild(brGrid);
   }
-  while (brGrid.children.length < 8) {
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-br-block";
-    const head = document.createElement("div");
-    head.className = "cs-mcg-br-head";
-    head.appendChild(document.createElement("span"));
-    head.appendChild(dotTrack(0));
-    blk.appendChild(head);
-    blk.appendChild(mcgLinedField("Type", ""));
-    blk.appendChild(mcgLinedField("Tags", ""));
-    blk.appendChild(mcgBrRuledBlock("Description", ""));
-    blk.appendChild(mcgBrRuledBlock("Mechanics", ""));
-    blk.appendChild(mcgLinedField("Purview", ""));
-    blk.appendChild(mcgLinedField("Motif", ""));
-    blk.appendChild(mcgLinedField("Enhancement", ""));
-    brGrid.appendChild(blk);
-  }
-  p4.appendChild(brGrid);
 
-  p4.appendChild(mcgSectionTitle("Fatebinding"));
-  const fbLines = String(data.fatebindings || "")
-    .split(/\n+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const fbGrid = document.createElement("div");
-  fbGrid.className = "cs-mcg-fb-grid";
-  for (let i = 0; i < 14; i += 1) {
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-fb-block";
-    blk.appendChild(mcgLinedField("Name", fbLines[i] || ""));
-    blk.appendChild(mcgLinedField("Strength", ""));
-    blk.appendChild(mcgCheckboxRow(["Invoke", "Compel"]));
-    fbGrid.appendChild(blk);
+  const fbRows = nonEmptyFatebindingRowsForSheet(data.fatebindings);
+  if (fbRows.length > 0) {
+    p4.appendChild(mcgSectionTitle("Fatebinding"));
+    const fbGrid = document.createElement("div");
+    fbGrid.className = "cs-mcg-fb-grid";
+    for (const fr of fbRows) {
+      const blk = document.createElement("div");
+      blk.className = "cs-mcg-fb-block";
+      blk.appendChild(mcgLinedField("Name", fr.name));
+      blk.appendChild(mcgLinedField("Strength", fr.strength));
+      blk.appendChild(mcgBrRuledBlock("Story", (fr.story || "").trim().slice(0, 900)));
+      blk.appendChild(mcgCheckboxRow(["Invoke", "Compel"]));
+      fbGrid.appendChild(blk);
+    }
+    p4.appendChild(fbGrid);
   }
-  p4.appendChild(fbGrid);
 
   p4.appendChild(mcgSectionTitle("Draconic profile"));
   const drac = document.createElement("div");

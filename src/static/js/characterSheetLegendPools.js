@@ -1,4 +1,4 @@
-/** Legend row on Review sheets: fixed dot + pool checkbox columns (community four-pager style). */
+/** Legend row on Review sheets: fixed dot + pool checkbox columns (community four-pager style). Legend *rating* is not filled on the bubbles (pencil at table); pool-spent checkboxes still track play. */
 export const LEGEND_SHEET_DOT_COUNT = 15;
 
 /**
@@ -44,14 +44,13 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
 
   if (!hooks) {
     if (kind === "Legend") {
-      const v = Math.max(0, Math.min(c, Math.round(Number(filled) || 0)));
       const track = document.createElement("div");
       track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
       for (let i = 1; i <= c; i += 1) {
         const col = document.createElement("div");
         col.className = "cs-mcg-legend-pool-col";
         const dot = document.createElement("span");
-        dot.className = "cs-dot" + (i <= v ? " on" : "");
+        dot.className = "cs-dot";
         dot.setAttribute("aria-hidden", "true");
         col.appendChild(dot);
         const lab = document.createElement("label");
@@ -75,7 +74,7 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
 
   const v =
     kind === "Legend"
-      ? Math.max(0, Math.min(c, Math.round(Number(filled) || 0)))
+      ? 0 /* rating not shown filled on sheet; use checkboxes + pencil */
       : Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
   const track = document.createElement("div");
   track.className = "cs-mcg-legend-pool-track" + (c > 6 ? " cs-mcg-legend-pool-track--dense" : "");

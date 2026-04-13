@@ -193,11 +193,6 @@
   gap: 3px;
 }
 
-.cs-legend-dot-track-dense .cs-dot {
-  width: 7px;
-  height: 7px;
-}
-
 .review-advance-row {
   margin-top: 1rem;
   padding-top: 0.75rem;
@@ -1006,11 +1001,6 @@
 
 .cs-mcg-legend-pool-track--dense {
   gap: 0.22rem;
-}
-
-.cs-mcg-legend-pool-track--dense .cs-dot {
-  width: 7px;
-  height: 7px;
 }
 
 .cs-mcg-legend-pool-col {

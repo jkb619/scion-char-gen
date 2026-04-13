@@ -856,6 +856,25 @@ textarea.has-doc-hint:focus-visible {
   cursor: default;
 }
 
+/*
+ * Skills step (Deity, Titan, Sorcerer, Titanic, Mortal, Hero+, etc.): path-derived totals only.
+ * Same palette as capped / unmodifiable attribute dots (Finishing, Callings, …).
+ */
+.skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable:not(.filled) {
+  opacity: 0.32;
+  cursor: not-allowed;
+  border-color: #4a5260;
+  background: rgba(40, 44, 52, 0.6);
+}
+
+.skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable.filled {
+  opacity: 0.88;
+  cursor: not-allowed;
+  border-color: #b89a55;
+  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  filter: brightness(0.95);
+}
+
 .dot.filled {
   background: radial-gradient(circle at 30% 25%, #ffe6a1, var(--dot-fill));
   border-color: #e3c56f;
@@ -866,6 +885,30 @@ textarea.has-doc-hint:focus-visible {
   background: radial-gradient(circle at 30% 25%, #c9a85a, #7a5c22);
   border-color: #8a6a32;
   filter: brightness(0.88);
+}
+
+/* Finishing skills: at or below Skills-step baseline — not removable; match unmodifiable / capped filled gold */
+.finishing-skills-table .dot.filled.dot-finishing-locked-fill {
+  opacity: 0.88;
+  border-color: #b89a55;
+  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  filter: brightness(0.95);
+}
+
+/* Attributes step: filled dots at or below minimum achievable final (free 1 pre‑Favored + Favored) — same dark gold as Finishing skills baseline */
+.attributes-arena-panel .dot.filled.dot-finishing-locked-fill {
+  opacity: 0.88;
+  border-color: #b89a55;
+  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  filter: brightness(0.95);
+}
+
+/* Calling rows: first filled dot is the minimum 1 dot per Calling (Origin / Heir / Sorcerer Heroic+ shared layout) */
+.calling-inline-dots .dot.filled.dot-finishing-locked-fill {
+  opacity: 0.88;
+  border-color: #b89a55;
+  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  filter: brightness(0.95);
 }
 
 .dot:focus-visible {
@@ -1185,6 +1228,97 @@ textarea.has-doc-hint:focus-visible {
 
 .finishing-place-panel {
   margin-top: 1rem;
+}
+
+.fatebindings-editor-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.fatebindings-editor-title {
+  font-weight: 700;
+}
+
+.fatebinding-editor-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.fatebinding-editor-counter {
+  flex: 1 1 auto;
+  min-width: 10rem;
+}
+
+.fatebinding-single-card {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.5rem;
+  max-width: 36rem;
+}
+
+.fatebinding-line--inline,
+.fatebinding-line--strength {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.45rem 0.65rem;
+  align-items: center;
+}
+
+.fatebinding-line--strength {
+  margin-top: 0.45rem;
+}
+
+.fatebinding-line label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.fatebinding-line input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fatebinding-story-block {
+  margin-top: 0.55rem;
+}
+
+.fatebinding-story-block label {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.fatebinding-story-block textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fatebinding-empty-hint {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+/* Finishing: extended chronicle notes — textarea sits directly under section title */
+.finishing-extended-notes-editor .finishing-extended-notes-textarea {
+  display: block;
+  width: 100%;
+  max-width: 36rem;
+  box-sizing: border-box;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+}
+
+.fatebindings-track-hint {
+  margin: 0.25rem 0 0;
+  max-width: 42rem;
 }
 
 .finishing-budget-summary {

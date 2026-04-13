@@ -9,6 +9,7 @@ import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { boonDisplayLabel } from "./boonLabels.js";
 import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { applyFatebindingsToInteractivePdfFields } from "./fatebindingsSheet.js";
 
 /** @param {Record<string, unknown> | null | undefined} sp */
 function dragonSpellPdfEffectLine(sp) {
@@ -191,12 +192,7 @@ export function buildScionInteractivePdfFields(data, bundle) {
     f[`birthrights${i + 1}`] = br ? `${br.name || bid} (${Math.min(5, Math.max(1, Math.round(Number(br.pointCost) || 1)))})` : bid || "";
   }
 
-  const fb = String(data.fatebindings || "").trim();
-  packLinesIntoFields(
-    fb,
-    Array.from({ length: 28 }, (_, i) => `fatebinding${i + 1}`),
-    f,
-  );
+  applyFatebindingsToInteractivePdfFields(data.fatebindings, f);
 
   const eqRows = [];
   const eqBundle = bundle.equipment || {};

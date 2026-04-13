@@ -31,7 +31,14 @@ import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purvi
 import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.js";
 import { apiUrl } from "./apiBase.js";
 import { wirePickerRowFilter, wireSortableTableColumns } from "./pickerTableUtils.js";
-import { buildScionInteractivePdfFields, downloadInteractiveCharacterPdf } from "./interactivePdfFields.js";
+import {
+  trimTrailingEmptyFatebindings,
+  sanitizeFatebindingsForEditor,
+  coerceFatebindingsStoredList,
+  persistFatebindingEditorRowFromDom,
+} from "./fatebindingsSheet.js";
+import { appendFatebindingsFinishingEditor } from "./fatebindingsFinishingEditor.js";
+import { appendFinishingExtendedNotesPanel } from "./finishingExtendedNotesPanel.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
 import {
   renderDragonChargen,
@@ -153,6 +160,12 @@ const APPROACH_ATTRS = {
   Finesse: ["dexterity", "cunning", "manipulation"],
   Resilience: ["stamina", "resolve", "composure"],
 };
+
+/** Safe `APPROACH_ATTRS` key for math and dot rows (invalid imports default to Force). */
+function resolvedFavoredApproach() {
+  const f = String(character.favoredApproach ?? "").trim();
+  return APPROACH_ATTRS[f] ? f : "Force";
+}
 
 const ARENA_ORDER = ["Physical", "Mental", "Social"];
 
@@ -454,11 +467,11 @@ function defaultCharacter() {
     notes: "",
     /** Freeform look / vitals / etc. for the sheet “Description” block (page 2). */
     sheetDescription: "",
-    /** Equipment ids from `equipment.json` to list on the printable sheet appendix. */
+    /** Equipment ids from `equipment.json` for the printable equipment section. */
     sheetEquipmentIds: [],
-    /** Free text for the sheet’s Fatebindings page. */
-    fatebindings: "",
-    /** Long-form session / chronicle notes (separate from concept-step “Player / group notes”). */
+    /** Fatebinding rows for the printable Fatebinding section (name, strength, story per slot). */
+    fatebindings: [],
+    /** Finishing-step extended notes (sheet appendices). */
     sheetNotesExtra: "",
     /** Saints & Monsters Ch. 3 — Sorcerer wizard step (freeform; confirm with PDF). */
     sorceryProfile: {
@@ -788,7 +801,14 @@ function ensureSheetAppendicesShape() {
   character.sheetEquipmentIds = character.sheetEquipmentIds.filter(
     (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
   );
-  if (character.fatebindings == null) character.fatebindings = "";
+  character.fatebindings = coerceFatebindingsStoredList(character.fatebindings);
+  ensureFinishingShape();
+  const fi = character.finishing;
+  const n = character.fatebindings.length;
+  if (typeof fi.fatebindingEditorIndex !== "number" || Number.isNaN(fi.fatebindingEditorIndex)) fi.fatebindingEditorIndex = 0;
+  else fi.fatebindingEditorIndex = Math.max(0, Math.round(fi.fatebindingEditorIndex));
+  if (n === 0) fi.fatebindingEditorIndex = 0;
+  else if (fi.fatebindingEditorIndex >= n) fi.fatebindingEditorIndex = n - 1;
   if (character.sheetNotesExtra == null) character.sheetNotesExtra = "";
   if (character.sheetDescription == null || typeof character.sheetDescription !== "string") character.sheetDescription = "";
 }
@@ -857,7 +877,7 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
   for (let i = 1; i <= 5; i += 1) {
     if (mode === "skills") {
       const sp = document.createElement("span");
-      sp.className = "dot" + (i <= val ? " filled" : "");
+      sp.className = "dot dot-unmodifiable" + (i <= val ? " filled" : "");
       sp.setAttribute("aria-hidden", "true");
       dots.appendChild(sp);
     } else {
@@ -865,7 +885,9 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
       btn.type = "button";
       const allowed = i >= minV && i <= maxV;
       btn.disabled = !allowed;
-      btn.className = "dot" + (i <= disp ? " filled" : "") + (allowed ? "" : " dot-capped");
+      const baselineLocked = i <= disp && i <= minV;
+      btn.className =
+        "dot" + (i <= disp ? " filled" : "") + (allowed ? "" : " dot-capped") + (baselineLocked ? " dot-finishing-locked-fill" : "");
       if (allowed) {
         btn.addEventListener("click", () => {
           const next = i === val ? minV : i;
@@ -2097,7 +2119,7 @@ function maxAttrRatingForArena(attrId, attrs) {
 /** Max dots after Favored Approach (+2 to approach Attributes, cap 5) for UI and clicking. */
 function maxFinalRatingForAttr(attrId, attrsPre) {
   const preMax = maxAttrRatingForArena(attrId, attrsPre);
-  const fav = character.favoredApproach;
+  const fav = resolvedFavoredApproach();
   if (APPROACH_ATTRS[fav].includes(attrId)) return Math.min(5, preMax + 2);
   return preMax;
 }
@@ -2212,7 +2234,7 @@ function normalizeCharacterAttributesToPools() {
 
 function applyFavoredApproach(baseAttrs) {
   const out = { ...baseAttrs };
-  const fav = character.favoredApproach;
+  const fav = resolvedFavoredApproach();
   for (const id of APPROACH_ATTRS[fav]) {
     out[id] = (out[id] ?? 1) + 2;
   }
@@ -2290,6 +2312,8 @@ function ensureFinishingShape() {
   else
     f.finishingKnackIds = [...new Set(f.finishingKnackIds.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")))];
   if (!Array.isArray(f.birthrightPicks)) f.birthrightPicks = [];
+  if (f.fatebindingEditorIndex == null || Number.isNaN(Number(f.fatebindingEditorIndex))) f.fatebindingEditorIndex = 0;
+  else f.fatebindingEditorIndex = Math.max(0, Math.round(Number(f.fatebindingEditorIndex)));
 }
 
 /** Snapshot for “finishing” budget: call when leaving Skills (Path + dot totals). */
@@ -3569,7 +3593,8 @@ function renderSkills(root) {
   list.appendChild(help);
 
   const table = document.createElement("table");
-  table.className = "skill-ratings-table";
+  /** Path 3/2/1 totals only — read-only dots (all tiers that include the Skills step). */
+  table.className = "skill-ratings-table skill-ratings-table--path-readonly";
   const thead = document.createElement("thead");
   const hr = document.createElement("tr");
   ["Skill", "Dots"].forEach((label, idx) => {
@@ -3683,20 +3708,31 @@ function renderAttributes(root) {
 
   for (const arena of ARENA_ORDER) {
     const sub = document.createElement("div");
-    sub.className = "panel";
+    sub.className = "panel attributes-arena-panel";
     sub.innerHTML = `<h2>${arena} (${arenaPools()[arena]} dots beyond base 1 each)</h2>`;
     for (const id of ARENAS[arena]) {
       const meta = bundle.attributes[id];
       const maxFinal = maxFinalRatingForAttr(id, base);
       const finalVal = finalDisplay[id] ?? 1;
+      const baseFloor = { ...base, [id]: 1 };
+      const minFinalDisplay = Math.min(applyFavoredApproach(baseFloor)[id] ?? 1, maxFinal);
       sub.appendChild(
-        renderFinalAttrDotRow(meta.name, finalVal, maxFinal, (picked) => {
-          const fav = character.favoredApproach;
-          let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
-          const cap = maxAttrRatingForArena(id, base);
-          character.attributes[id] = Math.max(1, Math.min(pre, cap));
-          render();
-        }, meta),
+        renderFinalAttrDotRow(
+          meta.name,
+          finalVal,
+          maxFinal,
+          (picked) => {
+            const fav = resolvedFavoredApproach();
+            let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
+            const cap = maxAttrRatingForArena(id, base);
+            character.attributes[id] = Math.max(1, Math.min(pre, cap));
+            render();
+          },
+          meta,
+          1,
+          "(after Favored Approach)",
+          minFinalDisplay,
+        ),
       );
     }
     wrap.appendChild(sub);
@@ -3906,7 +3942,12 @@ function renderCalling(root) {
         b.type = "button";
         const canPick = dotN >= 1 && dotN <= maxForRow;
         b.disabled = !canPick;
-        b.className = "dot" + (dotN <= cdh ? " filled" : "") + (b.disabled ? " dot-capped" : "");
+        const callingFloorLocked = dotN <= cdh && dotN <= 1;
+        b.className =
+          "dot" +
+          (dotN <= cdh ? " filled" : "") +
+          (b.disabled ? " dot-capped" : "") +
+          (callingFloorLocked ? " dot-finishing-locked-fill" : "");
         b.setAttribute("aria-label", `Calling ${rowIdx + 1} — ${dotN} of 5`);
         if (canPick) {
           b.addEventListener("click", () => {
@@ -4002,7 +4043,12 @@ function renderCalling(root) {
       b.type = "button";
       const allowed = !originTier && i >= 1 && i <= maxPick;
       b.disabled = originTier || !allowed;
-      b.className = "dot" + (i <= shown ? " filled" : "") + (b.disabled ? " dot-capped" : "");
+      const callingFloorLocked = originTier && i <= shown && i <= 1;
+      b.className =
+        "dot" +
+        (i <= shown ? " filled" : "") +
+        (b.disabled ? " dot-capped" : "") +
+        (callingFloorLocked ? " dot-finishing-locked-fill" : "");
       b.setAttribute("aria-label", `Calling ${i} of 5${originTier ? " (fixed at Origin)" : ""}`);
       if (allowed) {
         b.addEventListener("click", () => {
@@ -4044,10 +4090,11 @@ function renderCalling(root) {
   const knackEntries = Object.entries(bundle.knacks)
     .filter(([kid]) => !kid.startsWith("_"))
     .sort((a, b) => {
-      const ea = knackEligible(a[1], character, bundle);
-      const eb = knackEligible(b[1], character, bundle);
-      if (ea !== eb) return ea ? -1 : 1;
-      return (a[1].name || a[0]).localeCompare(b[1].name || b[0]);
+      const na = String(a[1]?.name || a[0]);
+      const nb = String(b[1]?.name || b[0]);
+      const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+      if (c !== 0) return c;
+      return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
     });
 
   /** @param {HTMLElement} container */
@@ -5027,7 +5074,7 @@ function renderFinishing(root) {
         finalVal,
         maxFinal,
         (picked) => {
-          const fav = character.favoredApproach;
+          const fav = resolvedFavoredApproach();
           let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
           const minPre = character.finishing.attrBaseline?.[id] ?? 1;
           const maxPre = maxAttrFinishing(id);
@@ -5065,10 +5112,11 @@ function renderFinishing(root) {
       const knackEntriesFin = Object.entries(bundle.knacks)
         .filter(([kid]) => !kid.startsWith("_"))
         .sort((a, b) => {
-          const ea = knackEligibleForFinishingExtraKnack(a[1], character, bundle);
-          const eb = knackEligibleForFinishingExtraKnack(b[1], character, bundle);
-          if (ea !== eb) return ea ? -1 : 1;
-          return (a[1].name || a[0]).localeCompare(b[1].name || b[0]);
+          const na = String(a[1]?.name || a[0]);
+          const nb = String(b[1]?.name || b[0]);
+          const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+          if (c !== 0) return c;
+          return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
         });
 
       /** @param {HTMLElement} container */
@@ -5266,15 +5314,10 @@ function renderFinishing(root) {
     wrap.appendChild(knBr);
   }
 
-  const sheetAppendix = document.createElement("section");
-  sheetAppendix.className = "panel finishing-place-panel";
-  sheetAppendix.innerHTML =
-    "<h2>Sheet appendix (extra pages)</h2><p class='help'>The printable character sheet adds separate pages for <strong>equipment</strong> (from the equipment library), <strong>Fatebindings</strong>, and <strong>extended notes</strong>. Player / group notes from the Concept step still appear on page 1.</p>";
-  const eqIntro = document.createElement("p");
-  eqIntro.className = "help";
-  eqIntro.textContent =
-    "Pick gear for the printable Equipment page: search the library, then Add. Your list stays on the right; Remove anytime.";
-  sheetAppendix.appendChild(eqIntro);
+  const equipmentPanel = document.createElement("section");
+  equipmentPanel.className = "panel finishing-place-panel";
+  equipmentPanel.innerHTML =
+    "<h2>Equipment</h2><p class='help'>Choose gear from the library.</p>";
   const eqLayout = document.createElement("div");
   eqLayout.className = "equipment-picker-layout";
   const eqCat = document.createElement("div");
@@ -5397,32 +5440,25 @@ function renderFinishing(root) {
     eqSel.appendChild(selList);
   }
   eqLayout.appendChild(eqSel);
-  sheetAppendix.appendChild(eqLayout);
-  const fbWrap = document.createElement("div");
-  fbWrap.className = "field";
-  const fbLab = document.createElement("label");
-  fbLab.htmlFor = "fin-fatebindings";
-  fbLab.textContent = "Fatebindings (sheet page)";
-  const fbTa = document.createElement("textarea");
-  fbTa.id = "fin-fatebindings";
-  fbTa.rows = 6;
-  fbTa.placeholder = "NPC, bond strength, story beats…";
-  fbWrap.appendChild(fbLab);
-  fbWrap.appendChild(fbTa);
-  sheetAppendix.appendChild(fbWrap);
-  const snWrap = document.createElement("div");
-  snWrap.className = "field";
-  const snLab = document.createElement("label");
-  snLab.htmlFor = "fin-sheet-notes";
-  snLab.textContent = "Extended session / chronicle notes (sheet page)";
-  const snTa = document.createElement("textarea");
-  snTa.id = "fin-sheet-notes";
-  snTa.rows = 8;
-  snTa.placeholder = "Long-form notes for print — separate from page 1 “Player / group notes”.";
-  snWrap.appendChild(snLab);
-  snWrap.appendChild(snTa);
-  sheetAppendix.appendChild(snWrap);
-  wrap.appendChild(sheetAppendix);
+  equipmentPanel.appendChild(eqLayout);
+  wrap.appendChild(equipmentPanel);
+
+  const fatebindingsPanel = document.createElement("section");
+  fatebindingsPanel.className = "panel finishing-place-panel";
+  appendFatebindingsFinishingEditor(fatebindingsPanel, character, {
+    idPrefix: "fin-fb",
+    render,
+    prepareState: () => ensureSheetAppendicesShape(),
+    trackHint: isSorcererLineTier(character.tier)
+      ? "Sorcerer (Saints & Monsters): Fatebindings match the Deity-track sheet layout; confirm limits in ch. 3."
+      : null,
+  });
+  wrap.appendChild(fatebindingsPanel);
+
+  const extendedNotesPanel = document.createElement("section");
+  extendedNotesPanel.className = "panel finishing-place-panel";
+  appendFinishingExtendedNotesPanel(extendedNotesPanel, character, { textareaId: "fin-sheet-notes" });
+  wrap.appendChild(extendedNotesPanel);
 
   root.appendChild(panel("Finishing Touches", wrap));
 
@@ -5430,8 +5466,6 @@ function renderFinishing(root) {
   document.getElementById("fin-attr").value = String(character.finishing.extraAttributeDots);
   const finFocusEl = document.getElementById("fin-focus");
   if (finFocusEl) finFocusEl.value = character.finishing.knackOrBirthright;
-  const fateEl = document.getElementById("fin-fatebindings");
-  if (fateEl) fateEl.value = character.fatebindings || "";
   const sheetNotesEl = document.getElementById("fin-sheet-notes");
   if (sheetNotesEl) sheetNotesEl.value = character.sheetNotesExtra || "";
 
@@ -5501,27 +5535,6 @@ function renderReview(root) {
     }
     runPrint();
   });
-  const btnMrGonePdf = document.createElement("button");
-  btnMrGonePdf.type = "button";
-  btnMrGonePdf.className = "btn secondary";
-  btnMrGonePdf.textContent = "Download MrGone Sheet";
-  btnMrGonePdf.title =
-    "Fills the community four-page AcroForm PDF (Mr. Gone / lnodiv style). Server needs that template file and PyMuPDF.";
-  btnMrGonePdf.addEventListener("click", async () => {
-    persistFromForm();
-    const data = buildExportObject();
-    const fields = buildScionInteractivePdfFields(data, bundle);
-    const nm = String(data.characterName ?? "").trim() || "character";
-    btnMrGonePdf.disabled = true;
-    try {
-      await downloadInteractiveCharacterPdf("scion", fields, nm);
-    } catch (e) {
-      console.error(e);
-      window.alert(e instanceof Error ? e.message : String(e));
-    } finally {
-      btnMrGonePdf.disabled = false;
-    }
-  });
   const btnThisSheetPdf = document.createElement("button");
   btnThisSheetPdf.type = "button";
   btnThisSheetPdf.className = "btn secondary";
@@ -5547,7 +5560,6 @@ function renderReview(root) {
   toolbar.appendChild(btnSheet);
   toolbar.appendChild(btnJson);
   toolbar.appendChild(btnPrint);
-  toolbar.appendChild(btnMrGonePdf);
   toolbar.appendChild(btnThisSheetPdf);
   wrap.appendChild(toolbar);
 
@@ -5752,11 +5764,14 @@ function buildExportObject() {
       const bb = bundle.boons?.[id];
       return !bb || !boonIsPurviewInnateAutomaticGrant(bb, bundle);
     }),
-    finishing: {
-      ...character.finishing,
-      finishingKnacksNamed: (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
-      birthrightsNamed: (character.finishing.birthrightPicks || []).map((id) => bundle.birthrights[id]?.name || id),
-    },
+    finishing: (() => {
+      const { fatebindingEditorIndex: _fbcUi, ...finRest } = character.finishing;
+      return {
+        ...finRest,
+        finishingKnacksNamed: (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
+        birthrightsNamed: (character.finishing.birthrightPicks || []).map((id) => bundle.birthrights[id]?.name || id),
+      };
+    })(),
     notes: character.notes,
     sheetDescription: character.sheetDescription ?? "",
     sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
@@ -5777,7 +5792,7 @@ function buildExportObject() {
         };
       })
       .filter(Boolean),
-    fatebindings: character.fatebindings ?? "",
+    fatebindings: trimTrailingEmptyFatebindings(character.fatebindings),
     sheetNotesExtra: character.sheetNotesExtra ?? "",
     /** Hero: seven Birthright points total minus points already in picks (Birthrights step; Visitation, Hero p. 172). */
     heroBirthrightDotsUnusedFromSeven: heroUnused,
@@ -5981,8 +5996,10 @@ function importCharacterFromExportPayload(data) {
     const f = { ...data.finishing };
     delete f.finishingKnacksNamed;
     delete f.birthrightsNamed;
+    delete f.fatebindingEditorIndex;
     Object.assign(finBase, f);
   }
+  delete finBase.fatebindingEditorIndex;
   if (!Array.isArray(finBase.finishingKnackIds)) finBase.finishingKnackIds = [];
   if (!Array.isArray(finBase.birthrightPicks)) finBase.birthrightPicks = [];
   let callingDots =
@@ -6148,7 +6165,7 @@ function importCharacterFromExportPayload(data) {
     notes: typeof data.notes === "string" ? data.notes : "",
     sheetDescription: typeof data.sheetDescription === "string" ? data.sheetDescription : "",
     sheetEquipmentIds,
-    fatebindings: typeof data.fatebindings === "string" ? data.fatebindings : "",
+    fatebindings: sanitizeFatebindingsForEditor(data.fatebindings),
     sheetNotesExtra: typeof data.sheetNotesExtra === "string" ? data.sheetNotesExtra : "",
     sorceryProfile,
     titanicProfile,
@@ -6392,7 +6409,7 @@ function persistFromForm() {
       normalizedTierId(character.tier) === "sorcerer_hero"
         ? "knacks"
         : document.getElementById("fin-focus")?.value || "knacks";
-    character.fatebindings = document.getElementById("fin-fatebindings")?.value ?? "";
+    persistFatebindingEditorRowFromDom(character, "fin-fb");
     character.sheetNotesExtra = document.getElementById("fin-sheet-notes")?.value ?? "";
   }
   if (step === "workings") {

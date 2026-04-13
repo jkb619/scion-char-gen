@@ -18,9 +18,27 @@ import {
   bundleKnackById,
 } from "../eligibility.js";
 import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
-import { buildDragonInteractivePdfFields, downloadInteractiveCharacterPdf } from "../interactivePdfFields.js";
 import { boonTrackedMechanicalFields } from "../boonMechanicalParse.js";
 import { downloadReviewSheetAsPdf } from "../reviewSheetPdf.js";
+import {
+  coerceFatebindingsStoredList,
+  trimTrailingEmptyFatebindings,
+  persistFatebindingEditorRowFromDom,
+} from "../fatebindingsSheet.js";
+import { appendFatebindingsFinishingEditor } from "../fatebindingsFinishingEditor.js";
+import { appendFinishingExtendedNotesPanel } from "../finishingExtendedNotesPanel.js";
+
+/** Fatebinding list + editor index (shared with main wizard `character.finishing`). */
+function ensureDragonSheetFatebindingsShape(character) {
+  character.finishing ||= {};
+  character.fatebindings = coerceFatebindingsStoredList(character.fatebindings);
+  const fi = character.finishing;
+  const n = character.fatebindings.length;
+  if (typeof fi.fatebindingEditorIndex !== "number" || Number.isNaN(fi.fatebindingEditorIndex)) fi.fatebindingEditorIndex = 0;
+  else fi.fatebindingEditorIndex = Math.max(0, Math.round(fi.fatebindingEditorIndex));
+  if (n === 0) fi.fatebindingEditorIndex = 0;
+  else if (fi.fatebindingEditorIndex >= n) fi.fatebindingEditorIndex = n - 1;
+}
 
 /** Dragon wizard Review step: mirror main Review tab (sheet vs JSON). */
 let dragonReviewViewMode = "sheet";
@@ -412,6 +430,7 @@ export function ensureDragonShape(character, bundle) {
     d.knackSlotById = { ...shell.knackSlotById };
   }
   syncDragonFlightPathRequiredSkills(d, bundle);
+  ensureDragonSheetFatebindingsShape(character);
   /** Main Scion wizard stays on the Origin-style spine (`stepDefsForTier` forces mortal for Dragon); `character.tier` is the sheet / Storypath band (Welcome). */
 }
 
@@ -610,7 +629,7 @@ function appendDragonSkillRatingDotsCell(tr, sid, skillMeta, val) {
   dots.className = "dots";
   for (let i = 1; i <= 5; i += 1) {
     const sp = document.createElement("span");
-    sp.className = "dot" + (i <= val ? " filled" : "");
+    sp.className = "dot dot-unmodifiable" + (i <= val ? " filled" : "");
     sp.setAttribute("aria-hidden", "true");
     dots.appendChild(sp);
   }
@@ -647,7 +666,9 @@ function appendDragonFinishingSkillDotsCell(tr, sid, skillMeta, val, d, bundle, 
     btn.type = "button";
     const allowed = i >= minV && i <= maxV;
     btn.disabled = !allowed;
-    btn.className = "dot" + (i <= disp ? " filled" : "") + (allowed ? "" : " dot-capped");
+    const baselineLocked = i <= disp && i <= minV;
+    btn.className =
+      "dot" + (i <= disp ? " filled" : "") + (allowed ? "" : " dot-capped") + (baselineLocked ? " dot-finishing-locked-fill" : "");
     if (allowed) {
       btn.addEventListener("click", () => {
         ensureDragonShape(character, bundle);
@@ -695,7 +716,7 @@ function dragonEquipmentPickerDescriptionLine(eq, bundle) {
 }
 
 /**
- * Equipment + Fatebindings + extended notes (same structure as main `renderFinishing` appendix).
+ * Equipment, Fatebindings, and extended notes — each in its own Finishing panel (matches main `renderFinishing`).
  * @param {HTMLElement} wrap
  * @param {Record<string, unknown>} character
  * @param {Record<string, unknown>} bundle
@@ -706,18 +727,12 @@ function appendDragonFinishingSheetAppendix(wrap, character, bundle, render) {
   character.sheetEquipmentIds = character.sheetEquipmentIds.filter(
     (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
   );
-  if (character.fatebindings == null) character.fatebindings = "";
   if (character.sheetNotesExtra == null) character.sheetNotesExtra = "";
 
-  const sheetAppendix = document.createElement("section");
-  sheetAppendix.className = "panel finishing-place-panel";
-  sheetAppendix.innerHTML =
-    "<h2>Sheet appendix (extra pages)</h2><p class='help'>The printable character sheet adds separate pages for <strong>equipment</strong> (from the equipment library), <strong>Fatebindings</strong>, and <strong>extended notes</strong>. Player / group notes from the Concept step still appear on page 1.</p>";
-  const eqIntro = document.createElement("p");
-  eqIntro.className = "help";
-  eqIntro.textContent =
-    "Pick gear for the printable Equipment page: search the library, then Add. Your list stays on the right; Remove anytime.";
-  sheetAppendix.appendChild(eqIntro);
+  const equipmentPanel = document.createElement("section");
+  equipmentPanel.className = "panel finishing-place-panel";
+  equipmentPanel.innerHTML =
+    "<h2>Equipment</h2><p class='help'>Choose gear from the library.</p>";
   const eqLayout = document.createElement("div");
   eqLayout.className = "equipment-picker-layout";
   const eqCat = document.createElement("div");
@@ -838,40 +853,23 @@ function appendDragonFinishingSheetAppendix(wrap, character, bundle, render) {
     eqSel.appendChild(selList);
   }
   eqLayout.appendChild(eqSel);
-  sheetAppendix.appendChild(eqLayout);
-  const fbWrap = document.createElement("div");
-  fbWrap.className = "field";
-  const fbLab = document.createElement("label");
-  fbLab.htmlFor = "d-fin-fatebindings";
-  fbLab.textContent = "Fatebindings (sheet page)";
-  const fbTa = document.createElement("textarea");
-  fbTa.id = "d-fin-fatebindings";
-  fbTa.rows = 6;
-  fbTa.placeholder = "NPC, bond strength, story beats…";
-  fbTa.value = character.fatebindings || "";
-  fbTa.addEventListener("input", () => {
-    character.fatebindings = fbTa.value;
+  equipmentPanel.appendChild(eqLayout);
+  wrap.appendChild(equipmentPanel);
+
+  const fatebindingsPanel = document.createElement("section");
+  fatebindingsPanel.className = "panel finishing-place-panel";
+  appendFatebindingsFinishingEditor(fatebindingsPanel, character, {
+    idPrefix: "d-fin-fb",
+    render,
+    prepareState: () => ensureDragonSheetFatebindingsShape(character),
+    trackHint: "Dragon Heir: Fatebindings print on the Heir review sheet (Fatebinding section).",
   });
-  fbWrap.appendChild(fbLab);
-  fbWrap.appendChild(fbTa);
-  sheetAppendix.appendChild(fbWrap);
-  const snWrap = document.createElement("div");
-  snWrap.className = "field";
-  const snLab = document.createElement("label");
-  snLab.htmlFor = "d-fin-sheet-notes";
-  snLab.textContent = "Extended session / chronicle notes (sheet page)";
-  const snTa = document.createElement("textarea");
-  snTa.id = "d-fin-sheet-notes";
-  snTa.rows = 8;
-  snTa.placeholder = "Long-form notes for print — separate from page 1 “Player / group notes”.";
-  snTa.value = character.sheetNotesExtra || "";
-  snTa.addEventListener("input", () => {
-    character.sheetNotesExtra = snTa.value;
-  });
-  snWrap.appendChild(snLab);
-  snWrap.appendChild(snTa);
-  sheetAppendix.appendChild(snWrap);
-  wrap.appendChild(sheetAppendix);
+  wrap.appendChild(fatebindingsPanel);
+
+  const extendedNotesPanel = document.createElement("section");
+  extendedNotesPanel.className = "panel finishing-place-panel";
+  appendFinishingExtendedNotesPanel(extendedNotesPanel, character, { textareaId: "d-fin-sheet-notes" });
+  wrap.appendChild(extendedNotesPanel);
 }
 
 /**
@@ -1177,11 +1175,13 @@ function appendDragonHeirBirthrightDeityStyleBlock(wrap, bundle, character, pick
 function dragonMagicEntriesSorted(bundle) {
   return Object.entries(bundle.dragonMagic || {})
     .filter(([mid, m]) => !mid.startsWith("_") && m && typeof m === "object")
-    .sort((a, b) =>
-      String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, {
-        sensitivity: "base",
-      }),
-    );
+    .sort((a, b) => {
+      const na = String(a[1]?.name || a[0]);
+      const nb = String(b[1]?.name || b[0]);
+      const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+      if (c !== 0) return c;
+      return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
+    });
 }
 
 /**
@@ -1957,7 +1957,7 @@ export function renderDragonChargen(ctx) {
       "Ratings follow Path priority when Path Skills or priority change; dots here are read-only. If overlap would exceed 5 in a Skill, use the overflow controls above (Origin p. 97).";
     list.appendChild(ratingsHelp);
     const tbl = document.createElement("table");
-    tbl.className = "skill-ratings-table";
+    tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
     const thead = document.createElement("thead");
     const hr = document.createElement("tr");
     ["Skill", "Dots"].forEach((label, idx) => {
@@ -2071,22 +2071,36 @@ export function renderDragonChargen(ctx) {
 
     for (const arena of ARENA_ORDER) {
       const sub = document.createElement("div");
-      sub.className = "panel";
+      sub.className = "panel attributes-arena-panel";
       const poolN = dragonArenaPools(d)[arena] ?? 0;
       sub.innerHTML = `<h2>${arena} (${poolN} dots beyond base 1 each)</h2>`;
       for (const id of ARENAS[arena]) {
         const meta = bundle.attributes[id];
         const maxFinal = dragonMaxFinalRatingForAttr(id, base, d);
         const finalVal = finalDisplay[id] ?? 1;
+        const baseFloor = { ...base, [id]: 1 };
+        const minFinalDisplay = Math.min(
+          applyFavoredApproachDragonPlain(baseFloor, d.favoredApproach)[id] ?? 1,
+          maxFinal,
+        );
         sub.appendChild(
-          dragonRenderFinalAttrDotRow(meta.name, finalVal, maxFinal, (picked) => {
-            const fav = d.favoredApproach;
-            const approachKey = APPROACH_ATTRS[fav] ? fav : "Finesse";
-            const pre = APPROACH_ATTRS[approachKey].includes(id) ? picked - 2 : picked;
-            const cap = dragonMaxAttrRatingForArena(id, base, d);
-            d.attributes[id] = Math.max(1, Math.min(pre, cap));
-            render();
-          }, meta),
+          dragonRenderFinalAttrDotRow(
+            meta.name,
+            finalVal,
+            maxFinal,
+            (picked) => {
+              const fav = d.favoredApproach;
+              const approachKey = APPROACH_ATTRS[fav] ? fav : "Finesse";
+              const pre = APPROACH_ATTRS[approachKey].includes(id) ? picked - 2 : picked;
+              const cap = dragonMaxAttrRatingForArena(id, base, d);
+              d.attributes[id] = Math.max(1, Math.min(pre, cap));
+              render();
+            },
+            meta,
+            1,
+            "(after Favored Approach)",
+            minFinalDisplay,
+          ),
         );
       }
       wrap.appendChild(sub);
@@ -2182,7 +2196,12 @@ export function renderDragonChargen(ctx) {
         b.type = "button";
         const canPick = dotN >= 1 && dotN <= maxForRow;
         b.disabled = !canPick;
-        b.className = "dot" + (dotN <= cdh ? " filled" : "") + (b.disabled ? " dot-capped" : "");
+        const callingFloorLocked = dotN <= cdh && dotN <= 1;
+        b.className =
+          "dot" +
+          (dotN <= cdh ? " filled" : "") +
+          (b.disabled ? " dot-capped" : "") +
+          (callingFloorLocked ? " dot-finishing-locked-fill" : "");
         b.setAttribute("aria-label", `Calling ${rowIdx + 1} — ${dotN} of 5`);
         if (canPick) {
           b.addEventListener("click", () => {
@@ -2220,10 +2239,11 @@ export function renderDragonChargen(ctx) {
     const knackEntries = Object.entries(bundle.dragonCallingKnacks || {})
       .filter(([kid]) => !kid.startsWith("_"))
       .sort((a, b) => {
-        const ea = knackEligible(a[1], shell, bundle);
-        const eb = knackEligible(b[1], shell, bundle);
-        if (ea !== eb) return ea ? -1 : 1;
-        return String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" });
+        const na = String(a[1]?.name || a[0]);
+        const nb = String(b[1]?.name || b[0]);
+        const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+        if (c !== 0) return c;
+        return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
       });
     const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
 
@@ -2355,8 +2375,16 @@ export function renderDragonChargen(ctx) {
     const dkChips = document.createElement("div");
     dkChips.className = "chips chips--calling-knack-subgroup";
     const draconicFull = d.draconicKnackIds.length >= 2;
-    for (const [kid, k] of Object.entries(bundle.dragonKnacks || {})) {
-      if (kid.startsWith("_") || !k || typeof k !== "object") continue;
+    const draconicEntries = Object.entries(bundle.dragonKnacks || {})
+      .filter(([kid, k]) => !kid.startsWith("_") && k && typeof k === "object")
+      .sort((a, b) => {
+        const na = String(a[1]?.name || a[0]);
+        const nb = String(b[1]?.name || b[0]);
+        const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+        if (c !== 0) return c;
+        return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
+      });
+    for (const [kid, k] of draconicEntries) {
       const on = d.draconicKnackIds.includes(kid);
       const cantAddDraconic = !allCallingsPicked || draconicFull;
       const draconicBlocked = !on && cantAddDraconic;
@@ -2761,7 +2789,13 @@ export function renderDragonChargen(ctx) {
       const finEntries = Object.entries(bundle.dragonCallingKnacks || {})
         .filter(([kid]) => !kid.startsWith("_") && !baseSet.has(kid))
         .filter(([_, k]) => knackEligible(k, shell, bundle))
-        .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" }));
+        .sort((a, b) => {
+          const na = String(a[1]?.name || a[0]);
+          const nb = String(b[1]?.name || b[0]);
+          const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+          if (c !== 0) return c;
+          return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
+        });
       for (const [kid, k] of finEntries) {
         const on = d.finishingCallingKnackIds.includes(kid);
         const atFinCap = finUniq.length >= 2 && !on;
@@ -2866,37 +2900,6 @@ export function renderDragonChargen(ctx) {
     btnPrint.textContent = "Print sheet";
     btnPrint.title = "Print the character sheet (browser print dialog).";
 
-    const btnMrGonePdf = document.createElement("button");
-    btnMrGonePdf.type = "button";
-    btnMrGonePdf.className = "btn secondary";
-    btnMrGonePdf.textContent = "Download MrGone Sheet";
-    btnMrGonePdf.title =
-      "Fills the community four-page AcroForm Dragon Heir PDF. Server needs that template file and PyMuPDF.";
-    btnMrGonePdf.addEventListener("click", async () => {
-      persistDragonFromDom(character, bundle);
-      const fresh = {
-        tier: character.tier,
-        tierId: character.tier,
-        tierName: tierMeta?.name || character.tier,
-        tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
-        characterName: character.characterName ?? "",
-        concept: character.concept,
-        deeds: character.deeds,
-        notes: character.notes ?? "",
-        ...buildDragonReviewSnapshot(character, bundle),
-      };
-      const fields = buildDragonInteractivePdfFields(fresh, bundle);
-      const nm = String(fresh.characterName ?? "").trim() || "character";
-      btnMrGonePdf.disabled = true;
-      try {
-        await downloadInteractiveCharacterPdf("dragon", fields, nm);
-      } catch (e) {
-        console.error(e);
-        window.alert(e instanceof Error ? e.message : String(e));
-      } finally {
-        btnMrGonePdf.disabled = false;
-      }
-    });
     const btnThisSheetPdf = document.createElement("button");
     btnThisSheetPdf.type = "button";
     btnThisSheetPdf.className = "btn secondary";
@@ -2923,7 +2926,6 @@ export function renderDragonChargen(ctx) {
     toolbar.appendChild(btnSheet);
     toolbar.appendChild(btnJson);
     toolbar.appendChild(btnPrint);
-    toolbar.appendChild(btnMrGonePdf);
     toolbar.appendChild(btnThisSheetPdf);
     wrap.appendChild(toolbar);
 
@@ -3193,8 +3195,7 @@ export function persistDragonFromDom(character, bundle) {
     const ff = document.getElementById("d-fin-focus")?.value;
     if (ff === "knacks" || ff === "birthrights") d.finishingFocus = ff;
     d.deedName = document.getElementById("d-deed-name")?.value ?? d.deedName;
-    const fb = document.getElementById("d-fin-fatebindings");
-    if (fb) character.fatebindings = fb.value;
+    persistFatebindingEditorRowFromDom(character, "d-fin-fb");
     const sn = document.getElementById("d-fin-sheet-notes");
     if (sn) character.sheetNotesExtra = sn.value;
   }
@@ -3247,7 +3248,7 @@ export function buildDragonReviewSnapshot(character, bundle) {
     defense: originDefenseFromFinalAttrs(finAttrs),
     movementDice: originMovementPoolDice(finAttrs, ath),
     sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
-    fatebindings: character.fatebindings ?? "",
+    fatebindings: trimTrailingEmptyFatebindings(character.fatebindings),
     sheetNotesExtra: character.sheetNotesExtra ?? "",
     sheetDescription: character.sheetDescription ?? "",
     dragon: dragonBlob,

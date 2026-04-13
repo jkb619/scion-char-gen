@@ -10,6 +10,7 @@ import { mergedPurviewIdsForSheet } from "./purviewDisplayName.js";
 import { boonPrimaryPurview } from "./eligibility.js";
 import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
+import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 
 /**
  * @param {HTMLElement} el — root `.character-sheet`
@@ -650,55 +651,48 @@ export function fillMcgFourPageLayout(el, api) {
   }
   p3.appendChild(nk);
 
-  p3.appendChild(mcgSectionTitle("Purviews"));
-  const pvWrap = document.createElement("div");
-  pvWrap.className = "cs-mcg-purview-grid";
-  const purIds = mergedPurviewIdsForSheet(data);
-  const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
-  const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
-  const titanicSheet = tierKeyNorm === "titanic";
-  for (let i = 0; i < 6; i += 1) {
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-purview-block";
-    const pid = purIds[i];
-    const lines = document.createElement("div");
-    lines.className = "cs-mcg-purview-lines";
-    lines.appendChild(mcgLinedField("Name", pid ? nameFor(pid) : ""));
-    lines.appendChild(mcgLinedField("Source", pid ? (bundle.purviews?.[pid]?.source || "").trim().slice(0, 120) : ""));
-    let innateLines = "";
-    if (pid) {
+  const purIds = mergedPurviewIdsForSheet(data).slice(0, 6);
+  if (purIds.length > 0) {
+    p3.appendChild(mcgSectionTitle("Purviews"));
+    const pvWrap = document.createElement("div");
+    pvWrap.className = "cs-mcg-purview-grid";
+    const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
+    const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
+    const titanicSheet = tierKeyNorm === "titanic";
+    for (const pid of purIds) {
+      const blk = document.createElement("div");
+      blk.className = "cs-mcg-purview-block";
+      const lines = document.createElement("div");
+      lines.className = "cs-mcg-purview-lines";
+      lines.appendChild(mcgLinedField("Name", nameFor(pid)));
+      lines.appendChild(mcgLinedField("Source", (bundle.purviews?.[pid]?.source || "").trim().slice(0, 120)));
       const blocks = purviewInnateBlocks(bundle, pid, { mythosPantheon: mythosSheet, titanicTier: titanicSheet });
-      innateLines = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
+      const innateLines = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
+      lines.appendChild(mcgLinedFieldInnatePower(innateLines));
+      blk.appendChild(lines);
+      blk.appendChild(mcgCheckboxRow(["Dominion"]));
+      pvWrap.appendChild(blk);
     }
-    lines.appendChild(mcgLinedFieldInnatePower(innateLines));
-    blk.appendChild(lines);
-    blk.appendChild(mcgCheckboxRow(["Dominion"]));
-    pvWrap.appendChild(blk);
+    p3.appendChild(pvWrap);
   }
-  p3.appendChild(pvWrap);
 
-  p3.appendChild(mcgSectionTitle("Boons"));
   const boonWrap = document.createElement("div");
   boonWrap.className = "cs-mcg-boon-grid";
-  const boonIds = (data.boons || []).filter(Boolean);
-  let bi = 0;
-  for (const bid of boonIds) {
-    if (bi >= 12) break;
+  let boonCount = 0;
+  for (const bid of data.boons || []) {
+    if (!bid || boonCount >= 12) break;
     const bb = bundle.boons?.[bid];
     if (bb && boonIsPurviewInnateAutomaticGrant(bb, bundle)) continue;
     const blk = document.createElement("div");
     blk.className = "cs-mcg-boon-block";
     appendMcgBoonBlock(blk, bb || null, String(bid));
     boonWrap.appendChild(blk);
-    bi += 1;
+    boonCount += 1;
   }
-  while (boonWrap.children.length < 12) {
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-boon-block";
-    appendMcgBoonBlock(blk, null, "");
-    boonWrap.appendChild(blk);
+  if (boonWrap.children.length > 0) {
+    p3.appendChild(mcgSectionTitle("Boons"));
+    p3.appendChild(boonWrap);
   }
-  p3.appendChild(boonWrap);
 
   /* —— Page 4 —— */
   const p4 = page();
@@ -716,62 +710,63 @@ export function fillMcgFourPageLayout(el, api) {
   }
   p4.appendChild(cond);
 
-  p4.appendChild(mcgSectionTitle("Birthrights"));
   const brIds = (data.finishing?.birthrightPicks || []).filter(Boolean);
-  const brGrid = document.createElement("div");
-  brGrid.className = "cs-mcg-br-grid";
-  for (let i = 0; i < 8; i += 1) {
-    const bid = brIds[i];
-    const br = bid ? bundle.birthrights?.[bid] : null;
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-br-block";
-    const head = document.createElement("div");
-    head.className = "cs-mcg-br-head";
-    const nm = document.createElement("span");
-    nm.textContent = br?.name || bid || "";
-    head.appendChild(nm);
-    head.appendChild(
-      dotTrack(
-        br ? (br.pointCost != null ? Math.min(5, Math.max(1, Math.round(Number(br.pointCost)))) : 1) : 0,
-      ),
-    );
-    blk.appendChild(head);
-    blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
-    const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
-    blk.appendChild(mcgLinedField("Tags", tagStr));
-    blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
-    blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
-    const rd = br?.relicDetails;
-    const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
-    blk.appendChild(
-      mcgLinedField(
-        "Purview",
-        pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, data.pantheonId) : "",
-      ),
-    );
-    blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
-    blk.appendChild(mcgLinedField("Enhancement", ""));
-    if (br) applyGameDataHint(blk, br);
-    brGrid.appendChild(blk);
+  if (brIds.length > 0) {
+    p4.appendChild(mcgSectionTitle("Birthrights"));
+    const brGrid = document.createElement("div");
+    brGrid.className = "cs-mcg-br-grid";
+    for (const bid of brIds) {
+      const br = bundle.birthrights?.[bid];
+      const blk = document.createElement("div");
+      blk.className = "cs-mcg-br-block";
+      const head = document.createElement("div");
+      head.className = "cs-mcg-br-head";
+      const nm = document.createElement("span");
+      nm.textContent = br?.name || bid || "";
+      head.appendChild(nm);
+      head.appendChild(
+        dotTrack(
+          br ? (br.pointCost != null ? Math.min(5, Math.max(1, Math.round(Number(br.pointCost)))) : 1) : 0,
+        ),
+      );
+      blk.appendChild(head);
+      blk.appendChild(mcgLinedField("Type", (br?.birthrightType || "").trim()));
+      const tagStr = br ? birthrightTagLabels(br, bundle).join(", ") : "";
+      blk.appendChild(mcgLinedField("Tags", tagStr));
+      blk.appendChild(mcgBrRuledBlock("Description", (br?.description || "").trim().slice(0, 900)));
+      blk.appendChild(mcgBrRuledBlock("Mechanics", (br?.mechanicalEffects || "").trim().slice(0, 900)));
+      const rd = br?.relicDetails;
+      const pvHook = rd?.purviewId ? String(rd.purviewId) : "";
+      blk.appendChild(
+        mcgLinedField(
+          "Purview",
+          pvHook ? purviewDisplayNameForPantheon(pvHook, bundle, data.pantheonId) : "",
+        ),
+      );
+      blk.appendChild(mcgLinedField("Motif", (rd?.motifsAndTags || "").toString().trim().slice(0, 220)));
+      blk.appendChild(mcgLinedField("Enhancement", ""));
+      if (br) applyGameDataHint(blk, br);
+      brGrid.appendChild(blk);
+    }
+    p4.appendChild(brGrid);
   }
-  p4.appendChild(brGrid);
 
-  p4.appendChild(mcgSectionTitle("Fatebinding"));
-  const fbLines = String(data.fatebindings || "")
-    .split(/\n+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const fbGrid = document.createElement("div");
-  fbGrid.className = "cs-mcg-fb-grid";
-  for (let i = 0; i < 14; i += 1) {
-    const blk = document.createElement("div");
-    blk.className = "cs-mcg-fb-block";
-    blk.appendChild(mcgLinedField("Name", fbLines[i] || ""));
-    blk.appendChild(mcgLinedField("Strength", ""));
-    blk.appendChild(mcgCheckboxRow(["Invoke", "Compel"]));
-    fbGrid.appendChild(blk);
+  const fbRows = nonEmptyFatebindingRowsForSheet(data.fatebindings);
+  if (fbRows.length > 0) {
+    p4.appendChild(mcgSectionTitle("Fatebinding"));
+    const fbGrid = document.createElement("div");
+    fbGrid.className = "cs-mcg-fb-grid";
+    for (const fr of fbRows) {
+      const blk = document.createElement("div");
+      blk.className = "cs-mcg-fb-block";
+      blk.appendChild(mcgLinedField("Name", fr.name));
+      blk.appendChild(mcgLinedField("Strength", fr.strength));
+      blk.appendChild(mcgBrRuledBlock("Story", (fr.story || "").trim().slice(0, 900)));
+      blk.appendChild(mcgCheckboxRow(["Invoke", "Compel"]));
+      fbGrid.appendChild(blk);
+    }
+    p4.appendChild(fbGrid);
   }
-  p4.appendChild(fbGrid);
 
   const fin = data.finishing || {};
   const finBits = [];

@@ -6,15 +6,14 @@ import { applyGameDataHint } from "./fieldHelp.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 
-/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). */
-function sheetLegendDotTrackReadOnly(n, max) {
+/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). Bubbles stay empty for at-table Legend rating. */
+function sheetLegendDotTrackReadOnly(_filledRatingIgnored, max) {
   const wrap = document.createElement("span");
   wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
   const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
-  const v = Math.max(0, Math.min(cap, Math.round(Number(n) || 0)));
   for (let i = 1; i <= cap; i += 1) {
     const d = document.createElement("span");
-    d.className = "cs-dot" + (i <= v ? " on" : "");
+    d.className = "cs-dot";
     d.setAttribute("aria-hidden", "true");
     wrap.appendChild(d);
   }
