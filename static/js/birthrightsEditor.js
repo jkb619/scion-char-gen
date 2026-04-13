@@ -36,6 +36,11 @@ function ensureEntryShape(key, obj) {
   if (typeof o.description !== "string") o.description = "";
   if (typeof o.mechanicalEffects !== "string") o.mechanicalEffects = "";
   if (typeof o.source !== "string") o.source = "";
+  if (Array.isArray(obj.chargenLines)) {
+    o.chargenLines = obj.chargenLines.filter((x) => typeof x === "string");
+  } else {
+    delete o.chargenLines;
+  }
   if (o.birthrightType === "relic") {
     const rd = o.relicDetails && typeof o.relicDetails === "object" ? { ...o.relicDetails } : defaultRelicDetails();
     rd.rating = Math.max(1, Math.min(5, Math.round(Number(rd.rating) || 1)));
@@ -91,9 +96,23 @@ function appendRatingDots(parent, label, value, opts) {
  */
 export function mountBirthrightsDataEditor(root, ctx) {
   const { getBundle, reloadBundle } = ctx;
-  const draft = cloneBirthrights(getBundle()?.birthrights);
+  /** @type {Record<string, unknown> | null} */
+  let draftBirthrights = null;
+  /** @type {Record<string, unknown> | null} */
+  let draftDragon = null;
+  /** @type {"birthrights" | "birthrightsDragon"} */
+  let activeFile = "birthrights";
+  const curDraft = () => {
+    const t = activeFile === "birthrights" ? draftBirthrights : draftDragon;
+    if (!t) throw new Error("Birthright tables not loaded yet");
+    return t;
+  };
   let selectedKey = null;
-  let dirty = false;
+  const dirtyByFile = { birthrights: false, birthrightsDragon: false };
+  const dirtyActive = () => dirtyByFile[activeFile];
+  const setDirtyActive = (v) => {
+    dirtyByFile[activeFile] = v;
+  };
   const purviewOptions = () =>
     Object.entries(getBundle()?.purviews || {})
       .filter(([k]) => !k.startsWith("_"))
@@ -104,10 +123,45 @@ export function mountBirthrightsDataEditor(root, ctx) {
 
   const intro = document.createElement("div");
   intro.className = "panel br-editor-intro";
-  intro.innerHTML = `<h2>Birthright library (data file)</h2>
-    <p class="help">Edits <code>data/birthrights.json</code> on the server. <strong>Relics</strong> (Pandora’s Box / Hero): <strong>Relic dots</strong> (rating), <strong>master tags</strong> from <code>tags.json</code>, optional <strong>linked Purview</strong> + <strong>access dots</strong>, <strong>Evocation</strong>, and free <strong>Tags &amp; Motifs</strong> notes. <strong>Creatures</strong> use the same master list (creature-applicable tags). Define tags in the <strong>Tags library</strong> tab. Chargen <strong>point cost</strong> is separate from Relic rating unless your table ties them.</p>
-    <p class="help">Confirm exact costs, Purview/Boon binding, and Evocation wording with your books (e.g. <cite>SCION_Pandoras_Box_(Revised_Download).pdf</cite>, <cite>Scion_Hero_(Final_Download).pdf</cite>).</p>`;
+  intro.innerHTML = `<h2>Birthright library</h2>
+    <p class="help">Data lives in two JSON files: <code>data/birthrights.json</code> (core templates and Pandora’s Box catalog) and <code>data/birthrightsDragon.json</code> (Dragon Heir examples; merged into the live bundle at load). Use the tabs below to choose which file you edit; <strong>Save</strong> writes <em>only</em> the active file.</p>
+    <p class="help"><strong>Relics</strong> (Pandora’s Box / Hero): <strong>Relic dots</strong> (rating), <strong>master tags</strong> from <code>tags.json</code>, optional <strong>linked Purview</strong> + <strong>access dots</strong>, <strong>Evocation</strong>, and free <strong>Tags &amp; Motifs</strong> notes. <strong>Creatures</strong> use the same master list (creature-applicable tags). Define tags in the <strong>Tags library</strong> tab. Chargen <strong>point cost</strong> is separate from Relic rating unless your table ties them.</p>
+    <p class="help">Confirm exact costs, Purview/Boon binding, and Evocation wording with your books (e.g. <cite>SCION_Pandoras_Box_(Revised_Download).pdf</cite>, <cite>Scion_Hero_(Final_Download).pdf</cite>, <cite>Scion_Dragon_(Final_Download).pdf</cite> for Dragon-only rows).</p>`;
   wrap.appendChild(intro);
+
+  const fileTabs = document.createElement("div");
+  fileTabs.className = "picker-toolbar br-editor-file-tabs";
+  const tabMain = document.createElement("button");
+  tabMain.type = "button";
+  tabMain.className = "btn primary";
+  tabMain.textContent = "birthrights.json (core / PB)";
+  const tabDragon = document.createElement("button");
+  tabDragon.type = "button";
+  tabDragon.className = "btn secondary";
+  tabDragon.textContent = "birthrightsDragon.json (Dragon Heir)";
+  fileTabs.appendChild(tabMain);
+  fileTabs.appendChild(tabDragon);
+  wrap.appendChild(fileTabs);
+
+  function syncFileTabButtons() {
+    tabMain.className = "btn " + (activeFile === "birthrights" ? "primary" : "secondary");
+    tabDragon.className = "btn " + (activeFile === "birthrightsDragon" ? "primary" : "secondary");
+    btnSave.textContent =
+      activeFile === "birthrights" ? "Save to birthrights.json" : "Save to birthrightsDragon.json";
+  }
+
+  function switchActiveFile(next) {
+    if (next === activeFile) return;
+    if (dirtyActive() && !window.confirm("Switch file tab? Unsaved changes on this tab are not saved yet — continue?")) return;
+    activeFile = next;
+    selectedKey = null;
+    syncFileTabButtons();
+    paintList();
+    paintForm();
+    setStatus("", false);
+  }
+  tabMain.addEventListener("click", () => switchActiveFile("birthrights"));
+  tabDragon.addEventListener("click", () => switchActiveFile("birthrightsDragon"));
 
   const toolbar = document.createElement("div");
   toolbar.className = "br-editor-toolbar";
@@ -115,6 +169,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
   btnSave.type = "button";
   btnSave.className = "btn primary";
   btnSave.textContent = "Save to birthrights.json";
+  btnSave.disabled = true;
   const btnReload = document.createElement("button");
   btnReload.type = "button";
   btnReload.className = "btn secondary";
@@ -140,6 +195,10 @@ export function mountBirthrightsDataEditor(root, ctx) {
   listSearch.className = "br-editor-search";
   listSearch.placeholder = "Filter…";
   listCol.appendChild(listSearch);
+  const loadMsg = document.createElement("p");
+  loadMsg.className = "help";
+  loadMsg.textContent = "Loading birthrights.json and birthrightsDragon.json…";
+  listCol.appendChild(loadMsg);
   const listUl = document.createElement("ul");
   listUl.className = "br-editor-list-ul";
   listCol.appendChild(listUl);
@@ -174,7 +233,8 @@ export function mountBirthrightsDataEditor(root, ctx) {
   root.appendChild(wrap);
 
   function listKeys() {
-    return Object.keys(draft)
+    if (!draftBirthrights || !draftDragon) return [];
+    return Object.keys(curDraft())
       .filter((k) => !k.startsWith("_"))
       .sort((a, b) => a.localeCompare(b));
   }
@@ -188,7 +248,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
     const q = listSearch.value.trim().toLowerCase();
     listUl.innerHTML = "";
     for (const key of listKeys()) {
-      const entry = draft[key];
+      const entry = curDraft()[key];
       const hay = `${key} ${entry?.name || ""} ${entry?.birthrightType || ""}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
       const li = document.createElement("li");
@@ -208,15 +268,20 @@ export function mountBirthrightsDataEditor(root, ctx) {
 
   function paintForm() {
     formBody.innerHTML = "";
-    if (!selectedKey || !draft[selectedKey]) {
+    if (!draftBirthrights || !draftDragon) {
+      formBody.innerHTML = "<p class='help'>Still loading tables…</p>";
+      btnDel.disabled = true;
+      return;
+    }
+    if (!selectedKey || !curDraft()[selectedKey]) {
       formBody.innerHTML = "<p class='help'>Select an entry from the list, or create a new one.</p>";
       btnDel.disabled = true;
       return;
     }
     btnDel.disabled = false;
     const key = selectedKey;
-    draft[key] = ensureEntryShape(key, draft[key]);
-    const e = draft[key];
+    curDraft()[key] = ensureEntryShape(key, curDraft()[key]);
+    const e = curDraft()[key];
 
     const idRow = document.createElement("div");
     idRow.className = "field";
@@ -237,7 +302,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
     nameInp.value = e.name;
     nameInp.addEventListener("input", () => {
       e.name = nameInp.value;
-      dirty = true;
+      setDirtyActive(true);
       paintList();
     });
     nameRow.appendChild(nameInp);
@@ -258,7 +323,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
       e.birthrightType = typeSel.value;
       if (e.birthrightType === "relic") e.relicDetails = ensureEntryShape(key, e).relicDetails || defaultRelicDetails();
       else delete e.relicDetails;
-      dirty = true;
+      setDirtyActive(true);
       paintList();
       paintForm();
     });
@@ -271,7 +336,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
       ariaLabel: "Point cost",
       onPick: (n) => {
         e.pointCost = n;
-        dirty = true;
+        setDirtyActive(true);
         paintList();
         paintForm();
       },
@@ -285,7 +350,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
     descTa.value = e.description;
     descTa.addEventListener("input", () => {
       e.description = descTa.value;
-      dirty = true;
+      setDirtyActive(true);
     });
     descRow.appendChild(descTa);
     formBody.appendChild(descRow);
@@ -298,7 +363,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
     mechTa.value = e.mechanicalEffects;
     mechTa.addEventListener("input", () => {
       e.mechanicalEffects = mechTa.value;
-      dirty = true;
+      setDirtyActive(true);
     });
     mechRow.appendChild(mechTa);
     formBody.appendChild(mechRow);
@@ -311,7 +376,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
     srcTa.value = e.source;
     srcTa.addEventListener("input", () => {
       e.source = srcTa.value;
-      dirty = true;
+      setDirtyActive(true);
     });
     srcRow.appendChild(srcTa);
     formBody.appendChild(srcRow);
@@ -329,7 +394,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
         ariaLabel: "Relic rating",
         onPick: (n) => {
           rd.rating = n;
-          dirty = true;
+          setDirtyActive(true);
           paintForm();
         },
       });
@@ -340,7 +405,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
         roleFilter: ["relic"],
         onChange: (ids) => {
           rd.tagIds = ids;
-          dirty = true;
+          setDirtyActive(true);
         },
       });
 
@@ -361,7 +426,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
       pvSel.value = rd.purviewId || "";
       pvSel.addEventListener("change", () => {
         rd.purviewId = pvSel.value;
-        dirty = true;
+        setDirtyActive(true);
         paintForm();
       });
       pvRow.appendChild(pvSel);
@@ -374,7 +439,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
           ariaLabel: "Purview access dots",
           onPick: (n) => {
             rd.purviewRating = n;
-            dirty = true;
+            setDirtyActive(true);
             paintForm();
           },
         });
@@ -389,7 +454,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
       evoTa.value = rd.evocation;
       evoTa.addEventListener("input", () => {
         rd.evocation = evoTa.value;
-        dirty = true;
+        setDirtyActive(true);
       });
       evoRow.appendChild(evoTa);
       relicPanel.appendChild(evoRow);
@@ -403,7 +468,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
       tagTa.value = rd.motifsAndTags;
       tagTa.addEventListener("input", () => {
         rd.motifsAndTags = tagTa.value;
-        dirty = true;
+        setDirtyActive(true);
       });
       tagRow.appendChild(tagTa);
       relicPanel.appendChild(tagRow);
@@ -423,7 +488,7 @@ export function mountBirthrightsDataEditor(root, ctx) {
         roleFilter: ["creature"],
         onChange: (ids) => {
           cd.tagIds = ids;
-          dirty = true;
+          setDirtyActive(true);
         },
       });
       formBody.appendChild(crePanel);
@@ -437,15 +502,15 @@ export function mountBirthrightsDataEditor(root, ctx) {
         idInp.value = key;
         return;
       }
-      if (draft[newId]) {
+      if (curDraft()[newId]) {
         setStatus("That id already exists.", true);
         idInp.value = key;
         return;
       }
-      draft[newId] = { ...draft[key], id: newId };
-      delete draft[key];
+      curDraft()[newId] = { ...curDraft()[key], id: newId };
+      delete curDraft()[key];
       selectedKey = newId;
-      dirty = true;
+      setDirtyActive(true);
       setStatus("Renamed entry id — save to persist.", false);
       paintList();
       paintForm();
@@ -462,22 +527,29 @@ export function mountBirthrightsDataEditor(root, ctx) {
       setStatus("Invalid id.", true);
       return;
     }
-    if (draft[id]) {
+    if (curDraft()[id]) {
       setStatus("Id already exists.", true);
       return;
     }
-    draft[id] = ensureEntryShape(id, {
+    const seed = {
       id,
       name: "New birthright",
       birthrightType: "relic",
       pointCost: 1,
       description: "",
       mechanicalEffects: "",
-      source: "SCION_Pandoras_Box_(Revised_Download).pdf",
+      source:
+        activeFile === "birthrightsDragon"
+          ? "Scion_Dragon_(Final_Download).pdf"
+          : "SCION_Pandoras_Box_(Revised_Download).pdf",
       relicDetails: defaultRelicDetails(),
-    });
+    };
+    if (activeFile === "birthrightsDragon") {
+      /** @type {{ chargenLines?: string[] }} */ (seed).chargenLines = ["dragonHeir"];
+    }
+    curDraft()[id] = ensureEntryShape(id, seed);
     selectedKey = id;
-    dirty = true;
+    setDirtyActive(true);
     paintList();
     paintForm();
     setStatus("New entry — save to write file.", false);
@@ -486,62 +558,108 @@ export function mountBirthrightsDataEditor(root, ctx) {
   btnDel.addEventListener("click", () => {
     if (!selectedKey) return;
     if (!window.confirm(`Delete birthright “${selectedKey}” from the draft (and file on save)?`)) return;
-    delete draft[selectedKey];
+    delete curDraft()[selectedKey];
     selectedKey = null;
-    dirty = true;
+    setDirtyActive(true);
     paintList();
     paintForm();
     setStatus("Entry removed from draft — save to persist.", false);
   });
 
   btnReload.addEventListener("click", async () => {
-    if (dirty && !window.confirm("Discard unsaved changes and reload from server?")) return;
+    if (
+      (dirtyByFile.birthrights || dirtyByFile.birthrightsDragon) &&
+      !window.confirm("Discard unsaved changes on both birthrights files and reload from server?")
+    )
+      return;
     await reloadBundle();
-    const fresh = cloneBirthrights(getBundle()?.birthrights);
-    for (const k of Object.keys(draft)) delete draft[k];
-    for (const k of Object.keys(fresh)) draft[k] = fresh[k];
+    try {
+      const [r1, r2] = await Promise.all([
+        fetch(apiUrl("api/data/birthrights")),
+        fetch(apiUrl("api/data/birthrightsDragon")),
+      ]);
+      if (!r1.ok) throw new Error(await r1.text());
+      if (!r2.ok) throw new Error(await r2.text());
+      const freshMain = cloneBirthrights(await r1.json());
+      const freshDr = cloneBirthrights(await r2.json());
+      if (draftBirthrights && draftDragon) {
+        for (const k of Object.keys(draftBirthrights)) delete draftBirthrights[k];
+        for (const k of Object.keys(freshMain)) draftBirthrights[k] = freshMain[k];
+        for (const k of Object.keys(draftDragon)) delete draftDragon[k];
+        for (const k of Object.keys(freshDr)) draftDragon[k] = freshDr[k];
+      }
+    } catch (err) {
+      setStatus(String(err?.message || err), true);
+      return;
+    }
     selectedKey = null;
-    dirty = false;
+    dirtyByFile.birthrights = false;
+    dirtyByFile.birthrightsDragon = false;
     paintList();
     paintForm();
-    setStatus("Reloaded.", false);
+    setStatus("Reloaded both birthrights files.", false);
   });
 
   btnSave.addEventListener("click", async () => {
-    if (!draft._meta || typeof draft._meta !== "object") {
+    const d = curDraft();
+    if (!d._meta || typeof d._meta !== "object") {
       setStatus("Missing _meta — refusing to save.", true);
       return;
     }
     for (const k of listKeys()) {
-      draft[k] = ensureEntryShape(k, draft[k]);
-      draft[k].id = k;
+      d[k] = ensureEntryShape(k, d[k]);
+      d[k].id = k;
     }
-    for (const k of Object.keys(draft)) {
+    for (const k of Object.keys(d)) {
       if (k.startsWith("_")) continue;
       if (!validEntryKey(k)) {
         setStatus(`Invalid key: ${k}`, true);
         return;
       }
     }
+    const tableName = activeFile === "birthrights" ? "birthrights" : "birthrightsDragon";
     try {
-      const res = await fetch(apiUrl("api/data/birthrights"), {
+      const res = await fetch(apiUrl(`api/data/${tableName}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
+        body: JSON.stringify(d),
       });
       if (!res.ok) {
         const t = await res.text();
         throw new Error(t || res.statusText);
       }
       await reloadBundle();
-      dirty = false;
+      dirtyByFile[activeFile] = false;
       setStatus("Saved.", false);
     } catch (err) {
-      setStatus(String(err.message || err), true);
+      setStatus(String(err?.message || err), true);
     }
   });
 
-  if (!selectedKey && listKeys().length) selectedKey = listKeys()[0];
-  paintList();
-  paintForm();
+  btnNew.disabled = true;
+  btnReload.disabled = true;
+  void (async () => {
+    try {
+      const [r1, r2] = await Promise.all([
+        fetch(apiUrl("api/data/birthrights")),
+        fetch(apiUrl("api/data/birthrightsDragon")),
+      ]);
+      if (!r1.ok) throw new Error(await r1.text());
+      if (!r2.ok) throw new Error(await r2.text());
+      draftBirthrights = cloneBirthrights(await r1.json());
+      draftDragon = cloneBirthrights(await r2.json());
+      loadMsg.remove();
+      btnSave.disabled = false;
+      btnNew.disabled = false;
+      btnReload.disabled = false;
+      syncFileTabButtons();
+      if (!selectedKey && listKeys().length) selectedKey = listKeys()[0];
+      paintList();
+      paintForm();
+    } catch (err) {
+      loadMsg.textContent = String(err?.message || err);
+      loadMsg.className = "warn";
+      setStatus(String(err?.message || err), true);
+    }
+  })();
 }

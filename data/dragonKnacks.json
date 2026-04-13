@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "note": "Draconic Knacks (Feats of Scale / Transformation families) — paraphrased hooks only. Full tags, costs, and forms live in Scion: Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Flight Path favored lists (pp. 42, 53, 63, 73, 84, 93) and Draconic Knacks chapter",
+    "kind": "draconic"
+  },
+  "devastatingDragonsPresence": {
+    "id": "devastatingDragonsPresence",
+    "name": "Devastating Dragon’s Presence",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Project overwhelming draconic awe or menace to command a scene.",
+    "mechanicalEffects": "Paraphrase: social / fear tilt keyed to Feats of Scale; confirm dice with Dragon pp. 140+.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq Flight Path (p. 42)"
+  },
+  "poisonBlood": {
+    "id": "poisonBlood",
+    "name": "Poison Blood",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Your vitae carries venom or curse-residue usable as a weapon or deterrent.",
+    "mechanicalEffects": "Paraphrase: toxic contact or bleeding hazard; confirm toxicity rules in Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq Flight Path (p. 42)"
+  },
+  "powerTastingBite": {
+    "id": "powerTastingBite",
+    "name": "Power Tasting Bite",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Sample another being’s power through a predatory bite or metaphysical ‘taste’.",
+    "mechanicalEffects": "Paraphrase: information or stolen Might hook; confirm costs with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Joka Flight Path (p. 53)"
+  },
+  "seizingJaws": {
+    "id": "seizingJaws",
+    "name": "Seizing Jaws",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Manifest draconic jaws to grapple, sever, or pin.",
+    "mechanicalEffects": "Paraphrase: clinch / damage stunt; confirm with Dragon Transformation chapter.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Joka Flight Path (p. 53)"
+  },
+  "fadeAway": {
+    "id": "fadeAway",
+    "name": "Fade Away",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Slip from notice or memory at the edge of perception.",
+    "mechanicalEffects": "Paraphrase: stealth / memory-fade tilt; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lindwurm Flight Path (p. 63)"
+  },
+  "massiveBeastShape": {
+    "id": "massiveBeastShape",
+    "name": "Massive Beast Shape",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Take on a hulking draconic or beast form suited to Lindwurm themes.",
+    "mechanicalEffects": "Paraphrase: scale shifts for size and Might; confirm Transformation limits.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lindwurm Flight Path (p. 63)"
+  },
+  "bottomlessLung": {
+    "id": "bottomlessLung",
+    "name": "Bottomless Lung",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Breathe poison, pressure, or impossible depths without failing.",
+    "mechanicalEffects": "Paraphrase: environmental immunity hooks; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lóng Flight Path (p. 73)"
+  },
+  "draconicMajesty": {
+    "id": "draconicMajesty",
+    "name": "Draconic Majesty",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Wear draconic authority like regalia—crowds part, rivals hesitate.",
+    "mechanicalEffects": "Paraphrase: Enhancement to command / presence actions; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Lóng Flight Path (p. 73)"
+  },
+  "snappingHydrasForm": {
+    "id": "snappingHydrasForm",
+    "name": "Snapping Hydra’s Form",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Sprout extra heads or biting appendages for a devastating clinch.",
+    "mechanicalEffects": "Paraphrase: extra attacks or soak hooks; confirm hydra rules in Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Naga Flight Path (p. 84)"
+  },
+  "skinksRegrowth": {
+    "id": "skinksRegrowth",
+    "name": "Skink’s Regrowth",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Shed harm—limbs, conditions, or setbacks—through reptilian renewal.",
+    "mechanicalEffects": "Paraphrase: healing / injury-clear stunt with cost; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Naga Flight Path (p. 84)"
+  },
+  "dragonSight": {
+    "id": "dragonSight",
+    "name": "Dragon Sight",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "See heat, lies, occult traces, or draconic sigils hidden from mortals.",
+    "mechanicalEffects": "Paraphrase: investigative Enhancement vs concealed truths; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent Flight Path (p. 93)"
+  },
+  "eelsTrickery": {
+    "id": "eelsTrickery",
+    "name": "Eel’s Trickery",
+    "kind": "draconic",
+    "subkind": "transformation",
+    "description": "Boneless escape, constriction, or impossible slips through tight spaces.",
+    "mechanicalEffects": "Paraphrase: grapple escape / reach tricks; confirm with Dragon.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent Flight Path (p. 93)"
+  },
+  "ironFistedRule": {
+    "id": "ironFistedRule",
+    "name": "Iron Fisted Rule",
+    "kind": "draconic",
+    "subkind": "featOfScale",
+    "description": "Invoke draconic law—your word lands like a verdict backed by terror.",
+    "mechanicalEffects": "Paraphrase: Judge-aligned Feat of Scale; confirm with Dragon examples (p. 113).",
+    "source": "Scion_Dragon_(Final_Download).pdf, chargen example Lydia (p. 113)"
+  }
+}

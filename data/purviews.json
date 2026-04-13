@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Condensed index of Purview names for UI selection. **Primary** full Boon / Innate / Marvel text: SCION_Pandoras_Box_(Revised_Download).pdf; tier books only where PB points there. Optional: `purviewInnateName` / `purviewInnateSummary` surface innate blurbs (they are not ladder Boons). Optional `boonLadderNames`: string array of length 12 — PB Boon names for dots 1–12 (`{purview}_dot_01` … `_dot_12`); use \"\" for rungs not filled yet. The wizard and sheet use these for chip titles when set. Optional `boonLadderNameByDot`: object map `\"1\"`…`\"12\"` to a name if you prefer sparse entries."
+    "note": "Condensed index of Purview names for UI selection. **Primary** full Boon / Innate / Marvel text: SCION_Pandoras_Box_(Revised_Download).pdf; tier books only where PB points there. Optional: `purviewInnateName` / `purviewInnateSummary` surface innate blurbs (they are not Boon picks). Optional `boonLadderNames`: string array of length 12 — printed Boon titles for positions 1–12 (`{purview}_dot_01` … `_dot_12` in the catalog); use \"\" for positions not transcribed yet. The wizard and sheet use these for chip titles when set. Optional `boonLadderNameByDot`: object map `\"1\"`…`\"12\"` to a name if you prefer sparse entries."
   },
   "artistry": {
     "id": "artistry",
@@ -492,7 +492,7 @@
       "Enter the Shadow",
       "Kinship With Night",
       "Nightmare Manifest",
-      "Night'S Caress",
+      "Night's Caress",
       "Reveal the Inner Darkness",
       "Shadow Minion",
       "Shadow Spies",
@@ -610,8 +610,22 @@
     "id": "arcaneCalculus",
     "name": "Arcane Calculus",
     "description": "The Mythos pantheon Signature Purview: forbidden and revelatory mathematics—knowledge pursued regardless of cost, mapping truths that strain sanity and Fate.",
-    "mechanicalEffects": "Innate powers, Marvels, and Boons per Scion: Masks of the Mythos; confirm dot bands and limits with that book and Pandora’s Box where cross-listed.",
-    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Path / Signature Purview"
+    "mechanicalEffects": "Innate powers, Marvels, and Boons per Scion: Masks of the Mythos; confirm limits with that book and Pandora’s Box where cross-listed. MotM prints two titled Boons for this Signature (see boons.json); further Awareness Boons are chronicle/SG work at the table — this app does not invent catalog entries for them.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Mythos Path / Signature Purview",
+    "boonLadderNames": [
+      "Disturbing Visions",
+      "Mouth of Madness",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
   },
   "nemeton": {
     "id": "nemeton",

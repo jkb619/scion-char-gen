@@ -4,6 +4,13 @@
 
 import { appendTagChecklist, normalizeTagIdArray } from "./tagPicker.js";
 import { apiUrl } from "./apiBase.js";
+import {
+  ORIGIN_EQUIPMENT_TAG_POINT_MAX,
+  armorPenaltyHint,
+  equipmentTagBudgetViolations,
+  getEquipmentTagAddBlockReason,
+  sumTagPointsOnLine,
+} from "./equipmentTagBudget.js";
 
 function clone(o) {
   return JSON.parse(JSON.stringify(o || {}));
@@ -17,6 +24,18 @@ function equipmentTypesFromDraft(draft) {
   const t = draft?._meta?.equipmentTypes;
   const raw = Array.isArray(t) && t.length ? [...t] : ["weapon", "armor", "tool", "accessory", "general"];
   return [...raw].sort((a, b) => String(a).localeCompare(String(b), undefined, { sensitivity: "base" }));
+}
+
+function defaultEquipmentType(types) {
+  if (types.includes("weapon")) return "weapon";
+  if (types.includes("armor")) return "armor";
+  return types[0] || "general";
+}
+
+function starterTagIdsForEquipmentType(eqType) {
+  if (eqType === "weapon") return ["lethal", "melee"];
+  if (eqType === "armor") return ["softArmor", "weighty"];
+  return [];
 }
 
 function ensureEquipmentEntry(key, obj, draft) {
@@ -43,7 +62,7 @@ export function mountEquipmentDataEditor(root, ctx) {
   const wrap = document.createElement("div");
   wrap.className = "br-editor-root";
   wrap.innerHTML = `<div class="panel br-editor-intro"><h2>Equipment library</h2>
-    <p class="help">Edits <code>data/equipment.json</code>. Assign <strong>tags</strong> from the master list (<code>tags.json</code>, appliesTo <strong>equipment</strong>), plus type, description, and mechanical notes.</p></div>`;
+    <p class="help">Edits <code>data/equipment.json</code>. Assign <strong>tags</strong> from the master list (<code>tags.json</code>, appliesTo <strong>equipment</strong>), plus type, description, and mechanical notes. <strong>Origin (Revised)</strong> caps weapon-line and armor-line tag <em>points</em> at <strong>${ORIGIN_EQUIPMENT_TAG_POINT_MAX}</strong> each (sum of tag costs, including negative flaw tags). Heavy armor should usually carry flaw tags such as <strong>weighty</strong> or <strong>cumbersome</strong>. Hover a list row for internal <strong>id</strong>.</p></div>`;
 
   const toolbar = document.createElement("div");
   toolbar.className = "br-editor-toolbar";
@@ -112,6 +131,38 @@ export function mountEquipmentDataEditor(root, ctx) {
     status.style.color = err ? "var(--danger)" : "var(--muted)";
   }
 
+  function paintBudgetSummary(el, bundle, entry) {
+    if (!el) return;
+    el.innerHTML = "";
+    const tagIds = normalizeTagIdArray(entry.tagIds);
+    const w = sumTagPointsOnLine(bundle, tagIds, "weapon");
+    const a = sumTagPointsOnLine(bundle, tagIds, "armor");
+    const { messages } = equipmentTagBudgetViolations(bundle, tagIds);
+    const pen = armorPenaltyHint(bundle, tagIds);
+
+    const p = document.createElement("p");
+    p.className = "help";
+    const wOk = w <= ORIGIN_EQUIPMENT_TAG_POINT_MAX;
+    const aOk = a <= ORIGIN_EQUIPMENT_TAG_POINT_MAX;
+    p.innerHTML = `<strong>Origin tag point totals</strong> — weapon line: <span style="color:${wOk ? "inherit" : "var(--danger)"}">${w}</span> / ${ORIGIN_EQUIPMENT_TAG_POINT_MAX}; armor line: <span style="color:${aOk ? "inherit" : "var(--danger)"}">${a}</span> / ${ORIGIN_EQUIPMENT_TAG_POINT_MAX}. (Each line sums only tags on that line; see <code>tags.json</code> <code>bookCategory</code> / weapon or armor <code>tagType</code>.)`;
+    el.appendChild(p);
+
+    for (const m of messages) {
+      const err = document.createElement("p");
+      err.className = "help";
+      err.style.color = "var(--danger)";
+      err.textContent = m;
+      el.appendChild(err);
+    }
+    if (pen) {
+      const hi = document.createElement("p");
+      hi.className = "help";
+      hi.style.color = "var(--accent-2)";
+      hi.textContent = pen;
+      el.appendChild(hi);
+    }
+  }
+
   function paintList() {
     const q = search.value.trim().toLowerCase();
     listUl.innerHTML = "";
@@ -123,7 +174,8 @@ export function mountEquipmentDataEditor(root, ctx) {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "br-editor-list-btn" + (selectedKey === key ? " active" : "");
-      b.innerHTML = `<span class="br-editor-list-id">${key}</span><span class="br-editor-list-name">${t?.name || "—"}</span><span class="br-editor-list-type">${t?.equipmentType || ""}</span>`;
+      b.title = `Internal id: ${key}`;
+      b.innerHTML = `<span class="br-editor-list-name">${t?.name || "—"}</span><span class="br-editor-list-type">${t?.equipmentType || ""}</span>`;
       b.addEventListener("click", () => {
         selectedKey = key;
         paintList();
@@ -204,6 +256,10 @@ export function mountEquipmentDataEditor(root, ctx) {
     typeRow.appendChild(typeSel);
     formBody.appendChild(typeRow);
 
+    const budgetDiv = document.createElement("div");
+    budgetDiv.id = "eq-tag-budget";
+    budgetDiv.className = "eq-tag-budget-summary";
+
     appendTagChecklist(formBody, {
       bundle,
       selectedIds: e.tagIds,
@@ -211,8 +267,12 @@ export function mountEquipmentDataEditor(root, ctx) {
       onChange: (ids) => {
         e.tagIds = ids;
         dirty = true;
+        paintBudgetSummary(budgetDiv, bundle, e);
       },
+      tagAddBlockReason: (tid, sel) => getEquipmentTagAddBlockReason(bundle, tid, sel),
     });
+    formBody.appendChild(budgetDiv);
+    paintBudgetSummary(budgetDiv, bundle, e);
 
     const descRow = document.createElement("div");
     descRow.className = "field";
@@ -264,13 +324,15 @@ export function mountEquipmentDataEditor(root, ctx) {
       setStatus("Invalid or duplicate id.", true);
       return;
     }
+    const types = equipmentTypesFromDraft(draft);
+    const eqType = defaultEquipmentType(types);
     draft[id] = ensureEquipmentEntry(
       id,
       {
         id,
         name: "New item",
-        equipmentType: equipmentTypesFromDraft(draft)[0],
-        tagIds: [],
+        equipmentType: eqType,
+        tagIds: starterTagIdsForEquipmentType(eqType),
         description: "",
         mechanicalEffects: "",
         source: "",
@@ -285,7 +347,8 @@ export function mountEquipmentDataEditor(root, ctx) {
 
   btnDel.addEventListener("click", () => {
     if (!selectedKey) return;
-    if (!window.confirm(`Delete “${selectedKey}”?`)) return;
+    const nm = draft[selectedKey]?.name || selectedKey;
+    if (!window.confirm(`Delete “${nm}”?`)) return;
     delete draft[selectedKey];
     selectedKey = null;
     dirty = true;
@@ -318,6 +381,16 @@ export function mountEquipmentDataEditor(root, ctx) {
       }
       draft[k] = ensureEquipmentEntry(k, draft[k], draft);
       draft[k].id = k;
+    }
+    const bundle = getBundle();
+    const bad = [];
+    for (const k of listKeys()) {
+      const v = equipmentTagBudgetViolations(bundle, draft[k].tagIds);
+      if (v.messages.length) bad.push(`${draft[k]?.name || k}: ${v.messages.join(" ")}`);
+    }
+    if (bad.length) {
+      setStatus(`Save blocked — tag point budget: ${bad.join(" | ")}`, true);
+      return;
     }
     try {
       const res = await fetch(apiUrl("api/data/equipment"), {

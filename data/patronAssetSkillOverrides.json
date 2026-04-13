@@ -1,0 +1,9 @@
+{
+  "_meta": {
+    "note": "Per-patron Asset Skill pairs where Pandora’s Box (Revised) or another listed source differs from the pantheon-wide default in pantheons.json. Keys are `pantheonId:patronId` (required when the same patron id appears in more than one pantheon). Merged into pantheon `deities` / `titans` at bundle load after default stamping.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf — pantheon write-ups and individual patron stat lines (Asset Skills). Add rows as you confirm them against your PDFs."
+  },
+  "overrides": {
+    "loa:baronSamedi": ["integrity", "subterfuge"]
+  }
+}

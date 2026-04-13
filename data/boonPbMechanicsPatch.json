@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "note": "Hand patches for PB titles that do not match extract heuristics or lack Storypath Cost:/Duration: lines. Merged after boonPbMechanics.json in generate_boons_catalog.py."
+  },
+  "epicDexterity_dot_02": {
+    "description": "Standard prisons or manacles cannot hold you; you may Imbue for Scale to escape any confinement (supermax, labyrinth, an Underworld cell). Later subheads add disguise Knacks (onlookers, the world, the Overworld, fate) and pantheon-specific riders—see Pandora’s Box.",
+    "mechanicalEffects": "Cost: None or Imbue Legend for Scale (printed Epic Dexterity — Escape Artist).\nDuration: Varies by use.\nSubject: Self.\nRange: —\nAction: See printed Boon."
+  },
+  "deception_dot_03": {
+    "description": "Make a Knack Skill roll; with successes you create an exact copy of yourself with your traits, Knacks, and Boons, controlled by you for social or investigative tasks. It cannot use teamwork, turns to dust if attacked, and lasts days equal to your Trickster Calling.",
+    "mechanicalEffects": "Cost: Knack activation (see printed Boon).\nDuration: Days equal to Trickster Calling.\nSubject: Self.\nRange: —\nAction: Knack Skill roll."
+  },
+  "paganito_dot_03": {
+    "description": "“Sacred Compact” (Balahala Paganito Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  },
+  "marzeh_dot_03": {
+    "description": "“Guest’s Oath” (Ilhm Marzeh Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  },
+  "tzolkin_dot_03": {
+    "description": "“Daykeeper’s Verdict” (K’uh Tzolk’in Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  },
+  "yidam_dot_02": {
+    "description": "“Mandala’s Keening” (Pālas Yidam Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  },
+  "yidam_dot_03": {
+    "description": "“Refuge in the Image” (Pālas Yidam Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  },
+  "behique_dot_03": {
+    "description": "“Healer’s Claim” (Zem Behique Signature): see Pandora’s Box Pantheon Signature Purviews.",
+    "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
+  }
+}

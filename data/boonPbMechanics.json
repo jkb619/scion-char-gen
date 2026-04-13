@@ -1,0 +1,1265 @@
+{
+  "_meta": {
+    "note": "PB Revised Boon Cost/Duration lines + short effect blurbs for sheet parser; regenerate with scripts/extract_pb_boon_mechanics.py"
+  },
+  "artistry_dot_01": {
+    "description": "By adding your own artistic flourishes to an ordinary ob­ ject, you enable it to fulfill its purpose better: Painting a red stripe on a car makes it drive faster, giving a weapon a name makes it more effective, and so on. Whoever uses the item gains 2 Enhancement on appropriate rolls for the duration of the scene.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One object\nRange: Close\nAction: Simple"
+  },
+  "artistry_dot_02": {
+    "description": "No one can look away from your art. When you put on a performance, all affected targets in range that witnesses your performance cannot stop paying attention to you. If they wish to take another action, they must do it as a mixed action combined with an Integrity + Resolve roll at Difficulty 2. Putting on a performance with this Boon is a complex action that can last multiple rounds, but doesn't require a roll.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: All characters\nRange: Medium\nAction: Complex\nClash: Presence + Legend vs. Composure + Legend"
+  },
+  "artistry_dot_03": {
+    "description": "Once per session, when you use the Player Inspiration Stunt (Scion: Origin, p. 75) to discover a new fact about a clue, you can declare that it also has a hidden meaning appropriate to you or your Pantheon. For the duration of the episode, treat any Twist of Fate that you invoke as if you rolled 3 more successes, so long as it relates to this meaning.",
+    "mechanicalEffects": "Cost: None\nDuration: Episode\nSubject: Self\nAction: Simple"
+  },
+  "artistry_dot_04": {
+    "description": "Your emotions overflow into the souls of your audience. When you perform or create a work of art, you can instill it with your current emotional state or the personal feelings that inspired it. Any affected character that witnesses the performance or artwork is deeply affected, raising their At­ titude by one point. This does not stack with other magical Attitude bonuses. This Attitude shift lasts even after you…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: All characters\nRange: Short\nAction: Reflexive\nClash: Presence + Legend vs. Composure + Legend"
+  },
+  "artistry_dot_05": {
+    "description": "Demigods with the Artistry Purview are true tastemakers, not just through themselves but through their followers, cults, and those under their care. By imbuing 1 Legend per affect­ ed character (trivial targets cost nothing) and designating a specific art form and style — not just \"painting\" but \"Im­ pressionist painting,\" not just \"dance\" but \"the five elements of Ballroom\" — they grant extended inspiration to…",
+    "mechanicalEffects": "Cost: Variable\nDuration: Condition\nSubject: Variable\nRange: Short\nAction: Simple"
+  },
+  "artistry_dot_06": {
+    "description": "Every artist experiences self-doubt at some point in their ca­ reer, but you can induce it on command. You curse an artist to perceive every flaw and imperfection in their creative endeav­ ors, bestowing the Impostor Syndrome Condition: Those afflicted with Impostor Syndrome are unable to see artistic value in their own creation, believing the work they have created is mediocre. The target's confidence in their…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Until resolved\nSubject: 1 Character\nRange: Short\nAction: Simple\nClash: Manipulation + Legend vs. Resolve + Legend"
+  },
+  "artistry_dot_07": {
+    "description": "You instill a small work of your art — a poem, song, dance, or design — with both a clear message that you define for your intended audience when you use the Boon (as per the innate power of the Purview) and the ability for that audience to repeat it flawlessly for others. So long as you maintain the Boon, the message will spread from person to person, but its meaning will remain hidden from those you do not want…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One artwork\nAction: Simple"
+  },
+  "artistry_dot_08": {
+    "description": "The Mythos flows through you and into your audience. When you deliver an oration (song, speech, poem, play, etc.), any who hear you are filled with fear and despair. Shift the attitude of all affected characters who witness the performance to fearful. Additionally, characters have a +3 Complication to do anything other than run in fear.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: All characters\nRange: Short\nAction: Simple\nClash: Awareness + Presence vs. Composure + Legend"
+  },
+  "artistry_dot_09": {
+    "description": "You breathe inspiration into a character's heart, granting them Enhancement 3 when they roll to create art, put on a performance, or some other creative and expressive ac­ tivity. You can set a single requirement the character must meet to maintain your blessing, like \"tithe a tenth of your earnings to my cult\" or \"spend eight hours a day writing,\" which ends this Boon immediately if it is not met. This Boon is…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "artistry_dot_10": {
+    "description": "You curse a character, haunting their every thought and moment with a song of your choosing. In addition to repeating in their head, it's the only music that people hear in their presence — radios, jukeboxes, and live bands alike all have their songs replaced with the earworm, which most audiences consider… upsetting. The target suffers a level 2 Complication to any ac­ tion that requires close listening or…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Long\nAction: Simple\nClash: Presence + Legend vs Composure + Legend"
+  },
+  "beasts_dot_01": {
+    "description": "You choose an animal and emulate one of its iconic traits. Pick one of the following benefits: Mobility: You can swim like a dolphin, burrow like a ter­ mite, or emulate flight with graceful leaps. You can ignore any dangerous or difficult terrain) or complicated pas­ sages, barriers, or hazards that form of movement could reasonably bypass. Senses: Choose a specific circumstance in which the ani­ mal's senses…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "beasts_dot_02": {
+    "description": "For one scene, a God becomes the primordial concept of the Beast. With a quicksilver shape that changes as quickly as thought and an insatiable hunger, this form is as powerful as it is dangerous. This form understands the thoughts of every animal within range of its senses and can choose to consume any number of trivial characters within Close range. The Beast will crush homes, tear into Titans' flanks, and…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nRange: Self\nAction: Simple"
+  },
+  "beasts_dot_03": {
+    "description": "You imbue a chosen animal with your will, causing it to become stronger, smarter, faster, and more beautiful than others of its kind. You form a connection with this creature and can see through its eyes and control its movements. You can even commune with the animal instantaneously, understanding its wishes as you would your own. With each Legend point spent above 2 (to a maximum of 5 Legend spent) the animal…",
+    "mechanicalEffects": "Cost: Spend variable Legend\nDuration: One scene\nSubject: Chosen Animal\nRange: Short\nAction: Simple"
+  },
+  "beasts_dot_04": {
+    "description": "Calling just one animal to yourself is one thing, but summon­ ing all of them in a given area is another. When purchasing this Boon, the God must choose one type of animal. The God may then summon all of this same species of animal in a one-mile radius to her side. This allows her to give them simple commands such as retrieve this object for me or harass the police until they leave or observe this person for me.…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Chosen Animals\nRange: Long\nAction: Simple"
+  },
+  "beasts_dot_05": {
+    "description": "You bring out a bestial response in others, triggering a fight or flight reaction. You can make an Encourage Behavior action before activating this Boon to influence the results, although how the target responds is left to the Storyguide's discretion. Fight does not need to be a physical response — it could result in a tongue lashing or intellectual beat down — but flight always causes the target to flee the…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: 1 Character\nRange: Close\nAction: Simple\nClash: Legend + Presence vs. Legend + Resolve"
+  },
+  "beasts_dot_06": {
+    "description": "You can speak to and understand all animals. Animals that don't have a Legend rating treat their Attitude towards you as one point higher when determining whether you can persuade them to take on a task. This does not stack with other magical Attitude bonuses. Once you reclaim the Legend from this Boon, your animal helpers will still try to complete your requests, but may become distractible or less reliable, at…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "beasts_dot_07": {
+    "description": "Humans tend to anthropomorphize animals, but little unset­ tles people more than seeing the actual emotions behind a lioness' bared teeth or the arch of a panther's back. Your character exposes the true animal nature of her divine soul to onlookers, beautiful and monstrous all at once. Trivial characters immediately flee while all other characters face a +2 Complication on any action not somehow aimed toward…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "beasts_dot_08": {
+    "description": "Humanity loves to pretend it shares no instincts or primal urges with other animals, but this simply isn't true. Your character strips away the artifice that protects all humans from knowledge of their animal nature. In addition to being an unsettling experience for most individuals, a reminder that they're not as in control of themselves as they'd prefer to believe, choose one of the following effects to impose…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple\nClash: Presence + Legend vs Composure + Legend"
+  },
+  "beasts_dot_09": {
+    "description": "A horde of creatures answers your call. When this Boon is activated, creatures associated with your Purview sur­ round you. Snakes slither through the grass, spiders carpet the floor, and lizards cover the walls. They count as a +2 Complication to move or attack for everyone except you. The consequences of failure can be an Injury Condition, being knocked down, or becoming poisoned, depending on the creatures.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "beasts_dot_10": {
+    "description": "Choose an animal whose natural ferocity you wish to evoke. Your brawling attacks gain the Lethal tag and up to three points of other weapon tags appropriate to the chosen ani­ mal, such as Grappling and Piercing for an alligator's bite or Pushing and Piercing for a rhino's charge.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "chaos_dot_01": {
+    "description": "A demigod truly in tune with Chaos understands how close all of humanity's careful social constructs run to utter undo­ ing, and — more deeply — how many forms of authority a person calls on during her daily activities. A more advanced form of \"No Masters,\" (Scion: Hero, p. 243), this Stunt not only suppresses any positive Bonds or Attitudes held toward the target character based on any kind of political,…",
+    "mechanicalEffects": "Cost: Imbue 2 Legend\nDuration: One scene\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple\nClash: Manipulation + Legend vs Composure + Legend"
+  },
+  "chaos_dot_02": {
+    "description": "A single push of a domino can set off a series of effects that can lead to either ultimate victory or destruction. Gods who follow Chaos know this better than anyone else. A seemingly unconnected series of circumstances can wreak havoc over time. The God may spend between 1 to 5 Legend points to set off a series of incidents that will lead to their ultimate goal. This series of incidents can occur either over one…",
+    "mechanicalEffects": "Cost: Variable\nDuration: Variable\nSubject: Action\nRange: Short\nAction: Simple"
+  },
+  "chaos_dot_03": {
+    "description": "Your mind extends across the invisible network that connects people and devices. This Boon grants you an instinctive awareness of any mundane item designed for communi­ cation or relaying information within a (Legend)-miles ra­ dius that is not concealed by supernatural means. You can communicate through any of these devices at will, either by word or text. For example, your face might appear on a phone screen,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "chaos_dot_04": {
+    "description": "Muhen lets you do this, for now. With power over the multiverse, you flex your inherent grasp over Fate. Not all Scions get to this, so appreciate it. Somehow, however, you feel a storm brewing nearby… Use this to manifest an omen. A good omen is something you will know immediately. An ill omen is more specific, and might require some time investigating. Nevertheless, you get a +2 Enhancement on up to (Legend)…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nRange: Self\nAction: Reflexive"
+  },
+  "chaos_dot_05": {
+    "description": "You create an instant riot. All trivial characters in range, plus up to (Legend x 3) non-trivial mortals, will stop what­ ever they're doing and create a wild and disruptive frenzy, mob, or protest — whichever is most appropriate to the circumstances. If the Storyguide has specific plans for what a mortal character is doing in the scene (for example, the hired security you're trying to distract with a riot), he…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Multiple characters\nRange: Medium\nAction: Simple"
+  },
+  "chaos_dot_06": {
+    "description": "You strip a character of their authority over others. This suppresses any positive Attitudes or Bonds that any other character within long range has towards the target based on any kind of political, social, or economic authority he holds over them for the duration of the scene. Negative emotions are unaffected — employees may lose all loyalty they have to their boss, but they'll still carry the resentment from…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Manipulation + Legend vs. Composure + Legend"
+  },
+  "chaos_dot_07": {
+    "description": "Technology bows to your divine authority. For the remain­ der of the scene, you can take over and control any mun­ dane machines within Long range. This Boon allows you make special Stunts that rely on its power and grants access to a vast amount of utility effects. Complex items such as computers and phones grant small benefits for this Boon, but you can still turn them on and off (and keep them in either state…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nRange: Long\nAction: Simple"
+  },
+  "chaos_dot_08": {
+    "description": "You overload a machine's gears or a person's mind with con­ centrated entropy. A targeted character must struggle simply to maintain coherent thought. On each turn, if they wish to take an action, they must combine it with a Stamina + Athletics roll at Difficulty 2. Nontrivial characters are rendered cata­ tonic for the scene. Machines up to the size of a car can be targeted, breaking down completely until they…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One machine or character\nRange: Short\nAction: Simple"
+  },
+  "chaos_dot_09": {
+    "description": "When it comes down to it, everything returns to Chaos. The Void is eternal, ever present and waiting for the end. By focusing on a Relic, a God of Chaos may change it so that they themselves can use it for a short period without any ill side effects. A God may choose to perform one of the below actions when using Reworked Relic: Change any current tags to new tags — the God cannot add additional tags when using…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene\nSubject: Relic\nRange: Short\nAction: Simple"
+  },
+  "chaos_dot_10": {
+    "description": "Mortals, Demigods, and even Gods have always trodden a fine line between order and chaos. You can tip them from that line and firmly to the side of disorder. Any Tier 1 characters in range will argue, riot, or frenzy based on Sto­ ryguide discretion. Any Tier 2 characters suffer 2 Compli­ cation that if not bought off causes them to frenzy. Any Tier 3 characters must compare the amount of Legend points that the…",
+    "mechanicalEffects": "Cost: Imbue 1+ Legend\nDuration: One scene\nSubject: Variable\nRange: Short\nAction: Simple"
+  },
+  "chaos_dot_11": {
+    "description": "You use your mind and will to unlock the power to control the world around you with your mere thoughts. For the re­ mainder of the scene, you can use Athletics, Empathy, or Integrity as Skills and Intellect or Resolve as Attributes for rolls affecting any target within medium range. This allows the character to perform actions such as lifting boulders, attacking enemies, and using tools with unusual dice pools.…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Scene\nSubject: Self\nRange: Medium\nAction: Simple"
+  },
+  "chaos_dot_12": {
+    "description": "Your actions shake things up and tests a person's faith, allowing you to change which deity a trivial target follows. Boons 227 Spending one point of Legend shifts their allegiance to a deity of the same Pantheon with one of the same Purviews, based on the target's own beliefs or interests. For example, a Prosperity priest of Chantico abandons her to worship Xochiquetzal. By spending another point of Legend, you…",
+    "mechanicalEffects": "Cost: Varies\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "death_dot_01": {
+    "description": "When someone dies in your presence, you may use this Boon to claim their soul before it proceeds to its expected destination. Their soul appears before you to pass your judgement. You may send them to an Underworld of your choosing, describing the circumstances of their arrival and their relationship with their new home; transform them into an Ancestor; or you may choose to transform them into an Eidolon (Scion:…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: A dying character\nRange: Long\nAction: Simple"
+  },
+  "death_dot_02": {
+    "description": "You take the reins of all corpses within range and give them a form of life with shuddering, creeping movements. Corpses in graves dig their way out, dead bodies rise and walk again, even corpses animated using magic cannot help but move at the Scion's whim. The corpses cannot do much more than walk at a slow pace, mill about, or possi­ bly bite someone who gets too close. They make excellent shields and count as…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Multiple corpses\nRange: Long\nAction: Complex"
+  },
+  "death_dot_03": {
+    "description": "Getting too close to you deadens a person's emotions. By touching a target, you reset all their attitudes to 0 and pre­ vent them from being affected by the atmosphere. Attempts to change their attitude suffer an increased difficulty equal to your Legend/2 (rounded up). Spend a point of Legend to increase the duration to indefinite.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One character\nRange: Close\nAction: Simple\nClash: Legend + Intellect vs. Legend + Composure"
+  },
+  "death_dot_04": {
+    "description": "You may open the gates to the Underworlds to call forth the dead to do your bidding. You call forth the dead from the ground or a nearby portal to the afterlife as walking corps­ es, wraiths, or in whatever form is culturally appropriate. They take the form of obedient undead Followers with the following tags: Heavy, Mob, and Tough. Treat them as if PANDORA'S BOX 230 they possessed a rating equal to your…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Self\nRange: Medium\nAction: Simple"
+  },
+  "death_dot_05": {
+    "description": "For one night, you return a deceased character that knew the target to their side. The deceased is temporarily drawn from whatever Underworld they inhabit instantaneously, if nothing prevents their departure. An opposing force prompts a Clash of Wills. They may enjoy each other's company as if the deceased were still alive; however, this Boon does not ensure that the reunion will be a happy one. The deceased…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One night\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "death_dot_06": {
+    "description": "You sap a character's life force. All attacks against this gain the Aggravated tag for one scene. When they take damage, they treat their (Defense + Armor) total as one point lower than it actually is to determine the Injury Com­ plication. Alternatively, this Boon can be used to destroy or banish all trivial undead targets in range. Doing so is free.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend or Free\nDuration: One scene or Instant\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "death_dot_07": {
+    "description": "You can cause a corpse to speak, or summon a person's ghost, shade, or other culturally appropriate remnant (Scion: Origin, p. 31) from the site of their grave for one scene. The corpse or shade cannot act except to speak, but you can try to influence it just like anyone else. It starts with Attitude 3 towards you. The undead retains all memories Boons 231 it had in life, except for a blank space of about five…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One corpse or ghost\nAction: Simple"
+  },
+  "death_dot_08": {
+    "description": "Summoning forth local ghosts and restless shades, the Scion inflicts their anger on her target. The ghosts scream nebulous threats, stunning lies, and subtle truths about the target's complicity in the World's great ills. This onslaught of guilt and terror overwhelms trivial targets, who imme­ diately flee. All other characters must either succeed in a Clash of Wills or add 1 to the Difficulty of all actions…",
+    "mechanicalEffects": "Cost: Imbue 2 Legend\nDuration: One scene\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple\nClash: Manipulation + Legend vs Composure + Legend"
+  },
+  "death_dot_09": {
+    "description": "You burden a character with the guilt of knowing they were responsible for the last death they witnessed (attending a funeral or reading about a death on the media counts). This is a Condition, with precise effects that depend on that character's personality and their relation to the deceased. A political activist who feels responsible for assassinating an opposition party candidate might have a hard time not…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "deception_dot_01": {
+    "description": "Whether you're fighting evil by the moonlight or trying to have a normal life while also being a World-renowned rock sensation, you know how to keep your many lives separate. You can use this Boon to instantly disguise yourself. So long as you take any action to look different — something as simple as glasses or an unflattering hairstyle counts! — and mortal observers are utterly unable to figure out your…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or Band\nAction: Reflexive"
+  },
+  "deception_dot_02": {
+    "description": "Your target suffers from tactile hallucinations: feeling sensa­ tions which aren't real. This can present as a minor irritation such as a phantom mosquito landing on their arm and taking a bite, all the way up to believing they've been stabbed by a nonexistent knife. Not all tactile hallucinations are innately negative. They can present as other pleasurable sensations, such as a lover's warm breath caressing the…",
+    "mechanicalEffects": "Cost: Imbue 1 (or more) Legend\nDuration: Scene\nSubject: One character per Legend\nRange: Special (sight)\nAction: Simple\nClash: Legend + Resolve vs. Legend + Composure"
+  },
+  "deception_dot_04": {
+    "description": "You create an illusory image of a person, animal, or object, up to the size of a car. The illusion is lifelike and seems completely authentic — a person breathes, a car's engine throbs, a fire gives off heat — but it has no physical sub­ stance and cannot exert force or cause harm. It can move, but must remain within this Boon's range. A non-trivial char­ acter who wins the Clash of Wills can see through the…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nRange: Medium\nAction: Simple\nClash: Manipulation + Legend vs. Cunning + Legend"
+  },
+  "deception_dot_05": {
+    "description": "You can make a single, discrete change to the substantive content of a character's memories of the last five minutes or so, such as \"me and my friends were never here,\" \"all you saw were some feral dogs,\" or \"the room you were in was ornately furnished.\" Once you reclaim the Legend, their memory reverts to normal. You can alter trivial characters' memories permanently, and only need to imbue Legend until the end…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Close\nAction: Simple\nClash: Manipulation + Legend vs. Resolve + Legend"
+  },
+  "deception_dot_06": {
+    "description": "You conceal a specific piece of information from the World — something brief enough to be stated in a single sentence, and narrow enough that it's a single idea, without much room to go into greater detail. \"My phone number is 555-540-2074\" or \"John F. Kennedy's real killer was a titanspawn\" would both be valid, but \"Gods exist and wage war against the Titans\" or \"all of math\" wouldn't be. Characters who already…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: (Legend) sessions\nAction: Simple\nClash: Cunning + Legend vs. Intellect + Legend"
+  },
+  "deception_dot_07": {
+    "description": "You can create an illusory scene that covers up to long range. This could be the illusion of approaching military troops or the illusion of a car or plane. It could even be the illusion of Gods coming in force or a pit in the ground. This illusory scene looks, smells, and even sounds like the real thing. Objects within it even have some physicality and can be touched. However, these illusions cannot cause actual…",
+    "mechanicalEffects": "Cost: Variable\nDuration: One scene\nRange: Long\nAction: Simple"
+  },
+  "deception_dot_08": {
+    "description": "The Scion spins out an entirely new history that he shares with his target. As long as he doesn't directly contradict any of his target's responses — essentially answering with some variation of \"yes, and\" — he may create an entirely new backstory with the target, which becomes a seamless part of the target's memory. If at any time he directly contradicts the target's statement — \"No, I have never owned a dog\" —…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple\nClash: Manipulation + Legend vs Resolve + Legend"
+  },
+  "deception_dot_09": {
+    "description": "You can lock a person within their own mind, creating an entire world with which they believe they are interacting. The illusion feeds upon the target's own memories and thoughts, filling in gaps and details with whatever they believe should be there. You can direct what the person builds the prison out of, such as childhood memories or their current surroundings, but once started you have no control over what…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Reflexive\nClash: Awareness + Manipulation vs. Resolve + Legend"
+  },
+  "deception_dot_10": {
+    "description": "You can become the exact facsimile of another mortal, Hero, Demigod, or God. You seem exactly like them in the way you look and talk, and you can even mimic the appearance of their powers, if not the actual way they function. Anyone who tries to see through your disguise suffers a +4 Complication to their rolls to recognize who you actually are. If the Complication is not bought off, you receive a +2 Enhancement…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Self\nRange: Short\nAction: Simple"
+  },
+  "deception_dot_11": {
+    "description": "You slough off your identity and vanish. You do not be­ come literally invisible — instead, people's minds simply fail to process any distinguishing information about you. A non-trivial character that wins the Clash of Wills can see through this, but still cannot distinguish your identity or any identifying features, and face a +3 Complication on rolls to notice you. DREAMS",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive\nClash: Manipulation + Legend vs. Cunning + Legend."
+  },
+  "deception_dot_12": {
+    "description": "Any attack that succeeds in a Knockout throws the target into such a deep sleep that when they awaken, they can't differentiate between reality and their dreams. The target, basically a sleepwalker for a scene once they awaken, suffers a +2 Complication to all actions.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Until you exit the dream\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "earth_dot_01": {
+    "description": "Earth can be strong as diamond or as moldable as clay. You know how to use this to your best advantage. By con­ centrating on the earthen materials. around you, you can mold them to your will. This may be an impromptu shield that breaks once one blow is blocked or an earthen throne to sit on. It can even be an earthen spear to hurl at an enemy or a bridge across a canyon. Whatever is created is destroyed once…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Earth\nRange: Short\nAction: Simple"
+  },
+  "earth_dot_02": {
+    "description": "Earth isn't just dirt and rock. It's also sand, metal, and gems. You're able to enforce your will on a single material made of earth and can transform it to another material made of earth. This could be transforming steel into copper or glass into silver. You can choose to turn mere rocks into gems to sell before they transform back (to the dismay of the person that bought them). You can also change earth into…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Earth\nRange: Short\nAction: Simple"
+  },
+  "earth_dot_03": {
+    "description": "Standing on natural material and spending 1 Legend, the Scion makes her home in it, sinking into stone, earth, or sand, but not concrete, manmade metal, or manufactured glass. As long as she remains within that material, she can take no damage or any actions that require motion. She need not attend to any bodily functions but may sleep if she so desires. Anyone attempting to unearth the Scion from the material…",
+    "mechanicalEffects": "Cost: Variable\nDuration: Indefinite\nSubject: Self\nAction: Variable\nClash: Resolve + Legend vs Strength + Legend"
+  },
+  "earth_dot_04": {
+    "description": "Magma is the lifeblood of the Earth, flowing deep beneath its surface or bursting through between cracks and fissures. You're able to use your mind to control the flow of magma and bend it to your will. As soon as you activate Molten Earth, you can call magma from beneath the surface of the Earth and form it to your will. The magma will not harm you, and you can walk through it as easily as you would water. When…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Action\nRange: Medium\nAction: Simple"
+  },
+  "earth_dot_05": {
+    "description": "The earth attacks on your behalf. Strike the ground and make your attack action as normal. On a success, rocks shoot up from the earth underneath your target. The unexpected nature of the attack catches the target off guard, reducing their de­ fense by 1. Trivial targets gain the Stunned condition, while characters of equal or higher Tier resist with a Clash of Wills. This Boon causes the earth to break through…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One attack\nSubject: One character\nRange: Long\nAction: Simple\nClash: Legend + Dexterity vs. Legend + Cunning"
+  },
+  "earth_dot_06": {
+    "description": "You can shape and mold stone, metal, and other earthen substances with your bare hands as though it were as mal­ leable as clay. When this assists in an action, like climbing a sheer cliff overhang or pulling a steel wall open, you gain Enhancement 3.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "earth_dot_07": {
+    "description": "Your soft armor rating increases by one. If you aren't wearing any armor (or other protective gear that provides a soft armor rating), it increases by three instead.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "earth_dot_08": {
+    "description": "Your fists turn to stone, acting as blunt weapons. As long as you have Awareness imbued, your fists count as armed weapons but maintain the Natural tag. Additionally, you can apply two weapon Tags from the following list: Ag­ gravated, Brutal, Grappling, Piercing, Pushing, Stun, or Versatile.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "earth_dot_09": {
+    "description": "You can harden someone's heart, setting them in their ways against impassioned pleas for help or sweet words of seduc­ tion. This imposes a +3 Complication on any Social actions targeting the character whose heart was hardened, unless the Storyguide determines that the interaction is completely devoid of any appeal to emotion. She can use this Boon on herself or her allies to fend off the blandishments of others,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self or one character\nRange: Short\nAction: Reflexive"
+  },
+  "earth_dot_10": {
+    "description": "You can smooth out the wrinkles that arise in any social interaction. Gain Enhancement 2 on attempts to convince others that you are trustworthy and friendly. Each target of lower tier ignores the first time in the scene that you fail a Manipulation roll against them, writing it off as a faux pas rather than an attempt at lying, and therefore not worsen­ ing their Attitude toward you.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "earth_dot_11": {
+    "description": "Opponents looking at your face are hesitant to harm some­ one so obviously likeable. All attacks directly targeting you suffer a rank 2 Complication. Attacks that target a group, or are made by sources without consciousness (like mindless undead creatures or environmental effects), are unaffected.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "earth_dot_12": {
+    "description": "Everyone wants you as an ally because you can bolster others by your presence alone. A smile and a nod from you is all it takes to set right the deepest wrongs. Using this Boon, you can resolve any one negative emotional Condi­ tion with a reassuring conversation, expression of affection or friendship, or other soothing interaction. EPIC DEXTERITY",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One ally\nAction: Simple"
+  },
+  "fertility_dot_01": {
+    "description": "You cause a character to grow rapidly until they qualify for Scale 1 based on size, although their newer, bulkier form comes with a +2 Complication on any quick or precise actions, causing collateral damage or leading to a clumsy result. When used on a character who already qualifies for size-based Scale, they instead expand to the very precipice of the next level of Scale, granting them +2 Enhancement to actions…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "fertility_dot_02": {
+    "description": "You can confer great vitality on another character with the fruits of Fertility. To use this Boon, you must prepare a meal that your target eats, offer them support in a familial role, or share a moment of physical intimacy. This blessing takes the form of a Condition. Once per scene, the target may call upon the blessing to add Enhancement 3 on a roll made with a Force or Resilience Attribute. This Condition…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character\nRange: Close\nAction: Simple"
+  },
+  "fertility_dot_03": {
+    "description": "Yours is the power to bless or blight, granting or withholding the nature's favor at your whim. This Boon can be used on a contiguous piece of land that is recognized as a single locale by human reckoning — \"the Hampstead Farm\" or \"this forest\" would be valid targets, but \"the 312 acres of land around me\" would not. Blessed land rapidly blooms with plant life, undergoing a rapid surge of growth over a matter of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One piece of land or one family\nRange: Close\nAction: Simple"
+  },
+  "fertility_dot_04": {
+    "description": "You spread a spirit of possibility throughout the scene, creat­ ing fertile grounds in which new ideas and understandings can flourish. This changes the scene's Atmosphere so that characters treat all their Attitudes as one step closer to neu­ tral — negative Attitudes rise and positive Attitudes fall by 1 each. At the end of the scene, these Attitudes return to normal, but any shifts made during the encounter…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nAction: Simple"
+  },
+  "fertility_dot_05": {
+    "description": "Invoking the negative aspects of Fertility, you afflict your target with a curse of uncontrolled growth, causing them to develop spontaneous cancers and malignant growths. They suffer the Blighted Condition, adding +2 Difficulty on all physical actions they attempt. Resolving this Condition requires magical healing or extensive mundane treatment such as a course of chemotherapy. This Boon can be used to target…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character or multiple trivial characters\nRange: Medium\nAction: Simple"
+  },
+  "fertility_dot_06": {
+    "description": "You surround yourself in a heady aroma of revelry and abundance, an intoxicating presence that inspires honesty (and pratfalls). Characters within medium range (includ­ ing you) suffer a +2 Complication to all attempts to lie or mislead; unless bought off, characters let slip inconvenient and embarrassing truths in their effort to keep their main lie going. A similar +2 Complication applies to all rolls relying…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "fertility_dot_07": {
+    "description": "The blessing you place on a location or character comes at the expense of those around them. Land blessed in such a manner leaches nutrients from surrounding areas. The bless­ ed land is bountiful, producing plentiful, high-quality crops Boons 241 and plants. It gains up to +3 Enhancement for rolls related to growing and harvesting. Surrounding areas turn barren, and rolls to cultivate crops on them incur +1…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One property or household\nRange: Medium\nAction: Simple"
+  },
+  "fertility_dot_08": {
+    "description": "Your blessing spares the innocent from suffering. Charac­ ters who are 18 or younger — or of analogous age, for non-humans — gain +1 Defense and +2 soft Armor, as do any characters actively protecting such children. Mortal children that are (Scion's Legend + 4) years or younger cannot be damaged, harmed, or negatively affected by any means, rendered invincible by their tender years. Children within this Boon's…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: All characters in range\nRange: Long\nAction: Reflexive"
+  },
+  "fertility_dot_09": {
+    "description": "Plants grow around you at a rapid pace. Your Field is filled with the growth which slithers and grows around everything in sight. The effect is centered on you, and moves as you do, leaving behind wilted and decayed plants as you move out of range. You control the growth completely and can do any of the following with it as a reflexive action: Allow safe passage to an ally attempting to pass through it, including…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "fertility_dot_10": {
+    "description": "You're the life of the party, drawing others in and grant­ ing them a measure of your divine vitality. You gain +2 Enhancement to entice others to party with you; if they do, they treat celebration as if it was refreshing sleep and never suffer harm or Complications from fatigue or over­ indulgence. You can withdraw this blessing from someone at any time, potentially leaving them with a catastrophic hangover if…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "fire_dot_01": {
+    "description": "You call an upswelling of volcanic devastation to smite your foes and anyone who happens to be standing too close to them. This Boon's effect takes place over two rounds. On the turn you use it, pick a range band within medium range that's on solid earth or the ground floor of a building. Roll (your highest Power Attribute) + Occult against the Dexter­ ity + Athletics of everyone in that range band; characters…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nRange: Medium\nAction: Simple"
+  },
+  "fire_dot_02": {
+    "description": "You call an upswelling of volcanic devastation to smite your foes and anyone who happens to be standing too close to them. This Boon's effect takes place over two rounds. On the turn you use it, pick a range band within medium range that's on solid earth or the ground floor of a building. Roll (your highest Power Attribute) + Occult against the Dexter­ ity + Athletics of everyone in that range band; characters…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Two rounds\nSubject: One range band\nRange: Medium\nAction: Simple"
+  },
+  "fire_dot_03": {
+    "description": "You imbue a fire with a spark of your divine power, making it a part of yourself. The flame expands, spreading out to the size of a large campfire if smaller. It burns indefinitely without needing additional fuel and can't be extinguished by non-magical means. As a Simple action, you can extend your senses through the fire, letting you see, hear, and smell things as though you were there. Previous uses of this…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One fire\nRange: Medium\nAction: Simple"
+  },
+  "fire_dot_04": {
+    "description": "Fire is wild and untamed, but you're able to tap into its nature to control the element. You can stop wildfires before they spread or cause a candle to light. You can even sum­ mon it to act as a barrier against others for a short period of time. You cannot use it immediately as a weapon against someone, but you can set things ablaze or snuff out fires before they spread. When using Fire Manipulation, you can do…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Action\nRange: Medium\nAction: Simple"
+  },
+  "fire_dot_05": {
+    "description": "You gain the ability to attack enemies with fire. Each Scion can choose a unique manifestation of Fire for their attack: throwing firebolts, heat ray vision, or triggering sponta­ neous combustion with an incantation or a finger snap. You can make these attacks as Simple actions for the scene, rolled with Athletics + Dexterity. They have the Aggravated, Ranged, and Pushing tags.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "fire_dot_06": {
+    "description": "You can ignite the desires inside others with just a look. Choose a target within eyesight. Inflamed by your will, they gain +2 Enhancement to act on their strongest attitude (positive or neg­ ative). A target who wishes to suppress the fire burning inside must overcome +2 difficulty to avoid involuntarily letting the flames come to the surface, metaphorically speaking.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Legend + Cunning vs. Legend + Composure"
+  },
+  "fire_dot_07": {
+    "description": "Special: This Boon is limited to Tier 4+ characters You can summon a living flame that will do your bidding. This element of fire is terrifying to behold and will consume any kindling — living or not — within its path. It will automatical­ ly destroy any mortals within its path. After it has consumed all enemies, the Living Flame dissipates.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Action\nRange: Short\nAction: Simple"
+  },
+  "fire_dot_08": {
+    "description": "You inspire another character with flames of enlightenment and creativity. The next Cunning, Presence, or Intellect roll they make gains Enhancement 3. However, if they don't find the opportunity to make an applicable roll before the end of the scene, the inner fire overwhelms them, imposing a Condition that raises the difficulty of any Social or Mental actions by 1 unless that character is completely open and…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene or Condition\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "fire_dot_09": {
+    "description": "You light up your soul, punctuating your words with fire­ works and sparklers. You gain a pool of (the higher of 5 or your Legend) shine and can add up to your Tier's worth of points of shine as an Enhancement to any influence roll meant to overwhelm, impress, or inspire. This can stack with other sources of Enhancement. You also gain access to the following stunt when making an appropriate influence roll: Big…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Self\nAction: Reflexive"
+  },
+  "fire_dot_10": {
+    "description": "Your wrath is something that cannot by tempered. You can call down a rain of fire from the heavens themselves upon those that are unworthy. All those in the immediate area around you take 1 Injury and suffer +3 Complication to any action that they choose to take as they try to avoid the flames. If the target fails to buy off the Complication, they take another level of damage.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: All characters in Medium Range\nRange: Medium\nAction: Simple\nClash: Occult + Legend vs. Survival + Legend"
+  },
+  "forge_dot_01": {
+    "description": "You can instantly spot the vulnerabilities in a structure, granting you +3 Enhancement on attempts to breech or destroy artifi­ cial barriers. You may grant this bonus to other characters by pointing out vulnerabilities as a simple action. While acting under the auspices of this Boon, your demolition ignores all Complications from unintended collateral damage — pulling a load-bearing beam might still bring down…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One object\nRange: Short\nAction: Simple"
+  },
+  "forge_dot_02": {
+    "description": "You lower the Tier of a crafting project (Scion: Origin, p. 76) by 1. This doesn't let you undertake projects of a Tier you normally couldn't accomplish.",
+    "mechanicalEffects": "Cost: Imbue 2 Legend\nDuration: Until project is completed\nSubject: Self\nAction: Reflexive"
+  },
+  "forge_dot_03": {
+    "description": "You render an object nigh invincible. It can't be destroyed by any mundane means, and magical attempts to damage it suffer +2 Difficulty. Even then, enough will always remain so that it can be repaired. Unbreakable objects used as cover provide the benefits of soft armor rather than hard.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One object\nRange: Short\nAction: Simple"
+  },
+  "forge_dot_04": {
+    "description": "Your power over craftsmanship transforms a vehicle — be it a rusted relic of the past or a functional means of trans­ portation made out of scraps — into the blazing ideal of a ride made to race against the end of the World. This Boon immediately repairs any vehicle into a perfectly functional shape and makes it immune to mundane damage or attacks made by characters of a lower Tier. You can determine its looks as…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One vehicle\nRange: Short\nAction: Simple"
+  },
+  "forge_dot_05": {
+    "description": "With a mere touch you strengthen or weaken a metal item of your choosing. Strengthening metal can have a variety of effects: a lock becomes stronger, raising the difficulty to pick it; blades become sharper and blunt weapons denser, granting an extra weapon tag; metal used in crafting proj­ ects become superior, resulting in a finished product one Tier higher than intended. If this would put the item above the…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Indefinite\nSubject: One item\nRange: Close\nAction: Simple"
+  },
+  "forge_dot_06": {
+    "description": "You can repair an item no matter how badly it is ruined. You can recreate items from their remains alone, up to the level of outright reversing entropy — reconstructing a burnt book from a pile of ashes, repairing a sword melted to slag by a dragon's fiery breath, or retrieving files from a hard drive that's been through a nuclear detonation.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Until project is completed\nSubject: Self\nAction: Reflexive"
+  },
+  "forge_dot_07": {
+    "description": "You choose an object and get a sense of its history. Ask the Storyguide one of the following questions: Who made this, and for what purpose? What's special, useful, or valuable about this? How has this object been used, and by whom? If you follow through on the Storyguide's answers, you gain either Enhancement 3 on rolls to leverage that information or Enhancement 1 on any roll to use or repair the object.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One object\nRange: Short\nAction: Simple"
+  },
+  "forge_dot_08": {
+    "description": "Not truly an alchemical transubstantiation, you can turn one fully formed magical item into another one partially or completely. You may rearrange your Relic Birthright dots however you choose, including turning one Relic into an­ other one entirely. The effect lasts for as long as you imbue Awareness in this Boon, at which point your Relic reverts back to its normal form.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "forge_dot_09": {
+    "description": "Where others see a box of scraps, you see potential. Add Enhancement 3 on a roll to jury-rig a craft project. You can roll to rig together contraptions that a mortal would normally be unable to attempt due to feasibility constraints. As long as it is notionally possible that you could complete the project with (Legend) days of ordinary work, you can roll to attempt it.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "forge_dot_10": {
+    "description": "While standing within an established sacred structure of any kind, you can use it to open a gate to an Overworld, Underworld, or Midrealm of the appropriate pantheon. Any who pass through it arrive at whatever location visitors usually do: it cannot, for example, teleport you directly into a God's bedroom. When you open the gate, you may set a key — a password, simple action, or minor sacrifice — that others must…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One session\nSubject: One Gate\nRange: Close\nAction: Simple\nClash: Cunning + Legend vs. Resolve + Legend"
+  },
+  "fortune_dot_01": {
+    "description": "The Scion scatters bones, flips a coin, reads tea leaves, or undertakes another form of symbolic divination before pronouncing a Grand Destiny for himself, something which he can declare in a simple sentence. \"Bring my prophesied daughter into being,\" \"defeat Loki in single combat,\" or \"assume the Mantle of Veles\" are all suitable example Destinies. No one need hear him, but he must make a firm verbal declaration…",
+    "mechanicalEffects": "Cost: Spend 2 Legend\nDuration: Condition\nSubject: Self\nAction: Simple"
+  },
+  "fortune_dot_02": {
+    "description": "Reject the world. Reject the decay. Move through time. Jump through worlds. What's a little defiance of the in­ evitable? When you make a test, check if you have any non-successful dice. If you do, you can imbue Legend to bank those dice instead, with X being the number of dice you choose to bank. You can bank up to a number of dice equal to your Legend divided by 2, rounded up. Gain X Paradox points (Mythic…",
+    "mechanicalEffects": "Cost: Imbue X Legend\nDuration: Indefinite\nSubject: Self\nRange: Self\nAction: Reflexive"
+  },
+  "fortune_dot_03": {
+    "description": "Fortune delivers just the right person to you, temporarily an­ choring them to you in whatever role serves your purpose. You can specify up to three general characteristics for the intended character, describing demographics, skills, or mood — things like \"old enough to be elected president,\" \"good with fixing cars,\" or \"willing to work for cheap.\" They'll arrive on the scene as soon as reasonably possible; in a…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One character\nAction: Simple"
+  },
+  "fortune_dot_04": {
+    "description": "You become a bastion of good luck and automatically get whatever result you want on games of pure chance such as dice, roulette, and slot machines. In contests of skill, this provides +3 Enhancement as the smallest of coincidences arrange themselves in your favor. Once per scene, you may reroll an opposed roll other than a Clash of Wills, us­ ing the second result even if it ends up worse than the first.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "fortune_dot_05": {
+    "description": "You tell a character what destiny has in store for them, re­ vealing an auspicious role that they could embrace which would bring them into harmony with Fate. This is usually an occupation or social role, like \"the greatest paramedic\" or \"the world's best big sister.\" When they undertake an action to fulfill that roll, they may reroll up to five failed dice per scene as Fate tips in their favor. This Condition…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: Self\nRange: Medium\nAction: Simple\nClash: Intellect + Legend vs. Resolve + Legend"
+  },
+  "fortune_dot_06": {
+    "description": "You announce how a course of action will inevitably lead to your target's downfall. This must be a specific, voluntary action they could avoid — you can warn someone away from visiting the Solstice Club or tell them not to press their luck hunting the yeti. If they ignore your warning, they suf­ fer a Cursed Condition that inflicts a +1 Difficulty on any action that opposes your warning. If they succeed despite…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: Self\nRange: Medium\nAction: Simple\nClash: Intellect + Legend vs. Resolve + Legend"
+  },
+  "fortune_dot_07": {
+    "description": "Must be used at the start of your day. Roll a d10. On an 8 or above, you keep that die as a free auto success that you can keep until you use it or until the imbuement ends, whichever comes first. On a 7 or below, you witness an ill omen (com­ monly the distant, disembodied crow of Muhen). The next test you make suffers −1 success instead. However, afterwards, you gain that ill omen. At any point, when anyone…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One day\nSubject: Self\nRange: Self\nAction: Simple"
+  },
+  "fortune_dot_08": {
+    "description": "You divine a character's luck in the near future. Out of character, you decide whether they will enjoy good or suffer bad luck as a Condition. Once per scene, before that character makes a roll, you can declare that their luck intervenes — good luck lowers the target number by 1, while bad luck increases it by 1. You can invoke their luck even if your character is not in the scene. A character's good luck runs…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "fortune_dot_09": {
+    "description": "You invoke the Fatebinding of a character tied to you to cause them to appear in the narrative and provide a benefit based on their Fatebinding role without it counting against the usual once per episode limit. Synchronicity arranges for that character to be near enough to arrive rapidly with a completely plausible explanation — maybe they're visiting their family, or stalking you, or their plane had to make an…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One-character Fatebound to you\nRange: Infinite\nAction: Simple"
+  },
+  "fortune_dot_10": {
+    "description": "Your luck is strong enough to survive impossible accidents and deadly firefights. You add +1 Defense against attacks and have Enhancement 2 on any roll where you could suffer physical harm as a direct result of failing it.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "fortune_dot_11": {
+    "description": "You bless another character with the gift of prophecy. Choose one of the following Prophet Knacks: Glimpses For­ ward, Obnoxiously Prepared, or Failure of Virtue (Scion: Hero, p. 316). That character can use that Knack once this session. You can't give a character the same Knack more than once per session with multiple uses of this Boon.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One session\nSubject: One character\nRange: Close\nAction: Simple"
+  },
+  "fortune_dot_12": {
+    "description": "You tip Fate's scales for or against those around you. When another character achieves at least one success on a dice roll, you can turn any Enhancements they have into Compli­ cations or vice versa.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One character\nRange: Short\nAction: Reflexive"
+  },
+  "wyrd_dot_01": {
+    "description": "Once per session, you may perform a divination by casting runes etched onto stones, strips of bark, or other objects in a ritual that takes a handful of minutes to complete. The Storyguide gives you a lead or a clue about what will hap­ pen in the near future (i.e. what they expect to happen in the current session). If you use a Boon or marvel later in the same session, and the Storyguide agrees that it will help…",
+    "mechanicalEffects": "Cost: Free\nDuration: One session\nAction: Complex"
+  },
+  "wyrd_dot_02": {
+    "description": "You inscribe one of your Legendary Titles on an object or stitch it into a piece of clothing, imbuing it with some of your power. The charm's user (who can be you) can then invoke that Title as if they were you but limited by their own Legend. Storyguide characters without a Legend score spend Tension instead if they are Antagonists or add to the Tension pool if they are allies. In either case, their effective…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One object\nAction: Complex"
+  },
+  "wyrd_dot_03": {
+    "description": "You use the art of seiðr to lay a blessing or curse on another character, entering into a ritual trance that lasts one scene and envisioning their future. You predict a specific triumph or downfall the character will face, and impose a Condition that represents this destiny on them. If an action is likely to bring about the foretold fate, the Condition provides En­ hancement 2. Actions that struggle against this…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Infinite\nAction: Complex"
+  },
+  "health_dot_01": {
+    "description": "Wounds, sickness, and old age are all temporary under your hands. For one scene, your eyes shine with a divine light, and you can remove any sickness, disease, or wounds from as many characters as you can touch. You may end any Con­ dition or Complication affecting a target and may heal any lost Health on a Storyguide character. If you instead focus all of your might on only one target, you may remove 1 Divine…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Any targets in short range\nRange: Short\nAction: Simple"
+  },
+  "health_dot_02": {
+    "description": "Ask the Storyguide one of the following questions: What's wrong with this person, and how could I help them? What were this person's last moments like? How can I end this [disease outbreak, mass poisoning, or similar crisis]? Who is responsible for this harm? Following the Storyguide's answer grants Enhancement 3 on applicable rolls.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "health_dot_03": {
+    "description": "Touching a character, you heal their wounds. This Boon can be used to instantly resolve any Injury Condition a target suffers from, even Maimed Conditions. You can also use this Boon to resolve Conditions such as Poisoned, Disease, or similar ailments of physical or mental health, even if they are inflicted by magic.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One character\nRange: Close\nAction: Simple"
+  },
+  "health_dot_04": {
+    "description": "You can withhold the benefits of Health from your foes, magically inflicting disease upon them. This imposes both a +5 disease Complication and the Divine Plague Condition. Until the Condition is resolved with magical healing, the target cannot buy off the Complication or have it treated mundanely. A mortal target who fails to resolve the Condi­ tion within (12 − Legend) months suffers automatic death.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "health_dot_05": {
+    "description": "Sometimes you want an opponent to relive an old wound. By touching a target, you cause previously healed wounds to return, inflicting an Injury Condition equal to your Leg­ end/2 (rounded up). When used against characters of equal or greater Tier, this cannot exceed the margin of victory in a Clash of Wills. Spend 1 additional Legend to affect multiple targets. A single target can only gain one Injury Condition.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Close\nAction: Simple\nClash: Legend + Cunning vs. Legend + Stamina"
+  },
+  "health_dot_06": {
+    "description": "Death is not eternal. It is something that can be temporary, as long as your healing touch does not come too late. You may focus on a character other than yourself that has been Taken Out for no longer than one scene in the same area that they died in and may rip them from the Underworld even if their body has been completely destroyed. The character is instantly restored fully back to life with no injuries or…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Instant\nSubject: 1 character\nRange: Short\nAction: Simple"
+  },
+  "health_dot_07": {
+    "description": "You touch your target and mingle your life force with theirs, for good or ill. When you touch your target, can choose to do one of the following. To impart these effects during combat, you must touch your enemy with an unarmed combat attack and choose this Boon instead of normal Stunts. Any Conditions imparted by this Boon resolve when you reclaim your Awareness, or the Condition resolves normally. Transfer an…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition (see below)\nSubject: One character\nRange: Close\nAction: Reflexive\nClash: Awareness + Intelligence vs. Stamina + Legend"
+  },
+  "health_dot_08": {
+    "description": "Many don't consider that the other side of health is pestilence. With your divine wrath, you can send a plague to a city or town. The success of the plague is determined by rolling Med­ icine + Intellect (Difficulty 3). Tier 1 characters suffer the dis­ ease automatically. Tier 2 characters receive a Complication that they need to overcome or suffer the disease and receive a −1 to their Stamina. Tier 3 characters…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: 1 Act\nSubject: City\nRange: Long\nAction: Simple"
+  },
+  "journeys_dot_01": {
+    "description": "You imbue a vehicle with divine power, raising the Scale of all speed-based actions taken with it by 1. Opposing characters that try to steal, damage, or otherwise impede your chosen char­ iot face a +2 Complication.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One vehicle\nRange: Close\nAction: Reflexive"
+  },
+  "journeys_dot_02": {
+    "description": "When you activate this Boon, you become anchored to your current location. At any point in the future, you may spend an action to open a door, window, or similar portal and cause it to lead back to the anchored location, allowing people and objects through — although only in one direc­ tion. The portal remains active until it's either closed on one end (such as by shutting an enchanted door), you open a new…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or one character\nAction: Simple"
+  },
+  "journeys_dot_03": {
+    "description": "You create an invisible pocket of space around yourself that is visually identical to the area in which it was creat­ ed, but exists outside of it and offers protection from both environmental harm and outside intrusion. If, for example, you used this Boon in Niflheim, it would still resemble an icy landscape, but the cold would have no effect and ice giants could not perceive or enter it. Unique objects, wheth­…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: All characters in range\nRange: Short\nAction: Reflexive\nClash: Intellect + Legend vs. Cunning + Legend"
+  },
+  "journeys_dot_04": {
+    "description": "You can find your destination effortlessly when taking an unknown path. When traveling an unknown route without the aid of GPS, maps, or other tools you ignore up to 2 Complications or reduce the difficulty by 1 to navigate dif­ ficult or dangerous terrain. You can imbue another Legend to guide additional characters and confer the same benefit on them. Anyone you're not guiding finds the effects of difficult or…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One journey\nSubject: Self\nAction: Simple"
+  },
+  "journeys_dot_05": {
+    "description": "You strew obstacles before an enemy's path. Any time they roll to travel or navigate, the Storyguide inflicts a +3 Com­ plication on the roll — parades in the way of their morning drive, flights delayed by mechanical troubles, and so on. If the character is attempting to move across difficult terrain that already exists, your curse also increases the difficulty of their movement actions by +1.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "journeys_dot_06": {
+    "description": "You turn a single field into a labyrinth of which there is no escape. All directions lead back to the center, all turns lead back in, and all attempts to escape just leave people con­ founded and confused. People can enter the field without problems; they just can't leave until the Boon's effect ends. If the victim has an ability that allows them to never get lost, it provokes a Clash of Wills.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: One field\nRange: Medium\nAction: Simple"
+  },
+  "journeys_dot_07": {
+    "description": "Your travels are marked by hospitality, and you can always find safety, comfort, and refuge within as little as five minutes of searching — in Buenos Aires, an elderly couple will invite you in from the rain; on the Russian steppes, you'll stumble upon fuel for a fire and a safe den of rock. Trivial characters can't find you unless you want them to, and you gain +3 Enhancement to hide from or fight off…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or one character\nAction: Simple"
+  },
+  "journeys_dot_08": {
+    "description": "With a burning gaze, split yourself from the skein of time and fate. You generate up to your Legend divided by two, rounded down, clones within range. You and these clones are glitchy, flickering and fading, but they are physical and can attract attention. These clones move on your turn and can only perform a single simple action. Afterwards, they fragment, fracture, and then shatter.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nRange: Close\nAction: Simple"
+  },
+  "journeys_dot_09": {
+    "description": "You command the Last Train Out of Here (Realms of Magic and Mystery, p. 40) to provide transit, opening a door into the strange place rather than wherever it would usually lead to. Until the door closes or the end of the scene, it leads into the Last Train's interior, and anyone who passes through will end up in the locomotive. This Boon doesn't help get out of the Last Train again, however; passengers are still…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One doorway\nRange: Close\nAction: Simple"
+  },
+  "journeys_dot_10": {
+    "description": "You can negate a single Complication that obstructs your travel. Locked doors open at a touch, traffic parts around your car, and rough patches of turbulence disperse as the plane you're on flies through them. This benefits not only you, but any other character traveling with you.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nRange: Medium\nAction: Reflexive"
+  },
+  "journeys_dot_11": {
+    "description": "Things get topsy-turvy as you twist the normal pattern of exit-and-entrance. When used on a location, this Boon turns it into a labyrinth where doors lead to the wrong places, inflicting a +3 Complication to any attempts to navigate the space; if not bought off, characters bumble around for minutes or hours trying to get their bearings first. Trivial characters are utterly lost and can't escape at all unless led…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or location\nRange: Medium\nAction: Simple\nClash: Manipulation + Legend vs. Cunning + Legend"
+  },
+  "journeys_dot_12": {
+    "description": "Where mere mortals must steal scraps of divine power to channel their magical might, yours flows freely from within you. For the rest of the scene, you gain Enhancement 3 on any Sorcery roll to perform spells that are related to any other Purview you have.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "moon_dot_01": {
+    "description": "You create a wave of moonlight that fills all spaces within range. Anyone caught in the light begins to hallucinate. These hallucinations are based on their own knowledge and experiences but are twisted and strange. It becomes impossible to discern truth from lies, or hallucination from reality. This serves as a Condition in which the characters have +2 Complication to discern fact from fiction, truth from lies,…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: All characters\nRange: Short\nAction: Simple\nClash: Awareness + Manipulation vs. Resolve + Legend"
+  },
+  "moon_dot_02": {
+    "description": "Cast in the light of the moon, things that once seemed famil­ iar take on new meanings and reveal hidden beauty. The target of this Boon reconsiders their feelings for someone or something they see, gaining Attitude 2 towards the designated person or thing, or changing the rating of an existing Attitude by +2 or −2. The target's player chooses the exact nature of their change of heart — this Boon simply forces…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Manipulation + Legend vs. Resolve + Legend."
+  },
+  "moon_dot_03": {
+    "description": "There are times when you need a place to wait out and hide. The Lunar Palace is perfect for just that. You have a house, estate, or palace that remains hidden from both mortal and immortal sight for the daylit hours and most of the moonlit hours. This acts as a safe house where you can invite others for respite. When choosing Lunar Palace, you must pick a phase of the moon when your Lunar Palace is visible (such…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nRange: Short\nAction: Simple"
+  },
+  "moon_dot_04": {
+    "description": "While looking at the moon, you can view an area within the World the moonlight touches. You must specify the location, such as a specific intersection, monument, or place of inter­ est where the moon has risen. You view the scene from an overhead angle at long range — as the moon's view of the location would be. By imbuing additional Legend your view zooms in by one range band or follows a target moving through…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene\nSubject: One Field\nRange: Special\nAction: Complex"
+  },
+  "moon_dot_05": {
+    "description": "The shadows of night and the light of the moon can trans­ form what you see, making you believe something other than reality. With Moon's Shadow, you can change up to 5 characters to appear as something other than they are. They still have to have the same general size and shape, but within those borders you can change how they look to others. In order to see through this disguise, a character must make an…",
+    "mechanicalEffects": "Cost: Variable\nDuration: One scene\nSubject: 5 characters\nRange: Short\nAction: Simple"
+  },
+  "moon_dot_06": {
+    "description": "You vanish into ephemeral darkness, becoming completely invisible. You have Enhancement 3 to avoid being seen. This applies against electronic surveillance and even magical scrying based on sight.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "moon_dot_07": {
+    "description": "Within the World, there are supernatural forces at work. They can affect how someone acts or feels or can even turn someone's motives into their own. You can remove the mental influence of supernatural forces simply by touch. When using Purification on a single target, you can sever any magically created attitudes and social bonds, as well as any Complications or Conditions based on social inter­ actions or emotions.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: 1 character\nRange: Short\nAction: Simple"
+  },
+  "moon_dot_08": {
+    "description": "Drawing on symbolic ties between the waxing and waning of the moon and the cycle of human age, you transform your appearance or someone else's. You may change their apparent age, making them seem younger or older as you choose. This does not physically age the target's body, although they may face age-based Complications on Social actions. If you use this Boon on yourself, you gain a bonus on rolls with a…",
+    "mechanicalEffects": "Cost: Free or Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or one character\nRange: Short\nAction: Simple"
+  },
+  "order_dot_01": {
+    "description": "When you explain laws to people, as long as you're truth­ ful and accurate, they know that you are correct. If, as part of your explanation, you declare a person or group to be innocent, then the protection of this Purview's innate pow­ er extends to them for this Boon's duration. On the other hand, if you condemn someone as guilty, you and those who hear you have Enhancement 2 on any actions taken to bring them…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "order_dot_02": {
+    "description": "You anoint yourself or another character as divinely proclaimed sovereign, making all who look upon them see proof of their immanent authority. All characters treat their Attitude towards the sovereign as 1 point higher. This doesn't stack with other magical Attitude bonuses. In addi­ tion, for the purpose of Order Boons and marvels that care, such as Code of Heaven, it is unlawful to harm or betray the sovereign.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self or one character\nRange: Close\nAction: Simple"
+  },
+  "order_dot_03": {
+    "description": "The normal laws of the land don't apply to you anymore. For the duration of this Boon, there is a single law, either civilian or of physics that no longer applies to you. If you break this law, those who would normally oversee dealing with it simply ignore you and let you pass. This can't apply to a law or rule you broke before the Boon was activated; it must happen while the Boon is active. Once the Boon ends,…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "order_dot_04": {
+    "description": "What's legal isn't always what's right. Once per session you declare a mortal law immoral and unenforceable, and any character of a lower Tier who hears the declaration does not act against law breakers. The law in question must repress society such as restrictions on bodily autonomy, discrimina­ tory laws, etc., resulting in the suspension of the law granting personal freedom. This Boon cannot be used to remove…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: All characters within range\nRange: Medium\nAction: Simple/Complex"
+  },
+  "order_dot_05": {
+    "description": "Your will dictates what is and is not law. Any Tier 1 charac­ ters who are part of order, including judges, police forces, military, etc., will listen to whatever short command you give and treat it as law as long as they are within hearing range. While following your will, they receive a +1 En­ hancement to any actions they take that falls in line with carrying out your orders. Any Tier 3 characters may try to…",
+    "mechanicalEffects": "Cost: Variable\nDuration: One scene\nSubject: Other characters\nRange: Medium\nAction: Simple"
+  },
+  "order_dot_06": {
+    "description": "Your imposing presence strikes divine terror into the hearts of liars. An affected character can't lie, omit the truth, or make any misrepresentation of a material fact, and consequently never imposes a misleading Complication on any information they give.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Simple\nClash: Presence + Legend vs. Manipulation + Legend"
+  },
+  "order_dot_07": {
+    "description": "You see chaos and see how to make it structured once more. You can take something seemingly disordered, such as a pile of bricks or twisted metal, and create something orderly, such as a bridge or a fence, in mere minutes. You are limit­ ed by the materials you have in terms of what you create. However, your creation is something that will endure as any structure of its type would under normal circumstances.…",
+    "mechanicalEffects": "Cost: Variable\nDuration: Indefinite\nRange: Short\nAction: Simple"
+  },
+  "order_dot_08": {
+    "description": "You are able to see the patterns that others would not, cre­ ating order from seemingly random actions. Whenever you are presented with a crime scene or other evidence, you are able to extrapolate what exactly happened and why it may have happened. While this may make you the perfect detective, there are times when you may be trying to parse apart the actions of a more chaotic supernatural being. When that…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nRange: Short\nAction: Simple\nClash: Empathy + Legend vs. Subterfuge + Legend"
+  },
+  "order_dot_09": {
+    "description": "Emotions run deep, and with your help they spread to everyone in the area. The strongest emotion — positive or negative —any character in the Field feels leaks out and spreads to others. Affected characters gain the emotion at 1 less intensity than the original target. Characters of an equal or higher Tier to you are unaffected if they win a Clash of Wills. If two or more characters tie for the strongest emotion,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Location\nRange: Medium\nAction: Simple\nClash: Presence + Legend vs Composure + Legend"
+  },
+  "passion_dot_01": {
+    "description": "Emotions run deep, and with your help they spread to everyone in the area. The strongest emotion — positive or negative —any character in the Field feels leaks out and spreads to others. Affected characters gain the emotion at 1 less intensity than the original target. Characters of an equal or higher Tier to you are unaffected if they win a Clash of Wills. If two or more characters tie for the strongest emotion,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene\nSubject: All characters within the Field\nRange: Field\nAction: Simple\nClash: Legend + Presence vs. Legend + Composure"
+  },
+  "passion_dot_02": {
+    "description": "You curse your target with impotence regarding the object of their desire. They gain the Impotence Condition, which inflicts +2 Complication to act on their desire for a particular person, whether it's confessing their passion, taking action to fulfill it, or doing something on their behalf. Failure to buy off the Complication results in awkwardness and one of the following results: the object of the target's…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "passion_dot_03": {
+    "description": "You fill a character's heart with an emotion of your choice. They gain a Condition based on that emotion — Mad as Hell, Lovestruck, Too Sad to Function, or something similar. The exact effect of the Condition may vary based on the chosen emotion, but as a generic effect, the target takes +3 Difficulty when they take an action that the Storyguide deems is directly contrary to the emotion — it's hard to treat…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "passion_dot_04": {
+    "description": "You sap someone's passions, leaving them feeling empty and hollow inside. Your victim gains a Condition in which they cannot feel strong emotions about anything. Attempts to incite emotion from the character suffer a +2 Compli­ cation. The person does not gain any benefits from their Bonds for the duration of the Condition, and all actions that would need emotion to work such as persuasive speech, or lending…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: One character\nRange: Short\nAction: Simple\nClash: Awareness + Manipulation vs. Composure +"
+  },
+  "passion_dot_05": {
+    "description": "You overwhelm a character with a sudden burst of emotion. They exclaim without realizing it, unwittingly vocalizing whatever they are thinking. Everyone who hears it gains Enhancement 3 on Assess Attitude actions or other Social rolls to understand the utterance's context for the duration of the Boon.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Simple\nClash: Presence + Legend vs. Composure + Legend"
+  },
+  "passion_dot_06": {
+    "description": "You mellow out someone's hot temper and put their priori­ ties on the backburner. As long as you and your Band don't pose them immediate danger, they're unwilling to interfere in your business. They might not automatically let you rummage through their personal files, but they set their Attitude toward you and your Band to 0, making them open to deals. Against trivial targets, this Boon can affect a handful of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Manipulation + Legend vs Composure + Legend"
+  },
+  "passion_dot_07": {
+    "description": "You inflict your target with a frenzied passion for violence that puts them in harm's way. For the scene, the target suffers a +2 Complication on all action-adventure rolls. Failure to buy off the Complication leads to one of the following: The target suffers an Injury Condition resulting from an eager mistake; falls into a vulnerable position, granting +1 En­ hancement to any enemies attempting to strike him…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "passion_dot_08": {
+    "description": "You bless your target's passion to fortify them against any obstacle. They gain one of the following benefits as long as they are acting in pursuit of the blessed passion: an ad­ ditional Bruised Condition, a +3 Enhancement to endure hardship, or an extra interval on a relevant complex action. While the target can be Taken Out during the scene, they cannot be killed, as their passion ensures they'll survive until…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One character\nRange: Long\nAction: Simple"
+  },
+  "passion_dot_09": {
+    "description": "Once you have identified a character's Attitude towards you or someone else, you can either intensify or stifle the emotions from which it is derived, raising or lowering its value by 1 point. This doesn't stack with other magical Attitude modifiers, but can cancel out an opposing bonus or penalty. Boons 257",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Long\nAction: Reflexive"
+  },
+  "prosperity_dot_01": {
+    "description": "You never have to worry about your wealth or gifts going unnoticed. You can use this Boon on either a luxury good that you've bought this session, like an elegant necklace or brand-new SUV, or an object or locale that you have either concretely or symbolically dedicated to a group of people, like a shrine built for your cult or a shopping mall you've cut the ribbon to. The blessed object or location catches the…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One session\nSubject: One object or location\nRange: Close\nAction: Simple"
+  },
+  "prosperity_dot_02": {
+    "description": "You call forth wealth, conjuring up roughly $10,000 worth of riches (though you don't need to bother keeping track of precise sums). This wealth takes the form of your choosing: a fresh wad of $100 bills in your wallet, coins of precious metal minted with your divine parent's visage, a discreet de­ posit into your online bank account, or similar. Regardless of the form it takes, money conjured with this Boon…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nAction: Simple"
+  },
+  "prosperity_dot_03": {
+    "description": "You curse a character's fortunes with notoriety and suspi­ cion, marking them as a cheat or crook. They suffer a +3 Complication on any rolls based on their finances, whether brokering deals, managing business operations, or blend­ ing in with the social mores of the 1%. Unless bought off, these actions become hopelessly bogged down by legal complications or scandal, making every transaction a subject of public…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Intellect + Legend vs. Resolve + Legend"
+  },
+  "prosperity_dot_04": {
+    "description": "You give your blessing to a specific group of mortals that belong to an organization or live in the same place, such as the employees of a business, the members of your cult, or the populace of a city. Your benevolence wards away economic misfortune, negating any mundane Conditions that arise from poverty or stabilizing larger-scale econo­ mies. A blessing on a city's homeless population ensures they will…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One group or city\nRange: Long\nAction: Simple"
+  },
+  "prosperity_dot_05": {
+    "description": "You fill someone with an insatiable desire — be it for food, wealth, or worldly objects. This Boon confers a Condition on the target that makes the character seek out whatever she desires. People take notice of her desire, and find it disgusting, imposing a +2 Complication to all social ac­ tions. The character is obsessed with her desire, suffering a +2 Complication to take actions that don't further her goal…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Awareness + Presence vs. Composure + Legend"
+  },
+  "prosperity_dot_06": {
+    "description": "You automatically know when anyone in a scene pays off someone else, whether it's in cash, goods, or favors. Once per scene, ask the Storyguide one of these questions about a present character: What kind of debts does this character owe, and to whom? What would it cost for this character to do what I'd like? What does this character want from me? If you act on the Storyguide's answers, you gain +3 Enhancement.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "prosperity_dot_07": {
+    "description": "You curse a character so that a touch of their hands trans­ forms objects into a precious material of your choice. Gold's the standard, but you could go with silver, electrum, diamond — whatever, as long as it's pretty, desirable, and not super useful on its own. This is a Condition that presents logistical challenges to any action with their hands: Steering wheels lock into place, phones become useless bricks,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "prosperity_dot_08": {
+    "description": "You truly shine when your detractors are there to see your successes. You gain +1 Enhancement for each character present who has a negative attitude toward you, for the du­ ration of the scene. Each hater gains a Complication equal to their attitude on any actions to oppose you. Failure to buy off the Complication gives you an added Enhance­ ment on your next action.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One day\nSubject: One character\nRange: Long\nAction: Simple"
+  },
+  "prosperity_dot_09": {
+    "description": "You truly shine when your detractors are there to see your successes. You gain +1 Enhancement for each character present who has a negative attitude toward you, for the du­ ration of the scene. Each hater gains a Complication equal to their attitude on any actions to oppose you. Failure to buy off the Complication gives you an added Enhance­ ment on your next action.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: All characters\nRange: Medium\nAction: Reflexive"
+  },
+  "sky_dot_01": {
+    "description": "You call down a bolt of lightning, rolling an attack with (highest Power Attribute) + Occult. It has the Aggravated, Ranged, and Shockwave tags. You can use this Boon to attack enemies inside a building, but it provides a Defense bonus: from +1 for a one-story building with a light wood­ en roof to +5 for a skyscraper with a lightning rod affixed to it.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: All enemies in one range band\nRange: Medium\nAction: Simple"
+  },
+  "sky_dot_02": {
+    "description": "You call forth a sudden and terrible hurricane to wreak havoc against the world around you. Gale force winds, sheets of rain, and sudden flooding or choppy waters affect the region around you (typically a large town or a small city), but wherever you stand becomes the eye of the storm, leaving that Field unaffected. Those in adjacent Fields are less fortunate. All other Fields in the region become difficult and…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One Field\nRange: Short\nAction: Simple"
+  },
+  "sky_dot_03": {
+    "description": "You may bless a target location with Concealing Clouds that keep it out of sight and out of mind. The clouds appear as a dense fog that hides the location from sight, inflicting +2 Difficulty on attempts to perceive anything contained within the clouds. This can be used to conceal a structure in fog, to fill the interior of a cavern with obscuring mist, or to make a lake's surface impenetrable to the eye. If…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One Field\nRange: Medium\nAction: Simple"
+  },
+  "sky_dot_04": {
+    "description": "You can fly, using movement actions to ascend upwards into the air or horizontally through it. You cannot rush or disengage (Scion: Origin, p. 72) while flying. When this Boon ends, you descend gracefully to the ground, taking no falling damage.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "sky_dot_05": {
+    "description": "Warm winds blow dense fog into your area, decreasing visibility and dampening sound. Choose a field that your character can see or knows is there (such as inside the room, or outside the building even if you can't see out the windows) in which to create a fog bank. The fog is so thick that it reduces visibility, creating a +3 Complication to at­ tempt actions with a range beyond close. Sound is muffled and muted…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: One field\nAction: Simple"
+  },
+  "sky_dot_06": {
+    "description": "A massive dust storm engulfs even the highest buildings in the area. A wall of thick dust throughout the Field increases the difficulty of any actions involving sight beyond short range by +1. Unless properly filtered — or if the character doesn't need to breathe — heavy dirt, dust, and sand particles in the air make it hard to breathe, imposing a +1 difficulty to actions requiring movement. You may imbue one…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene\nSubject: One Field\nRange: Medium\nAction: Simple"
+  },
+  "sky_dot_07": {
+    "description": "You order the heavens to release their bounty, causing a life-giving rainfall to fill the region. These rains inspire tran­ quility and healing in the region, improving Atmosphere by 1 for all people caught in the rain. Anyone caught in the rain gains +2 Enhancement to influence rolls to encourage others to set aside their tasks and enjoy the feeling of the rain on their skin. The rainwater resulting from this…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One region\nRange: Medium\nAction: Simple"
+  },
+  "sky_dot_08": {
+    "description": "Your voice booms like a crashing storm. You can be clearly heard by anyone out to far range, and do not need to spend threshold successes or Legend to use the Esoterica marvel when using your voice. If you are threatened, the Enhancement you receive is increased by one, maximum 3. STARS",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "stars_dot_01": {
+    "description": "While under the auspices of this Boon, you can listen to the wishes of anyone around you, intuiting their inner­ most desires. Whenever you take a Read Attitude action (Scion: Origin, p. 79), you intuit one of the character's fondest wishes — at least, one that you can reasonably do something about, given your time and resources. You gain +2 Enhancement to attempts to grant that wish, and the character's Attitude…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One target\nAction: Simple"
+  },
+  "stars_dot_02": {
+    "description": "To look up at the stars is to peer into the past, witnessing light that was shed countless eons ago. You can observe the past, specifying either a point in time or an event that occurred as far back as 1,000 years, but no more recently than the last dawn. If you use this Boon to make an interval roll for an investigation or a similar action, you can ignore up five points of Complication resulting from the passage…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "stars_dot_03": {
+    "description": "You choose a character within medium range and curse one of their relationships, dooming it to mishap and peril. Any action taken to support, bolster, or draw upon that relation­ ship suffers a +3 Complication, as Fate conspires to separate family, lovers, and business partners alike, calling them off to unexpected emergencies or twisting their words to create a seed of doubt. You needn't know the exact details…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Cunning + Legend vs. Resolve + Legend"
+  },
+  "stars_dot_04": {
+    "description": "You call down a demon from distant stars to fight by your side. Summon a monster from the stars with the Rival Ar­ chetype to do your bidding. Spend 1 Momentum to keep it under your control for additional scenes. If it hasn't been Taken Out, the demon heads off to spread havoc to the World when you relinquish control.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One Scene\nRange: Self\nAction: Simple"
+  },
+  "stars_dot_05": {
+    "description": "You create a mystical beacon that leads either directly to you, to the location that you are in when you use this Boon, or to any locale that you know well. The target of this Boon can sense the beacon from anywhere within the same realm of existence, and can navigate the way to it with a flawless sense of direction. Once a character has chosen to follow the beacon, you can divine their location as a simple…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Infinite\nAction: Simple"
+  },
+  "stars_dot_06": {
+    "description": "You obscure a character, object, or location from scrying and divination. You automatically sense when someone attempts to magically detect something about the target and can return vague, contradictory, or deceptive results, although you don't know exactly whom you're deceiving. Characters with a Legend higher than your own can attempt to break through this Boon with a Clash of Wills. To obscure a location, it…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One target\nAction: Simple"
+  },
+  "stars_dot_07": {
+    "description": "As you focus on a specific location, motes of starlight wink into existence around you. You must maintain your focus as a Complex action as they build over the course of a few minutes, and can't use this Boon at all while in combat or similarly fast-paced action. Once the action is complete, you disappear in a burst of starlight and instantly reappear anywhere in the World, regardless of distance. You can bring…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self and other characters\nAction: Complex"
+  },
+  "stars_dot_08": {
+    "description": "If a single star can be seen in the sky, a Demigod with the Stars purview is never stranded. She summons the light of the stars, creating a solid (but transparent) surface, span­ gled with stellar bodies, and may walk across it. This path may stretch as far as she can see, and she may continue to extend it as the horizon moves, should she move swiftly enough. This bridge carries unlimited weight; she may ban­ ish…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nRange: Long\nAction: Simple"
+  },
+  "stars_dot_09": {
+    "description": "For as long as you have Awareness imbued, you can slow down or speed up time for yourself. If you slow time for yourself, everything happens around you at an advanced pace. You may blow through a boring waiting period or pass forward in time to an anticipated event. If you speed time for yourself, then everything around you appears to happen at a glacial pace. You can walk past an attack, sleep a full eight hours…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "stars_dot_10": {
+    "description": "You shine a light down on someone, making them the center of attention as either a blessing or a curse. They can be seen and heard clearly by anyone in the scene, regardless of obstructions like fog, noise, crowds, or the like. As a blessing, members of the crowd suffer a level 2 Complication to attempts to interrupt or heckle; if not bought off, they're quickly silenced by other crowd mem­ bers, ejected by…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: One character\nRange: Long\nAction: Simple"
+  },
+  "sun_dot_01": {
+    "description": "You unleash a flash of brilliant light, inflicting a blinding Condition on all enemies in range. When you spend Leg­ end with this Purview's innate power, you may also use this Boon reflexively and for free. In addition, if all targets are trivial, this Boon's cost is waived.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nRange: Medium\nAction: Simple"
+  },
+  "sun_dot_02": {
+    "description": "All planets and therefore all people rotate around the sun. In social situations, this becomes all the more apparent. There's something about the sun that draws others toward PANDORA'S BOX 262 it, whether for good or ill. You can choose to become the center of attention in the room for one scene, drawing others toward you and away from others. Everyone other than yourself receives +4 Complication for any social…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nRange: Short\nAction: Simple"
+  },
+  "sun_dot_03": {
+    "description": "You embody the glory of the sun and the promise of the dawn. Mortals will instinctively see you as the answer to any hopes they may have, and you have Enhancement 3 when you try to identify these hopes or use them as lever­ age in influence.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One day\nSubject: Self\nAction: Simple"
+  },
+  "sun_dot_04": {
+    "description": "You create a burst of radiation so powerful it causes im­ mediate sickness and sometimes death. Small animals, funguses, and bacteria without radiation resistance die immediately. Your radiation acts as a Condition on any­ one affected within range creating weakness and fatigue. Those with the Condition have a +3 Complication to all physical actions, with consequences including Injury equal to the Complication…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: All characters\nRange: Short\nAction: Simple\nClash: Awareness + Might vs. Stamina + Legend"
+  },
+  "sun_dot_05": {
+    "description": "Your brilliance rubs off on those in your immediate vicinity. Upon activating this Boon, you shift atmosphere by 1 in a manner of your choosing. For the duration of the scene, you gain Enhancement equal to your Legend/2 (rounded up) on any action to further shift attitude or atmosphere. When the scene ends, non-trivial characters revert to their original attitude and, if they succeed on an Integrity + Cun­ ning…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: All within range\nRange: Short\nAction: Simple\nClash: Legend + Presence vs. Legend + Composure"
+  },
+  "sun_dot_06": {
+    "description": "Your see through the darkness of lies and confusion. Add En­ hancement 3 on any rolls to determine whether a character is lying, see through a disguise, pierce an illusion, or oth­ erwise see through deceptions. If you face the Misleading complication, its rating is reduced by one point.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "sun_dot_07": {
+    "description": "When the sun sets, it always rises the next day. So too does a God who falls. When Taken Out, you can choose for your body to suddenly immolate and turn to ash. With the rising of the sun during the next scene, your body reforms from the ashes and you are restored to full Health.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nRange: Short\nAction: Simple"
+  },
+  "sun_dot_08": {
+    "description": "The sun is yours to command. You can reach up and pluck the sun from the sky to form a golden coronet that you ei­ ther wear or bestow on someone else. While you can only manifest one of these coronets at a time, other Gods can also perform this ability. If you remove this coronet before performing the Boon, then it immediately disintegrates. It cannot be removed by anyone other than yourself. At a later time,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self or one character\nRange: Short\nAction: Simple"
+  },
+  "sun_dot_09": {
+    "description": "With a flex of your Godly intuition, you flip yourself into a separate reality. To use this, you must have been to the other reality you are going to, and the reality must be parallel to the one you are currently in. Additionally, you will be exact­ ly where you currently are in the new reality that you swap into. If you are atop Mount Everest in your current reality and you swap into the new reality, you will…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Self\nRange: Self\nAction: Simple"
+  },
+  "sun_dot_10": {
+    "description": "With a flex of Godly power, rip open a portal anywhere within range, and then another portal within range. The portal works like a doorway: moving through the portal means you go out of the other portal. The portal cannot be moved, and only lasts for the instant you spend Legend. Afterwards, it dissipates. You can use this to cause harm by closing it while something is midway through, though more powerful beings…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nRange: Medium\nAction: Reflexive"
+  },
+  "war_dot_01": {
+    "description": "You lay a curse upon the enemy force, leading one-tenth of their soldiers to ruin. The Decimation Condition causes all enemy combatants who comprise the opposing army to suffer a +2 Complication to their attacks. Failure to buy off the Complication results in suffering a single Injury Con­ dition. Against Mobs or Segments of enemies, each Con­ dition should be sufficient to injure or slay several soldiers. You…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One enemy army\nRange: Long\nAction: Simple"
+  },
+  "war_dot_02": {
+    "description": "A great general is never without their favored weapon. You can put a call out into the universe, either literally with your voice or through written messages on pamphlets or social media, for able and willing warriors to fight for a particular cause. Within moments the first of these fighters show up to support you; treat them as Heavy Followers with the Group tag. At the start of the next scene, sufficient…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One army\nRange: Close\nAction: Simple"
+  },
+  "war_dot_03": {
+    "description": "Your blessing promises victory. All characters on the side of your choice in a fight (whether physical or not) gain En­ hancement 1 on all actions. If you are passively observing a battle between unrelated parties (i.e. none of her allies are involved), you can use this Boon for free to favor one side.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: One side of a battle\nRange: Long\nAction: Simple"
+  },
+  "war_dot_04": {
+    "description": "You agitate and incite those around you. Anyone affected within range suffers a +3 Complication to attacks. As a consequence, the character does not attack his intended target, but instead attacks a target of your choice. Outside of combat, you can use this Boon to incite violence be­ tween agitated parties. Anyone affected within Range with a negative Attitude will start a fight.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: Multiple characters\nRange: Short\nAction: Simple\nClash: Awareness + Manipulation vs. Composure +"
+  },
+  "war_dot_05": {
+    "description": "You grant Enhancement 2 to yourself or another character on rolls to command Heavy Followers for one scene. If the target interacts with a character who is his subordinate in a military or paramilitary group, the subordinate's Attitude is treated as one point higher. This does not stack with other magical Attitude bonuses.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: You or One character\nRange: Short\nAction: Reflexive"
+  },
+  "war_dot_06": {
+    "description": "Armies under your command are prepared to battle all the way to the gates of hell. Those fighting on your side receive +3 Enhancement as long as they keep fighting the enemy. They won't stop until the enemy is dead, or they are. At­ tempts to end the conflict — no matter the odds or the losses — by retreat or surrender receive a +2 Complication. If not bought off, your soldiers turn their aggression toward who­…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Until victory is achieved\nSubject: Armies under your command\nRange: Long\nAction: Simple"
+  },
+  "war_dot_07": {
+    "description": "Ask the Storyguide one of the following questions: What is the best way to provoke a fight (not necessarily lethal, but definitely ugly) in the current scene? What's the best way out of (or into) this room? Where should I look to find a tactical advantage? (e.g. a shotgun beneath the bar, corridors too narrow for a full security squad to move through, a war God's blessed altar)? What should I be on the lookout…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "war_dot_08": {
+    "description": "You project the aura of a universal warrior, an unstoppable God-general who breaks armies before you. This is a super­ natural aura of terror that is most effective against enemy sol­ diers, granting you +3 Enhancement to intimidation or attempts to influence enemy warriors not to fight against you. Once per round, you may reflexively roll to intimidate any character who sees you in battle. You may also influence…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nRange: Self\nAction: Simple"
+  },
+  "water_dot_01": {
+    "description": "You may bless yourself or another with a beguiling watery mien. At your discretion, this may transform the target in a minor cosmetic way, rendering them damp, festooned with seaweed, transforming their hair into a mane of flowing water, and so on. The target may choose to focus on a single character, rendering them transfixed and motionless. This functions as the Dread Gaze Flair (Scion: Origin, p. 149), save…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Short\nAction: Reflexive"
+  },
+  "water_dot_02": {
+    "description": "You exert your will over water, controlling the tides or currents that move through it. You can calm all water out to long range, making it still and placid even in the face of a hurricane, or change the direction that currents flow in, letting you reverse the direction of a river or cause a riptide to drag lost swimmers back to shore. Reclaiming the Legend imbued in this Boon causes the water to revert to its…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend or spend 1 Legend\nDuration: One scene or Instant\nSubject: Body of water\nRange: Long\nAction: Simple"
+  },
+  "water_dot_03": {
+    "description": "Concentrate on your reflection in the water. It must be large enough to mirror back at least half of your body. While doing this, imbue the Legend to immediately see the closest Mythic Shard, which might not be a parallel shard. Tempo­ ral-spatial oddities will mess with things. Spend 1 Legend to turn the water into a portal between the shards you saw, which lasts until the end of the scene. However, you gain 1…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend or Spend 1 Legend\nDuration: Instant\nSubject: Self\nRange: Close\nAction: Simple"
+  },
+  "water_dot_04": {
+    "description": "You dissolve into a streaming torrent of water. You can seep through openings of any size, allowing you to permeate all but truly waterproof obstacles. You gain +1 Defense and +1 soft Armor against attacks, except those capable of affecting your watery form, like fireballs or lightning bolts.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "water_dot_05": {
+    "description": "Using a pool of water as a medium, you may observe the whereabouts of people known to you. In order to target a subject with this Boon, you or one of your Bandmates must have met them before and recognize them. Targets using scrying-defeating magic of an equal or greater Tier than you provoke a Clash of Wills when this Boon is used. If you have something significant to the subject, such as a trea­ sured…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One character\nRange: N/A\nAction: Simple"
+  },
+  "water_dot_06": {
+    "description": "You can heal by submerging yourself in a body of water, resolving an Injury Condition at the end of a scene spent immersed in water. You can only benefit from this healing once per session. In addition, you extend your senses through the water. As a simple action, you can displace your perspective to any point out to long range within the same body of water, seeing through that point as though you were physically…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "water_dot_07": {
+    "description": "You overwhelm a character with the sensation of endless drowning as a Condition. Even though they know they can breathe, they either panic or despair as they feel suffocat­ ed by an endless crushing darkness. All rolls they make with Social or Mental Attributes are at +2 difficulty. If they are submerged in water or at risk of becoming so, this also applies to Physical Attribute rolls. This Condition resolves…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "water_dot_08": {
+    "description": "You call forth a massive wave of water from a nearby water source or the air itself to flood your enemies. Roll this as an attack using (highest Power Attribute) + Occult. It has the Bashing, Pushing, Ranged, and Shockwave tags. The water crashes into the ground and floods the entire Field your enemies are standing in, creating water-logged difficult terrain. These floodwaters remain unless drained away.",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One Field\nRange: Medium\nAction: Simple"
+  },
+  "water_dot_09": {
+    "description": "A wave of water crashes over the Field, washing away everything in sight. You can create a wave of water that materializes out of nowhere to wash across a single Field within range. The water moves with the force and weight of the ocean sweeping away anything not bolted down and carries heavy objects along with it. The wave puts out any fires in its path and can knock over short walls and small structures.…",
+    "mechanicalEffects": "Cost: Spend 1 Awareness\nDuration: Instant\nSubject: One field\nRange: Long\nAction: Simple"
+  },
+  "water_dot_10": {
+    "description": "You can dredge up monsters from the dark depths of any body of water. Summon a creature from beneath the waves and assign powers as if it was a Creature Birthright with a rating equal to Legend/2 (rounded up). This could be the animated corpse of a dead sailor, a mythical sea creature, or a titanspawn from the deep. Whatever you summon obeys you for the duration of the scene, returning to the murky depths when…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One creature\nRange: One body of water up to long range\nAction: Simple"
+  },
+  "wild_dot_01": {
+    "description": "You transform yourself and your allies to suit your environ­ ment — thick hide, warm fur, or whatever else is needed. You can use this Boon to benefit yourself, other players' characters, and up to your Legend in Storyguide characters, allowing them to ignore environmental Complications from their current surroundings: You might grant them the fortitude to survive the scalding heat of the Sahara or immunize them…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self and allies\nAction: Simple"
+  },
+  "wild_dot_02": {
+    "description": "For all that human civilization has progressed, it is not so far from returning to the wild as it might like to think. You can use this Boon on a human, human-like being, or domesticated animal. Alternatively, this Boon can be used against all trivial targets within range for free. You inflict a Condition that awakens atavistic instincts, adding +2 to the Difficulties of all Academics, Culture, Firearms,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character or multiple trivial targets\nRange: Medium\nAction: Simple"
+  },
+  "wild_dot_03": {
+    "description": "You can take control of a wild animal by imparting your con­ sciousness into it. While using this Boon, you are inert and cannot sense your own body. Instead, you have complete control over the animal you have possessed, sensing though it and commanding it as though it were your own body. You can possess a single large animal, such as a dog, wolf, bear, or elephant or multiple small animals such as crows, mice,…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Multiple animals\nAction: Reflexive"
+  },
+  "wild_dot_04": {
+    "description": "You transform your flesh into plant-stuff. You gain one of the following benefits and may shift between them as a simple Action: Thick Bark: Your skin becomes thick and knotted, increas­ ing your soft armor by 1. Enchanting Blossom: You gain +2 Enhancement on rolls based on allure or distraction. Natural Deterrent: You are covered in wickedly sharp needles, burning resin, or some other defense. Charac­ ters…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "wild_dot_05": {
+    "description": "Ask the Storyguide one of the following questions in a wil­ derness area: What happened here recently? What should I be on the lookout for? Where's my best escape route/ way in/way around? What here is useful or valuable to me? Following the Storyguide's answer grants Enhancement 3 on applicable rolls.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "wild_dot_06": {
+    "description": "Your touch is destructive to man-made objects, especially mechanically or technologically complex ones. As a Sim­ ple action, you can destroy a mundane, man-made object within short range, transforming it into plant matter and dirt. Nontrivial characters can contest this when used against PANDORA'S BOX 268 their possessions with a Clash of Wills.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple\nClash: Cunning + Legend vs. Resolve + Legend"
+  },
+  "wild_dot_07": {
+    "description": "You cause plants to sprout and rapidly grow from the soil, cracks in concrete, or any other surface that can support them. You can create difficult terrain anywhere within range and create one or more terrain features that provide a total of 3 points worth of Complications or Enhancements. For the rest of the scene, you direct the plants to attack an enemy as a simple action, rolling Presence + Survival. These…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nRange: Medium\nAction: Simple"
+  },
+  "wild_dot_08": {
+    "description": "You bring yourself into perfect alignment with your Purview, tapping its miraculous power directly from the source. This is accompanied by a transformation, though it needn't be dramatic: Some Gods become walking maelstroms of their Purview's raw energy; others simply take on an ineffable sense of that Purview as it seeps into their posture, gestures, and bearing. In either case, the change is unmistakable. Every…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Any plant within sight\nRange: Short\nAction: Simple"
+  },
+  "wild_dot_09": {
+    "description": "You share a connection with an animal that rivals that of your connections with humans. You can form a temporary Bond with an animal, as though it were a person. Any successes not spent when the Bond fades are converted to positive Attitude from the animal to you.",
+    "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: One day\nSubject: One animal"
+  },
+  "wild_dot_10": {
+    "description": "You can compel any number of trivial targets and animals within Medium range to act in a specific way. You give a single command, and as long as they are able to com­ plete it, they do so. Your targets do not take actions that directly endanger their lives, but will attack a superior foe or take risks to complete the task. You cannot give different commands to different targets. If an animal is a Legendary…",
+    "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Multiple animals"
+  },
+  "wild_dot_11": {
+    "description": "You can temporarily possess and control a single animal. This animal must be in Short range when you initially use this Spell, but until you reclaim your Inheritance, it allows you to mentally control and access the senses of this ani­ mal, regardless of range. You can use the animals' senses to experience the world, dictate their actions, and even use your Spells and Knacks through them. The animal remains aware…",
+    "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: One non-legendary creature"
+  },
+  "wild_dot_12": {
+    "description": "You can destroy an inanimate object up to your size Scale +1. It rusts, rots, or decays to uselessness, or for particularly perishable objects, into dust or rot, in less than a minute becoming useless. This Spell does not work on magical items, but affects everything else, from clothing or food, to handguns or automobiles.",
+    "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Instant\nSubject: A single object"
+  },
+  "darkness_dot_01": {
+    "description": "You can strip away the vision of any number of characters in range, imposing a blinded Condition on them for one scene. If you choose only trivial targets to blind, using this Boon is free.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Multiple characters\nRange: Short\nAction: Simple"
+  },
+  "darkness_dot_02": {
+    "description": "PANDORA'S BOX 228 You shape a dream, and send it after someone you know — not necessarily personally, but at least well enough to provide a unique description. The next time that character goes to sleep, this Boon triggers. You can make an influ­ ence roll against the target by shaping and controlling the events and appearance of their dream. You choose how you appear in their dream, which may allow you to avoid…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Until the target next sleeps\nSubject: One character\nRange: Long\nAction: Simple"
+  },
+  "darkness_dot_03": {
+    "description": "Spending 1 Legend and dissolving into natural shadow, the Scion makes herself and everything she carries insubstan­ tial. She may choose to remain in that shadow or reflexively spend 1 additional Legend to shift to any other shadow she can perceive. She may shift repeatedly at the cost of addi­ tional Legend but must emerge by the scene's end. Taking any aggressive action reveals her, but this power permits a…",
+    "mechanicalEffects": "Cost: Variable\nDuration: One scene\nSubject: Self"
+  },
+  "darkness_dot_04": {
+    "description": "This blessing transforms your target into a creature of the night. This transformation may give the target features akin to nocturnal animals or night- or dark-dwelling Denizens, though just as often, they become a living pall of darkness. When taking Intrigue actions involving nocturnal animals or Denizens associated with dreams, darkness, or night, the target gains Enhancement 3 for the duration. Shadows are…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple"
+  },
+  "darkness_dot_05": {
+    "description": "Your power turns dreams against dreamers, making their nightmares come to life. The target suffers the Living Nightmare Condition, which causes an intangible nightmare to appear within short range of the target, and they suffer a +3 Com­ plication to all rolls from the distraction. Failure to buy off this Complication results in the Living Nightmare moving one range band towards the target. If it enters into…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "darkness_dot_06": {
+    "description": "You can lull a character to sleep over the course of a few seconds, as long as they are not in combat or a similarly high-stakes situation. They remain asleep until at least the end of the scene unless attacked by enemies or magically awakened. You can put multiple trivial targets to sleep as long as they are in this Boon's range, and can do so even in combat.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple"
+  },
+  "darkness_dot_07": {
+    "description": "You bring people's dark thoughts to the surface and make them want to confess their deepest secrets. Your targets incur 3 Complication on social actions. Failure to buy it off causes them to share their darkest deed. Only characters you are in direct conversation with can be targeted. The Storyguide decides what the target considers their darkest secret and therefore what they say. If the secret isn't rel­ evant…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Varies\nSubject: One Character\nRange: Short\nAction: Simple"
+  },
+  "darkness_dot_08": {
+    "description": "You create one or more shadow minions to act on your be­ half. Create these minions using antagonist rules in Scion: Origin, pp. 143-145. You can create a single Profession­ al-level monster or several Mooks. All shadows have the Incorporeality Quality and a Vulnerability Quality of fire. Shadow minions obey their master implicitly and cannot be swayed or taken over even by someone else with a similar Boon. The…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "darkness_dot_09": {
+    "description": "You may compel the shadows to reveal the secrets of those they've seen. You must be able to perceive a shadow to compel it to reveal its secrets. They will always answer truthfully, but their understanding is limited by their nature: A shadow cast by a torch or a light can identify basic infor­ mation, while a lantern could describe the presence of two figures arguing, but it doesn't understand what they may have…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Shadows\nRange: Long\nAction: Simple"
+  },
+  "epicStrength_dot_01": {
+    "description": "You are capable of tearing down walls, ripping up concrete, or rendering brick structures to powder in moments. Once per scene, you may make a Feat of Scale to enhance any Might-based action without having to pay a point of Legend.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Ordinary"
+  },
+  "epicStrength_dot_02": {
+    "description": "You may leap into the sky as a standard action, ending your turn suspended at least three range bands above your starting position. At the start of your next turn, you can plummet down to any point in the scene as part of your movement action, either landing harmlessly or making a diving close combat attack with +3 Enhancement. Outside of combat, you can easily clear multiple stories in a single leap or spend a…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStrength_dot_03": {
+    "description": "You can endow a character with tremendous strength, granting them +3 Enhancement on Athletics rolls. When undertaking these feats of strength, they may also ignore any Complications from size or bulk, allowing them to lift objects that might otherwise be damaged by the effort — when they deign to power-squat an entire shack, it stays in one piece regardless of what gravity and engineering might prefer.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or one character\nRange: Short\nAction: Simple"
+  },
+  "epicStrength_dot_04": {
+    "description": "Add Enhancement 3 on rolls to lift or carry heavy objects. When you attack by throwing an improvised weapon, the range increases by a single band and it gains the Arcing tag. You choose whether it's Bashing or Lethal.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStrength_dot_05": {
+    "description": "Your Close Combat and Athletics attack rolls strike with incredible force. On a hit, you can either send an opponent flying back one range band, or knock him prone. Felled enemies must succeed on a Dexterity + Athletics roll at Difficulty 3 to Rise from Prone even if you are not threaten­ ing them. This attack can scatter a group of trivial targets, gaining the Shockwave tag as long as all characters in the…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStrength_dot_06": {
+    "description": "You draw out a character's inner strength, fortifying their courage and integrity. Attempts to intimidate, frighten, or dissuade them suffer +3 difficulty.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Reflexive"
+  },
+  "epicStrength_dot_07": {
+    "description": "Your physical prowess inspires awe. During intrigue play, gain +1 Enhancement on any action where you can show off your strength or physique. For every Tier you are above another character you're directly affecting with an action, in­ crease the Enhancement by one. For example, a shift attitude action would benefit from additional Enhancement, but shift atmosphere would not. Characters who have a negative atti­…",
+    "mechanicalEffects": "Cost: None\nDuration: Indefinite\nSubject: Yourself/everyone who can see you\nRange: Short\nAction: Reflexive"
+  },
+  "epicStrength_dot_08": {
+    "description": "You make an attack so powerful that it radiates out from you with enduring force. You make an attack at close range on a single target as normal. That attack creates a Shockwave (Scion: Origin, p. 66) that radiates out from your target. FERTILITY",
+    "mechanicalEffects": "Cost: Spend 1 Awareness\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStamina_dot_01": {
+    "description": "Bruised ribs, broken bones, and other serious wounds aren't enough to slow you down. When you activate this Boon, you suffer no penalties from Injury Conditions for the rest of the scene. You may still suffer other consequences — losing a leg still hampers a move action — but you're able to carry on. If Taken Out, you can fight on for a number of rounds equal to your Legend before collapsing if you don't receive…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive, when applied"
+  },
+  "epicStamina_dot_02": {
+    "description": "Bruised ribs, broken bones, and other serious wounds aren't enough to slow you down. When you activate this Boon, you suffer no penalties from Injury Conditions for the rest of the scene. You may still suffer other consequences — losing a leg still hampers a move action — but you're able to carry on. If Taken Out, you can fight on for a number of rounds equal to your Legend before collapsing if you don't receive…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStamina_dot_03": {
+    "description": "You endow a character with an overwhelming sense of wellbeing and energy. Attempts to shame, frighten, de­ press, or otherwise dissuade them from their chosen course of action suffer +2 Difficulty. If the character would benefit from one of their own positive Attitudes, they may treat it as 1 higher.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self or one character\nRange: Short\nAction: Simple"
+  },
+  "epicStamina_dot_04": {
+    "description": "The Mythos wraps around your enemy, weakening them and making them susceptible to viler actions. You can tar­ get a single character, or all trivial characters in range with this Boon. Inflict a Condition that increases the Difficulty to resist disease and poison by 2, prevents the character from using any healing or regeneration abilities, and doubles Complications imposed from physical Conditions and Inju­ ry…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: One or more characters\nRange: Short\nAction: Simple\nClash: Awareness + Stamina vs. Resolve + Legend"
+  },
+  "epicStamina_dot_05": {
+    "description": "PANDORA'S BOX 238 You labor with tenfold endurance, enhancing a Complex action to perform strenuous physical labor or other exer­ cise. Any time you roll a Physical Attribute as part of the action, you may roll two times, keeping the higher result.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Until the task is complete\nSubject: Self\nAction: Reflexive"
+  },
+  "epicStamina_dot_06": {
+    "description": "Your divine flesh wrecks any weapon that dares to touch you. After a close combat attack against you, mundane weapons automatically break. Bones break and claws shatter; until healed, using them inflicts a +2 Complication that prevents them from inflicting Injury Conditions unless bought off. Magical weapons are similarly damaged until repaired; significant characters can attempt to resist with a Clash of Wills…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive\nClash: Stamina + Legend vs. Might + Legend"
+  },
+  "epicStamina_dot_07": {
+    "description": "You endow a character with divine vitality, allowing them to ignore all Complications from hunger, thirst, or exhaustion. When used on a character who already possesses these immunities, such as from Epic Stamina's Innate Power, they instead gain +3 Enhancement to any extended action based on long hours, hard labor, or meticulous detail — it's amazing what you can get done when you replace sleep with an Iv of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "epicStamina_dot_08": {
+    "description": "You are beyond injury. When you are hit and an enemy uses an Inflict Damage Stunt, spend 1 Legend to negate it. This Boon can also be used to defend against being affected by any other Condition based on debilitating injury or physical incapacity, such as a Severed Limb or Broken Spine. EPIC STRENGTH",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_01": {
+    "description": "You steal someone else's grace, leaving them clumsy and bumbling. This Boon inflicts a Condition on your victim that imposes a +2 Complication to all actions that require Dexterity, such as balancing, aiming, running, or even just not falling over. While they suffer from this Condition, you gain a +1 Enhancement on the same kinds of actions. This Condition ends when you reclaim your Awareness, or the victim…",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Awareness + Dexterity vs. Stamina + Legend"
+  },
+  "epicDexterity_dot_03": {
+    "description": "When you loose your arrow, death is certain. Make an attack with a ranged weapon (not a thrown one) and treat your target's Defense as 0 against it. If she's more than two tiers higher than you, subtract her Defense from your thresh­ old successes — to a minimum of one — before spending them on Stunts. You can only use this Boon once per scene. PANDORA'S BOX 236",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nAction: Simple"
+  },
+  "epicDexterity_dot_04": {
+    "description": "You move faster than the human eye can process, allow­ ing you to take actions at up to Short range and return to your \"current\" position in an instant. Attempts to notice you doing so require either technological or supernatural assistance, and even those suffer from a +2 Complication preventing others from pinpointing exactly what you did and how you did it; without buying it off, all they can notice is a…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_05": {
+    "description": "You can cross great distances in a scant matter of minutes, zooming past passersby in a blur of motion. Add Enhance­ ment 3 on Rush actions and any action you take in a race. Once per scene, you may make a Feat of Scale to enhance any action based on physical speed without having to pay a point of Legend.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_06": {
+    "description": "Upon successfully taking hold of an object, you may ac­ tivate this Boon to successfully hide it somewhere either in the scene or on your person. This ignores up to 3 points of Complication from an object's bulk or size and allows for impossible feats, such as packing a sword into a handbag or smuggling a lion in a cat-carrier. Mundane efforts can't locate the hidden object, and supernatural investigations suffer…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_07": {
+    "description": "Your speed is a powerful asset in battle. In combat, you can use your reflexive Move action to cross two range bands, and gain Enhancement 3 on rolls to Disengage. You cannot take damage from falling.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_08": {
+    "description": "There's a godly grace and elegance in your movements. Imbue additional Legend to activate more than one of these abilities at a time: • Using fine motor skills for actions such as lock­ picking, computer repair, or other crafting projects gain Enhancement 3. • Ignore up to your Legend in cover when making a ranged attack. • Gain Enhancement 2 navigating difficult or danger­ ous terrain. • Land a blow on an…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_09": {
+    "description": "In your precise hands, ranged weapons become extraordi­ narily deadly. You may make a ranged attack against any enemy in your line of sight, even out to extreme range. You can roll the attack with Dexterity in place of the Attribute normally associated with that range band, and do not face an increased difficulty for using weapons with the Ranged or Long-Range tag at any range band. You can use this boon to…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "epicDexterity_dot_10": {
+    "description": "When activating this Boon, announce the target you're focusing on. As long as you attack only that target, gain Boons 237 Enhancement 1 to all attack rolls. If that target is of lower tier, their attempts to hide from you or disappear from your view automatically fail. If they're of equal or higher tier, their attempts to hide prompt a Clash of Wills instead. If you take an action that's not a direct attack…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Reflexive\nClash: Resolve + Legend vs. Cunning + Legend"
+  },
+  "epicDexterity_dot_11": {
+    "description": "By smelling, touching, or tasting any object or substance, you instantly gain complete knowledge of its composition. If it's poisonous or toxic, you know before putting it in your mouth. You also gain an awareness of any enchantments or curses currently active on it. This does not give away the source of the enchantment but does reveal its general nature — for instance, what Purview generated it.",
+    "mechanicalEffects": "Cost: Free\nDuration: Instant\nSubject: Self\nAction: Simple"
+  },
+  "epicDexterity_dot_12": {
+    "description": "You open yourself to the magical World, spotting things oth­ ers would overlook as mundane. Upon opening your Third Eye, you can see a halo around any supernatural person or object. The aura's brightness indicates the relative strength of the target, and their Legend rating if they have one. The aura does not reveal details about the type of magic, only whether it exists. This Boon also grants Enhancement 1 on…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "beauty_dot_01": {
+    "description": "You are so beautiful (or so terrifying) that everything else fades into the background. Characters that perceive you must overcome a +2 Complication to undertake any ac­ tion at all in your presence; if not bought off, they act as they normally would, but their memory of what transpired is confused. All they can remember is your presence, not what you did, for better or worse.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nRange: Medium\nAction: Simple"
+  },
+  "beauty_dot_02": {
+    "description": "Your beauty entrances a person, preoccupying them to the point of distraction. Your target becomes obsessed with you and cannot concentrate on other tasks, suffering a +3 Complication to Mental or Social actions. The conse­ quence of failure is they lose their action as you continue to distract them. This isn't always born of desire, it can be jealousy or disgust, depending on their Attitude when the Boon is used.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: One scene\nSubject: One character\nRange: Medium\nAction: Reflexive\nClash: Awareness + Presence vs. Composure + Legend"
+  },
+  "beauty_dot_03": {
+    "description": "You can bestow blessings that reveal a person's true beau­ ty, or curses that mar them with ugliness. Your blessing or curse takes the form of a Condition imposed on one char­ acter, or on all trivial targets within range. Using this Boon on trivial targets is free. A blessed character may use their beauty once per scene to add Enhancement 2 on any roll made with a Social Attribute. This Condition resolves once…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: One character or multiple trivial characters\nRange: Short\nAction: Simple"
+  },
+  "beauty_dot_04": {
+    "description": "You give your target the power to embody their true self. With their consent, the target undergoes a miraculous transfor­ mation. The transformation reflects both their conscious and unconscious desires. It can be internal, reflecting a change in perspective, growing comfort with their appearance, or ac­ ceptance of their body. It can also manifest in dramatic exter­ nal transformation, altering the target's…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One character\nRange: Short\nAction: Simple"
+  },
+  "beauty_dot_05": {
+    "description": "You know how to flaunt your looks to kindle an irresistible infatuation. This takes the form of a Condition that you can impose on either a single target, or on all trivial targets within range. The Condition raises the target's Attitude to­ wards you by two points, which does not stack with other magical Attitude bonuses. It can be resolved by enjoying a moment of physical intimacy (e.g. sex, a passionate kiss,…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or multiple trivial characters\nRange: Medium\nAction: Simple"
+  },
+  "beauty_dot_06": {
+    "description": "Your presence becomes so striking that it inflicts pain on those who gaze at you for too long. All characters in your presence are exposed to the Painful to Behold Condition and suffer a +2 Complication to their actions. Failure to buy this Com­ plication off inflicts an Injury Condition of an appropriate nature, such as damage to the eyes, pressure on the mind, or exhaustion of the soul. Trivial characters who…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Condition\nSubject: Self\nAction: Simple"
+  },
+  "beauty_dot_07": {
+    "description": "It would be a tragedy if something were to damage your pretty face. While in combat, you can disengage and use your beauty as a shield, granting you light cover. Imbue Feat of Scale to increase from light to heavy cover. Your cover extends to a number of characters equal to your Legend within a short range. As long as you don't make attacks, your opponents target someone else unless there are no other targets. If…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene or loss of cover\nSubject: Self\nAction: Simple\nClash: Legend + Presence vs. Legend + Composure"
+  },
+  "beauty_dot_08": {
+    "description": "The line between beauty and monstrosity is drawn by your hand. Your very appearance instills your enemies with the absolute terror of confronting your divinity. Trivial targets automatically flee from you, while other characters face a +2 Complication on any action that does not somehow help them flee your presence. CHAOS",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Reflexive"
+  },
+  "frost_dot_01": {
+    "description": "When tempers flare and action comes before thought, you can cool things down. This Boon can be used against charac­ ters engaged in combat, intense argument, reckless decision making, or similar emotionally agitating scenarios. They grow cold-hearted, almost emotionless. Whatever they were do­ ing, they stop, and won't return to it for the rest of the scene — they'll walk away from brawls, take a moment to…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Multiple characters\nRange: Medium\nAction: Simple\nClash: Composure + Legend vs. Presence + Legend"
+  },
+  "frost_dot_02": {
+    "description": "You can drain away the heat of the world, icing over land­ scapes and freezing enemies from the inside out. Roll this as an attack using (highest Power Attribute) + Occult. It has the Bashing, Piercing, Ranged, and Shockwave tags. All water in the targeted range band is also instantly frozen solid. Ground becomes ice-slick difficult terrain, as well as other environmental changes such as bodies of water freezing…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: All enemies in one range band\nRange: Medium\nAction: Simple"
+  },
+  "frost_dot_03": {
+    "description": "You bring time to a halt for just long enough to undertake a single time-consuming rolled action, such as casing a scene without anyone knowing you were there, changing a flat tire in the middle of a shootout, or breaking the seal on a vault at a leisurely pace. While time is frozen, you can't directly interact with other characters — you can't attack someone or extract the gun from their grip, but you could…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One task\nSubject: Self\nAction: Reflexive"
+  },
+  "frost_dot_04": {
+    "description": "You force the cold to form into a simple tool within your hands. Items created in this manner have no moving parts and can­ not be larger than you can use with one hand — a handsaw or hammer works, but a chainsaw is out of the question. Your tool provides Enhancement equal to your Legend/2 (rounded up) on crafting actions involving high temperatures and can only be melted by heat higher in Scale than your Tier.…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One created item\nRange: Close\nAction: Simple"
+  },
+  "frost_dot_05": {
+    "description": "Things slow to a halt as you strip away the speed from the world. If you use this Boon on a character that has Scale with regard to speed, like a cheetah or a Scion using a Feat of Scale, their Scale is reduced by one. Characters without Scale add +2 Difficulty to all rolls based on physical speed. This Boon can be used against all trivial opponents in range for free. Alternatively, you can slow any number of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or multiple trivial characters\nRange: Medium\nAction: Simple"
+  },
+  "frost_dot_06": {
+    "description": "You can slow the life processes of one target (or all trivial targets) within range. The target falls into a deep slumber, falling torpid and appearing nearly dead. This functions as a Condition which prevents action or even dreams until either you reclaim your Awareness, or the target suffers a physical attack. You may target yourself with this Boon.",
+    "mechanicalEffects": "Cost: Imbue 1 Awareness\nDuration: Condition\nSubject: One or more characters\nRange: Medium\nAction: Reflexive\nClash: Awareness + Cunning vs. Stamina + Legend"
+  },
+  "frost_dot_07": {
+    "description": "You can create and animate living beings of ice and snow loyal to your wishes. Create up to a dozen of these snowmen, who serve you as Heavy Followers (Scion: Hero, p. 203) with the Group and Helpful tags, as well as one additional tag chosen when you gain this Boon. When used in a cold environment (whether it's the Canadian taiga or the back of a refrigerated semitruck hauling venison), they gain one more tag of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "frost_dot_08": {
+    "description": "You draw winter's storms around you like a cloak, wrapping your surroundings in cold, wind, and snow. Characters within medium range of you are buffeted by driving, icy gales that inflict a +2 Complication when they move into or within the storm; failure to buy it off knocks them prone. Ranged attacks on characters within the storm from outside it suffers +1 Difficulty. You may forfeit your movement action while…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "arcaneCalculus_dot_01": {
+    "description": "By reading scripts from Mythos realms or inscribing arcane geometries, you receive a vision from the Mythos. This vi­ sion is a compulsion, something the Gods want you to do for them with the promise of a benefit afterward. The request replaces the character's Short-Term Deed with something achievable within the session. Disturbing Visions should only be useable once per session and should be a minor effort…",
+    "mechanicalEffects": "Cost: Free\nDuration: Instant\nSubject: Self\nAction: Simple"
+  },
+  "arcaneCalculus_dot_02": {
+    "description": "You open a portal to your nemeton, which spills into the Field around you, blurring the two places. The Field becomes either dangerous (with up to three points of Complications) or difficult terrain for everyone except you and your allies. The specific effects follow the themes of your nemeton: Bees swarm the area, a torrent of thermal water fills the room, or oak roots trip careless trespassers, for instance.…",
+    "mechanicalEffects": "Cost: Spend 1 Awareness\nDuration: One scene\nSubject: Multiple characters\nRange: Short\nAction: Simple\nClash: Presence + Legend vs. Resolve + Legend"
+  },
+  "shuila_dot_01": {
+    "description": "All possible actions have a physical me, recording the precise and proper way of doing things. By linking her understanding of individual me together in sequence, an Annuna may intuit a perfect method with an assured chance of success. So long as an Annuna has planned out actions in support of a Deed and has generated successes on an information-gathering challenge, she may purchase enhance stunts in support of…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "shuila_dot_02": {
+    "description": "Long ago, Enki and Ninhursag wagered that they could find a suitable role in society for any sort of person, re­ gardless of disability or disadvantage. With this Boon, you designate a task that you want the subject to complete. Al­ though they are not compelled to obey, so long as they are performing that task, they ignore any Conditions (including Persistent ones and Injuries) that would impede its com­…",
+    "mechanicalEffects": "Cost: Spend 1 Legend Range: Short\nDuration: One task\nSubject: One person\nAction: Simple"
+  },
+  "shuila_dot_03": {
+    "description": "You take control of an organization, displacing its imme­ diate leader in its hierarchy — if it has no defined leader, you take control outright. All members of the organization acknowledge your authority and follow your directions as appropriate for the organization: the staff of a bank won't spontaneously become an army at your direction, for ex­ ample, but you could certainly order security to remove someone…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene\nSubject: An organization, formal or otherwise\nAction: Simple\nClash: Presence + Legend vs. Resolve + Legend"
+  },
+  "pachakutic_dot_01": {
+    "description": "Energies collect and reside within huaca; through practice, you may channel and contribute to sacred power. Upon performing an appropriate sacrifice at a huaca, you may regain an additional point of Legend. You may infuse the huaca with that point of Legend, allowing you and only you to later withdraw the point from that site without performing a sacrifice. You may even do this after performing a sac­ rifice at…",
+    "mechanicalEffects": "Cost: Free (special)\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "pachakutic_dot_02": {
+    "description": "By attuning to the divine energies within the huaca, you may wield miraculous power. When performing a sacri­ ficial ritual, you may choose to use the huaca itself as a Relic locale, allowing you the use of a single Purview (typically Earth, Sky, Water, Sun, or Fire, though stranger Purviews are possible depending on the site's nature at the Storyguide's discretion). This grants access to the innate powers of the…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend (special)\nDuration: One scene\nSubject: One huaca\nRange: Self\nAction: Simple"
+  },
+  "pachakutic_dot_03": {
+    "description": "Sometimes, the only way to bring about renewal is to put an end to the current state of the World. Once per session, you can deliver a short speech to encourage those around you to defy their circumstances and strive for a better future. Choose one of the following results: • Invoke an appropriate Title for a Feat of Scale to lead or rally crowds at no Legend cost; • Raise or lower the Attitude of your audience…",
+    "mechanicalEffects": "Cost: None\nDuration: Scene\nSubject: Self\nAction: Simple\nClash: Presence + Legend vs. Resolve + Legend"
+  },
+  "atuaMana_dot_01": {
+    "description": "Pono is synonymous with righteousness and balance, and an Atua Scion may empower others through this sense of balance. This Boon activates when a Scion resolves the Vir­ tuous Condition and confers the following benefits for the rest of the scene: The Collateral Pool loses up to three dice. This effect only occurs once per scene. The character may choose another character with whom they have a Bond and \"share\"…",
+    "mechanicalEffects": "Cost: Free\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "atuaMana_dot_02": {
+    "description": "Pono is synonymous with righteousness and balance, and an Atua Scion may empower others through this sense of balance. This Boon activates when a Scion resolves the Vir­ tuous Condition and confers the following benefits for the rest of the scene: The Collateral Pool loses up to three dice. This effect only occurs once per scene. The character may choose another character with whom they have a Bond and \"share\"…",
+    "mechanicalEffects": "Cost: Special\nDuration: Indefinite or One scene\nSubject: Self or one vehicle\nAction: Simple"
+  },
+  "atuaMana_dot_03": {
+    "description": "By manifesting your mana through your Omen, you are able to transform the authority of your relationships into raw power. You gain a pool of extra dice to use on any action for the duration of the scene or that you can trade to increase the group Momentum pool at a rate of 1 die per point of Momentum. The number of dice in the pool is: • 1 for every Bond you have with another Scion (maximum 5); plus • 1 for every…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nSubject: Self\nAction: Simple"
+  },
+  "paganito_dot_01": {
+    "description": "You call out for guidance from the ancestors, proclaiming your willingness to learn whatever it is they have to teach you. One of these spirits answers your call, charging you with a special Long-term Deed related to what it wishes to teach you. If you accept, the spirit serves you as a three- dot Guide for the remainder of the arc. Players are free to adapt an existing Guide for use with this Boon or to create…",
+    "mechanicalEffects": "Cost: Free\nDuration: One arc\nSubject: Self\nAction: Complex"
+  },
+  "paganito_dot_02": {
+    "description": "You ask one of the ancestors to protect a person or place. When protecting a person, their charge gains +3 Enhance­ ment to detect ambushes, traps, and other dangers. They also gain a special pool of four successes per scene that can be spent on Dive to Cover and Roll Away stunts. When protecting a place, any attempts to infiltrate it suffer a +3 Complication as the guardian spirits raise the alarm, giving those…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or place\nAction: Simple"
+  },
+  "dvoeverie_dot_01": {
+    "description": "Scions of the Bogovi have learned to sustain themselves without drawing unnecessary attention from other Gods. Once per session, when an ally regains Legend by per­ forming a minor or major sacrifice, you regain a point as well. If you use this Boon while under the effect of the Mnogoverie Boon, you can turn it to a more aggressive use instead. Once per session, when you are in a sacred place dedicated to the…",
+    "mechanicalEffects": "Cost: None Range: Short\nSubject: Self\nAction: Reflexive"
+  },
+  "dvoeverie_dot_02": {
+    "description": "The Bogovi are masters of adaptation, adept at reconciling their faith and magics with those of a foreign bent. Choose a Scion, God, Titan, or other entity possessing a Virtue trait. By imbuing Legend, you may adopt a single foreign Virtue from that entity for the scene regardless of your current Virtue score; the chosen Virtue replaces your Wayward Virtue. This acts in all ways as if it were a standard Virtue.…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One Scene or until ended\nSubject: Self and one divine or Titanic target\nAction: Simple"
+  },
+  "dvoeverie_dot_03": {
+    "description": "Description: When in the presence of a Bog with the stron­ gest convictions, others find themselves blistering against their strength of purpose. You radiate an aura causing one character or multiple trivial characters to be unable to look at you. An affected character suffers a 3-point Complication on any action that can bring you physical harm; this also applies to Clash rolls, as it's difficult to work…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene or until ended\nSubject: One character or multiple trivial characters\nRange: Medium\nAction: Simple"
+  },
+  "yoga_dot_01": {
+    "description": "You call upon the power of a Devá through an act of devo­ tion that lasts at least a scene: undergoing austerities, putting on an artistic performance, making sacrificial offerings pleasing to the God (even one's own limbs), or performing some other passionate act of devotion. You may choose to gain a specific power or make an open-ended request for a Devá's favor. If you make a specific request, you must con­…",
+    "mechanicalEffects": "Cost: Free\nDuration: One session\nSubject: Self\nAction: Complex"
+  },
+  "yoga_dot_02": {
+    "description": "Ask the Storyguide one of the following questions about a God, Scion, Titan, titanspawn, or other divine being you can see: What do they intend to do? How are they really feeling? What do they wish I'd do? How could I get them to do [a certain thing]? The Storyguide should try to give this answer in the form of a spontaneous, in-character poetic speech, villainous monologue, or other form of expository dialogue…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+  },
+  "yoga_dot_03": {
+    "description": "You become aware of the illusory nature of space, allow­ ing yourself to change your size and travel instantly from one place to another. While under the effect of the Boon, you can do any of the following as simple actions: • Increase your base Size Scale by half your Legend, gain­ ing additional Bruised Health Levels equal to half the change in your Scale, rounded up; • Decrease your base Size Scale by half…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Scene\nSubject: Self\nAction: Simple"
+  },
+  "marzeh_dot_01": {
+    "description": "You can recognize whether a character is related to anoth­ er whom you have met, whether by a blood lineage or a social legacy such as mentorship, shared membership in an organization, or found family. When leveraging this sense, you gain +3 Enhancement to investigate leads, establish relationships, and perform similar Procedural actions that benefit from intuition about social connections and obli­ gations.…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Simple\nClash: Cunning + Legend vs. Manipulation + Legend"
+  },
+  "marzeh_dot_02": {
+    "description": "You sanctify a shared meal with the spirit of community and kinship. Anyone who freely partakes of it can sense if another guest is harmed, distressed, or in danger, and the general nature of the related trouble. Players can spend 1 Momentum for their character to arrive in time to intervene with that situation, regardless of distance, barriers, and other obstacles. When guests undertake teamwork, the maximum…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One meal\nAction: Simple"
+  },
+  "tzolkin_dot_01": {
+    "description": "You foretell a truly awful day in your target's future, when all their hopes will crumble. This can be an actual date or a general description, such as \"the day your first child is born\" or \"sometime this summer,\" so long as it can be roughly anticipated and is at least a week away. Your target is filled with deep, existential dread that robs them of any real sleep, inflicting a +2 Complication on any action…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite (until one very bad day)\nSubject: One character\nAction: Simple"
+  },
+  "tzolkin_dot_02": {
+    "description": "The K'uh are rarely surprised, for their deep plans are writ­ ten in the substrate of the eons of the World. Upon activat­ ing this Boon, you may frame a single scene that happened in the past in response to a current opportunity or peril, allowing you to undertake a single Intrigue or Procedural action meant to prepare you for just this eventuality. These scenes must be plausible, and the Storyguide and other…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nAction: Simple"
+  },
+  "yaoyorozuNoKamigami_dot_01": {
+    "description": "You entreat the kami of an object with a show of respect and decorum. The object's Enhancement is increased by one point when you or an ally uses it. When an enemy uses it, they face a +2 Complication. Failure to buy off the Complication causes the object to \"misbehave,\" avoiding causing harm or disadvantage to you.",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One object\nRange: Short\nAction: Simple"
+  },
+  "yaoyorozuNoKamigami_dot_02": {
+    "description": "You can ask the kami of an object or animal to watch for intruders, keep a lookout for a specific person or event, or perform some other passive task. Once the kami finds what it is looking for or otherwise completes its task, it can notify you regardless of distance, either whispering into your ear or sending a divine portent. This warning or sign can provide +2 Enhancement if it benefits an action. If you use…",
+    "mechanicalEffects": "Cost: Free\nDuration: Until task is completed\nSubject: One kami\nRange: Close\nAction: Simple"
+  },
+  "yaoyorozuNoKamigami_dot_03": {
+    "description": "You awaken the kami of small, ordinary objects around you to chaotic, mischievous life in order to bedevil your adversaries. It creates a Field Condition, extending to short range from you in all directions, in which objects animate to harass targets of your choice. Anyone affected by it suffers +1 Difficulty on all actions due to distraction, while you and your allies benefit from 1 teamwork Enhancement on…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene Range: Short\nAction: Simple"
+  },
+  "dodaem_dot_01": {
+    "description": "As you sleep, your dodaem manitou shows you meaningful visions. Ask the Storyguide one of the following questions: Where do I need to be? What should I be on the lookout for? What is the cause of this problem? What is disturbing the dodaem manitou of this area? Following the Storyguide's answer provides Enhancement 3 on actions that help get you to where you need to be in order to do what you must, but not on…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: Self\nAction: Complex"
+  },
+  "dodaem_dot_02": {
+    "description": "You tend to someone's physical, mental, or spiritual health by appealing to their dodaem manitou in a scene-long ritual. This can resolve any Condition that character is cur­ rently suffering from, including Injury Conditions. However, in exchange for the manitou's aid, it will request a favor from or impose a restriction on either you or that character (if that character is a Pc, the responsibility is almost…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: One character\nRange: Close\nAction: Complex"
+  },
+  "dodaem_dot_03": {
+    "description": "You have prepared for battle by creating one of three med­ icine bundles that you carry on your person. By invoking the Manitou, you empower them to make you stronger or protect you from your enemies. Choose one of the follow­ ing when you use the Boon: Buffalo Medicine: Gain strength Scale equal to half your Legend for Athletics and Close Combat rolls. Blood Medicine: Gain a number of Bruised Injury Levels equal…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Scene\nAction: Reflexive"
+  },
+  "heku_dot_01": {
+    "description": "By giving a model of an object, animal, or person a name, you transform it into a full-sized servant. If you use it on a model object, treat the effect as an Equipment marvel. If you use it with an animal or person, you create a tem­ porary Creature or Follower with dots equal to half your Legend (even if that exceeds 5). Scions with the Beasts Pur­ view add a free dot when animating Creatures. Those with the War…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite Range: Close\nAction: Simple"
+  },
+  "heku_dot_02": {
+    "description": "As your name spreads across mortal lips and thoughts, your Legend grows. Once per session, when you hear someone talk about you by name and describe your exploits, you gain 1 Legend. Reading a published written description of your exploits that attributes them to you by name in a newspaper, blog, or other similar document can also trigger this reward. In order for you to use Ren Harvest, the speaker or writer…",
+    "mechanicalEffects": "Cost: Free\nDuration: Instant\nSubject: Self\nAction: Reflexive"
+  },
+  "heku_dot_03": {
+    "description": "You manifest the power and energy of your living soul as a brilliant light shining in your eyes, exerting your domi­ nance over all you behold. The target must either flee from, or is cowed into submission and ceases hostilities — your choice. If you know their ren, you treat their Attitude as two points higher for the rest of the scene. This does not stack with other magical Attitude bonuses. P LAS: YIDAM",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: One character\nRange: Medium\nAction: Simple\nClash: Presence + Legend vs. Resolve + Legend"
+  },
+  "tianming_dot_01": {
+    "description": "You name yourself or another with a title imbued with the authority of heaven: \"Great Sage, Equal to Heaven,\" \"Pro­ tector of Dogs,\" \"That One God No One Likes,\" or some­ thing similar. The bestowed title is a Condition. The target's title is self-evident to anyone who meets him, and people who need aid related to the title's duties will tend to come to them for help. The title provides Enhancement 2 on rolls to…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: Self or one character\nRange: Short\nAction: Simple"
+  },
+  "tianming_dot_02": {
+    "description": "Once per scene, when you have the Virtuous Condition, you can restore yourself to the midpoint of the Virtue track by forcibly expelling the unbalanced element. If the Condition was brought on by the Yang Virtue, it takes the form of a fiery explosion around you with the Element (fire) and Shockwave tags, extending to short range and using Integrity + Resolve for the attack roll. If it was caused by the Yin…",
+    "mechanicalEffects": "Cost: None\nSubject: Self\nAction: Simple"
+  },
+  "tianming_dot_03": {
+    "description": "You place a curse on a bureaucracy or similarly structured organization from within range of either its leader or its headquarters. Any member of the organization conducting its official business faces a +4 Complication. If the Compli­ cation is not bought off, the task either takes significantly longer than intended — enough that it occurs narratively \"too late\" — or it turns out to be misunderstood, resulting…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One organization\nRange: Long\nAction: Simple"
+  },
+  "qut_dot_01": {
+    "description": "The Avarga is the champion of a wrestling tournament, and it is a title that many of the Tengri aspire to. Competition is at the heart of who they are – and no matter who they face, an Avarga puts up a fight. You may use this only in a formal competition, such as a formal duel, wrestling contest, race, speedrunning competition or similar. You have relevant Scale equal to that of your opponent in the contest. (If…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "qut_dot_02": {
+    "description": "Your Qut is strong enough that harmful spirits must listen to you when you question them. When you look at a person under the effect of one or more Conditions, you see how many there are and their general nature (i.e., the Condition name). You can ask the Storyguide one of the following questions: • Which Condition is potentially the most dangerous to this person? • How can I remove this Con­ dition? • Who caused…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend Range: Close\nSubject: One person\nAction: Simple"
+  },
+  "qut_dot_03": {
+    "description": "You may seize the souls within blood you have spilled, trapping them and gaining power of your foes. The souls are placed inside an onggon talisman (which you are as­ sumed to have on your person already). The target gains the Soulbound condition at an equal level to their current highest Injury Condition. You may choose to release the target's soul at any time, ending the victim's Soulbound condition without…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite (Special)\nSubject: A person you have drawn blood from this scene\nRange: Close\nAction: Simple"
+  },
+  "yidam_dot_01": {
+    "description": "You perfectly embody your tutelary deity, transforming your flesh into a reflection of their enlightened form. When you first gain this Boon, select three attainments and one devotion, which define the nature of your yidam-form and the restrictions you must obey when invoking it. You may select this Boon additional times, gaining two attainments and one devotion for each purchase. If you violate your devotions,…",
+    "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
+  },
+  "behique_dot_01": {
+    "description": "You introduce yourself to the raw materials arrayed before you and ask them to reveal their names and natures to you in return so that you may help their material form match their numinous truth. When undertaking a crafting project using natural materials, you reduce any Complications based on materials by 3. You may choose to extend a project by an additional Milestone; if you do, the object carries an…",
+    "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One project\nSubject: Self\nAction: Simple"
+  },
+  "behique_dot_02": {
+    "description": "By carving, marking, or otherwise refashioning an object, you can transform it into an idol, endowing it with numi­ nous power. This allows you to store a marvel within the idol, using the Zemí Motif and the Fertility, Health, Water, or Sky Purview. Once created, any character may activate the idol as a simple action, although you may require a password or other security feature, at your discretion. If the stored…",
+    "mechanicalEffects": "Cost: Free\nDuration: Indefinite\nSubject: One object\nAction: Complex"
+  }
+}

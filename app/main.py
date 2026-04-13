@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import STATIC_DIR, TEMPLATES_DIR
-from app.routers import game_data
+from app.routers import game_data, interactive_pdf, review_sheet_pdf
 from app.services import game_data as game_data_service
 
 app = FastAPI(title="Scion Character Creator", version="0.1.0")
@@ -18,6 +18,8 @@ app = FastAPI(title="Scion Character Creator", version="0.1.0")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 app.include_router(game_data.router)
+app.include_router(interactive_pdf.router)
+app.include_router(review_sheet_pdf.router)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 

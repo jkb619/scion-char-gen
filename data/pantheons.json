@@ -1,10 +1,11 @@
 {
   "_meta": {
-    "signaturePurviewNote": "signaturePurviewId is the Purview id on the character sheet (must exist in purviews.json). Boons list which Purview(s) gate them via `purview`, `purviews`, or `purviewAnyOf` in boons.json."
+    "signaturePurviewNote": "signaturePurviewId is the Purview id on the character sheet (must exist in purviews.json). Boons list which Purview(s) gate them via `purview`, `purviews`, or `purviewAnyOf` in boons.json.",
+    "patronAssetSkills": "At bundle load, each `deities` / `titans` row gains `assetSkills` copied from its pantheon if missing; `patronAssetSkillOverrides.json` then applies Pandora’s Box (or other) per-patron corrections (`pantheonId:patronId`). The chargen UI uses the selected parent’s `assetSkills` for Society Path (Origin pp. 96–97)."
   },
   "aesir": {
     "id": "aesir",
-    "name": "Æsir — Norse Gods",
+    "name": "Æsir — Norse",
     "assetSkills": [
       "closeCombat",
       "occult"
@@ -225,7 +226,7 @@
   },
   "manitou": {
     "id": "manitou",
-    "name": "Manitou — Algonquian Pantheon",
+    "name": "Manitou — Algonquian",
     "assetSkills": [
       "medicine",
       "occult"
@@ -389,7 +390,7 @@
   },
   "theoi": {
     "id": "theoi",
-    "name": "Theoi — Greco-Roman Pantheon",
+    "name": "Theoi — Greco-Roman",
     "assetSkills": [
       "empathy",
       "persuasion"
@@ -595,7 +596,7 @@
   },
   "netjer": {
     "id": "netjer",
-    "name": "Netjer — Egyptian Pantheon",
+    "name": "Netjer — Egyptian",
     "assetSkills": [
       "academics",
       "occult"
@@ -749,7 +750,7 @@
   },
   "kami": {
     "id": "kami",
-    "name": "Kami — Japanese Gods",
+    "name": "Kami — Japanese",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -863,7 +864,7 @@
   },
   "tuathaDeDanann": {
     "id": "tuathaDeDanann",
-    "name": "Tuatha Dé Danann — Irish Gods",
+    "name": "Tuatha Dé Danann — Irish",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -980,7 +981,7 @@
   },
   "orisha": {
     "id": "orisha",
-    "name": "Òrìshà — Yorùbá Pantheon",
+    "name": "Òrìshà — Yorùbá",
     "assetSkills": [
       "medicine",
       "subterfuge"
@@ -1108,7 +1109,7 @@
       "subterfuge"
     ],
     "description": "The lwa of Vodou—Gods forged in the Americas from Fon, Yorùbá, and many African lines, cousins to the Òrìshà (Mysteries of the World).",
-    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97). Many Loa mirror Òrìshà Mantles unless MotW specifies otherwise.",
+    "mechanicalEffects": "Society Path: two pantheon Asset Skills plus one more Skill (Origin p. 97). Many Loa mirror Òrìshà Mantles unless MotW specifies otherwise. Favored Callings for patrons in this chapter follow Mysteries of the World p. 33–36 — do not take Pandora’s Box Birthrights “Calling:” on Guide NPC stat blocks (e.g. Baron Samedi PB p. 144) as the parent’s three Callings; that line is the Guide’s Storypath Calling only.",
     "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Chapter 3: Pantheons (The Loa of Haiti)",
     "signaturePurviewId": "passion",
     "signaturePurviewLabel": "Cheval / Gún",
@@ -1116,6 +1117,7 @@
       {
         "id": "legba",
         "name": "Legba, Who Opens the Way",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 33 — Mantle of Èshù Elègbará (Favored Callings match Scion: Hero Èshù).",
         "callings": [
           "liminal",
           "lover",
@@ -1133,6 +1135,7 @@
       {
         "id": "baronCimetiere",
         "name": "Baron Cimetière",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 34 — The Barons (Favored Callings: Judge, Guardian, Sage for Cimetière / La Croix).",
         "callings": [
           "guardian",
           "judge",
@@ -1148,6 +1151,7 @@
       {
         "id": "baronLaCroix",
         "name": "Baron La Croix",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 34 — The Barons (Favored Callings: Judge, Guardian, Sage for Cimetière / La Croix).",
         "callings": [
           "guardian",
           "judge",
@@ -1163,6 +1167,7 @@
       {
         "id": "baronSamedi",
         "name": "Baron Samedi",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 34 — The Barons (Favored Callings: Judge, Lover, Trickster for Samedi). SCION_Pandoras_Box_(Revised_Download).pdf p. 144 lists “Calling: Trickster” on the Guide birthright write-up only, not the parent triple (Origin p. 98).",
         "callings": [
           "judge",
           "lover",
@@ -1179,6 +1184,7 @@
       {
         "id": "damballa",
         "name": "Damballa, the Ancestor",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 34 — Damballa (Favored Callings: Creator, Leader, Sage).",
         "callings": [
           "creator",
           "leader",
@@ -1196,6 +1202,7 @@
       {
         "id": "ezili",
         "name": "Ezili, Who Struggles and Loves",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf pp. 34–35 — Ezili Dantò / Ezili Freda (combined Scion entry; confirm Favored Callings at table).",
         "callings": [
           "healer",
           "lover",
@@ -1216,6 +1223,7 @@
       {
         "id": "kalfu",
         "name": "Kalfu, Who Walks at Night",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 35 — Kalfu (Favored Callings: Liminal, Sage, Trickster).",
         "callings": [
           "liminal",
           "sage",
@@ -1232,6 +1240,7 @@
       {
         "id": "lasyren",
         "name": "Lasyren, Who Sings in the Sea",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 36 — Mantle of Yemoja-Oboto (Favored Callings match Scion: Hero Yemoja).",
         "callings": [
           "guardian",
           "lover",
@@ -1251,6 +1260,7 @@
       {
         "id": "ogou",
         "name": "Ogou, Who Wields Iron",
+        "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf p. 36 — Mantle of Ògún (Favored Callings match Scion: Hero Ògún).",
         "callings": [
           "creator",
           "hunter",
@@ -1269,7 +1279,7 @@
   },
   "deva": {
     "id": "deva",
-    "name": "Devá — Gods of South Asia",
+    "name": "Devá — South Asia",
     "assetSkills": [
       "athletics",
       "survival"
@@ -1399,7 +1409,7 @@
   },
   "shen": {
     "id": "shen",
-    "name": "Shén — Chinese Pantheon",
+    "name": "Shén — Chinese",
     "assetSkills": [
       "academics",
       "leadership"
@@ -1540,7 +1550,7 @@
   },
   "teotl": {
     "id": "teotl",
-    "name": "Teōtl — Aztec Gods",
+    "name": "Teōtl — Aztec",
     "assetSkills": [
       "culture",
       "empathy"
@@ -1641,7 +1651,7 @@
   },
   "nemetondevos": {
     "id": "nemetondevos",
-    "name": "Nemetondevos — Gods of the Sacred Shrines (Gaul)",
+    "name": "Nemetondevos — Sacred Shrines (Gaul)",
     "assetSkills": [
       "closeCombat",
       "survival"
@@ -2055,7 +2065,7 @@
   },
   "mythos": {
     "id": "mythos",
-    "name": "The Mythos",
+    "name": "The Mythos — Lovecraftian",
     "assetSkills": [
       "academics",
       "occult"
@@ -2288,7 +2298,7 @@
   },
   "anunna": {
     "id": "anunna",
-    "name": "Anunna — Mesopotamian Pantheon",
+    "name": "Anunna — Mesopotamian",
     "assetSkills": [
       "academics",
       "occult"
@@ -2467,7 +2477,7 @@
   },
   "bogovi": {
     "id": "bogovi",
-    "name": "Bogovi — Slavic Pantheon",
+    "name": "Bogovi — Slavic",
     "assetSkills": [
       "closeCombat",
       "culture"
@@ -2632,7 +2642,7 @@
   },
   "apu": {
     "id": "apu",
-    "name": "Apu — Andean Pantheon",
+    "name": "Apu — Andean",
     "assetSkills": [
       "athletics",
       "survival"
@@ -2766,7 +2776,7 @@
   },
   "atua": {
     "id": "atua",
-    "name": "Atua — Polynesian Pantheon",
+    "name": "Atua — Polynesian",
     "assetSkills": [
       "culture",
       "closeCombat"
@@ -2898,7 +2908,7 @@
   },
   "balahala": {
     "id": "balahala",
-    "name": "Balahala — Philippine Pantheon",
+    "name": "Balahala — Philippine",
     "assetSkills": [
       "athletics",
       "subterfuge"
@@ -3002,7 +3012,7 @@
   },
   "ilhm": {
     "id": "ilhm",
-    "name": "Ilhm — Persian Pantheon",
+    "name": "Ilhm — Persian",
     "assetSkills": [
       "academics",
       "culture"
@@ -3106,7 +3116,7 @@
   },
   "kuh": {
     "id": "kuh",
-    "name": "K’uh — Maya Pantheon",
+    "name": "K’uh — Maya",
     "assetSkills": [
       "academics",
       "occult"
@@ -3208,7 +3218,7 @@
   },
   "tengri": {
     "id": "tengri",
-    "name": "Tengri — Turko-Mongol Pantheon",
+    "name": "Tengri — Turko-Mongol",
     "assetSkills": [
       "athletics",
       "survival"
@@ -3295,7 +3305,7 @@
   },
   "palas": {
     "id": "palas",
-    "name": "Pālas — Tibetan Pantheon",
+    "name": "Pālas — Tibetan",
     "assetSkills": [
       "academics",
       "occult"
@@ -3384,7 +3394,7 @@
   },
   "zem": {
     "id": "zem",
-    "name": "Zem — Taíno Pantheon",
+    "name": "Zem — Taíno",
     "assetSkills": [
       "medicine",
       "culture"

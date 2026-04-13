@@ -1,0 +1,109 @@
+/*
+ * Used only for “Download This Sheet” (server injects `body.sheet-pdf-export`).
+ * A4 page + tighter single-column flow so content matches A4, not a shrunk Letter/wide layout.
+ */
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+html,
+body.sheet-pdf-export {
+  margin: 0;
+  padding: 0;
+}
+
+body.sheet-pdf-export {
+  background: #e8e0d4;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body.sheet-pdf-export .character-sheet {
+  max-width: 100% !important;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+body.sheet-pdf-export .character-sheet--mcg,
+body.sheet-pdf-export .character-sheet--dragon-heir {
+  max-width: 100% !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body.sheet-pdf-export .character-sheet--mcg {
+  font-size: 0.76rem;
+  line-height: 1.32;
+  padding: 0.38rem 0.3rem 0.48rem !important;
+}
+
+body.sheet-pdf-export .character-sheet--dragon-heir {
+  font-size: 0.76rem;
+  line-height: 1.32;
+  padding: 0.36rem 0.28rem 0.45rem !important;
+}
+
+body.sheet-pdf-export .character-sheet--mcg .cs-page--mcg,
+body.sheet-pdf-export .character-sheet--dragon-heir .cs-page--dragon {
+  padding: 0.45rem 0.48rem 0.72rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+body.sheet-pdf-export .cs-banner-title {
+  font-size: 1.38rem;
+}
+
+body.sheet-pdf-export .cs-banner-tier-name {
+  font-size: 0.88rem;
+}
+
+/* Prefer one column on A4 width — more vertical room, less microscopic type. */
+body.sheet-pdf-export .cs-mcg-header-rows,
+body.sheet-pdf-export .cs-mcg-paths-3,
+body.sheet-pdf-export .cs-mcg-p1-bottom,
+body.sheet-pdf-export .cs-mcg-skills-2col,
+body.sheet-pdf-export .cs-two-col,
+body.sheet-pdf-export .cs-path-skills,
+body.sheet-pdf-export .cs-mcg-enh-grid,
+body.sheet-pdf-export .cs-mcg-fb-grid,
+body.sheet-pdf-export .cs-id-grid,
+body.sheet-pdf-export .cs-dragon-id-block,
+body.sheet-pdf-export .cs-dragon-skills-2col,
+body.sheet-pdf-export .cs-dragon-p1-mid,
+body.sheet-pdf-export .cs-dragon-p1-bot,
+body.sheet-pdf-export .cs-dragon-knack-cols,
+body.sheet-pdf-export .cs-dragon-br-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.sheet-pdf-export .cs-arena-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.sheet-pdf-export .cs-deeds-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.sheet-pdf-export .cs-mcg-dice-track-grid {
+  grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr) !important;
+}
+
+body.sheet-pdf-export .cs-mcg-attr-grid {
+  font-size: 0.68rem;
+  gap: 0.18rem 0.25rem;
+}
+
+body.sheet-pdf-export .cs-mcg-attr-colhead {
+  font-size: 0.58rem;
+}
+
+body.sheet-pdf-export .cs-skills-table {
+  font-size: 0.72rem;
+}
+
+body.sheet-pdf-export .cs-mcg-skill-row {
+  font-size: 0.72rem;
+}

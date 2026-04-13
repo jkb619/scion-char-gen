@@ -51,12 +51,6 @@ body {
   letter-spacing: 0.04em;
 }
 
-.tagline {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -260,6 +254,50 @@ textarea.has-doc-hint:focus-visible {
   margin: 0.25rem 0;
 }
 
+.path-skill-overflow-panel {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(201, 162, 77, 0.08);
+}
+
+.path-skill-overflow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.35rem 0;
+}
+
+.path-skill-overflow-row + .path-skill-overflow-row {
+  border-top: 1px solid var(--border);
+}
+
+.path-skill-overflow-label {
+  flex: 1 1 12rem;
+  font-size: 0.95rem;
+}
+
+.path-skill-overflow-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.finishing-attr-block {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.finishing-attr-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 .panel.panel-gate-invalid {
   border-color: #c94a4a;
   box-shadow: 0 0 0 1px rgba(201, 74, 74, 0.45);
@@ -305,12 +343,129 @@ textarea.has-doc-hint:focus-visible {
   max-width: 28rem;
 }
 
+/* Searchable catalog (Birthrights step, Finishing birthrights & equipment) */
+.picker-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.picker-search {
+  flex: 1;
+  min-width: 0;
+  max-width: 28rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+
+.picker-search::placeholder {
+  color: var(--muted);
+}
+
+.picker-scroll {
+  max-height: min(50vh, 22rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Sortable catalog columns (birthrights, finishing birthrights, equipment) */
+.skill-ratings-table th.sortable-col-header {
+  user-select: none;
+}
+
+.skill-ratings-table th.sortable-col-header:hover {
+  color: var(--text);
+}
+
+.skill-ratings-table th.sortable-col-header:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.skill-ratings-table th.sortable-col-header .sort-indicator {
+  font-size: 0.72em;
+  opacity: 0.85;
+}
+
+.equipment-picker-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 52rem) {
+  .equipment-picker-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equipment-picker-selected-heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.equipment-picker-selected-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.equipment-picker-selected-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.equipment-picker-selected-list li:last-child {
+  border-bottom: none;
+}
+
+.equipment-picker-actions {
+  width: 5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.equipment-picker-table .equipment-picker-desc-th {
+  min-width: 12rem;
+}
+
+.equipment-picker-table .equipment-picker-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.35;
+  max-width: 28rem;
+  vertical-align: top;
+}
+
+.equipment-picker-empty {
+  margin: 0.25rem 0 0;
+}
+
 .skill-ratings-th-num {
   text-align: center;
 }
 
-.skill-ratings-col-paths.num,
-.skill-dot-total {
+.skill-ratings-col-paths.num {
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
@@ -334,12 +489,6 @@ textarea.has-doc-hint:focus-visible {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem;
-}
-
-.skill-dot-total {
-  min-width: 1.25rem;
-  font-weight: 600;
-  color: var(--accent);
 }
 
 .skill-ratings-clear {
@@ -546,21 +695,46 @@ textarea.has-doc-hint:focus-visible {
   min-width: 0;
 }
 
-.paths-pantheon-deity-row {
+/* Pantheon | Patron type | Parent — center column on wide screens, stacked on narrow. */
+.paths-pantheon-deity-stack {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem 1rem;
-  align-items: end;
+  grid-template-columns: 1fr;
+  width: 100%;
+  max-width: 56rem;
+  align-items: stretch;
 }
 
-.paths-pantheon-deity-row .field {
+@media (min-width: 48rem) {
+  .paths-pantheon-deity-stack {
+    grid-template-columns: minmax(0, 1fr) minmax(10.5rem, 13rem) minmax(0, 1fr);
+  }
+}
+
+.paths-pantheon-deity-stack .field {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-.paths-pantheon-deity-row select {
+.paths-pantheon-deity-stack select {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  flex: 1 1 auto;
+  min-height: 2.35rem;
+}
+
+/* Mythos fourth Deed — full width under Pantheon / Patron / Parent row. */
+.paths-mythos-deed-field {
+  grid-column: 1 / -1;
+}
+
+.paths-mythos-deed-hint {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
 }
 
 .grid-2 .field-calling-row {
@@ -574,6 +748,11 @@ textarea.has-doc-hint:focus-visible {
   gap: 0.65rem;
 }
 
+.calling-select-dots-row select:disabled {
+  opacity: 0.88;
+  cursor: not-allowed;
+}
+
 .field-calling-row .calling-select-dots-row select {
   flex: 1 1 12rem;
   min-width: 0;
@@ -581,6 +760,41 @@ textarea.has-doc-hint:focus-visible {
 
 .field-calling-row .calling-inline-dots {
   flex: 0 0 auto;
+}
+
+/* Hero / Titanic: Knack chips grouped under the Calling row they match first (or “Any Calling”). */
+.calling-knack-chip-group {
+  margin: 0.65rem 0 0.5rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  /* Inset surface aligned with dark theme — light wash + --muted titles read as illegible grey-on-grey. */
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.calling-knack-chip-group-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.chips.chips--calling-knack-subgroup {
+  margin-top: 0;
+}
+
+.calling-visitation-hero-intro {
+  margin: 0 0 0.4rem;
+}
+
+.calling-visitation-hero-rules {
+  margin: 0 0 0.25rem;
+}
+
+.calling-visitation-hero-list {
+  margin: 0.15rem 0 0;
+  padding-left: 1.25rem;
 }
 
 .field label {
@@ -636,6 +850,13 @@ textarea.has-doc-hint:focus-visible {
   border-color: #e3c56f;
 }
 
+/* Finishing attributes: darker fill for dots already fixed before this step’s bonus */
+.finishing-attr-block .dot.filled.dot-finishing-locked-fill {
+  background: radial-gradient(circle at 30% 25%, #c9a85a, #7a5c22);
+  border-color: #8a6a32;
+  filter: brightness(0.88);
+}
+
 .dot:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
@@ -682,6 +903,16 @@ textarea.has-doc-hint:focus-visible {
   flex-wrap: wrap;
   gap: 0.35rem;
   align-items: flex-start;
+}
+
+/* Purviews step: patron innate panel stacks intro then chips before Mythos Awareness */
+.purviews-patron-innate-panel .purviews-patron-innate-intro {
+  margin-top: 0;
+  margin-bottom: 0.45rem;
+}
+
+.purviews-patron-innate-panel .purviews-patron-innate-chips {
+  margin-top: 0.1rem;
 }
 
 /* Purviews step: selected chip expands to show innate text (not choosable like Boons) */
@@ -762,6 +993,14 @@ textarea.has-doc-hint:focus-visible {
   border-style: dashed;
   border-color: #c97a4a;
   color: #f0d4c4;
+}
+
+/* Calling step: eligible by Calling/tier but no row can pay slot budget yet */
+.chip.chip-knack-slot-blocked:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: rgba(120, 130, 150, 0.65);
 }
 
 /* Calling step: larger touch targets; at Origin only 1–2 Mortal knacks may show, so chips read as primary actions */
@@ -957,6 +1196,39 @@ textarea.has-doc-hint:focus-visible {
   margin: 0.5rem 0 0 1.25rem;
 }
 
+.dragon-br-pick-li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  margin-bottom: 0.45rem;
+}
+
+/* Dragon Magic step: bonus Spell — space Magic type chips from Spell chips + subheading */
+.dragon-bonus-spell-field .dragon-bonus-spell-magic-chips {
+  margin-bottom: 0.15rem;
+}
+.dragon-bonus-spell-field .dragon-bonus-spell-spells-head {
+  margin-top: 1.35rem;
+  margin-bottom: 0.45rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.dragon-wizard-spell-block {
+  margin-bottom: 0.75rem;
+}
+
+.dragon-wizard-spell-plate-wrap {
+  margin-top: 0.55rem;
+}
+
+.dragon-wizard-spell-plate-wrap--bonus {
+  margin-top: 0.65rem;
+}
+
 .step-actions {
   display: flex;
   gap: 0.5rem;
@@ -1069,6 +1341,42 @@ textarea.has-doc-hint:focus-visible {
   font-size: 0.75rem;
   color: var(--muted);
   text-transform: capitalize;
+}
+
+/* Tags library: each row = type · category, then display name (id only in tooltip) */
+.tags-lib-list-btn {
+  gap: 0.15rem;
+}
+
+.tags-lib-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--muted);
+  text-transform: none;
+}
+
+.tags-lib-type {
+  font-weight: 700;
+  color: var(--accent-2);
+  text-transform: capitalize;
+}
+
+.tags-lib-category {
+  font-weight: 600;
+  color: #c5b89a;
+  text-transform: capitalize;
+}
+
+.tags-lib-list-name {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 0.08rem;
 }
 
 .br-editor-search {

@@ -15,7 +15,8 @@
       "Assign Boons (Hero Step 8, p. 189).",
       "Set Legend in the app header when your chronicle calls for it (p. 172).",
       "Mythos pantheon (Masks of the Mythos): this app ships MotM patrons, virtues (Humanity / Nihilism), Signature Purview Arcane Calculus, and MotM Calling names in data — still use the book for Knacks/Boons tables, relics, Fatebindings, and other MotM-only rules when you advance.",
-      "Companion pantheons (Mysteries of the World): Loa of Haiti, Nemetondevos of Gaul, and Yazata of Persia—including patrons, virtues, and Signature Purviews Nemeton and Asha—are in data; use the PDF for Cults, Druid Path details, Covenant, and full Signature Boon write-ups."
+      "Companion pantheons (Mysteries of the World): Loa of Haiti, Nemetondevos of Gaul, and Yazata of Persia—including patrons, virtues, and Signature Purviews Nemeton and Asha—are in data; use the PDF for Cults, Druid Path details, Covenant, and full Signature Boon write-ups.",
+      "Titan-blooded Scions: pick the Welcome tier **Titanic Scion** (or your Storyguide’s equivalent) instead of Hero when using Titans Rising + Saints & Monsters; on Paths set **Patron type** to **Titan** and choose a Titan from data/titans.json (Titanomachy patrons)."
     ]
   },
   "hero": {
@@ -36,12 +37,42 @@
     ]
   },
   "sorcerer": {
-    "nextTier": null,
-    "source": "Saints & Monsters — Sorcerer progression is chronicle-specific; this app does not define a single scripted tier-up.",
+    "nextTier": "sorcerer_hero",
+    "source": "Saints & Monsters ch. 3 — moving from Mortal-band to Heroic-band Sorcerer (Legend 1+): extra Working, Techniques, Paraphernalia, and Purviews.",
     "checklist": [
-      "Confirm Motif, Sources of Power, Prohibition, and Talisman with the PDF.",
-      "Assign Magic Purview Boons and any other Purviews your table allows.",
-      "Record Marvel limits and any Saint/Denizen crossover rules at the table."
+      "Gain a second Working (and its inherent Technique) and assign Techniques per Legend on the Workings step (S&M p. 65).",
+      "Choose or refine your primary Source of Power (Invocation, Patronage, Prohibition, Talisman) on the Sorcerer step.",
+      "Spend up to seven dots of Paraphernalia (Birthrights) total for the Heroic band (chargen summary p. 84).",
+      "Add the Magic Purview (and other allowed Purviews) on the Purviews step; assign Boons from merged supplement data.",
+      "Set Legend on the Review sheet when your table places you at Legend 1+.",
+      "On Calling: add Visitation-style rows (three Callings, five dots) if advancing from this wizard — or start a new sheet at Heroic Sorcerer on Welcome."
+    ]
+  },
+  "sorcerer_hero": {
+    "nextTier": "sorcerer_demigod",
+    "source": "Saints & Monsters ch. 3 — Legend 5 milestone: a third Working; scale Paraphernalia and Marvels with Demigod-tier play.",
+    "checklist": [
+      "Take a third Working and Techniques per p. 65.",
+      "Raise Legend when the chronicle agrees (typically Legend 5).",
+      "Expand Birthrights / Paraphernalia toward Demigod-scale budgets with your Storyguide.",
+      "Resolve any new Prohibition, Patron, or Talisman costs described in the PDF."
+    ]
+  },
+  "sorcerer_demigod": {
+    "nextTier": "sorcerer_god",
+    "source": "Saints & Monsters ch. 3 — Legend 9 milestone: fourth Working (four of five Workings); align God-band limits with Scion: God where needed.",
+    "checklist": [
+      "Add the fourth Working when you reach Legend 9 (p. 65).",
+      "Set Legend in the header to match God-band play.",
+      "Confirm Marvel limits, Fatebindings, and Talisman rules in Saints & Monsters and God."
+    ]
+  },
+  "sorcerer_god": {
+    "nextTier": null,
+    "source": "Saints & Monsters — top of the written Sorcerer ladder in this chapter; further growth is chronicle-specific.",
+    "checklist": [
+      "You may know four of the five Workings; the fifth remains inaccessible without Storyguide exception (p. 65).",
+      "Record Motif, Sources of Power, and any Denizen / Saint crossover hooks at the table."
     ]
   },
   "titanic": {

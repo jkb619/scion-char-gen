@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "note": "Flight Path lists two required Skills; the player picks a third Path Skill (Dragon p. 112). Remembrance axis labels from Flight Remembrances (p. 120). `signatureMagicId` matches the Ch. 2 Signature Dragon Magic summary (Dragon pp. 41–93): Pandemonium (Draq), Refinement (Joka), Avarice (Lindwurms), Blessings (Lóng → `dragonBlessings` in `dragonMagic.json`), Teleportation (Naga), Purification (Serpent).",
+    "source": "Scion_Dragon_(Final_Download).pdf, Chapter 2 Flight Path blocks (pp. 42, 53, 63, 73, 84, 93) and Remembrances (p. 120)"
+  },
+  "draq": {
+    "id": "draq",
+    "name": "The Draq",
+    "pathSkillChoicesRequired": ["subterfuge", "survival"],
+    "remembranceCipher": "Chaos",
+    "remembranceDefection": "Order",
+    "signatureMagicId": "pandemonium",
+    "favoredDraconicKnackIds": ["devastatingDragonsPresence", "poisonBlood"]
+  },
+  "joka": {
+    "id": "joka",
+    "name": "The Joka",
+    "pathSkillChoicesRequired": ["integrity", "survival"],
+    "remembranceCipher": "Indulgence",
+    "remembranceDefection": "Moderation",
+    "signatureMagicId": "refinement",
+    "favoredDraconicKnackIds": ["powerTastingBite", "seizingJaws"]
+  },
+  "lindwurm": {
+    "id": "lindwurm",
+    "name": "The Lindwurms",
+    "pathSkillChoicesRequired": ["closeCombat", "survival"],
+    "remembranceCipher": "Duty",
+    "remembranceDefection": "Consciousness",
+    "signatureMagicId": "avarice",
+    "favoredDraconicKnackIds": ["fadeAway", "massiveBeastShape"]
+  },
+  "long": {
+    "id": "long",
+    "name": "The Lóng",
+    "pathSkillChoicesRequired": ["empathy", "leadership"],
+    "remembranceCipher": "Pride",
+    "remembranceDefection": "Humility",
+    "signatureMagicId": "dragonBlessings",
+    "favoredDraconicKnackIds": ["bottomlessLung", "draconicMajesty"]
+  },
+  "naga": {
+    "id": "naga",
+    "name": "The Naga",
+    "pathSkillChoicesRequired": ["culture", "survival"],
+    "remembranceCipher": "One-of-Many",
+    "remembranceDefection": "One-of-None",
+    "signatureMagicId": "teleportation",
+    "favoredDraconicKnackIds": ["snappingHydrasForm", "skinksRegrowth"]
+  },
+  "serpent": {
+    "id": "serpent",
+    "name": "The Serpents",
+    "pathSkillChoicesRequired": ["subterfuge", "integrity"],
+    "remembranceCipher": "Direct Action",
+    "remembranceDefection": "Negotiation",
+    "signatureMagicId": "purification",
+    "favoredDraconicKnackIds": ["dragonSight", "eelsTrickery"]
+  }
+}

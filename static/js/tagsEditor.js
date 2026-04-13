@@ -18,16 +18,65 @@ function categoriesFromMeta(draft) {
   return Array.isArray(c) && c.length ? [...c] : ["combat", "protection", "utility", "narrative", "general"];
 }
 
+function tagTypesFromMeta(draft) {
+  const t = draft?._meta?.tagTypes;
+  return Array.isArray(t) && t.length
+    ? [...t]
+    : ["weapon", "armor", "tool", "accessory", "vehicle", "general", "other"];
+}
+
+function bookCategoriesFromMeta(draft) {
+  const c = draft?._meta?.bookCategories;
+  return Array.isArray(c) && c.length ? [...c] : ["", "Weapon", "Armor", "Follower"];
+}
+
+/** Duplicated from tagPicker so this module loads even if an older cached tagPicker lacks this helper. */
+function formatTagPointCostLine(e) {
+  if (e?.pointCost === null) return "null";
+  const pc = e?.pointCost;
+  if (pc === undefined) return "";
+  if (typeof pc !== "number" || !Number.isFinite(pc)) return "";
+  const alt = e?.pointCostAlt;
+  const u = "\u2212";
+  const core = pc < 0 ? `${u}${Math.abs(pc)}` : String(pc);
+  if (typeof alt === "number" && Number.isFinite(alt)) return `${core} / ${alt}`;
+  return core;
+}
+
 function ensureTagEntry(key, obj, draft) {
   const o = obj && typeof obj === "object" ? { ...obj } : {};
   o.id = key;
   if (!o.name) o.name = key;
   const cats = categoriesFromMeta(draft);
   o.category = typeof o.category === "string" && cats.includes(o.category) ? o.category : cats[0];
+  const types = tagTypesFromMeta(draft);
+  o.tagType = typeof o.tagType === "string" && types.includes(o.tagType) ? o.tagType : "general";
   const a = Array.isArray(o.appliesTo) ? o.appliesTo.map((x) => String(x)) : [];
   o.appliesTo = [...new Set(a.filter((x) => TAG_APPLIES_ROLES.includes(x)))];
   if (typeof o.description !== "string") o.description = "";
   if (typeof o.source !== "string") o.source = "";
+  const bcs = bookCategoriesFromMeta(draft);
+  if (typeof o.bookCategory !== "string") o.bookCategory = "";
+  else {
+    const t = o.bookCategory.trim();
+    o.bookCategory = bcs.includes(t) ? t : t.slice(0, 48);
+  }
+  if (o.pointCost === null || o.pointCost === "null") {
+    o.pointCost = null;
+  } else if (o.pointCost === "" || o.pointCost === undefined) {
+    delete o.pointCost;
+  } else {
+    const n = Number(o.pointCost);
+    o.pointCost = Number.isFinite(n) ? Math.trunc(n) : null;
+  }
+  if (o.pointCostAlt === "" || o.pointCostAlt === undefined) {
+    delete o.pointCostAlt;
+  } else {
+    const n = Number(o.pointCostAlt);
+    if (Number.isFinite(n)) o.pointCostAlt = Math.trunc(n);
+    else delete o.pointCostAlt;
+  }
+  if (typeof o.pointCostNote !== "string") o.pointCostNote = "";
   return o;
 }
 
@@ -39,10 +88,10 @@ export function mountTagsDataEditor(root, ctx) {
   let dirty = false;
 
   const wrap = document.createElement("div");
-  wrap.className = "br-editor-root";
+  wrap.className = "br-editor-root tags-data-editor";
 
   wrap.innerHTML = `<div class="panel br-editor-intro"><h2>Tags library</h2>
-    <p class="help">Edits <code>data/tags.json</code>. Tags are reused when building <strong>equipment</strong>, <strong>Relics</strong>, <strong>Creatures</strong>, and other entries. Use <strong>appliesTo</strong> to limit where a tag appears in pick-lists (empty means every editor).</p></div>`;
+    <p class="help">Edits <code>data/tags.json</code>. Tags are reused when building <strong>equipment</strong>, <strong>Relics</strong>, <strong>Creatures</strong>, and other entries. The list shows <strong>type</strong>, <strong>category</strong>, optional <strong>Storypath tag cost</strong> (Origin/Hero tables), and <strong>name</strong>; hover a row for its <strong>id</strong>. <strong>Book category</strong> (Weapon, Armor, Follower) matches the core tables; <strong>point cost</strong> uses negative numbers for flaw credits. Use <strong>appliesTo</strong> to limit pick-lists (empty means every editor). Run <code>scripts/scan_data_tag_ids.py</code> to verify <code>tagIds</code> under <code>data/</code>.</p></div>`;
 
   const toolbar = document.createElement("div");
   toolbar.className = "br-editor-toolbar";
@@ -100,10 +149,31 @@ export function mountTagsDataEditor(root, ctx) {
   wrap.appendChild(layout);
   root.appendChild(wrap);
 
-  function listKeys() {
+  /** Normalize every tag row so list + bundle stay aligned (tagType, category, appliesTo). */
+  function hydrateAllDraftTags() {
+    for (const k of Object.keys(draft)) {
+      if (k.startsWith("_")) continue;
+      draft[k] = ensureTagEntry(k, draft[k], draft);
+    }
+  }
+
+  function listKeysSorted() {
+    hydrateAllDraftTags();
     return Object.keys(draft)
       .filter((k) => !k.startsWith("_"))
-      .sort();
+      .sort((a, b) => {
+        const ca = String(draft[a]?.category || "").toLowerCase();
+        const cb = String(draft[b]?.category || "").toLowerCase();
+        if (ca !== cb) return ca.localeCompare(cb, undefined, { sensitivity: "base" });
+        const na = String(draft[a]?.name || a).toLowerCase();
+        const nb = String(draft[b]?.name || b).toLowerCase();
+        if (na !== nb) return na.localeCompare(nb, undefined, { sensitivity: "base" });
+        return a.localeCompare(b);
+      });
+  }
+
+  function listKeys() {
+    return listKeysSorted();
   }
 
   function setStatus(msg, err) {
@@ -114,15 +184,51 @@ export function mountTagsDataEditor(root, ctx) {
   function paintList() {
     const q = search.value.trim().toLowerCase();
     listUl.innerHTML = "";
-    for (const key of listKeys()) {
+    for (const key of listKeysSorted()) {
       const t = draft[key];
-      const hay = `${key} ${t?.name || ""}`.toLowerCase();
+      const types = tagTypesFromMeta(draft);
+      const typ =
+        typeof t?.tagType === "string" && types.includes(t.tagType) ? t.tagType : "general";
+      const cat = typeof t?.category === "string" && t.category.trim() ? t.category.trim() : "—";
+      const costLine = formatTagPointCostLine(t);
+      const bc = typeof t?.bookCategory === "string" && t.bookCategory.trim() ? t.bookCategory.trim() : "";
+      const hay = `${key} ${t?.name || ""} ${typ} ${cat} ${bc} ${costLine}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
       const li = document.createElement("li");
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "br-editor-list-btn" + (selectedKey === key ? " active" : "");
-      b.innerHTML = `<span class="br-editor-list-id">${key}</span><span class="br-editor-list-name">${t?.name || "—"}</span>`;
+      b.className = "br-editor-list-btn tags-lib-list-btn" + (selectedKey === key ? " active" : "");
+      b.title = `Internal id: ${key}`;
+      const meta = document.createElement("div");
+      meta.className = "tags-lib-list-meta";
+      const tySp = document.createElement("span");
+      tySp.className = "tags-lib-type";
+      tySp.textContent = typ;
+      meta.appendChild(tySp);
+      meta.appendChild(document.createTextNode(" · "));
+      const caSp = document.createElement("span");
+      caSp.className = "tags-lib-category";
+      caSp.textContent = cat;
+      meta.appendChild(caSp);
+      if (bc) {
+        meta.appendChild(document.createTextNode(" · "));
+        const bcSp = document.createElement("span");
+        bcSp.className = "tags-lib-bookcat";
+        bcSp.textContent = bc;
+        meta.appendChild(bcSp);
+      }
+      if (costLine) {
+        meta.appendChild(document.createTextNode(" · "));
+        const pcSp = document.createElement("span");
+        pcSp.className = "tags-lib-pointcost";
+        pcSp.textContent = costLine === "null" ? "cost: —" : `cost: ${costLine}`;
+        meta.appendChild(pcSp);
+      }
+      const nm = document.createElement("span");
+      nm.className = "tags-lib-list-name";
+      nm.textContent = t?.name || "—";
+      b.appendChild(meta);
+      b.appendChild(nm);
       b.addEventListener("click", () => {
         selectedKey = key;
         paintList();
@@ -208,6 +314,138 @@ export function mountTagsDataEditor(root, ctx) {
     catRow.appendChild(catSel);
     formBody.appendChild(catRow);
 
+    const typeRow = document.createElement("div");
+    typeRow.className = "field";
+    typeRow.innerHTML = "<label>Tag type (gear / kind)</label>";
+    const typeSel = document.createElement("select");
+    for (const tt of [...tagTypesFromMeta(draft)].sort((a, b) =>
+      String(a).localeCompare(String(b), undefined, { sensitivity: "base" }),
+    )) {
+      const o = document.createElement("option");
+      o.value = tt;
+      o.textContent = tt;
+      typeSel.appendChild(o);
+    }
+    typeSel.value = e.tagType;
+    typeSel.addEventListener("change", () => {
+      e.tagType = typeSel.value;
+      dirty = true;
+      paintList();
+    });
+    typeRow.appendChild(typeSel);
+    formBody.appendChild(typeRow);
+
+    const bcRow = document.createElement("div");
+    bcRow.className = "field";
+    bcRow.innerHTML = "<label>Book category (Weapon / Armor / Follower)</label>";
+    const bcSel = document.createElement("select");
+    const knownBc = bookCategoriesFromMeta(draft);
+    const extraBc = e.bookCategory && !knownBc.includes(e.bookCategory) ? e.bookCategory : null;
+    for (const bc of knownBc) {
+      const o = document.createElement("option");
+      o.value = bc;
+      o.textContent = bc === "" ? "(none)" : bc;
+      bcSel.appendChild(o);
+    }
+    if (extraBc) {
+      const o = document.createElement("option");
+      o.value = extraBc;
+      o.textContent = extraBc;
+      bcSel.appendChild(o);
+    }
+    bcSel.value = knownBc.includes(e.bookCategory) || extraBc ? e.bookCategory : "";
+    bcSel.addEventListener("change", () => {
+      e.bookCategory = bcSel.value;
+      dirty = true;
+      paintList();
+    });
+    bcRow.appendChild(bcSel);
+    formBody.appendChild(bcRow);
+
+    const pcRow = document.createElement("div");
+    pcRow.className = "field";
+    pcRow.innerHTML = "<label>Tag point cost (Origin/Hero tables)</label>";
+    const pcWrap = document.createElement("div");
+    pcWrap.className = "tags-pointcost-row";
+    const pcNull = document.createElement("label");
+    pcNull.className = "tag-check-item";
+    const pcNullCb = document.createElement("input");
+    pcNullCb.type = "checkbox";
+    pcNullCb.checked = e.pointCost === null;
+    const pcNum = document.createElement("input");
+    pcNum.type = "number";
+    pcNum.step = "1";
+    pcNum.className = "tags-pointcost-num";
+    pcNum.disabled = e.pointCost === null;
+    if (e.pointCost !== null && e.pointCost !== undefined) pcNum.value = String(e.pointCost);
+    else pcNum.value = "";
+    pcNullCb.addEventListener("change", () => {
+      if (pcNullCb.checked) {
+        e.pointCost = null;
+        pcNum.value = "";
+        pcNum.disabled = true;
+      } else {
+        pcNum.disabled = false;
+        const n = Math.trunc(Number(pcNum.value));
+        if (pcNum.value !== "" && Number.isFinite(n)) e.pointCost = n;
+        else delete e.pointCost;
+      }
+      dirty = true;
+      paintList();
+    });
+    pcNum.addEventListener("input", () => {
+      if (e.pointCost === null) return;
+      const n = Math.trunc(Number(pcNum.value));
+      if (pcNum.value === "" || !Number.isFinite(n)) delete e.pointCost;
+      else e.pointCost = n;
+      dirty = true;
+      paintList();
+    });
+    const spNull = document.createElement("span");
+    spNull.textContent = "Unpriced on table (store null)";
+    pcNull.appendChild(pcNullCb);
+    pcNull.appendChild(spNull);
+    pcWrap.appendChild(pcNull);
+    pcWrap.appendChild(pcNum);
+    const pcHelp = document.createElement("p");
+    pcHelp.className = "help";
+    pcHelp.textContent =
+      "Integer dot cost from the weapon, armor, or follower tag lists; negative values are flaws. Leave the number empty and unchecked to omit a cost (narrative tags).";
+    pcRow.appendChild(pcWrap);
+    pcRow.appendChild(pcHelp);
+    formBody.appendChild(pcRow);
+
+    const pcaRow = document.createElement("div");
+    pcaRow.className = "field";
+    pcaRow.innerHTML = "<label>Alternate point cost (optional tier, e.g. Hard armor)</label>";
+    const pcaInp = document.createElement("input");
+    pcaInp.type = "number";
+    pcaInp.step = "1";
+    pcaInp.value =
+      typeof e.pointCostAlt === "number" && Number.isFinite(e.pointCostAlt) ? String(e.pointCostAlt) : "";
+    pcaInp.addEventListener("input", () => {
+      const n = Math.trunc(Number(pcaInp.value));
+      if (pcaInp.value === "" || !Number.isFinite(n)) delete e.pointCostAlt;
+      else e.pointCostAlt = n;
+      dirty = true;
+      paintList();
+    });
+    pcaRow.appendChild(pcaInp);
+    formBody.appendChild(pcaRow);
+
+    const pcNoteRow = document.createElement("div");
+    pcNoteRow.className = "field";
+    pcNoteRow.innerHTML = "<label>Point cost note</label>";
+    const pcNoteTa = document.createElement("textarea");
+    pcNoteTa.rows = 2;
+    pcNoteTa.value = e.pointCostNote || "";
+    pcNoteTa.addEventListener("input", () => {
+      e.pointCostNote = pcNoteTa.value;
+      dirty = true;
+    });
+    pcNoteRow.appendChild(pcNoteTa);
+    formBody.appendChild(pcNoteRow);
+
     const appRow = document.createElement("div");
     appRow.className = "field";
     appRow.innerHTML = "<label>Applies to (empty = all editors)</label>";
@@ -277,6 +515,7 @@ export function mountTagsDataEditor(root, ctx) {
       {
         id,
         name: id,
+        tagType: "general",
         category: categoriesFromMeta(draft)[0],
         appliesTo: [],
         description: "",
@@ -318,7 +557,8 @@ export function mountTagsDataEditor(root, ctx) {
       setStatus("Missing _meta", true);
       return;
     }
-    for (const k of listKeys()) {
+    hydrateAllDraftTags();
+    for (const k of Object.keys(draft).filter((x) => !x.startsWith("_"))) {
       if (!validEntryKey(k)) {
         setStatus(`Bad key: ${k}`, true);
         return;
@@ -341,7 +581,9 @@ export function mountTagsDataEditor(root, ctx) {
     }
   });
 
-  if (!selectedKey && listKeys().length) selectedKey = listKeys()[0];
+  hydrateAllDraftTags();
+  const lk = listKeysSorted();
+  if (!selectedKey && lk.length) selectedKey = lk[0];
   paintList();
   paintForm();
 }

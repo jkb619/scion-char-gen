@@ -31,7 +31,8 @@
         "what": "Worshippers, shrines, and rites that support your Legend and provide narrative leverage.",
         "typicalDots": "1–4"
       }
-    ]
+    ],
+    "pbRelicCatalog": "Keys prefixed `pb_relic_` are catalog rows indexed from SCION_Pandoras_Box_(Revised_Download).pdf (Birthrights chapter: title + • dot rating). OCR-garbled titles were corrected where found. `description` and `mechanicalEffects` are **condensed summaries** generated from the PDF text via `scripts/refresh_pb_relics_from_pdf.py` (not full stat blocks—confirm tags, Knacks, Purviews, Evocation, and wording at the table). `relicDetails.purviewId` / `motifsAndTags` are best-effort hints from the printed Purviews / Motif lines. `god_relic_mjolnir` uses the same approach from Scion_God_Second_Edition_(Final_Download).pdf. Re-run the script after PDF updates; extend this file manually for Dragon / Demigod-only Relics."
   },
   "relic": {
     "id": "relic",
@@ -178,5 +179,1722 @@
     "description": "Fans who ‘donate’ Legend through memes and midnight watch parties.",
     "mechanicalEffects": "Small cult: narrative leverage, rumor control, minor Resources.",
     "source": "Scion_Hero_(Final_Download).pdf"
+  },
+  "pb_relic_amulet_of_dagon": {
+    "id": "pb_relic_amulet_of_dagon",
+    "name": "AMULET OF DAGON (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "No one knows where the Amulet of Dagon comes from, and no one knows to whom it originally belonged. It ap peared in a museum collection one day a hundred years ago and since then has been stolen, swiped, purloined, traded, fallen into other hands… no one has owned the amulet for longer than a handful of years at a time, and some people have possessed it for only a few minutes or a day.",
+    "mechanicalEffects": "Purviews: Chaos Motif: You don’t know what you don’t know. Knack: Spend 1 Momentum and gain 2 Enhancement \nwhen attempting to decipher unknown languages — whether \nmundane or some leaving of the Great Old Ones — or uncover \nmysteries connected to the Great Old Ones. The Storyguide is \nthe final arbiter of what counts as uncovering mysteries. \nFlaw: Gain 2 Difficulty in circumstances in which the \nowner attempts to resist the commands or entreaties of the \nservants of Dagon or Mother Hydra; gain 1 Difficulty when \nattempting to resist the commands or entreaties of servants \nof any other Great Old One, including other Scions. Condensed from printed Relics p. 163.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 163",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "chaos",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "You don’t know what you don’t know."
+    }
+  },
+  "pb_relic_amulet_of_the_hound": {
+    "id": "pb_relic_amulet_of_the_hound",
+    "name": "AMULET OF THE HOUND (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "A small object carved from jade, this tiny amulet is no bigger than the human thumb. It is not particularly old; early records place its creation in regions of China, but in truth, this is wildly incorrect and it was in fact a mere facsimile of artistic jeweler native to the area. In actuality, a French set tler aristocrat in the Louisiana area carved this amulet.",
+    "mechanicalEffects": "Purviews: War Motif: A potent little token for those who seek to become \nthe beast. Knack: Spend 1 momentum to cause your jaw to extend, \ncreating a large muzzle full of sharp canine-like teeth. For \nthe duration of this scene, any bite attack deals one addition \nal point of damage.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "war",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "A potent little token for those who seek to become \nthe beast."
+    }
+  },
+  "pb_relic_apocalyptic_aegis": {
+    "id": "pb_relic_apocalyptic_aegis",
+    "name": "APOCALYPTIC AEGIS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "These massive suits of armor cover their wearer from head to toe in supernaturally enhanced metal, exalting them as the answer to knights of old for a dead world devastated by war and destruction. The armors are exceedingly rare, rumored to be treasures forged by mythical forces right be fore the end of the World. It’s impossible to say whether by command of the Gods or the Titans — or both. The armor is an imposing engine of strength and resistance, a relic whose steps resonate with fearsome resolve.",
+    "mechanicalEffects": "Purviews: Epic Strength Motif: My might and purpose are as steel, unwavering \nand pure. Tags: Cumbersome, Hard (3), Resistant (bulletproof), \nWeighty \nEnhancement: +2 to intimidation-related rolls while \nwearing the armor. \nKnack: The owner is immune to any environmental \nComplication or indirect damage as long as they wear the \narmor and the source of either isn’t a character of greater \nTier than theirs. \nKnack: While inside the armor, the owner doesn’t need \nto breathe. \nFlaw: The armor is so bulky and imposing it’s almost \nimpossible for its wearer to go unseen. Any stealth-related \nroll made while using it gains +3 difficulty.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "epicStrength",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "My might and purpose are as steel, unwavering \nand pure."
+    }
+  },
+  "pb_relic_balmung": {
+    "id": "pb_relic_balmung",
+    "name": "BALMUNG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Enhancement: 1 general, or 2 when used against dra conic Titanspawn Tags: Lethal, Melee, Piercing, Two-Handed When Odin buried Balmung deep into the trunk of a tree, it was to issue a challenge to those who sought it. Only one deemed worthy and pure of purpose could wield this blade. Many tried to pull it from the tree, and all failed save one: the legendary hero Sigurd, slayer of the dragon Fafnir.",
+    "mechanicalEffects": "Purviews: War Motif: Greatly desired by all but wielded only by the \nworthy. Enhancement: 1 general, or 2 when used against dra \nconic Titanspawn \nTags: Lethal, Melee, Piercing, Two-Handed When Odin \nburied Balmung deep into the trunk of a tree, it was to issue \na challenge to those who sought it. Only one deemed worthy \nand pure of purpose could wield this blade. Many tried to \npull it from the tree, and all failed save one: the legendary \nhero Sigurd, slayer of the dragon Fafnir. Though it doesn’t \ndeclare who the King of England will be, Balmung is never \ntheless a sword of great power known to slay dragons (sorry, \nFafnir) and is coveted by would-be kings, relic collectors, and \nheroes looking to prove themselves worthy of recognition. \nAny Scion who wields Balmung is…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "war",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Greatly desired by all but wielded only by the \nworthy."
+    }
+  },
+  "pb_relic_basts_gaze": {
+    "id": "pb_relic_basts_gaze",
+    "name": "BAST’S GAZE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "An ever-present truth of myths tells how felines thrive in the night, free to roam while relying on their unique kind of magic. Bast forged this pair of stylish glasses to affirm said myths into being, gifting them to Scions she believes can make best use of secret knowledge of the hidden systems of the world only cats are privy to. Their beautiful, round, royal blue lenses glimmer with moonlight and crafty cunning both elegant and dangerous.",
+    "mechanicalEffects": "Purviews: Moon, Fortune Motif: Let the eyes of cats guide your way through the darkness. Knack: The wearer can imbue 1 Legend to gain +2 En \nhancement on Survival rolls and become able to see in total \ndarkness, magical or mundane, for the remainder of the \nscene. This effect can only be activated at night. \nFlaw: After the wearer benefits from one of the glasses’ \nKnacks or uses them to activate a Moon or Fortune Boon, \ntheir eyes become cat-like for a full day. The unsettling eyes \nimpose a level 1 Complication on all Social rolls made against \npeople who can see them, disturbing people or making them \nfeel as if they’re observed by a feline predator.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "moon",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Let the eyes of cats guide your way through the darkness."
+    }
+  },
+  "pb_relic_bennus_plume": {
+    "id": "pb_relic_bennus_plume",
+    "name": "BENNU’S PLUME (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Enhancement: +1 when used for writing meant to enlighten or uplift Sometimes called the Egyptian phoenix, the bennu bird is a graceful heron venerated as a bringer of renewal and held as sacred to the gods of the sun —even jeal ous Aten.",
+    "mechanicalEffects": "Purviews: Sun Motif: The sun always rises anew Enhancement: +1 when used for writing meant to \nenlighten or uplift Sometimes called the Egyptian phoenix, \nthe bennu bird is a graceful heron venerated as a bringer of \nrenewal and held as sacred to the gods of the sun —even jeal \nous Aten. Bennu birds consecrated to Aten and his blinding \nlight are boon companions to his devotees, and Scions who \npluck a blue-gray feather from them find it channels Aten’s \nown power. All too often, it also serves as a channel for Aten’s \nattention and wrath — for the Titan does not share.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "sun",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The sun always rises anew"
+    }
+  },
+  "pb_relic_bolt_of_perun": {
+    "id": "pb_relic_bolt_of_perun",
+    "name": "BOLT OF PERUN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "When Brȃn the Blessed took a mortal blow, he instructed his companions to behead him and bring him to London. To their surprise, his soul was strong, and his head continued to speak to them during the trip. He was buried where the Tow er of London now stands, but was later exhumed by one of many Scions to take the mantle of King Arthur, who claimed the Blessed’s protection was no longer needed now that they were around. Since his exhumation, Brȃn’s as active as ever.",
+    "mechanicalEffects": "Enhancement: 1 to combat rolls when following Brȃn’s \nadvice. \nKnack: The sight of the great King of Prydain strikes fear \ninto the hearts of combatants. If they don’t know who is when \nthey first see him, they will soon. When Brȃn’s head accompa \nnies you in battle, you may spend up to 5 Momentum to create \na Complication on an enemy combatant. These Complications \ncould be dropping weapons or creating an opening due to the \nshock of seeing Brȃn’s head. Flaw: An undead talking head is \nhorrifying, no matter how charming his words are. When an \nSGC sees the head for the first time, they take a −1 attitude \nshift towards the Scion due to shock or disgust.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_clarent_the_sword_of_peace": {
+    "id": "pb_relic_clarent_the_sword_of_peace",
+    "name": "CLARENT, THE SWORD OF PEACE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "For a sword known as the Sword of Peace, Clarent has seen its share of bloodshed and treachery. No matter how much the king wishes for peace, there are situations where diplomacy fails, and the blade must be taken up. Last seen plunged into the chest of Arthur by the hand of dying Mor dred, who himself was impaled upon the spear Rhongo miant. Sometimes peace is not the cessation of war, but the tranquility of death itself.",
+    "mechanicalEffects": "Purviews: Death, Order Motif: Through hearts impaled, glory is won and lost. Knack: The user and those Fatebound to them reduce \nthe cost of Critical stunts against each other by the strength \nof the Fatebinding while the user wields Clarent. \nTags: Lethal, Melee, Piercing, Renowned, Two-handed, \nUnconcealable",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "death",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Through hearts impaled, glory is won and lost."
+    }
+  },
+  "pb_relic_cursed_copper_goods": {
+    "id": "pb_relic_cursed_copper_goods",
+    "name": "CURSED COPPER GOODS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Wondrous treasures may be made by anyone brave enough to steal from Mishipeshu, who jealously guards the copper veins of his Underworld home with both vigilance and malice, denying it to God, Scion, and titanspawn alike. Those who manage to steal away a measure of cursed copper find it resonates with Mishipeshu’s own power, granting them dominion over water and death.",
+    "mechanicalEffects": "Purviews: Death, Water Motif: Terror comes from the World beneath. Knack: You instantly know if Mishipeshu is within (Leg \nend) miles of you. If you invest Legend, this effect extends to any Underworld-related threat, giving you a sense of both \ndirection, distance, and nature. \nFlaw: Mishipeshu instantly knows if you are within \n(Legend) miles of him. Condensed from printed Relics p. 168.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 168",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "death",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Terror comes from the World beneath."
+    }
+  },
+  "pb_relic_dagdas_basket": {
+    "id": "pb_relic_dagdas_basket",
+    "name": "DAGDA’S BASKET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The Dagda’s Cauldron is one of the four great treasures of the Tuatha Dé Danann. In one of its modern replicas, it in stead takes the (considerably more portable) form of a picnic basket full of food, though the owner has little control over what they pull out.",
+    "mechanicalEffects": "Purviews: Fertility Motif: Nourish and strengthen the weak and worthy. Knack: The basket can produce food on command, \nwhich disappears if not eaten by the end of the scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "fertility",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Nourish and strengthen the weak and worthy."
+    }
+  },
+  "pb_relic_dagons_compass": {
+    "id": "pb_relic_dagons_compass",
+    "name": "DAGON’S COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "While ancient Phoenicians did not have a compass in a way that resembles modern ones, they were nevertheless granted the means to navigate their way home by the God Dagon. This item can take a multitude of forms: a classic hand-held compass, a needle on a magnetized rock in a bowl of water, or even an app on a smartphone whose icon is the silhouette of a dolphin jumping from the water. No matter where a Scion is, this compass can guide them wherever they need to go or be — be it in the World or otherwise.",
+    "mechanicalEffects": "Purviews: Journeys Motif: Wherever you go, there you are. Enhancement: 1 to finding or entering Terra Incognitae \nor Underworlds, 2 to navigating to anywhere else in the World.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "journeys",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Wherever you go, there you are."
+    }
+  },
+  "pb_relic_darkhan_windhorse": {
+    "id": "pb_relic_darkhan_windhorse",
+    "name": "DARKHAN WINDHORSE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: 1 Purviews: Journeys Motif: Freedom is a steed faster than the wind. No Tengri should be without a horse for long — so say the traditionalists, at least. Fortunately for Scions who live in ar eas where stables aren’t common, not all horses are flesh.",
+    "mechanicalEffects": "Enhancement: 1 \nPurviews: Journeys \nMotif: Freedom is a steed faster than the wind. \nNo Tengri should be without a horse for long — so say the \ntraditionalists, at least. Fortunately for Scions who live in ar \neas where stables aren’t common, not all horses are flesh. The \ngreat God Gudzir Kungker breeds a line of spirit-horses that \nhe houses in specially made motorcycle mirrors and chrom \ning, fitting them to expertly crafted machines of steel made \nby his cultists at Darkhan Ironworks. These motorcycles have \nthe souls of horses if not their bodies, and their riders find it \neasy to travel deep into the lands of spirit and God alike. \nKnack: Gain access to the Pierce the Veil Knack (Sci \non: Hero, p. 231).…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_demonic_ayoyotes": {
+    "id": "pb_relic_demonic_ayoyotes",
+    "name": "DEMONIC AYOYOTES (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "It was common in the early years of the twentieth cen tury for stage and film to cross paths, with recordings of the atrical performances recorded and displayed to audiences the world over. German expressionist filmmaker Fritz Lang frett, a former vaudeville stagehand, undertook one such recording in 1924. His film, Der König in Gelb, is one of early cinema’s most elusive lost films. The recording comprised of two reels; the first remains in the hands of an anonymous wealthy collector.",
+    "mechanicalEffects": "Purviews: Star, Death, Journey Motif: They recorded it. What madness! Knack: The fact that Langfrett was an adamant cultist \nin service to ancient entities from Aldebaran is unsurpris \ningly missing from film history. In practice, the recording \nperfectly captured the ritual of The King in Yellow, sealing \nthe rite’s mystical properties within a cage of celluloid. \nViewing both reels of the film in their entirety has the same \neffect as a performance of the play, but without the necessity \nof actors or scripts. All that is required is a film projector of \nan appropriate age; no dice rolls are required to perform the \nritual in this manner. \nFlaw: Perhaps mercifully, both reels are required for \nthis performance; the second has been lost for almost a \ncentury. Should it be… Condensed from printed Relics p. 169.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 169",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "They recorded it. What madness!"
+    }
+  },
+  "pb_relic_designated_constellation": {
+    "id": "pb_relic_designated_constellation",
+    "name": "DESIGNATED CONSTELLATION (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "While modern science knows that stars shine from light-years away in space, Heroes of the Shén know they’re also Relics the Gods hand out in heaven as rewards for ser vices well-rendered. A Scion can’t hold his constellation in his hand, but he can manipulate its glittering bounty through the threads of his Fate as long as it shines overhead. The Theoi and other pantheons with zodiacs of their own occa sionally dole out constellations as well, but the practice is uncommon for anyone but the Shén.",
+    "mechanicalEffects": "Purviews: Fortune, Stars Motif: All Fates are reflected in the stars. Knack: The constellation’s ruler can learn Muse’s Kiss \nfor any kind of art as a Stars Boon. \nKnack: The Scion can spend a point of Legend to make \nhis constellation impart a specific message to anyone in the \nWorld who divines or navigates by the stars. The message \nmust be brief, no more than a sentence or two, and lasts until \nthe character changes it to a new message. \nFlaws: This Relic’s abilities, and all Boons and marvels \nchanneled through it, may only be used when the constella \ntion itself is visible in the sky.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "fortune",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "All Fates are reflected in the stars."
+    }
+  },
+  "pb_relic_elder_sign_amulet": {
+    "id": "pb_relic_elder_sign_amulet",
+    "name": "ELDER SIGN AMULET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Calling: Guardian Motif: Holding the dark at bay This small, minted amulet of metal is typically no small er than half the circumference of one’s palm. It is inlaid with a marking that, although unsettling to look upon, is never theless beneficial for those who know how to wield it. These amulets are not made of any particular type of metal and there is nothing especially unique about its construction; instead, the potency relies upon the marking engraved upon it.",
+    "mechanicalEffects": "Knack: The Amulet functions in one of two ways. First \nly, when physically placed between a Mythos entity and a \ntarget (often the wielder) it prevents the creature from mov \ning past or touching anything behind the amulet. Doing so \nrequires the wielder to spend One Momentum; holding the \namulet in an outstretched hand while doing so is enough to \nrepel the creature. The wielder may, if they choose, place the \namulet somewhere (hanging it in a window or around the \nneck of a loved one) to extend that protection to wherever \nor whoever he has placed the amulet. Be aware that this use \nis unidirectional; holding out the amulet to one creature will \nnot protect you from attack by a second creature behind \nyou,… Condensed from printed Relics p. 171.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 171",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_erich_zanns_viol": {
+    "id": "pb_relic_erich_zanns_viol",
+    "name": "ERICH ZANN’S VIOL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The battered case of Erich Zann’s viol contains a simple viol (also known as a cello) created by an expert craftsperson; her smooth, honey-colored wood seems to glow subtly, as if stage lights strike her, no matter what the current lighting. If the instrument were smaller, it might make a decent emer gency light, perhaps.",
+    "mechanicalEffects": "Purviews: Artistry, Chaos, Darkness Motif: Give of yourself to hold back the dark. Knack: By spending 1 Momentum, the user may imbue \nhis music with a chaotic energy which soothes even Great Old \nOnes. Choose from either of the following options upon activat \ning the viol. The user enters a Clash of Wills with an opponent; \nsuccess causes the opponent to fall asleep regardless of other \ncircumstance; the user gains 2 Enhancement to this roll. How \never, attacking or otherwise damaging the subject of the Knack \ncauses him to immediately wake. Alternately, the cello’s user \nmay choose to seal shut any portal, door, or other opening for \na scene. There is no outer limit to the size of portal which can \nbe closed, but it must be surrounded by a continuous bound \nary. Technically, yes, you could…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "artistry",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Give of yourself to hold back the dark."
+    }
+  },
+  "pb_relic_etiquette_and_protocol": {
+    "id": "pb_relic_etiquette_and_protocol",
+    "name": "ETIQUETTE AND PROTOCOL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Etiquette and Protocol does not permit an Annuna to force someone to act in a particular fashion, but she can make it more difficult to breach the peace she enforces. Upon activa tion, she enforces her sense of right behavior on those around her. They may not agree with her point of view — nothing about the Relic actually changes people’s minds — but she makes it hard for them to act outside of her defined bounds.",
+    "mechanicalEffects": "Motif: I will demonstrate the proper way in all things. Flaws: Using a me requires taking a simple action to \nfollow its instructions to the letter, activating the relic for \nthe scene.\nEXCALIBUR,",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I will demonstrate the proper way in all things."
+    }
+  },
+  "pb_relic_excalibur_the_sword_of_victory": {
+    "id": "pb_relic_excalibur_the_sword_of_victory",
+    "name": "EXCALIBUR, THE SWORD OF VICTORY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Considered to be one of the most powerful swords ever created; its power and the aura of kingship it bestows upon its bearer makes it sought by knaves, Knights, and self-styled kings. It is not by the blade alone that makes one worthy of sit ting upon a throne, but the wisdom it imparts its wielder: that power should be used in the best interests of the people and to grant fair justice.",
+    "mechanicalEffects": "Purviews: Fortune, Order Motif: Power is given to those worthy, never taken. Enhancement: 3 when used to lead or rally a people \nFlaw: Wielders of Excalibur find themselves inex \ntricably Fatebound to it. When you take advantage of its \nPurviews, you may spend 1 Momentum, or create or Com \npel a Fatebinding in a manner that involves Excalibur. At Demigod, one of the Scion’s Fatebindings must be Excalibur. \nIf Excalibur is stolen or irreparably damaged, the Scion must \nundergo a quest to become worthy of using it once more.\nTags: Lethal, Melee, Renowned, Shockwave, Two-Hand \ned, Unconcealable. Condensed from printed Relics p. 172.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 172",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "fortune",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Power is given to those worthy, never taken."
+    }
+  },
+  "pb_relic_facemelter": {
+    "id": "pb_relic_facemelter",
+    "name": "FACEMELTER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Forged in a crucible of inspiration and rebellion by the Titan Prometheus, the Facemelter is a masterpiece of musical engineering. In its natural state, the relic takes the shape of a chrome guitar ornamented with a jet-black head stock and body. Finishes that look like rivulets of molten metal converge at its center and neck, hot to the touch and impressive to the sight.",
+    "mechanicalEffects": "Purviews: Fire Motif: Through my inner fire, I shred. Enhancement: +2 to performances made to inspire \nanger or rebellion. \nKnack: The guitar needs no electricity or fuel to work \nin any of its shapes. \nKnack: The Facemelter suffers no damage from fire of any sort. \nKnack: The Facemelter can change into a heavy melee axe \nwith the Brutal, Lethal, Melee, Piercing, Two-Handed, and Uncon \ncealable tags or a flamethrower with the Automatic, Brutal, Lethal, \nLoud, Messy, Ranged, Two-Handed, and Unconcealable tags. \nFlaw: Changing the Facemelter’s shape from guitar to \nweapon requires one successful performance roll. Changing \nit from a weapon into another shape requires a Technology \nroll. Both rolls are simple actions. \nFlaw: If the user rolls a botch whenever using…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "fire",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Through my inner fire, I shred."
+    }
+  },
+  "pb_relic_fame_pole_star": {
+    "id": "pb_relic_fame_pole_star",
+    "name": "FAME POLE STAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The vivid white gem is cut as the exact replica of a little stylized star. No bigger than a die, it thrums with the power of hope and dreams. The more its owner believes in their own chance to achieve greatness, the more the gem shines golden, but its light likewise dies out when people falter on the path to stardom.",
+    "mechanicalEffects": "Purviews: Stars Motif: Stars are born on the stage, and they know their \nway back. Knack: The gem can shine a ray of light on command, \npointing at the closest avenue where the Scion’s perfor \nmances would get a chance to shine.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "stars",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Stars are born on the stage, and they know their \nway back."
+    }
+  },
+  "pb_relic_fearsome_nights_necklace": {
+    "id": "pb_relic_fearsome_nights_necklace",
+    "name": "FEARSOME NIGHT’S NECKLACE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "This silver necklace ends with a pendant in the shape of an ornate snowflake made of onyxes. Its essence taps into the spaces and times between tour stops, when people spend nights on the road far from their houses and loved ones, alone with their thoughts.",
+    "mechanicalEffects": "Purviews: Darkness Motif: I know my fans. They speak to me as I sing to them. Enhancement: +1 to discover a person’s insecurities \nor fears. \nFlaw: The wearer becomes cold to the touch, imposing \na level 1 Complication on social rolls made against people \nwithin short range, freezing small amounts of liquid upon \nprolonged contact, and leaving behind fingerprints of rime.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "darkness",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I know my fans. They speak to me as I sing to them."
+    }
+  },
+  "pb_relic_feather_cloak": {
+    "id": "pb_relic_feather_cloak",
+    "name": "FEATHER CLOAK (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "While Freyja’s may be the best-known, there are many feather cloaks in the World which, when worn, transform their wearer into a bird or other winged beast. The Swan Maidens, a Welsh German pop duo, are famed for their cloaks, integrating aerial stunts and bird song into their live performances. Lesser-known cloaks exist for crows, ravens, fruit bats, and more.",
+    "mechanicalEffects": "Purviews: Animals (Birds) Motif: I embody the grace of my winged siblings. Tags: Soft, Innocuous \nKnack: The wearer may transform into the cloak’s asso \nciated animal as a simple action, granting them the ability to \n\n PANDORA’S BOX\nfly and a total of +3 Enhancement divided among flying, sight, \nstealth, or other appropriate actions based on the animal. \nTasks requiring human manipulation may be impossible, or \nsubject to 1 to 3 Difficulty at the Storyguide’s discretion. Condensed from printed Relics p. 173.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 173",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I embody the grace of my winged siblings."
+    }
+  },
+  "pb_relic_fenrirs_fang": {
+    "id": "pb_relic_fenrirs_fang",
+    "name": "FENRIR’S FANG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Sharp are the fangs of wolf Titan Fenrir, and cold enough to pierce the sun’s fire-flesh. The wolf and his mad pups have hunted the sun time and again, and only the intervention of the Gods and their Scions has forestalled Ragnarok. From the wolf’s corpse, they pluck a fang — a long, sharp blade nearly a foot in length. These fangs make prized weapons, although many Æsir are disquieted by the distant howl that the weapon makes when swung.",
+    "mechanicalEffects": "Purviews: Frost Motif: The World ends in ice Tags: Concealable, Lethal, Melee, Thrown \nKnack: Spend Momentum to have Fenrir’s Fang quench \nall lights and flames within long range. Flames and light \nsources large enough to have Scale are immune. This inflicts \n+1 Difficulty to vision-dependent actions in areas of low light, \nor +2 Difficulty in complete darkness. This effect persists for \nthe rest of the scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "frost",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The World ends in ice"
+    }
+  },
+  "pb_relic_galatine": {
+    "id": "pb_relic_galatine",
+    "name": "GALATINE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "For as long one remains illumined, one shall remain blessed. Granted to Sir Gawain by the Lady of the Lake, the sword Galatine is said to make its wielder invincible under the light of the sun. Though not as powerful or as sought-af ter as Excalibur, it nevertheless has become a relic of interest for those seeking to forge their own Knightly mantle and engage in glory-seeking quests.",
+    "mechanicalEffects": "Purviews: Sun Motif: The sun is divine. Enhancement: 1 when used in full view of the sun \nFlaw: If used at night, suffer a -1 to combat rolls using Galatine. \nTags: Aggravated, Lethal, Melee, Renowned",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "sun",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The sun is divine."
+    }
+  },
+  "pb_relic_giantsbane": {
+    "id": "pb_relic_giantsbane",
+    "name": "GIANTSBANE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Enhancement: 1 general, or 2 vs. foes of larger Size Any one who’s ever run afoul of the Æsir knows the thunderous power of Thor’s hammer Mjolnir, probably far better than they ever hoped to know it.",
+    "mechanicalEffects": "Purviews: Sky Motif: The flash and fury of the thunderstorm. Enhancement: 1 general, or 2 vs. foes of larger Size Any \none who’s ever run afoul of the Æsir knows the thunderous \npower of Thor’s hammer Mjolnir, probably far better than they \never hoped to know it. The Norse guardian doesn’t like to part \nwith his hammer, but he once broke off a small piece of its stone \nand gave it to the dwarves for use in forging a new weapon with \nits potent magic, destined for his child’s hand. That weapon \nwas Giantsbane, the prodigious revolver with a barrel as long and as thick around as the forearm of the Scion who wields it. \nAs the gun’s wielder cocks back the hammer, anyone nearby \nfeels the thrill of ambient static electricity. With extraordinary \nstopping power and a… Condensed from printed Relics p. 174.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 174",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The flash and fury of the thunderstorm."
+    }
+  },
+  "pb_relic_goibnius_iron_ale": {
+    "id": "pb_relic_goibnius_iron_ale",
+    "name": "GOIBNIU’S IRON ALE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Enhancement: +2 to unravel puzzles or think one’s way through a troubling issue. This ever-full iron mug full of ale serves three purposes for Goibniu’s children and anyone else who receives one: it heals wounds, helps focus the mind on the task at hand, and restores the imbiber’s youth. As an add ed bonus (or drawback, depending on one’s point of view), the alcohol has no intoxicating effects.",
+    "mechanicalEffects": "Purviews: Health Motif: Drinking alone or with friends, I seek and find clarity. Enhancement: +2 to unravel puzzles or think one’s way \nthrough a troubling issue. This ever-full iron mug full of ale \nserves three purposes for Goibniu’s children and anyone else \nwho receives one: it heals wounds, helps focus the mind on \nthe task at hand, and restores the imbiber’s youth. As an add \ned bonus (or drawback, depending on one’s point of view), \nthe alcohol has no intoxicating effects.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "health",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Drinking alone or with friends, I seek and find clarity."
+    }
+  },
+  "pb_relic_golden_stag": {
+    "id": "pb_relic_golden_stag",
+    "name": "GOLDEN STAG (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Enhancement: 2 general, or 3 while attempting stealth When Artemis was young, she captured four golden-horned deer and bade them pull her golden chariot. Though she sometimes travels this way still through Olympus’ steep passes, some of her Incarnations prefer to cruise in more modern style. When she lends her wheels out to her Scions, it’s this custom chopper bike they ride.",
+    "mechanicalEffects": "Purviews: Journeys Motif: Swift and agile as the deer. Enhancement: 2 general, or 3 while attempting stealth \nWhen Artemis was young, she captured four golden-horned \ndeer and bade them pull her golden chariot. Though she \nsometimes travels this way still through Olympus’ steep passes, \nsome of her Incarnations prefer to cruise in more modern style. \nWhen she lends her wheels out to her Scions, it’s this custom \nchopper bike they ride. Painted a bright gold, it sits low to the \nroad, with an elongated frame and an engine that hums too qui \netly — until revved up for effect. Faster and more maneuverable \nthan any mortal motorcycle, the Golden Stag boasts a pair of \ndeer antlers made of solid gold and comes with a sleek full-face \nhelmet which acts as armor with…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "journeys",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Swift and agile as the deer."
+    }
+  },
+  "pb_relic_green_glass_sword": {
+    "id": "pb_relic_green_glass_sword",
+    "name": "GREEN GLASS SWORD (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "This jagged greatsword looks too crude to justify its effectiveness, but the ease with whom it destroys its targets betrays the supernatural lethality simmering within. The horrible green glass it’s made of is no work of art but rather matter fused together by a weapon no man should have ever conceived, then imbued with its deadly legacy. Whoever wields it can harness the power of the atom itself, in all its destructive and unstoppable glory.",
+    "mechanicalEffects": "Purviews: Sun Motif: Destruction forged a weapon in the shape of itself. Tags: Brutal, Lethal, Melee, Versatile \nKnack: The owner becomes immune to indirect damage \nand Complications caused by radiation, provided the source \nof the damage isn’t a character of equal or greater Tier. \nKnack: The owner has +1 Defense against attacks made \nat Close range. When they use the Disarm Stunt (Scion: Or \nigin, p. 116), they may destroy a mundane weapon instead of \nsimply disarming it.\nGREEN MAN’S MASK (NEMETONDEVOS) \nCrafted from leaves of the greatest oak tree in all the \nland, in the days of old, this mask allowed its wearer to move \nunseen through the forests, blending in with the foliage and \ntrees as though they were born to it like a nymph. In more \nmodern days, it has taken form as a…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "sun",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Destruction forged a weapon in the shape of itself."
+    }
+  },
+  "pb_relic_haunted_hobby_horse": {
+    "id": "pb_relic_haunted_hobby_horse",
+    "name": "HAUNTED HOBBY HORSE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Knack: The rider of the Haunted Hobby Horse reduces the rank of all Complications by one (to a minimum of 1) to avoid detection while traveling through hostile territory. Flaw: The Scion must tell awful jokes or prank any one who detects them or they choose to engage with along their journey.",
+    "mechanicalEffects": "Purviews: Deception, Journeys Motif: Just a trick of the light. Knack: The rider of the Haunted Hobby Horse reduces \nthe rank of all Complications by one (to a minimum of 1) to \navoid detection while traveling through hostile territory. \nFlaw: The Scion must tell awful jokes or prank any \none who detects them or they choose to engage with along \ntheir journey. Consisting of a gaudily decorated horse skull \nmounted on the end of a sturdy staff, one wouldn’t think \nthe haunted hobby horse good for aught else than being a \ndistraction — which is precisely where its boon lies: When \na Scion straddles the Haunted Hobby Horse (and they must \nstraddle it), it cloaks them and renders them just invisible \nenough to pass unnoticed through difficult areas.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "deception",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Just a trick of the light."
+    }
+  },
+  "pb_relic_hill_striding_moccasins": {
+    "id": "pb_relic_hill_striding_moccasins",
+    "name": "HILL-STRIDING MOCCASINS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "A Scion who wears a pair of these leather moccasins becomes incredibly fleet of foot, overtaking prey and out running pursuit with equal swiftness. Each pair is decorated with beads in the shapes of clouds, birds, and bolts of light ning, all to speed the Hero’s steps.",
+    "mechanicalEffects": "Purviews: Epic Dexterity Motif: No hill too steep, nor too far. Knack: The wearer reduces the rank of all Complica \ntions by one to avoid difficult or dangerous terrain features. \nKusanagi-no-Tsurugi, Condensed from printed Relics p. 178.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 178",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "epicDexterity",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "No hill too steep, nor too far."
+    }
+  },
+  "pb_relic_hurricane_jar": {
+    "id": "pb_relic_hurricane_jar",
+    "name": "HURRICANE JAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "To the untrained eye, this relic looks like any jar you might find in any house in the World. Perhaps it once housed jam, pickles, or some other condiment used to flavor a fam ily meal but has found a second life. However, looks can be deceiving, much like calm sea during a sunny day before it turns dark and tempestuous a few hours later. These jars, each imbued with just a bit of Juracán’s anger, often appear unbidden but never without need.",
+    "mechanicalEffects": "Purviews: Chaos Motif: A tempest in a teapot, err… jar.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "chaos",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "A tempest in a teapot, err… jar."
+    }
+  },
+  "pb_relic_internalized_instructions": {
+    "id": "pb_relic_internalized_instructions",
+    "name": "INTERNALIZED INSTRUCTIONS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Legendary Purviews: variable, see below Motif: I carry the proper way within me; it and I are one.",
+    "mechanicalEffects": "Enhancement: +2 or +3 to performing the declared \ntask, see below. \nDissolving an ancient me in liquor gifted by the highest \nof the Annuna and distilling by a secret process into gold \nand platinum tattoo ink permits the creation of Internalized \nInstructions, a tattooed me borne by the divine Annuna. \nWhen the rules of the universe truly live within someone, \nhow can their reach ever exceed their grasp? When creat \ning Internalized Instructions, choose a Purview and a task. \nUpon activation, the Annuna may either utilize Internalized \nInstructions for that task or may choose a different, tempo \nrary task aligned with any Purview to which she has access. \nIf she uses Internalized Instructions for its… Condensed from printed Relics p. 179.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 179",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_irish_muscle_car": {
+    "id": "pb_relic_irish_muscle_car",
+    "name": "IRISH MUSCLE CAR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "The chariot is the traditional conveyance of battle for the Tuatha Dé Danann, favored by the Morrígan. A sturdy chariot pulled by noble steeds and bristling with weaponry could make a simple drive-by deadly in the hands of a skilled charioteer. Modern Scions prefer to pay homage to this tra dition with a different kind of horsepower. The Irish muscle car is usually a Mustang or Charger, tricked out with gad gets, guns, hidden blades, and more to make chases a dicey prospect for a Hero’s enemies.",
+    "mechanicalEffects": "Purviews: Chaos Motif: The road is my battlefield. Knack: This vehicle constitutes a rank 2 Hazard Com \nplication for any other vehicle involved in a chase or race \n(Scion: Origin, p. 73). Once per scene, the driver of the Irish \nmuscle car may gain one Momentum whenever the driver of \nanother vehicle spends from the Tension Pool. \nKnack: This vehicle never runs out of fuel, and its \ndriver always begins any chase or race with the Head Start \nEnhancement at rank 1, reflecting its ability to go from zero \nto breakneck in mere seconds. It applies only to the first lap. \nFlaws: Reduce the car’s Head Start Enhancement or Haz \nard Complication by one rank at the end of any scene in which \nit was used in a chase or race without its driver or another \noccupant…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "chaos",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The road is my battlefield."
+    }
+  },
+  "pb_relic_jade_seal": {
+    "id": "pb_relic_jade_seal",
+    "name": "JADE SEAL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "This seal, reminiscent of the ancient Heirloom Seal of China, is a small, rectangular cylinder made of jade with the bearer’s personal name and Legendary Title embossed on the end. The Shén give them to their Heroes with great frequency, to legitimize a Scion’s duties within the Celestial Bureaucracy and grant her a measure of judicial authority. Most Shén Scions grow used to carrying around forms on silk paper, dashing off quick prayers to work their marvels.",
+    "mechanicalEffects": "Purviews: Order Motif: I’m going to need that in triplicate.\n\n birthrights Condensed from printed Relics p. 180.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 180",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "order",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I’m going to need that in triplicate.\n\n birthrights"
+    }
+  },
+  "pb_relic_kampilan": {
+    "id": "pb_relic_kampilan",
+    "name": "KAMPILAN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "By all appearances, the kampilan is a simple, single edged sword with a distinct profile: a tapered blade that is much broader and thinner at the point than at its base. The pommel can feature several designs, but it most commonly depicts animals native to the Philippines. What makes the kampilan stand out, however, is that it comes with actual bells, if not whistles, that herald the arrival of its wielder — and the ferocity that comes with it.",
+    "mechanicalEffects": "Purviews: Fortune Motif: Bring the islands with you wherever you go. Tags: Lethal, Melee, Flashy\nKANAME–ISHI (•• TO ••••)\nThe Titan Namazu is held in place by the kaname-ishi, or \npinning rock, which Takemikazuchi used to weigh down the \nTitan and limit her thrashing. In so doing, he quieted the earth \nquakes that shook Japan, or at least diminished them. Other \nkaname-ishi exist, often in the hands of Kami Scions who must \nsubdue titanspawn. Although these stones are often little more \nthan unworked stone, some are engraved with pictograms or \nprayers, or else wrapped in sacred shimenawa ropes. \nTags: Bashing, Pushing, Stun, Thrown \nKnack: When purchasing the Line Drive Stunt after an \nattack with the kaname-ishi, you may imbue Legend to pin \nthe foe under the stone’s immense…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "fortune",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Bring the islands with you wherever you go."
+    }
+  },
+  "pb_relic_knuckles_of_the_mountain": {
+    "id": "pb_relic_knuckles_of_the_mountain",
+    "name": "KNUCKLES OF THE MOUNTAIN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "These brass knuckles have polished stone along the palm that radiates warmth when held. Cabrakan’s children often gain a modicum of his strength, but these knuckles make an overwhelming opponent child’s play. Demigod Purviews: Epic Strength Motif: Inner strength given physical form.",
+    "mechanicalEffects": "Enhancement: 1 to unarmed attacks \nTags: Brutal, Grappling, Lethal \nKnack: The cost to purchase all Grapple Stunts is re \nduced by 1 success to a minimum of 0.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_kukulkans_feather": {
+    "id": "pb_relic_kukulkans_feather",
+    "name": "K’UK’ULKAN’S FEATHER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Ào Guāng has politely requested (and then demanded, and then threatened, and then pleaded) for self-styled He roes to stop wrecking his palace. When Sun Wukong claimed a magically-expanding rod — the “pillar holding down the sea” — he inspired generations of copycats to rob Ào Guāng’s palace in search of similar wonders.",
+    "mechanicalEffects": "Tags: Bashing, Melee, Reach, Stun \nKnack: When imbued with Legend, the staff shrinks \nto the size of a toothpick, giving it the Concealable tag or \nextends dramatically, granting it the Two-Handed tag and \nallowing the bearer to make melee attacks at short range.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_lightning_axe": {
+    "id": "pb_relic_lightning_axe",
+    "name": "LIGHTNING AXE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Some have drawn comparisons between Thor’s hammer and Chac’s axe, but both Gods will be quick to tell you that they are not one in the same. Outside of the obvious, when Chac strikes the clouds (or rain-bearing snakes) with his axe, it produces rain, lightning, and thunder. It also does not require a belt or any other implements to be used — chalk up a victory for Chac. It does go well with his shield, if he does say so himself, but one need not wield both — however, it must be used honorably in battle.",
+    "mechanicalEffects": "Purviews: Sky Motif: Bring down the sky’s might. Tags: Lethal, Melee, Thrown, Versatile \nKnack: By imbuing the axe with a point of Legend, the \nScion too can crack open the sky and release rain, lightning, \nand thunder from the clouds, directing bolts of lightning \ntowards any target for a scene — allowing the user to make \nmelee attacks out to Long range. \nFlaw: Because of its affinity for lightning, and subse \nquently being a source of static electricity, any bearer of the \nLightning Axe is surrounded by static electricity and all the \ntrouble it can bring against others and electronics. \nEnhancement: 1 to Knockdown stunts and attacks us \ning lightning.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Bring down the sky’s might."
+    }
+  },
+  "pb_relic_magatama": {
+    "id": "pb_relic_magatama",
+    "name": "MAGATAMA (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "The magatama is a comma-shaped bead, made of pre cious stone or glass, that denotes high status and the authority to lead. The Japanese Gods use magatama for all manner of divine miracles. The most sacred set is the Yasakani no Maga tama, which Izanagi originally gave to Amaterasu as a symbol of her rulership of the Kami, and which she in turn gave to her grandson Ninigi as a symbol of his rulership of Japan. To this day, this necklace plays a role in the enthronement ceremony for Japanese emperors.",
+    "mechanicalEffects": "Purviews: Order, Prosperity Motif: By the grace of the Kami do I claim the right to lead. Knack: Each mask holds a different Knack. The masks \nmust be worn for the entirety of the scene for its given effect \nto remain in place. \nThe Goat-horned Mask: These masks are carved of wood, \ntypically the older the wood the better, and painted with \nvarious shades of black. These faces, when worn, whisper to \nthe wearer in the voices of a thousand children demanding \nnourishment. The wearer does not feel any ill effects due to \nhunger or thirst while they wear this mask, and they gain a \n3 Enhancement to hunting, tracking, or pursuing somebody \nthat is marked as an enemy. While wearing the mask, they \nare subject to bouts of anger. The Spiral Mask: These masks are either carved from \nor coated in conical… Condensed from printed Relics p. 182.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 182",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "order",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "By the grace of the Kami do I claim the right to lead."
+    }
+  },
+  "pb_relic_mermaids_scale": {
+    "id": "pb_relic_mermaids_scale",
+    "name": "MERMAID’S SCALE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Dagon keeps his mermaids close; only those who have won his best favor ever meet his beloved aquatic darlings. Those the mermaids themselves love best may be grant ed one scale plucked from their iridescent tails. Ancient knowledge of the Ilhm sings within the blood of the seaborn, granting the Scion visions of past events.",
+    "mechanicalEffects": "Purviews: Ocean Motif: I call to the Deep within myself. Flaws: The mermaid’s visions linger, distracting the Sci \non. For the remainder of the scene, she suffers 1 Complication \nto all mental tasks more complex than remembering how a key \nworks in a door, or 2 Complication if she asked an open-ended \nquestion. Failure to buy off the Complication leads to them \npausing in their track or not paying any attention to their sur \nroundings. The visions fade at the end of the scene.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I call to the Deep within myself."
+    }
+  },
+  "pb_relic_mi_go_brain_cylinder": {
+    "id": "pb_relic_mi_go_brain_cylinder",
+    "name": "MI-GO BRAIN CYLINDER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "This canister is small, often bound in an interwoven me tallic case that resembles brass. Prying away its casing reveals a variety of thin cables that contain and regulate fluids and electrical currents in equal measure. The cables themselves run into the cylinder’s liquid interior, which houses the ob ject’s true purpose; to house the organic matter of an alien be ing, complete with sentience.",
+    "mechanicalEffects": "Purviews: Stars, Illusion Motif: Exceptional intellect constrained and bound. Knack: Spend 1 Momentum to add one success to rolls \ninvolving recalling or learning new information, as the mind \nwithin the cylinder whispers things you could not otherwise know. In addition, you can Spend 1 Momentum to gain one \nsuccess to rolls involving reaction speed, as the mind cau \ntions you of dangers before you are aware of them. \nFlaw: The mind seeks to find other bodies to house \nitself, and it makes no secret of the fact that its protection \nand foreknowledge come at a price. This cost is typically to \nbe paid at some future point, and is doubtless considerably \nhigh; if the sentience begins to feel that its price will not be \npaid, it becomes quite adversarial. Condensed from printed Relics p. 184.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 184",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "stars",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Exceptional intellect constrained and bound."
+    }
+  },
+  "pb_relic_monkeys_paw_of_the_second_sun": {
+    "id": "pb_relic_monkeys_paw_of_the_second_sun",
+    "name": "MONKEY’S PAW OF THE SECOND SUN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Little remains of the World as it was during the Sec ond Sun of the Teōtl except for the dark prison- World of the monkeys who held dominion over that age. This paw belonged to one of the unfortunates, lost as it reached des perately to escape its prison. It is withered and stiff, a single finger pointing in outrage; wielded as a talisman, it can evoke the shadow-stuff of that lost age… but it is filled with a dark and subtle mischief.",
+    "mechanicalEffects": "Purviews: Deception Motif: The phantoms of a fallen World Knack: Once per scene, you may make a wish on the \nmonkey’s paw, producing sumptuous food, fine clothing \ntailored for its intended wearer, subtle perfumes, or other \nluxuries. If you spend Momentum, you may instead conjure \na bounty — enough of the chosen good to feed or outfit doz \nens. At the end of the scene, these treasures quickly rot into \ndarkness and maggots; anyone who partook of the food must \nsucceed at a Resistance-based roll to keep it down. \nFlaw: Once per session, if the paw has been used, the \nscreeching voices of the Monkeys of the Second World can \nmake a demand — an action that will demean or embarrass \nthe wielder for their amusement. If you refuse, the Sto \nryguide gains one Tension.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "deception",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The phantoms of a fallen World"
+    }
+  },
+  "pb_relic_moonlight_bow": {
+    "id": "pb_relic_moonlight_bow",
+    "name": "MOONLIGHT BOW (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "ing of copper, silver, and gold, this bow is modeled after the one wielded by the Goddess Maroya, who hunted down the unworthy dead in the night, shooting beams of moonlight to banish them to oblivion. A more modest in appearance re curve bow in the modern era, scenes of Coaybay are etched into it. It has become popular among hunters, and even Arte mis has commented that she, too, wished she had such a bow.",
+    "mechanicalEffects": "Purviews: Moon Forged out of guanín, an alloy consist Motif: Hunt the undead by the light of the moon. Knack: When a Scion is facing down dishonorable \nundead, the arrows fired from the Moonlight Bow appear as \nbrilliant beams of moonlight, and they deal one additional \ndamage against such creatures after purchasing either the \nInflict Injury or Critical Stunts",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Hunt the undead by the light of the moon."
+    }
+  },
+  "pb_relic_murine_pipe": {
+    "id": "pb_relic_murine_pipe",
+    "name": "MURINE PIPE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "It emerges on app stores with different names: Gor geous You, Beauty Unleashed, Handsome AI. It claims to be a special filter for selfies. It is, but what it won’t tell you is that a part of Māra’s divine essence is implanted in the code, tempting those who see pictures made with the filter to act impulsively or unwisely. By the time it’s identified and banned, another version’s already up. When you take this Relic, you always have the latest version of the filter.",
+    "mechanicalEffects": "Tags: Grappling, Lethal, Returning, Thrown, Versatile \nKnack: By imbuing a Legend, the Scion may create a \nspecial kind of Sanctum by pulling a Midrealm up from the \nbottom of the ocean and tethering it to his Fate; he must be \non (or in) a large body of saltwater at least a few miles from \nshore to use this Knack. Unlike other Sancta, this one-dot \nSanctum begins as a Midrealm instead of a physical location, \nwith a gate to which the key is performing a simple action \nto open it with the fishhook itself. It can also be reached \nthrough the Ocean Axis Mundi. As long as the Legend point \nremains imbued, the Scion can perform Deeds to tether it \nmore closely to the mortal World. If he reclaims the Legend \npoint… Condensed from printed Relics p. 185.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 185",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_uis_fishhook": {
+    "id": "pb_relic_uis_fishhook",
+    "name": "UI’S FISHHOOK (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "The legendary fishhook of the Demigod Mantle Māui takes many forms and comes to Scion hands in many ways, all of which are inextricably tied to the Mantle’s Fate. See p. 81 for more information about this hero and his famous relic.",
+    "mechanicalEffects": "Purviews: Epic Strength, Water Motif: With my boasting, I catch what I seek. Tags: Grappling, Lethal, Returning, Thrown, Versatile \nKnack: By imbuing a Legend, the Scion may create a \nspecial kind of Sanctum by pulling a Midrealm up from the \nbottom of the ocean and tethering it to his Fate; he must be \non (or in) a large body of saltwater at least a few miles from \nshore to use this Knack. Unlike other Sancta, this one-dot \nSanctum begins as a Midrealm instead of a physical location, \nwith a gate to which the key is performing a simple action \nto open it with the fishhook itself. It can also be reached \nthrough the Ocean Axis Mundi. As long as the Legend point \nremains imbued, the Scion can perform Deeds to tether it \nmore closely to the mortal World. If he reclaims the Legend \npoint…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "epicStrength",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "With my boasting, I catch what I seek."
+    }
+  },
+  "pb_relic_nezhas_heart": {
+    "id": "pb_relic_nezhas_heart",
+    "name": "NEZHA’S HEART (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "In Ào Guāng’s palace, there is a box in a chest in a vault in a chamber that no one else is allowed to enter. Within the box is the heart of a God, still beating but long since desiccat ed into a leathery pod. This is the heart of Prince Nezha, who offered his internal organs to Ào Guāng in exchange for free ing his parents.",
+    "mechanicalEffects": "Purviews: Health Motif: Sacrifice balances the scales of life Knack: Although it holds no special powers of its own, \nboth Ào Guāng and Prince Nezha value the heart and suffer \n+2 Difficulty to avoid bargains that offer it as payment.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "health",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Sacrifice balances the scales of life"
+    }
+  },
+  "pb_relic_oni_shout": {
+    "id": "pb_relic_oni_shout",
+    "name": "ONI-SHOUT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Wielded by one of Raijin’s modern Mantles, the Oni- Shout is a neon-yellow amp, its case scratched with thou sands of lightning bolts, one for every show it’s ever been used at. Raijin loans it out to promising Scion rockers of any pantheon, with the understanding that their shows better continue to impress.",
+    "mechanicalEffects": "Purviews: Sky Motif: I’m the center of attention. Enhancement: +3 to performances when connected to \nany instrument. \nKnack: While playing an amplified instrument, the \nowner can choose to be heard clearly over any other noise \nfor up to (Legend) miles, inflicting a level 2 Complication \non any attempt to steal focus from them. If not bought off, the heckler suffers the Deafened Condition, increasing the \nDifficulty of all hearing-related actions by 1 until they’ve had \ntime to recover. \nFlaw: After a performance with the Oni-Shout, the \nowner suffers the Deafened Condition, and for the next day, \nany attempt to play an un-amplified instrument inflicts a \nlevel 3 Complication; if not bought off, the instrument falls \napart in her hands.\nOSHE OF SHÀNGÓ… Condensed from printed Relics p. 186.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 186",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I’m the center of attention."
+    }
+  },
+  "pb_relic_oyohualli": {
+    "id": "pb_relic_oyohualli",
+    "name": "OYOHUALLI (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "The oyohualli is a teardrop-shaped pendant made of mother of pearl. Xochipilli the Flower Prince hands them out to anyone who, in his estimation, needs to chill out and enjoy life — or who agrees to spread the good word to every one around her. This relic can be made into jewelry of var ious kinds, or can adorn weapons or clothing. Marvels and Boons it channels can apply to a variety of Passions, as long as they’re the kind that get people having fun and following their hearts.",
+    "mechanicalEffects": "Purviews: Passion (varies) Motif: Stop and smell the flowers.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "passion",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Stop and smell the flowers."
+    }
+  },
+  "pb_relic_philosophers_stone": {
+    "id": "pb_relic_philosophers_stone",
+    "name": "PHILOSOPHER’S STONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Enhancement: 1 when transforming an object into a significantly different form.. There are few relics in the world as sought after as the vaunted Philosopher’s Stone. Capable of turning lead to gold and believed to be able to create the Elixir of Life — granting the imbiber immortality — this wondrous object is only limited by its user’s will and imagination.",
+    "mechanicalEffects": "Purviews: Fortune, Prosperity Motif: If there is a will, there is a way. Enhancement: 1 when transforming an object into \na significantly different form.. There are few relics in the \nworld as sought after as the vaunted Philosopher’s Stone. \nCapable of turning lead to gold and believed to be able to \ncreate the Elixir of Life — granting the imbiber immortality \n— this wondrous object is only limited by its user’s will and \nimagination. Anyone who manages to attain the Philoso \npher’s Stone, however, quickly finds themselves a target of \n\n PANDORA’S BOX\nthose who seek the stone’s power; more than one would-be \nhero or god-king has died in the pursuit of or being in pos \nsession of the Philosopher’s Stone. Condensed from printed Relics p. 187.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 187",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "fortune",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "If there is a will, there is a way."
+    }
+  },
+  "pb_relic_rhongomiant": {
+    "id": "pb_relic_rhongomiant",
+    "name": "RHONGOMIANT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: +1 to defend or counter Water Boons or marvels, or similar effects A king among the asura, the great dragon Vritra’s thirst is so immense it can’t be slaked by 100 rivers, or 1,000, or all the rivers of the World! Waterskins made from Vritra’s flesh — or the flesh of his titanspawn minions — are similarly relentless, absorbing water wherev er it is found.",
+    "mechanicalEffects": "Enhancement: +1 to defend or counter Water Boons or \nmarvels, or similar effects A king among the asura, the great \ndragon Vritra’s thirst is so immense it can’t be slaked by 100 \nrivers, or 1,000, or all the rivers of the World! Waterskins \nmade from Vritra’s flesh — or the flesh of his titanspawn \nminions — are similarly relentless, absorbing water wherev \ner it is found. \nKnack: Spend Momentum to spread drought up to long \nrange, providing the skin’s Enhancement bonus to everyone \nnearby and reducing the size- or force-based Scale of such \neffects by one. Water evaporates or recedes, and even the \nsea dips down to low tide as the waterskin devours moisture \nwherever it is found.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_scepter_of_the_only_god": {
+    "id": "pb_relic_scepter_of_the_only_god",
+    "name": "SCEPTER OF THE ONLY GOD (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "This rusted metal scepter is one of the few physical re mains of the Only God, and a sign of his authority. Purviews: Sun Motif: True glory is undeniable.",
+    "mechanicalEffects": "Knack: When you hold the scepter in a crowd or social \nevent, make a Knack Skill roll. On a success, you may make \na number of declarations equal to the number of successes \nrolled which everyone gathered hears. You have no control \nover how they react. \nMotif: All eyes on me. \nRequirement: The Scion must bring an offering of pre \ncious metals, fine incense, or anything else they consider of \ngreat monetary value to the Only God in his hall once per \nseason. This offering must be made with a sincere sense of \ngratitude. Neglecting this offering seals the Scion from the \nhall, and they can only return with a penance offering of \neven greater monetary value. \nSCIONHEISER X-SERIES WIRELESS",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_scionheiser_x_series_wireless_microphone": {
+    "id": "pb_relic_scionheiser_x_series_wireless_microphone",
+    "name": "SCIONHEISER X-SERIES WIRELESS MICROPHONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Unlucky Mercenary, the disputed Master of the Mic (Titans Rising, p. 38), has a microphone so powerful that it not only does it not need to be powered or plugged in, nei ther does anything else in the area if she chooses. Purviews: Artistry Motif: Brazenly brutal bass bolstering beautiful bombasts",
+    "mechanicalEffects": "Knack: Electronic devices you select within Short range \nfunction as though they were fully powered. Additionally, \nyou may take a +2 difficulty to actions requiring secrecy or \nstealth for the remainder of the scene to reroll a failed Tech \nnology action. This reroll gains a 2 Enhancement and cannot \nresult in a botch.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sequence": {
+    "id": "pb_relic_sequence",
+    "name": "SEQUENCE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Enhancement: +2 to stealth at night or in dark places The couture of the enigmatic clothier known as Snakewran gler is prized among fashion-forward Scions. These outfits are sewn from the skin of the Titan Apep, whose scales are so black as to consume all light that touches them.",
+    "mechanicalEffects": "Enhancement: +2 to stealth at night or in dark places \nThe couture of the enigmatic clothier known as Snakewran \ngler is prized among fashion-forward Scions. These outfits \nare sewn from the skin of the Titan Apep, whose scales are \nso black as to consume all light that touches them. Snake \nwrangler acquires her stock when Apep sheds his skin every \ndecade or so; although she has a waiting list of clientele, she gladly makes an exception for anyone brave enough to bring \nflesh freshly cleaved from the Titan himself. \nTags: Soft (2) Condensed from printed Relics p. 190.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 190",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sharur_smasher_of_thousands": {
+    "id": "pb_relic_sharur_smasher_of_thousands",
+    "name": "SHARUR, SMASHER OF THOUSANDS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Enhancement: 1 when invoking Feats of Scale in com bat Ninurta rarely entrusts his sapient mace bearing 50 lion heads to Scions, as it’s the God’s best friend as well as his weapon. When he does, it’s a sign that either Ninurta really likes you, or is extremely desperate.",
+    "mechanicalEffects": "Purviews: Epic Strength, Sky Motif: For love of Ninurta, I smash your enemies! Enhancement: 1 when invoking Feats of Scale in com \nbat Ninurta rarely entrusts his sapient mace bearing 50 lion \nheads to Scions, as it’s the God’s best friend as well as his \nweapon. When he does, it’s a sign that either Ninurta really \nlikes you, or is extremely desperate. Sometimes, though, \nSharur advises its master to let one of his children wield it, \ndeeming it a necessary tactical move for some inscrutable \npurpose. It can fly with its own wings, carry messages to and \nfrom, perform surveillance, and give fantastic hugs. Beyond \nthat, it boasts of feats ranging from summoning storms and \nsetting mountains on fire to tearing out the entrails of its \nwielder’s foes. When it’s in a good mood, it likes…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "epicStrength",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "For love of Ninurta, I smash your enemies!"
+    }
+  },
+  "pb_relic_silk_spider_shawl": {
+    "id": "pb_relic_silk_spider_shawl",
+    "name": "SILK SPIDER SHAWL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "When a jorogumo — a spider-yōkai — hungers, it trans forms itself into the guise of a beautiful young woman and lures travelers into its webs. Their silk is as study as iron; those who escape with a sample of it find it resonates with a jorogumo’s cunning and often have it spun into a cloak, scarf, or shawl.",
+    "mechanicalEffects": "Purviews: Beasts (Spiders) Knack: Spend Momentum to transform the shawl into a \nset of spindly silken legs for the rest of the scene. With them, \nyou can move effortlessly up walls or across ceilings.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "beasts",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sleipnir": {
+    "id": "pb_relic_sleipnir",
+    "name": "SLEIPNIR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "The original Sleipnir wheelchair has existed since before humanity invented wheelchairs. Entering into Freyja’s record six hundred years ago, Sleipnir the chair predates Phillip II of Spain’s wheelchair. Records now indicate at least eight Sleipnir exist. They pass between Scions of the Æsir: Freyja assigned one of her Disir to track current ownership in her library (see p. 117 for more information about Sessrúmnir).",
+    "mechanicalEffects": "Purviews: Epic Dexterity, Beasts (Horses) Knack: Spend Momentum to activate Sleipnir’s legs, al \nlowing feats of Epic Dexterity for a scene. Sleipnir can climb \nwalls, walk on water, or continue toward a set destination \nwhile the owner sleeps. Sleipnir has about as much intelli \ngence as a border collie and understands spoken commands. \nIt will maneuver around obstacles or change direction rath \ner than run into hazards like fire. \nMotif: Rough terrains are as a smooth path to me. \nSuggested Alternate Figures: Hephaestus, Athena (pa \ntron of Talos the smith), Muzzu-kumikquae (cane), Éshú \nElégbará (staff) Condensed from printed Relics p. 191.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 191",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "epicDexterity",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_smoking_mirror": {
+    "id": "pb_relic_smoking_mirror",
+    "name": "SMOKING MIRROR (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "This mirror is surprisingly small, a roughly twelve-inch diameter circular piece of strongly polished obsidian. The source of its construction is volcanic in nature, but relatively mundane. The polish applied to its surface, however, is al chemical in nature, causing this particular obsidian mirror to possess unique capabilities not shared with others of a similar design. John Dee, philosopher and chief occultist to the court of Queen Elizabeth the First, claims fame as the mirror’s creator.",
+    "mechanicalEffects": "Purviews: Death, Journey Motif: The most direct means of communication with the \nspirits of the dead. Knack: This relic grants a 2 Enhancement to summon \ning the soul of any dead, regardless of how long ago they \ndied. The deceased manifests as a hazy, fog-like figure in the \npolished reflection of the mirror for one scene. \nFlaw: The mirror’s fabled function is not entirely true. \nRather than reflecting the souls of the dead for conversation \nwith the living, the mirror actually captures them. The dead \nsummoned into the mirror remain trapped within it, essen \ntially existing within an oubliette of obsidian, and come out \nto haunt the mirror’s owner.\nSOMA (• - •••••)\nSoma is the moon deity among the Devá, and his blood is \nthe plant sap that makes their favorite drink. A soma plant is \nsacred, and by mixing…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "death",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The most direct means of communication with the \nspirits of the dead."
+    }
+  },
+  "pb_relic_heir_marks_so_they_cannot_escape_storm_hags_breath": {
+    "id": "pb_relic_heir_marks_so_they_cannot_escape_storm_hags_breath",
+    "name": "STORM HAG’S BREATH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Long ago, when Britain was still young and before Ar thur was king, there lived a woman known as the Storm Hag, or Cailleach Bhéara. Rumors and myth surrounded her, tak ing the form of her being a witch who could summon a fog that drove men mad, turning on their comrades in arms and slaying them indiscriminately. Those who court the blessing of the Cailleach Bhéara often receive it in the form of a small, sea-glass jar filled with what looks like smoke.",
+    "mechanicalEffects": "Purviews: Chaos, War Motif: There’s a mysterious fog rolling in...",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "chaos",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "There’s a mysterious fog rolling in..."
+    }
+  },
+  "pb_relic_storm_satchel": {
+    "id": "pb_relic_storm_satchel",
+    "name": "STORM SATCHEL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "In tales of the storm titan Fūjin, he carries a bag full of winds, but in truth, his bags are many and manifold, and he is apt to misplace them. These rough-spun bags are usually bat tered and threadbare, and the winds inside rouse from time to time in fitful motions. Scions who claim a storm-satchel must attend it carefully, for it is a willful Relic, as spirited and mercurial as its Titanic master.",
+    "mechanicalEffects": "Purviews: Sky Motif: The power of the winds, unleashed Flaw: Once per session, the Storyguide can have the \nstorm-satchel take an action with a pool of six dice, leaping \nfrom the Scion’s grasp in a burst of wind. These actions are \nmischievous, but never (knowingly) dangerous.\nSTORM SEEDS (••• OR ••••)\nLegendary \nEven in the age of near-perfect meteorology, devasting \nstorms can catch the World by surprise. While most of these \ndisasters have ordinary explanations, such as sudden shifts in \ntemperature or wind currents, sometimes it’s a targeted ac \ntion. One of the many ways Ae-pungishimook inflicts terror and death across the land is with his Storm Seeds. They’re \ninfertile birch tree seeds that, when tossed into the open sky, \ncreate violent storms in the… Condensed from printed Relics p. 192.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 192",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The power of the winds, unleashed"
+    }
+  },
+  "pb_relic_sun_falcon_cap": {
+    "id": "pb_relic_sun_falcon_cap",
+    "name": "SUN FALCON CAP (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Enhancement: 1 when instructing or leading others to perform a task that would move you toward your Duty Virtue Purviews: Order Motif: All must follow Inti’s design. Scions who wear this baseball cap with the symbol of the sun falcon emblazoned on it in shining gold radiate authority just as Inti does.",
+    "mechanicalEffects": "Enhancement: 1 when instructing or leading others to \nperform a task that would move you toward your Duty Virtue \nPurviews: Order \nMotif: All must follow Inti’s design. \nScions who wear this baseball cap with the symbol of the \nsun falcon emblazoned on it in shining gold radiate authority \njust as Inti does. It’s popular with those who lead structured \ngroups that must follow rules but can still easily dress down, \nlike sports team coaches or construction crew managers. It’s \nnot too uncommon to see army commanders, project manag \ners, and teachers wearing it, either; once they don it, no one \nwould dare to tell them it goes against the dress code. \nKnack: Trivial characters must follow any instruction \nor…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sword_of_kadath": {
+    "id": "pb_relic_sword_of_kadath",
+    "name": "SWORD OF KADATH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "The Sword of Kadath’s origins remain unknown: the blade changes its appearance to suit its owner, and its re corded history shows it appearing as anything from a Roman gladius to a hook sword, a macuahuitl to a rapier. The only consistency in its appearance is an eldritch symbol engraved just before the guard, if the sword has a guard, or across the join between handle and blade.",
+    "mechanicalEffects": "Purviews: Death, Deception Motif: It’s only a dream. It’s only a dream. It’s only— Knack: The Sword of Kadath travels with its owner \nalways. If it is stolen, it returns to its owner the next time he \nsleeps, even disappearing from the hand of the person who \nstole it to return to its owner in his dreams so he may not \ngo unarmed. This return to its owner may cause the sword \nto pass between realms of its own volition. It doesn’t matter \nwhere the sword is; it goes home. Ownership changes only \nby means known to the sword itself; rumors persist that \nkilling a sentient being with the blade instills ownership, or \nperhaps killing the former owner, or dedicating a battle to \none of the Great Old Ones. \nTags: Lethal, Melee, Piercing, Unconcealable \nFlaw: The sword’s presence becomes addictive,… Condensed from printed Relics p. 193.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 193",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "death",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "It’s only a dream. It’s only a dream. It’s only—"
+    }
+  },
+  "pb_relic_taiko_of_the_thunders": {
+    "id": "pb_relic_taiko_of_the_thunders",
+    "name": "TAIKO OF THE THUNDERS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: +2 when using the Boon Bold from the Blue (Scion: Hero, p. 259) Raijin likes drums. Raijin loves drums. Raijin, whose music is the sound of the thundering heavens, is truly the best at appreciating drums in the whole World. His collection includes literally millions of every shape, size, and make, but most famous among them all are the taiko drums that bear his tomoe symbol.",
+    "mechanicalEffects": "Purviews: Sky Motif: The sound and the fury Enhancement: +2 when using the Boon Bold from the \nBlue (Scion: Hero, p. 259) Raijin likes drums. Raijin loves \ndrums. Raijin, whose music is the sound of the thundering \nheavens, is truly the best at appreciating drums in the whole \nWorld. His collection includes literally millions of every \nshape, size, and make, but most famous among them all are \nthe taiko drums that bear his tomoe symbol. In the heat of \nbattle, these drums oft go missing, and whatever rage he has \nat those who would abscond with them is quickly forgotten, \nfor if Raijin likes anything more than having drums, it is \nmaking new ones.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The sound and the fury"
+    }
+  },
+  "pb_relic_tezcatlipocas_foot": {
+    "id": "pb_relic_tezcatlipocas_foot",
+    "name": "TEZCATLIPOCA’S FOOT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Having replaced his foot with a smoking mirror, Tez catlipoca passed on to a favored child the secret of creating smoky obsidian mirror Relics. The bargain didn’t prohibit sharing the information with others. Thus, several of these prophetic items circulate among Teōtl Scions at present. Unless the owner activates the Knack, the foot appears as a prosthetic made of obsidian, but functions as a fully inte grated body part: the toes wiggle, the ankle flexes and rolls.",
+    "mechanicalEffects": "Purviews: Transformation Knack: Spend Momentum to transform the foot into \na mirror and stare into it. You may stare for up to Legend \nturns and ask up to Legend ‘yes, no or maybe’ questions of \nthe Storyguide. The Storyguide must answer those questions \ntruthfully but may state ‘that depends on what you do’ if the \nquestion truly cannot be answered under current circum \nstances. The character receives these answers as images \nflashing in the mirror: the question ‘Is our opponent at home’ \ngets answered ‘no,’ an empty bedroom appears in the mirror. \nMotif: Reveal terrible truths in the heat haze. \nSuggested Alternate Figures: Viśpálā (foot), Nuada \n(hand), Hephaestus",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_alert": {
+    "id": "pb_relic_the_alert",
+    "name": "THE ALERT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "The epistolary evidence which surrounds the ship Alert suggests a strange and winding history: the Alert’s journeys across the oceans brought it to its current berth in Oslo, through direct encounters with Cthulhu and a few days (A few years? A few eons? One cannot know) anchored off R’ly eh. Just as people who meet the Great Old Ones do not escape unscathed or unchanged, so the Alert came out of the other end of this epic journey different.",
+    "mechanicalEffects": "Purviews: Journeys Motif: The person at the end of the voyage is not the per \nson from the beginning of the voyage. Knack: The Alert never runs out of fuel in an emergency; \nduring moments of crisis, she runs regardless of how much coal \nremains on hand, like a human being running on adrenaline. She \npossesses at least some form of sapience, and will attempt to \nsteer away from immediate danger, though she can be coaxed \nto head toward something which will damage her or her crew. \nOnce per week, the Alert can be asked to direct herself toward \nany location where she has already traveled (including R’lyeh) \nand she will take over navigation; by some strange mechanism, \nno matter how far away the location, the Alert always arrives at \nher destination within one hour. She may also travel to a Terra \nIncognita which is new to… Condensed from printed Relics p. 195.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 195",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "journeys",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The person at the end of the voyage is not the per \nson from the beginning of the voyage."
+    }
+  },
+  "pb_relic_the_diamond_compass": {
+    "id": "pb_relic_the_diamond_compass",
+    "name": "THE DIAMOND COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Legendary Purviews: Liminal Motif: All places are alike to me. Now embedded in the arm or chest of its bearer, the Diamond Compass permits the bearer to move as fluidly through all Realms as if she owned them. My Mother’s House (Imbue 2 Legend): By activating the Diamond Compass, for the rest of the scene the Ilhm may treat her location as if it is her home Realm.",
+    "mechanicalEffects": "",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_dragons_bounty": {
+    "id": "pb_relic_the_dragons_bounty",
+    "name": "THE DRAGON’S BOUNTY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Legendary Sun Wukong performed one of the greatest heists in history and got away so clean that his victim’s stolen goods became his. Thought it meant little to him at the time, the staff became a symbol of the perfect treasure, something so inherently valuable that only a fool wouldn’t risk everything to have it. Purviews: Fortune, Prosperity Motif: I have what you don’t.",
+    "mechanicalEffects": "Enhancement: 1 to attempts to sway others using \nwealth, real or imagined. \nTags: Bashing, Melee, Stun, Reach \nKnack: When you spend 1 Momentum and demonstrate \nthe splendor or the Ruyi Jin Gu Bang to an opponent in bat \ntle, the desire to possess it overcomes them. For the rest of \nthe battle, the opponent must attack whoever holds the staff, \neven if it’s no longer in your hands.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_emerald_tablet": {
+    "id": "pb_relic_the_emerald_tablet",
+    "name": "THE EMERALD TABLET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: 1 when used to research Occult matters Authored by Hermes Trismegistus — a collaborative pseud onym used by the Theoi and the Netjer gods Hermes and Thoth — the Emerald Tablet is a compendium of knowledge alchemical and arcane, believed to hold the key to creating powerful relics including the Philosopher’s Stone.",
+    "mechanicalEffects": "Purviews: Order Motif: We strive to know all. Enhancement: 1 when used to research Occult matters \nAuthored by Hermes Trismegistus — a collaborative pseud \nonym used by the Theoi and the Netjer gods Hermes and \nThoth — the Emerald Tablet is a compendium of knowledge \nalchemical and arcane, believed to hold the key to creating \npowerful relics including the Philosopher’s Stone. Many \ncopies of the Emerald Tablet exist, one made of green clay \nand another of a massive emerald as an attempt to pass it off \nas the genuine article, but true scholars can recognize these \nfabrications for what they are: a mere piece of the full manu \nscript, but enough to help them understand some mysteries \nof the universe.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "order",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "We strive to know all."
+    }
+  },
+  "pb_relic_the_eye_of_horus": {
+    "id": "pb_relic_the_eye_of_horus",
+    "name": "THE EYE OF HORUS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancements: +2 to see through deception or discern the truth Chephren, Scion of Horus, lost their eye when Buneb, Scion of Apep, drove his dagger into their eye. Chephren prostrated themself before their shrine to Horus for three days. They wept until they cried tears of blood, for they could no longer read at length. Post-injury migraines kept them from focusing on scrolls for long. Their father heard their weeping prayers and visited them.",
+    "mechanicalEffects": "Purviews: Health Condensed from printed Relics p. 196.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 196",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "health",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_s_a_guide_animal_granted_by_mictlan_the_glass_compas": {
+    "id": "pb_relic_s_a_guide_animal_granted_by_mictlan_the_glass_compas",
+    "name": "THE GLASS COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Now crafted of glass transmuted from its original quartz, the golden needle of the Glass Compass constantly hums. Never Strange In Any Land (Imbue 1 Legend): As per “Grounded” above, except the Glass Compass also works in Strange Places and Midrealms.",
+    "mechanicalEffects": "Purviews: Liminal Motif: I am never lost; I navigate by my mother’s breath.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I am never lost; I navigate by my mother’s breath."
+    }
+  },
+  "pb_relic_the_holy_grail": {
+    "id": "pb_relic_the_holy_grail",
+    "name": "THE HOLY GRAIL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "There are few relics as sought-after in the World as the Holy Grail. Many legends surround it, all of them holding a grain of truth as to what it is that the Grail represents. To some, it is the key to unrelenting joy and happiness. To others, it is a veritable fountain of youth and path to im mortality. In truth, it is whatever its beholder wishes it to be, for the Grail homes in on its bearer’s deepest desires and manifests them.",
+    "mechanicalEffects": "Purviews: Wild Motif: Call upon the lives and legends of those around \nyou to stir the chaos within and give glorious birth. Knack: Calling upon the power of the Grail, its bearer can \nuse any Immortal or Heroic Knack detailed in this book. How \never, the chosen Knack can only be used in the present scene, \nand once used, isn’t available again until the story concludes. \nFlaw: The Holy Grail is an unpredictable relic, not \nknown for adhering to physics or limited mortal understand \ning. When its bearer calls upon its power, roll a single die: \nif roll is even, the bearer gains Enhancement 2 on a single \naction. If the roll is odd, the bearer gains a +3 Complication \nto their next action",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "wild",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Call upon the lives and legends of those around \nyou to stir the chaos within and give glorious birth."
+    }
+  },
+  "pb_relic_omplication_to_their_next_action_the_immortal_serum": {
+    "id": "pb_relic_omplication_to_their_next_action_the_immortal_serum",
+    "name": "THE IMMORTAL SERUM (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Enhancement: 2 vs. trivial foes, 1 against foes of equal or higher rating Flaw: Once the serum is imbibed, the user cannot back down or run away from a fight until the objective is accom plished — even at the risk of their own life.",
+    "mechanicalEffects": "Purviews: Epic Dexterity, Epic Strength Enhancement: 2 vs. trivial foes, 1 against foes of equal \nor higher rating \nFlaw: Once the serum is imbibed, the user cannot back \ndown or run away from a fight until the objective is accom \nplished — even at the risk of their own life. A potent serum \nmade with a mixture of haoma and lotus, the Immortal \nSerum increases the imbiber’s combat capabilities in both \nspeed and strength, making them lethal fighting machines \nwho lose all sense of self-preservation and focus solely on \ncompleting their objective. Using the serum is considered \noffensive within the ranks of the Immortals, and the inten \ntional use of it is frowned upon.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "epicDexterity",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_the_ivory_key": {
+    "id": "pb_relic_the_ivory_key",
+    "name": "THE IVORY KEY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "The Ivory Key is a bulky object, far too impractical to mistake for an actual key. It is a long object comprised of sharp edges, spikes, and serrated edges, with only the circu lar handle the size of a human hand to give any semblance to an actual key. The Ivory Key is old; believed to have been carved from the horn of a woolly mammoth, and dated to the same historical era.",
+    "mechanicalEffects": "Purviews: Journey Motif: Though the Gates of Horn and Ivory, and into the \nrealms beyond the dream Knack: The key plays a role in the evocation of a ritual, \nthe function of which allows for the creation of a portal to any \ndestination (known or unknown). This portal’s destination \nmay reach to anywhere, including beyond the stars, through \nthe realms of dreams, or across the span of time. In order to \nfunction, a doorway is required; this can be a physical door \nin a house, an illusionary gateway such as a drawing in chalk \non the side of a cliff, or a metaphysical doorway such as a \ntorii or standing stones. Starlight is required to illuminate \nthe portal; this ritual can therefore only work at night. All \nin attendance spend Two Momentum to create the portal; \nonly those who have spent Momentum are able… Condensed from printed Relics p. 197.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 197",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Though the Gates of Horn and Ivory, and into the \nrealms beyond the dream"
+    }
+  },
+  "pb_relic_the_kitty": {
+    "id": "pb_relic_the_kitty",
+    "name": "THE KITTY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The Kitty is a seemingly normal maneki-neko figurine with tan-colored fur and a beckoning right paw. It has a slot carved into its back not unlike a piggy bank, and the koban coin it holds changes to reflect the local currency of wherev er its owner is at the moment.",
+    "mechanicalEffects": "Purviews: Prosperity Motif: If you look hard enough, you can always scrounge \nup something. Knack: If turned upside down and shaken vigorously, \nthe Kitty can provide a few hundred dollars’ worth of petty \ncash each scene in the form of local coinage and small bills.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "prosperity",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "If you look hard enough, you can always scrounge \nup something."
+    }
+  },
+  "pb_relic_the_stone_compass": {
+    "id": "pb_relic_the_stone_compass",
+    "name": "THE STONE COMPASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "A smooth quartz pebble set with a metal compass nee dle and often worn on a chain or thong around the neck, the needle of the Stone Compass never moves. It doesn’t need to: the user always knows where she is. Grounded (Imbue 1 Legend): By placing her bare feet on the ground and ex pending 1 Legend, the character gains an immutable sense of direction anywhere in the World.",
+    "mechanicalEffects": "Purviews: Earth Motif: I am never lost on my mother’s World.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "earth",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I am never lost on my mother’s World."
+    }
+  },
+  "pb_relic_the_sword_that_cuts_grass": {
+    "id": "pb_relic_the_sword_that_cuts_grass",
+    "name": "THE SWORD THAT CUTS GRASS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Susano-Ō pulled Kusanagi-no-Tsurugi from the tail of the dragon he slew and gifted it to his sister Amaterasu as an apology for his irresponsible behavior. Later, numerous emperors wielded it, until it fell into the hands of the prince Yamato Takeru. The sword earned its name when Yamato was trapped by an enemy warlord in a large field that burned on every side. He sliced at the grass to remove the fuel from the flame and discovered Kusanagi’s power to control the winds.",
+    "mechanicalEffects": "Purviews: Sky Motif: Who controls the battlefield rises on wings of valor. Tags: Lethal, Melee, Versatile \nKnack: The character may use the Grass-Cutter Stunt \nwhenever he inflicts a successful hit with Kusanagi on an \nopponent or inanimate object, as follows. \nGrass-Cutter (1-3s): Create or suppress one feature in the \nField in which the Scion stands, with a value equal to suc \ncesses spent. This effect lasts for a number of rounds equal to \nsuccesses spent, and only one such effect can exist at a time. \nThe feature must make sense within the bounds of what con \ntrolling the wind or cutting with a blade could accomplish.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "sky",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Who controls the battlefield rises on wings of valor."
+    }
+  },
+  "pb_relic_twofold_guise": {
+    "id": "pb_relic_twofold_guise",
+    "name": "TWOFOLD GUISE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 1,
+    "description": "Enhancement: 1 when used to deceive or as a disguise Once, Eshu Elegbara walked through a village wearing a hat that was black on one side and red on the other. Half the vil lage saw only one side and insisted the hat was black, while the other half insisted the opposite. Eshu let them come to blows before he stepped in to show them that differing per spectives can both be right.",
+    "mechanicalEffects": "Purviews: Deception Motif: Everything is a matter of perspective. Enhancement: 1 when used to deceive or as a disguise \nOnce, Eshu Elegbara walked through a village wearing a hat \nthat was black on one side and red on the other. Half the vil \nlage saw only one side and insisted the hat was black, while \nthe other half insisted the opposite. Eshu let them come to \nblows before he stepped in to show them that differing per \nspectives can both be right. Scions wear all manner of dualis \ntic garments that embody the archetype of Eshu’s black-and-\nred hat: scarves that display different patterns depending on \nthe light, caps in two colors, reversible jackets, and so on. \n\n PANDORA’S BOX\nThrough marvels, these help a Scion provoke conflict from \nnothing, see a situation from a… Condensed from printed Relics p. 199.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 199",
+    "relicDetails": {
+      "rating": 1,
+      "tagIds": [],
+      "purviewId": "deception",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Everything is a matter of perspective."
+    }
+  },
+  "pb_relic_tyrfing": {
+    "id": "pb_relic_tyrfing",
+    "name": "TYRFING (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Enhancement: 1 when taking an action that fulfills an ex pected social obligation As the traditional tattoos of the Māori people, ordinary tā moko are celebrations of their culture, indications of a person’s mana, and works of art. Scions with relic tā moko can also use them to more directly strengthen communities, uplift others, and set a good example.",
+    "mechanicalEffects": "Enhancement: 1 when taking an action that fulfills an ex \npected social obligation As the traditional tattoos of the Māori \npeople, ordinary tā moko are celebrations of their culture, \nindications of a person’s mana, and works of art. Scions with \nrelic tā moko can also use them to more directly strengthen \ncommunities, uplift others, and set a good example. \nKnack: Gain access to the Perfect Partner Knack (Sci \non: Hero, p. 232). \nKnack: As a permanent addition to the Scion’s body, this \nrelic can’t be stolen or destroyed short of killing the Scion or \npowerful magic, nor can bandmates borrow it. However, by \ntouching another character with a Legend trait when you ac \nquire a new Fatebinding to any…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_uaithne_harp_of_the_dagda": {
+    "id": "pb_relic_uaithne_harp_of_the_dagda",
+    "name": "UAITHNE, HARP OF THE DAGDA (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Ireland’s coat of arms bears a noble harp, the most be loved musical instrument of the Tuatha Dé Danann, and it long ago adorned the banners of the High Kings of Ireland. The harp has been, at times, a symbol of righteous rebellious spirit. Bards and filid use them to accompany their scathing satire and beauteous poetry. The Dagda’s enchanted harp has many names: Uaithne; or Dur da Blá, the Oak of Two Blos soms; or Coir Cethar Chuin, the Four-Angled Music.",
+    "mechanicalEffects": "Purviews: Passion (Joy, Sorrow) Motif: Music sways the heart and defies the enemy. Knack: Uaithne allows its player to play the three sacred \nharp tunes: that of laughter, that of weeping, and that of slumber. \nIn addition to using Passion Boons to coax joy and sorrow from \nlisteners, the Scion can use Irresistible Impulse (Scion: Hero, \np. 257) to fill someone with the urge to fall asleep immediately. \nKnack: If the Hero speaks or sings the secret words as \na simple action, Uaithne responds to the call if it’s within \nmedium range, flying to his hand. It makes an attack against \nanyone who tries to stop it or who stands in its way, and if \nthe attack hits, it flies unhindered; the attack uses the Scion’s \nMight + Close Combat and has the following \nTags: Lethal, Loud, Melee. \nFlaws: The…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Music sways the heart and defies the enemy."
+    }
+  },
+  "pb_relic_verity": {
+    "id": "pb_relic_verity",
+    "name": "VERITY (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Verity is an acoustic guitar passed from Hero to Hero for 50 years, the leftover of a counter-culture musician who at tempted Apotheosis but now lingers only in Verity and a hand ful of well-known but now anonymous folksongs. The guitar’s covered in so many stickers and scribbles that there’s not an inch of the original wood still visible, but these lend it an inimi table resonance that can’t be recreated — the sound of absolute authenticity.",
+    "mechanicalEffects": "Purviews: Artistry Motif: This guitar topples tyrants. Enhancement: +2 to inspire hope or spur change. \nKnack: When you draw attention to an injustice or \nabuse as part of a performance with Verity, you gain the ben \nefits of the Rumor Miller Knack (Scion: Hero, p. 234), with \nthe caveat that the information you spread has to be true and \naccurate to your understanding.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "artistry",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "This guitar topples tyrants."
+    }
+  },
+  "pb_relic_volcanic_amulet": {
+    "id": "pb_relic_volcanic_amulet",
+    "name": "VOLCANIC AMULET (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "This amulet is made from shards of volcanic glass that shines with the inner red glow of still-molten magma. This amulet confers on its wearer protection from the immense heat that created it. Purviews: Fire Motif: The heart of the volcano rumbles.",
+    "mechanicalEffects": "Enhancement: 1 to Athletics actions to avoid flames \nKnack: You may ignore all Complications from fire-based \neffects, such as Field Conditions, hazards, or Injury Conditions.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_waka_canoe": {
+    "id": "pb_relic_waka_canoe",
+    "name": "WAKA CANOE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Enhancement: 2 when navigating the Ocean Axis Mundi PANDORA’S BOX Purviews: Journeys Motif: A true voyager always seeks the next new horizon. Despite the relic’s name, a waka canoe can be any kind of vessel or vehicle: actual canoes, cars, yachts, tanks, or even bicycles.",
+    "mechanicalEffects": "Enhancement: 2 when navigating the Ocean Axis Mundi \n\n PANDORA’S BOX\nPurviews: Journeys \nMotif: A true voyager always seeks the next new horizon. \nDespite the relic’s name, a waka canoe can be any kind \nof vessel or vehicle: actual canoes, cars, yachts, tanks, or even \nbicycles. In the distant past, the Polynesian people and their \nGods came from the island of Hawaiki in enormous, elabo \nrately decorated canoes with sails. Drawing on the Legends \nof those vessels, a waka canoe relic rewards both a yearning \nfor home and the spirit of adventure. Condensed from printed Relics p. 201.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 201",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_wasteland_prosthetic_arm": {
+    "id": "pb_relic_wasteland_prosthetic_arm",
+    "name": "WASTELAND PROSTHETIC ARM (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Just like the broken World they survive in; the people of the lost lands endure though hardships and rebuild them selves to survive and fight another day. Prosthetics of all sorts are common and of trivial access, but this metallic arm that attaches at elbow’s height — a limb made from pistons, gears, and iron parts — has a reputation that makes it the stuff of legends. It is said to have belonged to a legacy of great warriors who refused to kneel to any tyrant.",
+    "mechanicalEffects": "Motif: Wounds reforged into strength and fury. Enhancement: +2 to Close Combat and Firearms rolls \nmade while on a high-speed moving vehicle. \nKnack: The Arm can change into a blade with the \nLethal, Melee, and Unconcealable tags, a shotgun with the \nFirearm, Lethal, Loud, and Ranged tags, or a flamethrower \nwith the Automatic, Brutal, Lethal, Loud, Messy, Ranged, and \nUnconcealable tags. \nFlaw: If the owner rolls a botch while using it in any \nof its shapes, the Arm stops working until and doesn’t grant \nany bonuses fixed with a successful Technology + Intellect \n(difficulty 3) roll.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Wounds reforged into strength and fury."
+    }
+  },
+  "pb_relic_whetstone_of_judgement": {
+    "id": "pb_relic_whetstone_of_judgement",
+    "name": "WHETSTONE OF JUDGEMENT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The Tyrant’s special forces use this whetstone to sharp en their ceremonial swords. These blades are used to make public examples of criminals. Purviews: Order Motif: The deeper the infraction, the deeper the wound.",
+    "mechanicalEffects": "Knack: When you attack someone whom you know \nbroke a law, code, or promise with a bladed weapon sharp \nened with this whetstone, the weapon gains the Brutal tag if \nit doesn’t already have it. \nMotif: I tolerate no judgement other than my own. \nRequirement: The Scion must attend a trial the Tyrant \nholds once per season. It’s always a show trial, and the citi \nzens of Céide always disagree with the verdict but can never \neffectively oppose it. Each trial demonstrates one of the Ty \nrant’s weaknesses, which could be used against him should \nthe Scion ever decided to help the people rise against him.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_white_water_harpoon": {
+    "id": "pb_relic_white_water_harpoon",
+    "name": "WHITE WATER HARPOON (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: 1 when used as a weapon against beasts of the wild Tags: Lethal, Melee, Piercing Long before the advent of projectile harpoons, the best weapon to hunt large sea game was composed of two pieces of wood, spliced together, with either a mussel shell or barbed elk horns as the piercing tip.",
+    "mechanicalEffects": "Purviews: Wild Enhancement: 1 when used as a weapon against beasts \nof the wild \nTags: Lethal, Melee, Piercing \nLong before the advent of projectile harpoons, the best \nweapon to hunt large sea game was composed of two pieces \nof wood, spliced together, with either a mussel shell or barbed \nelk horns as the piercing tip. The Hoh Whalers of the Wild \nHunt know that for all that high-powered projectile weaponry \nis worth, the truest way to hunt is by using the land’s own re \nsources to aid you, and the White-Water Harpoon is the surest \nway to reconnect with the wild, primal aspects of a hunt.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "wild",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_windcutter": {
+    "id": "pb_relic_windcutter",
+    "name": "WINDCUTTER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Karen Jamison, Scion of Juracán, carries with her a blade made of the silence of the eye of a hurricane. This blade is razor sharp and invisible to the eyes of mortals. Demigod Purviews: Sky Motif: The calm belies the fury of the storm.",
+    "mechanicalEffects": "Enhancement: 2 to attacks made with the sword. \nTags: Aggravated, Lethal, Melee \nKnack: As a simple action, you create a blast of wind \nthat can knock down opponents out to Short range. All oppo \nnents suffer a Complication (4c) on their next action. Failure \nto buy it off knocks them prone.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_xiuhcoatl_the_flaming_serpent": {
+    "id": "pb_relic_xiuhcoatl_the_flaming_serpent",
+    "name": "XIUHCOATL, THE FLAMING SERPENT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "With this atlatl, or spear-thrower, the war God Huitzilo pochtli banishes night and incinerates his enemies, sling ing not spears but bright tongues of flame from its carved turquoise shaft. These are the nagual, or spirit form, of the fire god Xiuhtecuhtli made manifest, conjured by relentless aggressive intent. A Hero who commits fully to her fight may ignite her foes and dispel darkness with abandon.",
+    "mechanicalEffects": "Purviews: Fire Motif: A flame’s light banishes all darkness. Tags: Arcing, Lethal, Ranged \nKnack: Xiuhcoatl’s wielder can learn Blinding Glory as \na Fire boon. \nKnack: The Scion can sling thin spears as normal with \nthe atlatl, but she can also throw serpent-shaped flames, \nadding the Aggravated tag to these attacks and always \ncausing burn-related Injury Conditions. Each point of Mo \nmentum she spends per attack grants it Enhancement 1, to \na maximum of +3. \nKnack: If the Hero uses the Heaven’s Fire boon through \nXiuhcoatl, she may spend a Legend instead of imbuing it for \nthe scene to make a single attack that adds the Shockwave tag \nto the boon’s usual traits. \nFlaws: Once Xiuhcoatl’s wielder makes a flame attack \nwith it, she can’t back down from the fight. She…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "fire",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "A flame’s light banishes all darkness."
+    }
+  },
+  "pb_relic_yithian_mind_stone": {
+    "id": "pb_relic_yithian_mind_stone",
+    "name": "YITHIAN MIND STONE (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Long ago, on a distant planet, the Great Race of Yith slung their minds across the vastness of space simply be cause they could; they put their consciousness into the minds of others, taking control of their bodies so that they may live on Earth or other planets as they choose. Rumors persist that they walk the Earth even now, moving between the bodies of men, creatures, and even the planet itself.",
+    "mechanicalEffects": "Purviews: Journeys, Sky Motif: I see you. Knack: Choose one of the two following abilities upon \npurchase of the Yithian Mind Stone. This choice is perma \nnent and may not later be altered. Astral Projection: The \nstone’s owner falls unconscious, casting her mind out into \nthe universe. She may navigate as if she is a ghost, flying and \npassing through solid objects. She may use any Knacks or \nother powers which do not require physical interaction with \nobjects. Ghosts and other insubstantial beings may interact \nwith her or attack her; she retains her Health levels and may \nbe killed while astral. Her body is vulnerable to attack; she \nwill not know if someone attacks her so it’s best to have a \ntrusted companion guarding her body. She may return to…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "journeys",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "I see you."
+    }
+  },
+  "pb_relic_zipacnas_tooth": {
+    "id": "pb_relic_zipacnas_tooth",
+    "name": "ZIPACNA’S TOOTH (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "This spear is made of solid stone, inlaid with gold. It is crafted from one of Zipacna’s teeth and is the key to this Realm. Purviews: Epic Strength Motif: Through might alone, I prosper.",
+    "mechanicalEffects": "Enhancement: 1 for melee attacks \nTags: Lethal, Melee, Reach",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_canthrig_bwt": {
+    "id": "pb_relic_canthrig_bwt",
+    "name": "CANTHRIG BWT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "As a Demigod, children of Ysbaddaden are likely to have a close relationship with a powerful cewri whose name carries its own Legends. Canthrig Bwt is a giantess witch with a taste for human flesh. As with most cewri, she is a powerhouse of strength, but she is also versed in magic and ruthlessly cunning.",
+    "mechanicalEffects": "Tags: Archetype (Consultant, Heavy) Helpful, Knack \n(Presence of Magic), Terrible (Size), Tough",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_hunters_horn": {
+    "id": "pb_relic_hunters_horn",
+    "name": "HUNTER’S HORN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Enhancement: 1 to using War boons Through the cen turies, hunters have used horns to signal the beginning of a hunt. This became a means to communicate across great distances, informing other parties through varying calls and patterns that their prey was afoot.",
+    "mechanicalEffects": "Purviews: War Motif: Answer the call, and lay waste to your prey. Enhancement: 1 to using War boons Through the cen \nturies, hunters have used horns to signal the beginning of \na hunt. This became a means to communicate across great \ndistances, informing other parties through varying calls and \npatterns that their prey was afoot. Their form has changed \nover the years — sometimes even a bugle works — but a \nclassic hunter’s horn, fashioned from horn or bone and dec \norated in elaborate scrimshaw depicting former hunts and \nvictories, is most common.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "war",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Answer the call, and lay waste to your prey."
+    }
+  },
+  "pb_relic_binding_nail": {
+    "id": "pb_relic_binding_nail",
+    "name": "BINDING NAIL (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "The Binding Nail was once a Tibetan phurba used in exorcism and meditative practice, but over the centuries, it’s been reduced to only its blade: a six-inch nail of meteoric iron that retains a fraction of its spiritual power. Many of them exist around the World, and Scions of the Palas are of ten eager to get their hands on one, speculating about what it might be capable of when fully reconstructed.",
+    "mechanicalEffects": "Knack: When the owner drives the Nail into a fixed, solid, \nhorizontal surface, they choose a target within medium range, \nthen make a Might + (Athletics, Close Combat, or Occult) roll. \nAny success prevents the target from moving further from \nthe Nail than that distance unless they overcome the hold by \nbeating the initial number of successes on an equivalent roll. \nKnack: By driving the Nail into a fixed, solid, vertical \nsurface and choosing herself as a target, the owner is able to \nscale walls at normal movement speed so long as she remains \nwithin Medium range. In both cases, the owner can call the \nNail back to her hand at any time as a reflexive action. If not \nsummoned by the end of the scene, it… Condensed from printed Relics p. 166.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 166",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_sharkskin_coat": {
+    "id": "pb_relic_sharkskin_coat",
+    "name": "SHARKSKIN COAT (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Both defensive measure and fashion statement, the Sharkskin Coat is one of Sebetti’s gifts to promising Scions. It’s made of sharkskin in both senses of the word. As a gar ment, it’s a light jacket made from a luxurious blend of fab rics with an eye-catching sheen. When its user is threatened, the jacket transforms into a full-body set of armor made from the skin of sharks, imbuing the user with their tenacity and speed. The Sharkskin Coat is available in a variety of tasteful colors.",
+    "mechanicalEffects": "Enhancement: 1 to the Roll Away Defensive Stunt. \nTags: Innocuous, Concealable, Soft \nKnack: Spend 1 Momentum to transform the Shark \nskin Coat from garment to armor, applying all its Tags. The \nSharkskin Coat stays in its armored form for the rest of the \nscene. The player may continue to spend Momentum to keep \nit active in consecutive scenes, 1 point for each scene. The \nSharkskin Coat may change back into a garment at any time \nfor no cost. Both transformations are a reflexive action. \nSHARUR, SMASHER OF THOUSANDS \n(•••••)\nPurviews: Epic Strength, Sky \nMotif: For love of Ninurta, I smash your enemies! \nEnhancement: 1 when invoking Feats of Scale in com \nbat Ninurta rarely entrusts his sapient mace bearing…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_pocket_merlin": {
+    "id": "pb_relic_pocket_merlin",
+    "name": "POCKET MERLIN (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 2,
+    "description": "Anyone can download Pocket Merlin and receive messages from the Great and Powerful Magician, but who knows if what they say will come true. Are these messages meant for the you of today or was it meant for yesterday? Or perhaps it is meant for the future you. Only Pocket Merlin knows for sure, and his source code is a carefully kept secret.",
+    "mechanicalEffects": "Knack: A Scion can ask a question of the Pocket Merlin \nand receive an answer that gives a +1 Enhancement to act on \nPocket Merlin’s advice.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 2,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_yorubaland_racer": {
+    "id": "pb_relic_yorubaland_racer",
+    "name": "YORUBALAND RACER (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Ògún loves trains, so it was only a matter of time be fore the God of Iron built his own. The Yorubaland Racer is a locomotive with an appearance similar to the Nigerian Railways 1001 Class diesel-electric locomotive. Unlike those locomotives, the Yourbaland Racer runs on infinite energy, goes as fast as the operator needs it to, and can traverse anywhere railed tracks exist, from the World to the Terra Incognita, and even Ògún’s Godsrealm.",
+    "mechanicalEffects": "Enhancement: 3 towards all Pilot rolls when driving \nthe locomotive. \nKnack: When you blow the conductor’s whistle by a \nrailroad track, the Yorubaland Racer appears on your next \nturn. Unless supernatural intervention delays or prevents \nits arrival, the locomotive always arrives on time, no matter \nhow busy the railway it’s summoned on might be. \nKnack: The Yorubaland Racer can travel on any track in \nany condition, or any portion of land that once held a track. \nThis includes subways, bullet trains, and streetcar tracks. Condensed from printed Relics p. 203.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 203",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_measurer_of_seas": {
+    "id": "pb_relic_measurer_of_seas",
+    "name": "MEASURER OF SEAS (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "Do you know why the Ruyi Jin Gu Bang can get so long? If you take a close look at the notches on the staff, you’ll see why: it was made to measure seas and oceans to perfect ac curacy. A little knowledge of the truth depths of the seas can go a long way. Purviews: Water Motif: I know the sea as well as I know myself.",
+    "mechanicalEffects": "Enhancement: 4 to Athletics and Survival Rolls when \nin deep bodies of water. \nTags: Bashing, Melee, Stun, Reach, Long Range \nKnack: (Imbue 1 Legend): When you are within reach \nof any large body of water, such as a lake, ocean, or river, you \nmay use the Enforcing the Boundary Immortal Knack (Sci \non: Hero, p. 231) as if you had it active, except you are also \ncapable of making Rush and Disengage actions.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_gede_boa": {
+    "id": "pb_relic_gede_boa",
+    "name": "Gede Boa (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "While Barons Cimitière and La Croix can be stodgy, Sa medi and other Gede Barons revel in human sexuality, don ning flamboyant guises with attire to match. A Gede Boa is one such accoutrement — a feather boa in provocative neon colors meant to draw attention. The Barons are extremely casual with them, likely to hand them over to anyone who interests them…or who they think could use a push to “live a little.”",
+    "mechanicalEffects": "Purviews: Passions Motif: Be your most fabulous, unapologetic self. Enhancement: +3 to attract attention as the center of \na crowd. \nKnack: The wearer can imbue 1 Legend to change their \nphysical characteristics (hair, eyes, skin, sex, height, etc.) \nto anything mortally possible. They may spend 1 Legend to \nmake these changes permanent instead. If they loan the boa \nto another character, they may imbue or spend Legend on \ntheir behalf with that owner’s consent. \nFlaw: For a full day after wearing the boa, attempts to \ngo unnoticed suffer a level 2 Complication; if not bought off, \nyou leave behind a distinctive trail of overpowering cologne, \nplastic beads, or glitter.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Be your most fabulous, unapologetic self."
+    }
+  },
+  "pb_relic_tezcatlipocas_mirror": {
+    "id": "pb_relic_tezcatlipocas_mirror",
+    "name": "Tezcatlipoca’s Mirror (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The obsidian mirrors of Tezcatlipoca unveil many secrets, even those a Scion may not wish to know. These come in many shapes and sizes — some are massive discs of polished, night-black glass set in heavy frames to hang upon a wall, while others masquerade as compact mirrors or grace the inner surfaces of pocket-watch cases. A Hero may consult such a mirror to see what has not yet come to pass, to scry upon faraway places, or to read the heart’s darkest desires.",
+    "mechanicalEffects": "Purviews: Fortune Motif: Secrets beg for revelation; mysteries beg for solution. Knack: The mirror’s wielder can learn Blurt It Out as a \nFortune boon, but rather than speaking aloud, the subject is \nreflected in the mirror and their thoughts are clear to anyone \nwho can see them in the glass. \nKnack: By imbuing the mirror with a Legend point, the \nScion may view what’s happening in a given location from \nanywhere, as long as she’s been there before. She may do this \nindefinitely, but can’t take any non-reflexive actions while \nshe does so and can’t apply her Defense. \nFlaws: Tezcatlipoca’s favor is as fickle as fortune itself. \nEach time the Scion scries with the mirror or channels a \nPurview through it, the Storyguide adds one point to the \nTension Pool.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "fortune",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Secrets beg for revelation; mysteries beg for solution."
+    }
+  },
+  "pb_relic_zmei_fang_necklace": {
+    "id": "pb_relic_zmei_fang_necklace",
+    "name": "Zmei-Fang Necklace (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "The World isn’t as it should be: people toil and suffer as if trapped in a cycle they cannot break, nature bleeds in pain, and unaddressed injustices abound. Awareness of it all spawns a poisonous anger within, but spitting it out in tunes, words, performances, and art can turn all that venom into something precious upon which a better future can be built.",
+    "mechanicalEffects": "Purviews: Beasts, Fertility Motif: Anger nourishes both life and destruction. Enhancement: +1 to tend to animals or plants. \nKnack: As reflexive action, the owner can turn the fang \ninto a greatsword with the Lethal, Melee, Messy, Two-Hand \ned, and Unconcealable tags or turn it back into a necklace. \nFlaw: Supernatural poison taints the relic’s essence. \nIf the wielder rolls a botch during an attack or the relic is \ndestroyed, they gain the Poisoned Condition until the end \nof the scene. \nSANCTUM\nA \nSanctum is a place the Scion’s Legend inhabits. It starts \noff as a physical place within the World, but she can \nexpand it to encompass Terra Incognita and even metaphorical \nrepresentations of her Mantle. As her Sanctum grows, they \nmay be able to roam the World and Otherworlds at her…",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "beasts",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "Anger nourishes both life and destruction."
+    }
+  },
+  "pb_relic_owlpedia": {
+    "id": "pb_relic_owlpedia",
+    "name": "Owlpedia 5 (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 3,
+    "description": "Legendary Owlpedia is a tablet that contains a digital encyclopedia. Through divine circuitry, it learns from new experiences. The current fifth generation holds an entire quettabyte of data, the equivalent of several trillion super computers. Purviews: Journeys, Order Motif: All the World’s public knowledge…right at your fingertips!",
+    "mechanicalEffects": "Knack: Once per session, the character may ask up to \nthree questions of their choosing about any publicly known in \nformation about a person, place, or object in the current scene, \nno matter how obscure. The Storyguide must answer truthfully.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "relicDetails": {
+      "rating": 3,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": ""
+    }
+  },
+  "pb_relic_der_konig_in_gelb": {
+    "id": "pb_relic_der_konig_in_gelb",
+    "name": "Der König in Gelb (PB catalog)",
+    "birthrightType": "relic",
+    "pointCost": 5,
+    "description": "It was common in the early years of the twentieth cen tury for stage and film to cross paths, with recordings of the atrical performances recorded and displayed to audiences the world over. German expressionist filmmaker Fritz Lang frett, a former vaudeville stagehand, undertook one such recording in 1924. His film, Der König in Gelb, is one of early cinema’s most elusive lost films. The recording comprised of two reels; the first remains in the hands of an anonymous wealthy collector.",
+    "mechanicalEffects": "Purviews: Star, Death, Journey Motif: They recorded it. What madness! Knack: The fact that Langfrett was an adamant cultist \nin service to ancient entities from Aldebaran is unsurpris \ningly missing from film history. In practice, the recording \nperfectly captured the ritual of The King in Yellow, sealing \nthe rite’s mystical properties within a cage of celluloid. \nViewing both reels of the film in their entirety has the same \neffect as a performance of the play, but without the necessity \nof actors or scripts. All that is required is a film projector of \nan appropriate age; no dice rolls are required to perform the \nritual in this manner. \nFlaw: Perhaps mercifully, both reels are required for \nthis performance; the second has been lost for almost a \ncentury. Should it be… Condensed from printed Relics p. 169.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf; PB (Rev.) Relics p. 169",
+    "relicDetails": {
+      "rating": 5,
+      "tagIds": [],
+      "purviewId": "",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "They recorded it. What madness!"
+    }
+  },
+  "god_relic_mjolnir": {
+    "id": "god_relic_mjolnir",
+    "name": "Mjolnir (God-tier sample)",
+    "birthrightType": "relic",
+    "pointCost": 4,
+    "description": "Often imitated, but never truly replicated, the true Mjolnir — the one which Thor himself, and Thor alone, has wielded — is a sight to behold. It radiates power, with ripples of electricity crackling as soon as it is handled. Crafted by the dwarf brothers Eitri and Brokkr, it is part of a fuller regalia including a belt and iron gloves worn by Thor during his greatest adventures.",
+    "mechanicalEffects": "Purviews: Epic Dexterity, Epic Strength, Sky Motif: The strongest thunder is felt before it’s heard. Enhancement: 1 to defeat opponents of equal or \ngreater Tier\nKnack: The Scion imbues a number of Legend points \ninto Mjolnir and gains that many dots of Might for a scene. \nThis can exceed 5 Might.\nTags: Lethal, Melee, Returning, Shockwave, Thrown, \nVersatile\nRequirement: To fully unlock the legendary power of \nMjolnir, user must also be equipped with the Megingjörð \n— the Power Belt. Otherwise, it remains inert, and access to \nits Purviews and Knack are restricted. Condensed from printed Relics p. 176.",
+    "source": "Scion_God_Second_Edition_(Final_Download).pdf; God (2e) Birthrights pp. 175–176",
+    "relicDetails": {
+      "rating": 4,
+      "tagIds": [],
+      "purviewId": "epicDexterity",
+      "purviewRating": 1,
+      "evocation": "",
+      "motifsAndTags": "The strongest thunder is felt before it’s heard."
+    }
   }
 }

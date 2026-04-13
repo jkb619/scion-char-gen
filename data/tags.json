@@ -1,6 +1,7 @@
 {
   "_meta": {
     "note": "Master tag list for equipment, Relics, Creatures, and other tagged items in this app. Use appliesTo so editors only offer relevant tags; empty appliesTo means the tag appears everywhere.",
+    "tagTypeNote": "`tagType` is a coarse gear/kind label for the Tags library list (weapon, armor, tool, etc.) — orthogonal to `category` (combat, protection, …) used for tone and grouping.",
     "categories": [
       "combat",
       "protection",
@@ -11,6 +12,16 @@
       "utility",
       "narrative"
     ],
+    "tagTypes": [
+      "weapon",
+      "armor",
+      "tool",
+      "accessory",
+      "vehicle",
+      "general",
+      "other",
+      "follower"
+    ],
     "appliesToRoles": [
       "equipment",
       "relic",
@@ -19,11 +30,27 @@
       "guide",
       "cult",
       "general"
+    ],
+    "pointCostNote": "`pointCost` is the Storypath tag dot cost from Origin (Revised) weapon and armor lists (pp. 123–126) and Hero follower tags (p. 204). Negative values are flaw credits. `null` means the table does not assign a dot price on that line. Confirm costs at the PDF before autopricing in play.",
+    "bookCategories": [
+      "",
+      "Weapon",
+      "Armor",
+      "Follower"
+    ],
+    "sourceDocuments": [
+      "Scion_Origin_(Revised_Download).pdf — weapon and armor tags pp. 123–126",
+      "Scion_Hero_(Final_Download).pdf — follower tags p. 204",
+      "C:\\Users\\John\\Desktop\\Scion\\books\\7711-Divine_Armory.pdf",
+      "C:\\Users\\John\\Desktop\\Scion\\books\\7711-Divine_Armory_-_List_of_Weapons.pdf",
+      "/mnt/c/Users/John/Desktop/Scion/books/7711-Divine_Armory.pdf",
+      "/mnt/c/Users/John/Desktop/Scion/books/7711-Divine_Armory_-_List_of_Weapons.pdf"
     ]
   },
   "sharp": {
     "id": "sharp",
     "name": "Sharp",
+    "tagType": "weapon",
     "category": "combat",
     "appliesTo": [
       "equipment",
@@ -36,6 +63,7 @@
   "heavy": {
     "id": "heavy",
     "name": "Heavy",
+    "tagType": "weapon",
     "category": "combat",
     "appliesTo": [
       "equipment",
@@ -48,30 +76,93 @@
   "ranged": {
     "id": "ranged",
     "name": "Ranged",
+    "tagType": "weapon",
     "category": "combat",
     "appliesTo": [
       "equipment",
       "relic",
       "creature"
     ],
-    "description": "Effective at a distance; Range bands matter.",
-    "source": "Scion: Hero / Origin combat (paraphrase)"
+    "description": "Medium band; +1 Difficulty firing at Close; Firearms or Athletics +1 Enhancement.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "bookCategory": "Weapon",
+    "pointCost": 0
   },
   "armored": {
     "id": "armored",
     "name": "Armored",
+    "tagType": "armor",
     "category": "protection",
     "appliesTo": [
       "equipment",
       "relic",
       "creature"
     ],
-    "description": "Resists harm — soft or hard armor narrative hook.",
+    "description": "Resists harm — generic armor hook when you are not splitting Soft vs Hard.",
     "source": "Pandora’s Box / equipment (paraphrase)"
+  },
+  "softArmor": {
+    "id": "softArmor",
+    "name": "Soft armor",
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Flexible protection: +1 Difficulty to the Inflict Damage stunt against the wearer; confirm stacking with SG.",
+    "source": "Origin (Revised) p. 126. See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "pointCost": 1,
+    "bookCategory": "Armor",
+    "pointCostNote": "Soft armor raises Difficulty to Inflict Damage; Hard and Soft do not stack on the same armor but may from different sources (Origin p. 126)."
+  },
+  "hardArmor": {
+    "id": "hardArmor",
+    "name": "Hard armor",
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Rigid protection — plate, ballistic inserts, monster chitin, riot shields braced as cover. Storypath-style Hard tag.",
+    "source": "Origin (Revised) p. 126. See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "pointCost": 1,
+    "pointCostAlt": 3,
+    "bookCategory": "Armor",
+    "pointCostNote": "Hard armor adds Injury Condition boxes per Origin (Revised) p. 126: cheaper tier one box, higher tier an additional box; boxes stay filled until scene end; not combined with Soft on the same armor."
+  },
+  "ballisticArmor": {
+    "id": "ballisticArmor",
+    "name": "Ballistic armor",
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Rated against firearms and shrapnel; often Hard, may still be Concealed under clothing at lower Scale.",
+    "source": "Modern tactical gear + Storypath armor fiction (paraphrase)"
+  },
+  "shield": {
+    "id": "shield",
+    "name": "Shield",
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Parry surface or mobile cover — buckler to tower shield; may also justify melee stunts depending on fiction.",
+    "source": "Scion / Storypath shield-bearing gear (paraphrase)"
   },
   "concealed": {
     "id": "concealed",
     "name": "Concealed",
+    "tagType": "accessory",
     "category": "utility",
     "appliesTo": [
       "equipment",
@@ -83,6 +174,7 @@
   "loud": {
     "id": "loud",
     "name": "Loud",
+    "tagType": "accessory",
     "category": "narrative",
     "appliesTo": [
       "equipment",
@@ -95,6 +187,7 @@
   "faithbound": {
     "id": "faithbound",
     "name": "Faithbound",
+    "tagType": "other",
     "category": "occult",
     "appliesTo": [
       "relic",
@@ -107,6 +200,7 @@
   "sentient": {
     "id": "sentient",
     "name": "Sentient",
+    "tagType": "other",
     "category": "narrative",
     "appliesTo": [
       "relic",
@@ -119,6 +213,7 @@
   "swift": {
     "id": "swift",
     "name": "Swift",
+    "tagType": "general",
     "category": "mobility",
     "appliesTo": [
       "equipment",
@@ -131,6 +226,7 @@
   "keenSenses": {
     "id": "keenSenses",
     "name": "Keen senses",
+    "tagType": "tool",
     "category": "sensory",
     "appliesTo": [
       "creature",
@@ -144,6 +240,7 @@
   "loyal": {
     "id": "loyal",
     "name": "Loyal",
+    "tagType": "general",
     "category": "social",
     "appliesTo": [
       "creature",
@@ -155,6 +252,7 @@
   "versatile": {
     "id": "versatile",
     "name": "Versatile",
+    "tagType": "accessory",
     "category": "utility",
     "appliesTo": [
       "equipment",
@@ -167,6 +265,7 @@
   "legendary": {
     "id": "legendary",
     "name": "Legendary",
+    "tagType": "other",
     "category": "narrative",
     "appliesTo": [
       "relic",
@@ -175,5 +274,737 @@
     ],
     "description": "Stories precede it; may draw Fatebinding or attention at Scale.",
     "source": "Scion Legend / Fatebinding tone (paraphrase)"
+  },
+  "melee": {
+    "id": "melee",
+    "name": "Melee",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Close range only; Close Combat +1 Enhancement.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "bookCategory": "Weapon",
+    "pointCost": 0
+  },
+  "reach": {
+    "id": "reach",
+    "name": "Reach",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Close Combat attacks reach out to short range (long haft, whip, etc.).",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "bookCategory": "Weapon",
+    "pointCost": 1
+  },
+  "lethal": {
+    "id": "lethal",
+    "name": "Lethal",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Lethal track (Scratched, Cut, Bleeding Out); not Bruised/Battered from this tag.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "bookCategory": "Weapon",
+    "pointCost": 0
+  },
+  "bashing": {
+    "id": "bashing",
+    "name": "Bashing",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Blunt harm; Broken/Battered-style outcomes; not for severing.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books).",
+    "bookCategory": "Weapon",
+    "pointCost": 0
+  },
+  "aggravated": {
+    "id": "aggravated",
+    "name": "Aggravated",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Supernatural grievous harm; Aggravated Conditions need magic to heal.",
+    "source": "Origin (Revised) p. 123 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "arcing": {
+    "id": "arcing",
+    "name": "Arcing",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Arcing shots: downgrade target cover one step when firing around it.",
+    "source": "Origin (Revised) p. 123 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "automatic": {
+    "id": "automatic",
+    "name": "Automatic",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Burst fire: +1 Enhancement to Critical Hit stunt; incompatible with Melee and Shockwave; complications after Empty the Clip per book.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "firearm": {
+    "id": "firearm",
+    "name": "Firearm",
+    "bookCategory": "Weapon",
+    "pointCost": 0,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Gun: use Firearms; +1 Enhancement to Firearms.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "grappling": {
+    "id": "grappling",
+    "name": "Grappling",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "+1 Enhancement to Grapple attacks with this weapon.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "longRange": {
+    "id": "longRange",
+    "name": "Long range",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Effective range band extends to long.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "messy": {
+    "id": "messy",
+    "name": "Messy",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Ragged wounds or splattered cover; leaves an obvious trail.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "natural": {
+    "id": "natural",
+    "name": "Natural",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Body weapon (fangs, claws); cannot be disarmed; injuries may still impose penalties.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "piercing": {
+    "id": "piercing",
+    "name": "Piercing",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "When dealing damage, reduce target hard armor by 1 or soft armor by 2.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "pushing": {
+    "id": "pushing",
+    "name": "Pushing",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "After Stress or Injury, may also knock the target prone.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "returning": {
+    "id": "returning",
+    "name": "Returning",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Thrown or fired weapon returns to the wielder (boomerang, tethered harpoon, etc.).",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "shockwave": {
+    "id": "shockwave",
+    "name": "Shockwave",
+    "bookCategory": "Weapon",
+    "pointCost": 4,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Can strike all targets in the same range band; large Scale or magic—rare on mundane weapons.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "slow": {
+    "id": "slow",
+    "name": "Slow",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Setup, reload, or repositioning: dedicate an action to the slow aspect.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "stun": {
+    "id": "stun",
+    "name": "Stun",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Injury outcomes limited to listed bruising/stagger/stun/battered; Taken Out means unconscious.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "thrown": {
+    "id": "thrown",
+    "name": "Thrown",
+    "bookCategory": "Weapon",
+    "pointCost": 0,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Thrown to medium range; use Athletics or Firearms per build; harder to use at Close (see book).",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "twoHanded": {
+    "id": "twoHanded",
+    "name": "Two-handed",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Requires both hands.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "unconcealable": {
+    "id": "unconcealable",
+    "name": "Unconcealable",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Too bulky to hide without serious smuggling effort.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "weaponVersatile": {
+    "id": "weaponVersatile",
+    "name": "Versatile (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "+1 Enhancement when using this weapon for Stunts (table weapon tag, not generic gear versatility).",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "worn": {
+    "id": "worn",
+    "name": "Worn",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Strapped on; cannot be disarmed.",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "concealableWeapon": {
+    "id": "concealableWeapon",
+    "name": "Concealable (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "+1 Enhancement to sneak this weapon into a place unseen.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "weaponLoud": {
+    "id": "weaponLoud",
+    "name": "Loud (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Cannot be silenced; firing where people can hear draws attention.",
+    "source": "Origin (Revised) p. 125 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "cumbersome": {
+    "id": "cumbersome",
+    "name": "Cumbersome",
+    "bookCategory": "Armor",
+    "pointCost": -1,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "+1 Difficulty to athletic feats while worn.",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "concealableArmor": {
+    "id": "concealableArmor",
+    "name": "Concealable (armor)",
+    "bookCategory": "Armor",
+    "pointCost": 2,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Can be hidden under clothing.",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "innocuous": {
+    "id": "innocuous",
+    "name": "Innocuous",
+    "bookCategory": "Armor",
+    "pointCost": 2,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Looks like ordinary clothes or sports pads; common on Relic armor.",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "resistant": {
+    "id": "resistant",
+    "name": "Resistant",
+    "bookCategory": "Armor",
+    "pointCost": 2,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Tuned vs a damage type (e.g. bulletproof vs Firearms+Piercing); may be taken more than once if points allow.",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "weighty": {
+    "id": "weighty",
+    "name": "Weighty",
+    "bookCategory": "Armor",
+    "pointCost": -1,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Long labor or sleeping in it risks Fatigued (Athletics+Stamina vs Difficulty 3 per book).",
+    "source": "Origin (Revised) p. 126 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerArchetype": {
+    "id": "followerArchetype",
+    "name": "Archetype (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower"
+    ],
+    "description": "Extra archetype (Heavy, Entourage, Consultant).",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerGroup": {
+    "id": "followerGroup",
+    "name": "Group (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower"
+    ],
+    "description": "Five to ten people; mixed action to issue two orders at once.",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerMob": {
+    "id": "followerMob",
+    "name": "Mob (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower"
+    ],
+    "description": "Twenty to fifty people; Scale one higher than the Hero on numbers; mixed action for two orders.",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerSavage": {
+    "id": "followerSavage",
+    "name": "Savage (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower",
+      "creature"
+    ],
+    "description": "+2 Enhancement on actions meant to harm (physical or emotional).",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerAccess": {
+    "id": "followerAccess",
+    "name": "Access (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower"
+    ],
+    "description": "Opens one Terra Incognita, Overworld, Underworld, or a broad class of mortal institution (repeatable).",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "followerSmooth": {
+    "id": "followerSmooth",
+    "name": "Smooth (follower)",
+    "bookCategory": "Follower",
+    "pointCost": null,
+    "tagType": "follower",
+    "category": "social",
+    "appliesTo": [
+      "follower"
+    ],
+    "description": "Improves Storyguide character Attitude by 1 when present and receptive.",
+    "source": "Hero (Final) p. 204 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "brutal": {
+    "id": "brutal",
+    "name": "Brutal",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Critical Stunt needs one fewer success.",
+    "source": "Origin (Revised) p. 124 See also 7711-Divine_Armory.pdf; 7711-Divine_Armory_-_List_of_Weapons.pdf (local Scion/books)."
+  },
+  "weaponAttach": {
+    "id": "weaponAttach",
+    "name": "Attach (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 0,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Mounts on another item or weapon to function as a different weapon (e.g. bayonet).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Attach)."
+  },
+  "burns": {
+    "id": "burns",
+    "name": "Burns",
+    "bookCategory": "Weapon",
+    "pointCost": 0,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Inflicts burn-style Injuries (e.g. scorched flesh) instead of ordinary cuts or bruises.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Burns)."
+  },
+  "defensiveWeapon": {
+    "id": "defensiveWeapon",
+    "name": "Defensive (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 2,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "If not used to attack this round, grants Enhancement 1 to defensive rolls instead of the attack; defensive use prevents attacking that round.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Defensive)."
+  },
+  "doubleWeapon": {
+    "id": "doubleWeapon",
+    "name": "Double (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 0,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Two usable sides: wielder picks Bashing or Lethal for the round, not both in the same round.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Double)."
+  },
+  "fragileWeapon": {
+    "id": "fragileWeapon",
+    "name": "Fragile (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "pointCostAlt": -3,
+    "pointCostNote": "Divine Armory: weaker version is a level-1 Complication to overcome on attack or the weapon breaks; stronger version breaks automatically after a hit.",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Risk of breaking on use; severity depends on tier purchased on the table.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Fragile)."
+  },
+  "inaccurate": {
+    "id": "inaccurate",
+    "name": "Inaccurate",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Poorly suited as a weapon: +1 Difficulty to attack rolls with it (common on improvised gear).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Inaccurate)."
+  },
+  "prototypeWeapon": {
+    "id": "prototypeWeapon",
+    "name": "Prototype (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "pointCostAlt": -2,
+    "pointCostNote": "Divine Armory: Complication level equals tag magnitude; failing yields a Glitched-style malfunction — see PDF.",
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Experimental build: powerful or novel but prone to jams or glitches.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Prototype)."
+  },
+  "resetWeapon": {
+    "id": "resetWeapon",
+    "name": "Reset (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Single use before reload or reset; may spend an action or beat a level-1 Complication before firing again (book options).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Reset)."
+  },
+  "shortRange": {
+    "id": "shortRange",
+    "name": "Short range (firearm)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Firearm effective only out to short range instead of usual bands.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Short Range)."
+  },
+  "weaponSoftMinor": {
+    "id": "weaponSoftMinor",
+    "name": "Soft — minor (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -1,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Raises Difficulty to inflict an Injury Condition by 1 (Divine Armory weapon Soft, mild tier). Not armor Soft.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Soft, weapon)."
+  },
+  "weaponSoftMajor": {
+    "id": "weaponSoftMajor",
+    "name": "Soft — major (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": -3,
+    "tagType": "weapon",
+    "category": "combat",
+    "appliesTo": [
+      "equipment",
+      "relic",
+      "creature"
+    ],
+    "description": "Cannot cause Injury Conditions at all (Divine Armory weapon Soft, strong tier).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Soft, weapon)."
+  },
+  "weaponTool": {
+    "id": "weaponTool",
+    "name": "Tool (weapon)",
+    "bookCategory": "Weapon",
+    "pointCost": 1,
+    "tagType": "weapon",
+    "category": "utility",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Doubles as a plausible tool; Enhancement 1 on fitting non-combat rolls when used as that tool.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, introduction (Tool)."
+  },
+  "slotHelm": {
+    "id": "slotHelm",
+    "name": "Slot: helm",
+    "bookCategory": "Armor",
+    "pointCost": -1,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Armor build counts a helmet slot or integrated head protection as part of its tag budget (Divine Armory armor write-ups).",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, armor chapter / appendix (Slot Helm)."
+  },
+  "camouflageArmor": {
+    "id": "camouflageArmor",
+    "name": "Camouflage (armor)",
+    "bookCategory": "Armor",
+    "pointCost": 2,
+    "tagType": "armor",
+    "category": "protection",
+    "appliesTo": [
+      "equipment",
+      "relic"
+    ],
+    "description": "Helps the wearer blend into terrain or hunting fiction; confirm bonuses with the Storyguide.",
+    "source": "Divine Armory (Storypath Nexus community content, Óskar Örn Eggertsson); verify in 7711-Divine_Armory.pdf, armor chapter (Camouflage)."
   }
 }

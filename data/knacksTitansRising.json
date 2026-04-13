@@ -1,0 +1,691 @@
+{
+  "_meta": {
+    "title": "Titans Rising — Titanic Knacks",
+    "role": "Merged into bundle.knacks after Saints & Monsters. Paraphrased mechanics; confirm costs and tags with TItans_Rising_(Final_Download).pdf ch. 1.",
+    "sourcePdf": "TItans_Rising_(Final_Download).pdf"
+  },
+  "tr_general_i_am_here": {
+    "id": "tr_general_i_am_here",
+    "name": "I Am Here",
+    "callingsAny": true,
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Once per scene: +2 Enhancement on that social roll. Once per scene unveil your full power on a social roll to impress, threaten, intimidate, or overwhelm.",
+    "mechanicalEffects": "Once per scene: +2 Enhancement on that social roll. Everyone who can sense the supernatural intuits your Titanic nature, Legend, and pantheon; trivial characters flee or freeze.",
+    "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Heroic)"
+  },
+  "tr_general_monsters_united": {
+    "id": "tr_general_monsters_united",
+    "name": "Monsters United",
+    "callingsAny": true,
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once per session commune with your pantheon’s Titans for tactical insight.",
+    "mechanicalEffects": "Once per session: Knack Skill roll; one listed question plus one per success (Titanic nature here, a Titan’s wish, who fears Titans, currying favor with progenitor). +2 Enhancement once this scene when acting on those answers.",
+    "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Heroic)"
+  },
+  "tr_general_overwhelming_presence": {
+    "id": "tr_general_overwhelming_presence",
+    "name": "Overwhelming Presence",
+    "callingsAny": true,
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Be heard and seen clearly despite environmental Complications; your presence imposes respect.",
+    "mechanicalEffects": "Ignore fog, noise, crowds, etc. for being perceived. Others take a Complication equal to your highest Titanic Calling to knowingly ignore or snub you; failing to buy it off knocks them prone.",
+    "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Heroic)"
+  },
+  "tr_general_beacon_of_power": {
+    "id": "tr_general_beacon_of_power",
+    "name": "Beacon of Power",
+    "callingsAny": true,
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once per scene: one extra Innate Purview marvel this scene without counting toward your marvel limit. Once per scene. Your Innate Purview marvels can flare beyond normal limits but betray you to keen observers.",
+    "mechanicalEffects": "Once per scene: one extra Innate Purview marvel this scene without counting toward your marvel limit. Whenever you imbue or spend Legend, Hero+ characters may roll Occult + Intellect to identify you and gain +2 Enhancement to track or detect you for the scene.",
+    "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Immortal)"
+  },
+  "tr_general_divine_armistice": {
+    "id": "tr_general_divine_armistice",
+    "name": "Divine Armistice (Òrìshà / Loa)",
+    "callingsAny": true,
+    "pantheonAnyOf": [
+      "orisha",
+      "loa"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum to cool hatred between Gods, Titans, and the Titanomachy within a Field.",
+    "mechanicalEffects": "Spend 1 Momentum: Field weakens hostile attitudes about Gods/Titans/Titanomachy by 2 for the scene. Violators take +3 Complication on actions in the Field; if not bought off, observers read their actions as dishonorable or reckless (including later gossip/recordings).",
+    "source": "TItans_Rising_(Final_Download).pdf — Titanic Callings, General Knacks (Immortal)"
+  },
+  "tr_adv_enemy_of_my_enemy": {
+    "id": "tr_adv_enemy_of_my_enemy",
+    "name": "Enemy of My Enemy",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Sense shared grudges and read useful memories about why someone hates what you hate.",
+    "mechanicalEffects": "You know when someone shares a negative Attitude toward a person/group you also oppose; Read Attitude reveals useful memories about that dislike. Higher Tier may hide this (Clash of Wills per PDF).",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Heroic)"
+  },
+  "tr_adv_my_misfortune_is_your_misfortune": {
+    "id": "tr_adv_my_misfortune_is_your_misfortune",
+    "name": "My Misfortune Is Your Misfortune",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Redirect a Complication imposed on you toward the source or someone they care about.",
+    "mechanicalEffects": "Spend Momentum when someone imposes a Complication on you to redirect it per PDF. First use each scene is free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Heroic)"
+  },
+  "tr_adv_perfectly_symmetrical_violence": {
+    "id": "tr_adv_perfectly_symmetrical_violence",
+    "name": "Perfectly Symmetrical Violence",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Strike back immediately when someone injures you.",
+    "mechanicalEffects": "When injured by a character, spend 2 Momentum to attack them immediately without a mixed action, even if you already acted this round.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Heroic)"
+  },
+  "tr_adv_pride_before_a_fall": {
+    "id": "tr_adv_pride_before_a_fall",
+    "name": "Pride Before a Fall",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Punish a rival’s successes with ironic failure.",
+    "mechanicalEffects": "When a character you have a negative Attitude toward uses Enhancement, spend Momentum to inflict dice penalty up to your Adversary; if they fail, the failure is especially ironic or tragic. First use each scene is free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Heroic)"
+  },
+  "tr_adv_a_wicked_idea": {
+    "id": "tr_adv_a_wicked_idea",
+    "name": "A Wicked Idea",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Plant a dangerous idea disguised as a joke; the target’s self-control frays.",
+    "mechanicalEffects": "Spend Momentum to suggest a malicious course as “just a joke.” Next good opportunity, target takes +2 Complication on all actions for the scene from distraction. Higher Tier resists with Clash (Manipulation + Legend vs Composure + Legend).",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal)"
+  },
+  "tr_adv_fever_ridden_bogovi": {
+    "id": "tr_adv_fever_ridden_bogovi",
+    "name": "Fever-Ridden (Bogovi)",
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "bogovi"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Possess another as a spiritual disease, riding their senses.",
+    "mechanicalEffects": "Spend Momentum to become an infectious cloud and inhabit someone at Short range; share senses; once per scene influence them (+2 Enhancement if unaware). Healing diseases exorcises you; otherwise Integrity + Stamina successes accumulate to force you out. Same Tier+ resists infection with Clash of Wills.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal, Bogovi)"
+  },
+  "tr_adv_wrath_is_sustenance_kuh": {
+    "id": "tr_adv_wrath_is_sustenance_kuh",
+    "name": "Wrath Is Sustenance (K’uh)",
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "kuh"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Feed on enmity; leverage hatred in contests.",
+    "mechanicalEffects": "Reduce penalties from fatigue, hunger, and similar needs by your highest negative Attitude. Add Adversary as Enhancement to contested rolls against characters toward whom you have a negative Attitude.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal, K’uh)"
+  },
+  "tr_adv_my_best_enemy": {
+    "id": "tr_adv_my_best_enemy",
+    "name": "My Best Enemy",
+    "callings": [
+      "adversary"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Hold extra temporary Fatebindings fueled by rivalry.",
+    "mechanicalEffects": "You may hold extra temporary Fatebindings up to your Adversary rating beyond normal limits; these cap at Strength 3. Same Tier+ resists with Clash of Wills. Duration follows Fatebinding rules (see Scion: Hero).",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal)"
+  },
+  "tr_adv_ruin_your_life_netjer": {
+    "id": "tr_adv_ruin_your_life_netjer",
+    "name": "Ruin Your Life (Netjer)",
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "netjer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Steal an enemy’s identity to destroy their reputation.",
+    "mechanicalEffects": "Gain Enhancement equal to their negative Attitude toward you to impersonate them; includes stunts Not a Trace (1s) and The Wrong Trace Entirely (3s) per PDF.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal, Netjer)"
+  },
+  "tr_adv_that_venom_deception_palas": {
+    "id": "tr_adv_that_venom_deception_palas",
+    "name": "That Venom, Deception (Pālas)",
+    "callings": [
+      "adversary"
+    ],
+    "pantheonAnyOf": [
+      "palas"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spread irresistible gossip that compels believers to repeat it.",
+    "mechanicalEffects": "Spend 1 Momentum: +2 Enhancement to spread gossip about someone; believers must pass it on. Same Tier+ resists with Clash. Free vs trivial subjects or those who already dislike you; first use each scene is free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Adversary Knacks (Immortal, Pālas)"
+  },
+  "tr_dest_it_all_ends_in_silence": {
+    "id": "tr_dest_it_all_ends_in_silence",
+    "name": "It All Ends in Silence",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Spend Momentum: Field grants +1 Enhancement to Stealth. Create a sound-suppressing Field favoring stealth and muffling foes.",
+    "mechanicalEffects": "Spend Momentum: Field grants +1 Enhancement to Stealth; noisy actions take +3 Complication; if not bought off, speech cannot carry beyond Short range for the scene.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic)"
+  },
+  "tr_dest_not_a_trace": {
+    "id": "tr_dest_not_a_trace",
+    "name": "Not a Trace (Destroyer)",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Erase forensic and electronic evidence of your presence after each scene.",
+    "mechanicalEffects": "At scene end, destroy fingerprints, DNA, and recordings of your presence; witnesses still remember you normally.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic)"
+  },
+  "tr_dest_sever_the_ties": {
+    "id": "tr_dest_sever_the_ties",
+    "name": "Sever the Ties",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Undermine loyalties harder when you Shift Attitude to tear bonds apart.",
+    "mechanicalEffects": "When using Shift Attitude to undermine loyalty or affection, spend Momentum to shift one extra step; if reduced to 0 or less, rebuilding that attitude this season is +2 difficulty. First use each scene is free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic)"
+  },
+  "tr_dest_what_you_fear_losing": {
+    "id": "tr_dest_what_you_fear_losing",
+    "name": "What You Fear Losing",
+    "callings": [
+      "destroyer"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Read what a victim cannot bear to lose and leverage it in threats.",
+    "mechanicalEffects": "On Read Attitude, intuit something in the scene they fear to lose; +2 Enhancement to threats endangering it; they cannot apply their negative Attitude toward you against those threats.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic)"
+  },
+  "tr_dest_juracans_dance_zem": {
+    "id": "tr_dest_juracans_dance_zem",
+    "name": "Juracán’s Dance (Zemí)",
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "zem"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Channel destruction through performance and revolutionary art.",
+    "mechanicalEffects": "+2 Enhancement to encourage destructive or revolutionary behavior through art or performance, or to stoke outrage/violence. Those who embrace the mission gain +1 Enhancement on attacks against your chosen target.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Heroic, Zemí)"
+  },
+  "tr_dest_jotuns_armory_aesir": {
+    "id": "tr_dest_jotuns_armory_aesir",
+    "name": "Jötun’s Armory (Æsir)",
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "aesir"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Reflexively arm yourself with improvised oversized weapons from scenery.",
+    "mechanicalEffects": "Break trivial scenery for Heavy Melee weapons (Bashing or Lethal + one of Brutal, Pushing, Reach, Stun). With Size Scale access, weapons scale slightly above your size as per PDF.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Immortal, Æsir)"
+  },
+  "tr_dest_swallow_the_moon_balahala": {
+    "id": "tr_dest_swallow_the_moon_balahala",
+    "name": "Swallow the Moon (Bahala)",
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "balahala"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Diminish a Purview’s grip on the scene by devouring its symbolic power.",
+    "mechanicalEffects": "Spend Momentum, choose a Purview: for the scene, Complications and Enhancements tied to it drop by 2; extra Inflict Damage stunt purchases vs examples of it. Purview wielders may contest with Clash (Legend + Might vs Legend + Stamina).",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Immortal, Bahala)"
+  },
+  "tr_dest_evil_eye_tuatha": {
+    "id": "tr_dest_evil_eye_tuatha",
+    "name": "The Evil Eye (Tuatha)",
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "tuathaDeDanann"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Your locked gaze becomes a lethal, vision-warping curse.",
+    "mechanicalEffects": "When another locks eyes with you, roll Integrity + Presence attack with Piercing and Lethal; for the scene they take +2 Complication on vision-based actions against you or risk Injury.",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Immortal, Tuatha Dé Danann)"
+  },
+  "tr_dest_embrace_the_end_yazata": {
+    "id": "tr_dest_embrace_the_end_yazata",
+    "name": "Embrace the End (Yazata)",
+    "callings": [
+      "destroyer"
+    ],
+    "pantheonAnyOf": [
+      "yazata"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Your attacks carry decay—wounds fester and years catch up.",
+    "mechanicalEffects": "On attacks, access stunts Festering Wound (1s) and Decay of Age (3s) per PDF (healing slowed; physical Attribute penalty until Injuries heal).",
+    "source": "TItans_Rising_(Final_Download).pdf — Destroyer Knacks (Immortal, Yazata)"
+  },
+  "tr_mon_stinging_stink_manitou": {
+    "id": "tr_mon_stinging_stink_manitou",
+    "name": "Stinging Stink (Manitou)",
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "manitou"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Action: Noxious Condition on everyone within Short. Release a musk cloud that marks everyone nearby with stench and social peril.",
+    "mechanicalEffects": "Action: Noxious Condition on everyone within Short; hours to scrub; +2 Complication on social influence to avoid offense and on Stealth to avoid trails for the scene.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Heroic, Manitou)"
+  },
+  "tr_mon_no_close_ups_please": {
+    "id": "tr_mon_no_close_ups_please",
+    "name": "No Close-ups, Please",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Your face refuses to be remembered—only the fear sticks.",
+    "mechanicalEffects": "+2 difficulty to remember or describe you after the scene; trivial characters cannot unless you deliberately terrified them (then they remember but cannot describe).",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Heroic)"
+  },
+  "tr_mon_debts_paid_in_blood_teotl": {
+    "id": "tr_mon_debts_paid_in_blood_teotl",
+    "name": "Debts Paid in Blood (Teōtl)",
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "teotl"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Hunt anyone indebted to you across distance with predatory certainty.",
+    "mechanicalEffects": "Always know distance, direction, and shortest path to debtors. They take Complication equal to your Monster Calling to evade, defraud, or refuse repayment; if not bought off, messy Injury and you sense their intent at any range.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Heroic, Teōtl)"
+  },
+  "tr_mon_face_of_fear": {
+    "id": "tr_mon_face_of_fear",
+    "name": "The Face of Fear",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Embody a target’s primal fear to terrify them worse than anyone else.",
+    "mechanicalEffects": "Spend Momentum to learn a primal fear and shapeshift into a monstrous embodiment: +1 Enhancement to terrify generally, +3 against that target. First use each scene and vs trivial targets are free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Heroic)"
+  },
+  "tr_mon_evolving_threat": {
+    "id": "tr_mon_evolving_threat",
+    "name": "Evolving Threat",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Each turn you adapt armor or natural weapons against what hurt you.",
+    "mechanicalEffects": "Start of your turn: gain Resistant vs last turn’s damage type or add a 1-point tag to a Natural weapon; bank points across turns for pricier tags, up to Monster dots total new tags; all slough at scene end.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
+  },
+  "tr_mon_lifeblood_buffet": {
+    "id": "tr_mon_lifeblood_buffet",
+    "name": "Lifeblood Buffet",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "A concealed natural weapon feeds on blood to mend your wounds.",
+    "mechanicalEffects": "Close attack (Natural, Melee, Lethal, Concealable). When you buy Inflict Damage, spend Momentum to heal Bruised/Injured; with Critical Stunt, heal Maimed. Trivial victims only heal Bruised.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
+  },
+  "tr_mon_monsters_in_the_mirror": {
+    "id": "tr_mon_monsters_in_the_mirror",
+    "name": "Monsters in the Mirror",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Spend Momentum to inflict Monstrous Urges (see Saints & Monsters or Titanomachy for the Condition). Infect others with Monstrous Urges that risk collateral harm.",
+    "mechanicalEffects": "Spend Momentum to inflict Monstrous Urges (see Saints & Monsters or Titanomachy for the Condition). Same Tier+ resists with Clash of Wills.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
+  },
+  "tr_mon_skulking_horror": {
+    "id": "tr_mon_skulking_horror",
+    "name": "Skulking Horror",
+    "callings": [
+      "monster"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "While concealed from all observers, move to any location you can see within Long range without traversing intervening space. While hidden and your position unknown, slip across Long range without crossing the space between.",
+    "mechanicalEffects": "While concealed from all observers, move to any location you can see within Long range without traversing intervening space.",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal)"
+  },
+  "tr_mon_sacrificial_spawn_tengri": {
+    "id": "tr_mon_sacrificial_spawn_tengri",
+    "name": "Sacrificial Spawn (Tengri)",
+    "callings": [
+      "monster"
+    ],
+    "pantheonAnyOf": [
+      "tengri"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Sacrifice a body part to birth a short-lived titanspawn.",
+    "mechanicalEffects": "Harmlessly remove a limb/eye/etc. and transform it into a Creature for the scene with rating 2 + Complication you took from the loss (max 3).",
+    "source": "TItans_Rising_(Final_Download).pdf — Monster Knacks (Immortal, Tengri)"
+  },
+  "tr_prime_bending_the_world": {
+    "id": "tr_prime_bending_the_world",
+    "name": "Bending the World",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Act at Close range through wind, plants, and other natural extensions.",
+    "mechanicalEffects": "Take Close actions at distance via natural phenomena using normal pools, but Attribute dice cannot exceed Primeval. +1 Complication at Medium, +2 at Long; if not bought off, actions are slow or clumsy.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Heroic)"
+  },
+  "tr_prime_the_old_ways_nemetondevos": {
+    "id": "tr_prime_the_old_ways_nemetondevos",
+    "name": "The Old Ways (Nemetondevos)",
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "nemetondevos"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Punish reliance on complex tools; return craft to raw elements.",
+    "mechanicalEffects": "Spend Momentum: inflict Complication equal to Primeval on actions using complex tools (guns, phones, etc.). If not bought off, item is destroyed at action’s end. First use and vs trivial are free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Heroic, Nemetondevos)"
+  },
+  "tr_prime_none_grasp_the_wind": {
+    "id": "tr_prime_none_grasp_the_wind",
+    "name": "None Grasp the Wind",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Slip bonds and barriers that would hold a mortal body.",
+    "mechanicalEffects": "+2 Enhancement to resist physical restraint including Clashes of Wills. Spend Momentum to pass through a barrier that is not airtight.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Heroic)"
+  },
+  "tr_prime_world_is_my_partner": {
+    "id": "tr_prime_world_is_my_partner",
+    "name": "The World Is My Partner",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "A bond with your Purview refreshes each session to bank successes like a normal Bond.",
+    "mechanicalEffects": "Bond resets to Primeval rating each session; spend/bank successes on actions that dramatically affirm your commitment to that Purview’s themes.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Heroic)"
+  },
+  "tr_prime_world_provides": {
+    "id": "tr_prime_world_provides",
+    "name": "The World Provides",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Shape simple mundane materials for crafting without special supplies.",
+    "mechanicalEffects": "Action: create simple mundane objects from stone, wood, iron, or similar common materials, replacing mundane supply needs for crafting projects this scene.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Heroic)"
+  },
+  "tr_prime_caldera_overflows_atua": {
+    "id": "tr_prime_caldera_overflows_atua",
+    "name": "The Caldera Overflows (Atua)",
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "atua"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "When you are injured, your Purview lashes out as hazardous terrain.",
+    "mechanicalEffects": "When you suffer an Injury, spread dangerous terrain out to Medium based on an outpouring of one of your Purviews. Others take Complication on next action based on Injury severity; spend Momentum to raise severity caps per PDF.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Immortal, Atua)"
+  },
+  "tr_prime_implacable_as_winter": {
+    "id": "tr_prime_implacable_as_winter",
+    "name": "Implacable as Winter",
+    "callings": [
+      "primeval"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Once per scene reset one attitude to 0 or reduce an atmosphere’s influence on you by Primeval. For the rest of the scene, plays on your ambitions/desires take +2 Complication; if not bought off, the manipulator risks Injury as elements lash out. Once per scene, shut down emotional leverage against you.",
+    "mechanicalEffects": "Once per scene reset one attitude to 0 or reduce an atmosphere’s influence on you by Primeval. For the rest of the scene, plays on your ambitions/desires take +2 Complication; if not bought off, the manipulator risks Injury as elements lash out.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Immortal)"
+  },
+  "tr_prime_single_minded_disaster_kami": {
+    "id": "tr_prime_single_minded_disaster_kami",
+    "name": "Single-Minded Disaster (Kami)",
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "kami"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Declare your intent for the scene and barrel through opposition—at a cost.",
+    "mechanicalEffects": "Loudly declare your immediate scene goal: gain Primeval Enhancement to resist dissuasion or impediments to that goal only. You take a Complication of the same rating when you do anything else; if not bought off, Injury as your nature rebels.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Immortal, Kami)"
+  },
+  "tr_prime_bodys_trove_theoi": {
+    "id": "tr_prime_bodys_trove_theoi",
+    "name": "The Body’s Trove (Theoi)",
+    "callings": [
+      "primeval"
+    ],
+    "pantheonAnyOf": [
+      "theoi"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Hide tools and willing passengers inside your Titanic body.",
+    "mechanicalEffects": "Absorb up to Primeval rating in objects or willing characters of roughly your size; they leave hints detectable with difficulty 3 Occult + Intellect; extracting takes an action.",
+    "source": "TItans_Rising_(Final_Download).pdf — Primeval Knacks (Immortal, Theoi)"
+  },
+  "tr_tyr_compliance_is_rewarded": {
+    "id": "tr_tyr_compliance_is_rewarded",
+    "name": "Compliance Is Rewarded",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Spend 1 Momentum to resolve a Condition on someone who recognizes you as superior. Heal a subordinate’s Condition, then punish future defiance.",
+    "mechanicalEffects": "Spend 1 Momentum to resolve a Condition on someone who recognizes you as superior; next defiance inflicts Complication equal to Tyrant dots or the Condition returns with Injury if not bought off. Higher-Tier sources require Clash of Wills (Legend + Presence).",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic)"
+  },
+  "tr_tyr_impossible_quest_tuatha": {
+    "id": "tr_tyr_impossible_quest_tuatha",
+    "name": "An Impossible Quest (Plant Dôn)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "tuathaDeDanann"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Goad someone into a brutal task with a tempting reward.",
+    "mechanicalEffects": "Encourage Behavior to push someone into a difficult task: +2 Enhancement; they cannot leverage negative Attitude toward you while a reasonable reward is offered. If they succeed, you must pay the reward and suffer Complication equal to Tyrant until you do.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic, Tuatha Dé Danann)"
+  },
+  "tr_tyr_greasing_the_palm_shen": {
+    "id": "tr_tyr_greasing_the_palm_shen",
+    "name": "Greasing the Palm (Shén)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "shen"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Intuit the perfect bribe for an official and lock in their complicity.",
+    "mechanicalEffects": "Spend 1 Momentum to learn the perfect bribe; if paid, their attitude toward you improves by 1 and they take Tyrant Complication to betray you for the rest of the story; if not bought off, superiors learn of the bribe. First use each scene and vs trivial are free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic, Shén)"
+  },
+  "tr_tyr_the_last_word": {
+    "id": "tr_tyr_the_last_word",
+    "name": "The Last Word",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "End a debate or topic for the rest of the scene.",
+    "mechanicalEffects": "Spend 1 Momentum to forbid a topic from resurfacing this scene. Same Tier+ resists with Clash (Legend + Composure vs Legend + Presence).",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic)"
+  },
+  "tr_tyr_whom_do_you_serve": {
+    "id": "tr_tyr_whom_do_you_serve",
+    "name": "Whom Do You Serve?",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "mortal",
+    "description": "Map a character’s loyalties, chains of command, and attitudes.",
+    "mechanicalEffects": "Spend 1 Momentum to intuit rough loyalties, superiors, and attitudes—including off-screen figures you later recognize. First use each scene and vs trivial are free.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Heroic)"
+  },
+  "tr_tyr_shatter_tablets_anunna": {
+    "id": "tr_tyr_shatter_tablets_anunna",
+    "name": "Shatter Tablets, Seize Crowns (Annunaki)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "anunna"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Claim honors, offices, or possessions from a rival you defeat in an agreed contest.",
+    "mechanicalEffects": "Upon winning an agreed contest, claim one honor/position/possession; until surrendered, target suffers Tyrant Complication on related actions; gossip sours attitudes if Complications go unpaid.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Immortal, Annua)"
+  },
+  "tr_tyr_dwelling_in_darkness_apu": {
+    "id": "tr_tyr_dwelling_in_darkness_apu",
+    "name": "Dwelling in Darkness (Apu)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "apu"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Consecrate a dark stronghold and snap back to it when plans collapse.",
+    "mechanicalEffects": "Spend 1 Momentum when injured or foiled to teleport yourself, Bandmates, and up to Tyrant willing others to your consecrated stronghold; journeys toward it take half time. Re-consecrate with a night-long ritual.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Immortal, Apu)"
+  },
+  "tr_tyr_obvious_superiority_deva": {
+    "id": "tr_tyr_obvious_superiority_deva",
+    "name": "Obvious Superiority (Devá)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "deva"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Reject authority that is not your own with overwhelming disdain.",
+    "mechanicalEffects": "+2 Enhancement to resist influence compelling submission or recognizing others’ status. Once per scene when resisting such an effect, impose Complication equal to Tyrant on the source’s next influence action; if not bought off, observers read their influence as pathetic or unhinged.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Immortal, Devá)"
+  },
+  "tr_tyr_auspices_of_attar_ilhm": {
+    "id": "tr_tyr_auspices_of_attar_ilhm",
+    "name": "Auspices of Attar (Ilhm)",
+    "callings": [
+      "tyrant"
+    ],
+    "pantheonAnyOf": [
+      "ilhm"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Rally trivial mortals as fanatic Heavy Followers for one battle.",
+    "mechanicalEffects": "Action: trivial characters become Heavy Followers with extra Tags equal to Tyrant; they arrive instantly or by next scene; they serve one battle/scene then fade to stardust memorials.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Immortal, Ilhm)"
+  },
+  "tr_tyr_survey_the_empire": {
+    "id": "tr_tyr_survey_the_empire",
+    "name": "Survey the Empire",
+    "callings": [
+      "tyrant"
+    ],
+    "tierMin": "hero",
+    "knackKind": "immortal",
+    "description": "Read the morale and needs of those sworn or subject to you.",
+    "mechanicalEffects": "Leadership + Cunning action: sense morale/disposition/needs of loyalists below your Tier; gain Leadership Scale 1 to influence them; spend 1 Momentum to fully inhabit one chosen follower’s senses for the scene.",
+    "source": "TItans_Rising_(Final_Download).pdf — Tyrant Knacks (Immortal)"
+  }
+}

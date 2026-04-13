@@ -28,7 +28,18 @@
     "boonsSaintsMonsters",
     "epicenters",
     "mythosPurviewInnates",
-    "purviewStandardInnates"
+    "purviewStandardInnates",
+    "titans",
+    "patronAssetSkillOverrides",
+    "knacksTitansRising",
+    "dragonTier",
+    "dragonCallingKnacks",
+    "dragonFlights",
+    "dragonMagic",
+    "dragonKnacks",
+    "tagsDragon",
+    "equipmentDragon",
+    "birthrightsDragon"
   ],
   "api": {
     "manifest": "/api/manifest",

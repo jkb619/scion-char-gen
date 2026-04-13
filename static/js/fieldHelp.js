@@ -23,9 +23,27 @@ export function docHint(example, source) {
 
 /** @type {Record<string, { example: string; source: string }>} */
 export const HELP = {
+  "welcome-line-select": {
+    example: "Deity: Mortal through God. Titan: Titanic Hero through God. Dragon: Heir — Inheritance on Welcome. Sorcerer: Mortal-band through God-band tiers (Saints & Monsters ch. 3).",
+    source: `${cite("origin", "Character Creation (tiers)", "94–106")}; Scion_-_Titanomachy_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf (Sorcerer).`,
+  },
+  "welcome-tier-select": {
+    example: "Mortal/Origin through God on Deity, Titanic through God on Titan, Sorcerer (Mortal band) through Sorcerer (God band) on the Sorcerer line. Hidden for Dragon (use Inheritance row).",
+    source: `${cite("origin", "Character Creation", "94–106")}; TItans_Rising_(Final_Download).pdf; Scion_Dragon_(Final_Download).pdf; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf.`,
+  },
+  "welcome-dragon-inheritance-select": {
+    example: "Inheritance 1 (Hatchling) through 10 (True Dragon / Apotheosis): where you are on the Heir curve (Scion: Dragon).",
+    source: "Scion_Dragon_(Final_Download).pdf (Inheritance track, pp. 117–119).",
+  },
+
   "tier-advance": {
     example: "After Review, bump the sheet to the next core tier (Mortal → Hero → Demigod → God) using the Visitation / Apotheosis steps in the cited chapter.",
     source: `${cite("hero", "Visitation (Origin to Hero)", "172")}; ${cite("demigod", "Apotheosis / Second Visitation", "16+")}; ${cite("god", "Apotheosis / Godhood", "")}.`,
+  },
+
+  "dragon-inheritance-advance": {
+    example: "Between stories, move the Heir up one Inheritance dot (Hatchling → … → True Dragon). Apply milestone Knacks, Spells, Calling dots, etc. from Scion: Dragon — your Storyguide may gate jumps.",
+    source: "Scion_Dragon_(Final_Download).pdf (Inheritance & Character Advancement, pp. 117–119).",
   },
 
   "f-char-name": {
@@ -52,6 +70,15 @@ export const HELP = {
     example: "A goal the whole band pursues together; often decided in session one.",
     source: cite("origin", "Deeds (group / band)", "94"),
   },
+  "f-sheet-description": {
+    example: "Age, look, mannerisms, public story—whatever your table wants on the sheet’s Description block.",
+    source: `${cite("origin", "Character Creation", "94–106")} (sheet appearance / details; freeform like the community four-pager).`,
+  },
+  "d-deed-name": {
+    example: "“Seal the broken gate before the eclipse”; a punchy title for the Draconic deed line on the Heir sheet.",
+    source:
+      "Scion_Dragon_(Final_Download).pdf — Heir Deeds (p. 110) and Finishing / sheet notes (p. 112); compare Origin Deed procedure in Scion: Origin (Revised) pp. 94–95.",
+  },
 
   "p-origin": {
     example: "“Globetrotting Army Brat”; “Daughter of Harlem”; formative backstory phrase.",
@@ -65,13 +92,29 @@ export const HELP = {
     example: "“Daughter of Oya Iyansan”; “Loki-Defying Vanaheim Refugee”; cult, pantheon, or group tie.",
     source: cite("origin", "Step Two: Paths — Society / Pantheon Path", "96–97"),
   },
+  "p-flight-path": {
+    example: "“Serpent-flight courier in the tri-city sprawl”; brood, Flight culture, or draconic society tie (Dragon p. 112).",
+    source: "Scion_Dragon_(Final_Download).pdf — Paths / Flight Path (confirm wording at table).",
+  },
+  "p-dragon-flight": {
+    example: "Wyrm, Serpent, etc. — sets signature Dragon Magic and which two Skills the Flight Path must include.",
+    source: "Scion_Dragon_(Final_Download).pdf — Flights / broods (chargen).",
+  },
   "p-pantheon": {
     example: "Òrìshà, Theoi, Æsir — sets your two automatic Society Path Skills.",
     source: cite("origin", "Pantheon list (Character Creation)", "95"),
   },
+  "p-patron-kind": {
+    example: "Divine: parent list from Origin Appendix 2. Titan: parent list from Titanomachy data (data/titans.json).",
+    source: "Scion_Origin_(Revised_Download).pdf (Appendix 2); Scion_-_Titanomachy_(Final_Download).pdf",
+  },
   "p-deity": {
-    example: "Odin — lists patron Purviews from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign Purviews).",
+    example: "Odin — lists patron innate Purview ids from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign them as picks).",
     source: `${cite("origin", "Appendix 2: Pantheons (gods, Callings, Purviews)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
+  },
+  "p-mythos-deed": {
+    example: "Fourth Deed tied to Mythos play (MotM) — distinct from Short-term, Long-term, and Band.",
+    source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Masks of the Mythos / Deeds (confirm wording at table).",
   },
   "patron-purviews": {
     example: "Hero+: pick patron Purviews only from that parent’s list (slot count from tier data, default four); duplicate slots swap.",
@@ -187,7 +230,7 @@ export const HELP = {
     source: `${cite("hero", "Birthrights (Character Generation)", "186+")}; ${cite("hero", "Finishing Touches — Knacks vs Birthrights", "201+")}; Pandora’s Box (Revised) Birthright chapters.`,
   },
   "boon-select": {
-    example: "Boons appear only for Purviews you track: merged patron slots (Paths) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Innate summaries under a heading are reference only — ladder chips are the selectable Boons in this app.",
+    example: "Boons appear only for Purviews you track: merged patron slots (Paths) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
     source: `${cite("hero", "Purviews & Boons", "200+")}; ${cite("demigod", "Advanced Boons", "")}; ${cite("god", "God-tier Boons", "")}.`,
   },
 

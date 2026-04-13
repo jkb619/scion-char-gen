@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "note": "Sample mundane or minor gear flavored for Dragon Heirs. Merged into equipment.json. tagIds reference tagsDragon + core tags.json after bundle merge.",
+    "source": "Scion_Dragon_(Final_Download).pdf — thematic gear adjacent to Flight examples (paraphrase only)"
+  },
+  "eqDragObsidianShard": {
+    "id": "eqDragObsidianShard",
+    "name": "Obsidian shard focus",
+    "chargenLines": ["dragonHeir"],
+    "equipmentType": "tool",
+    "tagIds": ["draconicResonance", "keenSenses"],
+    "description": "Volcanic glass kept blood-warm; hums when Memory stirs nearby.",
+    "mechanicalEffects": "Minor Enhancement to Occult or Integrity when tracing draconic clues; SG discretion.",
+    "source": "Scion_Dragon_(Final_Download).pdf (table invention)"
+  },
+  "eqDragSerpentSignet": {
+    "id": "eqDragSerpentSignet",
+    "name": "Serpent signet ring",
+    "chargenLines": ["dragonHeir"],
+    "equipmentType": "accessory",
+    "tagIds": ["serpentVenom", "concealed"],
+    "description": "Greenstone carved as twin fangs; marks messages between ecoterror cells.",
+    "mechanicalEffects": "Social leverage among Heirs who recognize the Flight; not a full Relic unless upgraded.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Serpent themes (paraphrase)"
+  },
+  "eqDragDraqBurnerPhone": {
+    "id": "eqDragDraqBurnerPhone",
+    "name": "Burner stack (chaos ops)",
+    "chargenLines": ["dragonHeir"],
+    "equipmentType": "tool",
+    "tagIds": ["pawnNetwork", "versatile"],
+    "description": "Prepaid layers for agitators who don’t want a pantheon reading their metadata.",
+    "mechanicalEffects": "Enhancement to Subterfuge or Technology when covering tracks in short scenes.",
+    "source": "Scion_Dragon_(Final_Download).pdf, Draq / Black Hats tone (paraphrase)"
+  }
+}

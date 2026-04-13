@@ -1,10 +1,10 @@
 {
   "mortal": {
     "id": "mortal",
-    "name": "Mortal / Origin",
+    "name": "Mortal/Origin",
     "alsoKnownAs": "Pre-Visitation Scion or Mortal",
     "description": "Ordinary humans or Scions before divine inheritance fully awakens—lives are still largely shaped by mortal skills and Paths.",
-    "mechanicalEffects": "Six-step Origin character creation (concept through finishing touches) on pp. 94–99: Paths grant Skills with 3/2/1 prioritization; Attributes use 6/4/2 distribution per Arena on top of 1 dot each, then Favored Approach +2 to each Attribute in that Approach (max 5, overflow stays in Arena); one Calling and one active Mortal Knack at a time unless extras purchased (full Knack text: Pandora’s Box); five finishing Skill dots, one Attribute dot, two Knacks or four Birthright points (Birthrights: Pandora’s Box first, Origin p. 99 / Hero p. 201 cross-reference). Defense from Resilience Attributes; Injury track with extra Bruised from Stamina; record movement (Athletics + higher of Might or Dexterity).",
+    "mechanicalEffects": "Six-step Origin character creation (concept through finishing touches) on pp. 94–99: Paths grant Skills with 3/2/1 prioritization; Attributes use 6/4/2 extra dots per Arena on the Attributes step (Origin p. 97), then Favored Approach +2 to each Attribute in that Approach (max 5, overflow stays in Arena). Finishing Touches grant one Attribute dot per player character (Origin p. 98): any one Attribute, must be spent, still subject to the five-dot creation cap per Attribute (p. 97), no arena rule stated for that dot. One Calling and one active Mortal Knack at a time unless extras purchased (full Knack text: Pandora’s Box); five finishing Skill dots, one Attribute dot, two Knacks or four Birthright points (Birthrights: Pandora’s Box first, Origin p. 99 / Hero p. 201 cross-reference). Defense from Resilience Attributes; Injury track with extra Bruised from Stamina; record movement (Athletics + higher of Might or Dexterity).",
     "typicalLegendRange": "0–1",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "finishing", "review"],
     "purviewsOriginNote": "Patron Purview picks are part of Hero (post-Visitation) chargen, not Origin Mortal creation. Pantheon and divine parent here still drive Society Path Asset Skills and story (Origin p. 97). Appendix 2 lists each deity’s patron Purviews for when you advance to Hero on Review.",
@@ -48,26 +48,62 @@
   },
   "sorcerer": {
     "id": "sorcerer",
-    "name": "Sorcerer",
-    "alsoKnownAs": "Mortal magic user",
-    "description": "Mortals who wield learned magic, pacts, or sorcerous paths outside classic divine bloodlines.",
-    "mechanicalEffects": "Saints & Monsters Ch. 3: Motif, Sources of Power, Invocation, Patronage, Prohibition, Talisman, and the Magic Purview (merged into this app’s Purviews/Boons from supplemental data). Paths and Callings still model story hooks; confirm dot budgets and Marvel limits with the PDF.",
-    "typicalLegendRange": "Varies",
-    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "sorcerer", "purviews", "birthrights", "boons", "finishing", "review"],
+    "name": "Sorcerer (Mortal band)",
+    "alsoKnownAs": "Mortal-tier Sorcerer (Legend 0)",
+    "description": "Ordinary humans who learn sorcery through study, spirits, pacts, or stolen wonders—before the full Heroic band of power.",
+    "mechanicalEffects": "Saints & Monsters Ch. 3 — Mortal Sorcerer chargen: same Concept, Paths, Skills, and Attributes spine as Origin (pp. 83–84); one Working plus its inherent Technique at Legend 0 (p. 65); Motif and Sources of Power; optional Paraphernalia via Finishing if your table uses the same finishing packages as Origin.",
+    "typicalLegendRange": "0",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "finishing", "review"],
     "patronPurviewSlotCount": 0,
-    "purviewsChargenNote": "Sorcerers: track the Magic Purview and any other Purviews your table grants (Relics, Denizen hooks, etc.). Patron Purview slots from a divine parent are not used unless your chronicle blends sorcery with Scion lineage.",
-    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf; Scion_Tasty_Bit_Compilation_(Final_Download).pdf"
+    "purviewsChargenNote": "Mortal-band Sorcerers: record Magic Purview / Marvel limits in notes or advance to Heroic Sorcerer when your table agrees; patron Purview slots stay unused unless you blend chronicles.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3 (Sorcerer character creation)"
+  },
+  "sorcerer_hero": {
+    "id": "sorcerer_hero",
+    "name": "Sorcerer (Heroic band)",
+    "alsoKnownAs": "Heroic-tier Sorcerer (Legend 1+)",
+    "description": "Sorcerers whose deeds and Legend match street-level myth—two Workings at Legend 1, seven dots of Paraphernalia (Birthrights), and the full Magic Purview track in play.",
+    "mechanicalEffects": "Saints & Monsters Ch. 3: Heroic band — two Workings with one Technique each plus inherent (p. 65); choose a primary Source of Power among Invocation, Patronage, Prohibition, and Talisman (pp. 63–64); seven dots of Paraphernalia like Hero Birthrights (chargen summary p. 84); Paths and Skills follow the same priorities as Origin.",
+    "typicalLegendRange": "1–4",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 0,
+    "purviewsChargenNote": "Heroic Sorcerers: add the Magic Purview (and any others your table allows) on the Purviews step; Boons from merged Saints & Monsters / Denizen data. No divine-parent patron Purview slots unless your chronicle uses them.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3"
+  },
+  "sorcerer_demigod": {
+    "id": "sorcerer_demigod",
+    "name": "Sorcerer (Divine band)",
+    "alsoKnownAs": "Demigod-scale Sorcerer",
+    "description": "Sorcerers operating at apocalyptic or world-scale rituals—third Working toward the fivefold ladder, Legend milestones like Demigod play.",
+    "mechanicalEffects": "Saints & Monsters: third Working at Legend 5 (p. 65); expand Paraphernalia and Marvel limits with your Storyguide (compare Demigod Birthright budgets in core books).",
+    "typicalLegendRange": "5–8",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 0,
+    "purviewsChargenNote": "Track Purviews and Boons as extended play; confirm Marvel caps with Saints & Monsters and Demigod references at the table.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3; Scion_Demigod_Second_Edition_(Final_Download).pdf (scale reference)"
+  },
+  "sorcerer_god": {
+    "id": "sorcerer_god",
+    "name": "Sorcerer (God band)",
+    "alsoKnownAs": "God-tier Sorcerer",
+    "description": "The rare sorcerous actors who master a fourth Working and contend with gods on their own terms—PDF-first for Marvels and limitations.",
+    "mechanicalEffects": "Saints & Monsters: fourth Working at Legend 9, toward knowing four of the five Workings (p. 65). God-band limits, Talisman bonds, and Marvel scope are PDF-first — align with Scion: God when your chronicle uses both.",
+    "typicalLegendRange": "8–10+",
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "finishing", "review"],
+    "patronPurviewSlotCount": 0,
+    "purviewsChargenNote": "God-band Sorcerers: full Purview/Boon tracking; confirm innate Marvel rules in Saints & Monsters with Scion: God at the table.",
+    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3; Scion_God_Second_Edition_(Final_Download).pdf (scale reference)"
   },
   "titanic": {
     "id": "titanic",
     "name": "Titanic Scion",
-    "alsoKnownAs": "Maelstrom-touched Scion (Saints & Monsters)",
-    "description": "Scions whose nature skews toward Titanic Callings and Maelstrom Hearts—Epicenters replace standard universal Purview Innates while the bond is unsuppressed.",
-    "mechanicalEffects": "Use Saints & Monsters Titanic chargen: Titanic Calling, universal Purviews with Epicenter text (see bundle epicenters), Maelstrom Hearts, Collateral or Tension alternates, and Titanic Mutations (recorded in the wizard’s Titanic extras step).",
+    "alsoKnownAs": "Titan-blooded Hero-tier Scion (Saints & Monsters + Titans Rising)",
+    "description": "Scions whose nature skews toward Titanic Callings and Maelstrom Hearts—Epicenters replace standard universal Purview Innates while the bond is unsuppressed. Use Patron type “Titan” on Paths with titans from Titanomachy data.",
+    "mechanicalEffects": "Follow Titans Rising ch. 1 with Saints & Monsters as the mechanical hub: at least one Titanic Calling among your three Visitation rows, universal Purviews with Epicenter text (bundle.epicenters), Maelstrom Hearts, Collateral or Tension alternates, and Titanic Mutations (wizard Titanic extras step). Extra Titanic Knacks from Titans Rising merge as tr_* in Knacks.",
     "typicalLegendRange": "2–4 (Hero-like band; confirm with Storyguide)",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "titanicExtras", "finishing", "review"],
     "patronPurviewSlotCount": 1,
-    "purviewsChargenNote": "Titanic: each universal Purview you take uses Epicenter summaries from Saints & Monsters (bundle.epicenters) in place of the usual Innate until you imbue Legend to suppress Epicenter effects (see PDF). Patron Purview picks still follow your divine parent’s list where applicable.",
-    "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Titanic Scions & Maelstroms' Hearts"
+    "purviewsChargenNote": "Titanic: each universal Purview you take uses Epicenter summaries from Saints & Monsters (bundle.epicenters) in place of the usual Innate until you imbue Legend to suppress Epicenter effects (see PDF). Patron Purview picks follow your Titan or God parent’s list from the data (Paths).",
+    "source": "TItans_Rising_(Final_Download).pdf ch. 1; Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf; Scion_-_Titanomachy_(Final_Download).pdf (Titan patrons)"
   }
 }

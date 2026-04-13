@@ -3,12 +3,41 @@ import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { purviewInnateBlocks } from "./purviewInnate.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { applyGameDataHint } from "./fieldHelp.js";
+import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
+import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 
-/**
- * Origin / Storypath Health slots from final Stamina (after Favored Approach).
- * Base track: Bruised, Injured, Maimed, Taken Out. At Stamina 3–4 gain one extra Bruised; at Stamina 5+ gain two extra (three Bruised total).
- * @param {number} staminaRating — final Stamina dots (1–5 at chargen)
- */
+/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). */
+function sheetLegendDotTrackReadOnly(n, max) {
+  const wrap = document.createElement("span");
+  wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
+  const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
+  const v = Math.max(0, Math.min(cap, Math.round(Number(n) || 0)));
+  for (let i = 1; i <= cap; i += 1) {
+    const d = document.createElement("span");
+    d.className = "cs-dot" + (i <= v ? " on" : "");
+    d.setAttribute("aria-hidden", "true");
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
+/** Read-only Awareness dot row (Mythos). */
+function sheetAwarenessDotTrackReadOnly(n, max) {
+  const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
+  const wrap = document.createElement("span");
+  wrap.className = "cs-dot-track cs-legend-dot-track" + (cap > 6 ? " cs-legend-dot-track-dense" : "");
+  wrap.setAttribute("role", "img");
+  const v = Math.max(1, Math.min(cap, Math.round(Number(n) || 1)));
+  wrap.setAttribute("aria-label", `Awareness ${v} of ${cap}`);
+  for (let i = 1; i <= cap; i += 1) {
+    const d = document.createElement("span");
+    d.className = "cs-dot" + (i <= v ? " on" : "");
+    d.setAttribute("aria-hidden", "true");
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
 /**
  * Origin / Storypath: Defense equals the **highest** Resilience Attribute after Favored Approach
  * (Stamina, Resolve, Composure). See Origin chargen (pp. 98–99) and Resilience / combat notes.
@@ -37,7 +66,12 @@ export function originMovementPoolDice(finalAttrs, athleticsSkillDots) {
   return ath + Math.max(might, dex);
 }
 
-function originHealthInjurySlots(staminaRating) {
+/**
+ * Origin / Storypath Health slots from final Stamina (after Favored Approach).
+ * Base track: Bruised, Injured, Maimed, Taken Out. At Stamina 3–4 gain one extra Bruised; at Stamina 5+ gain two extra (three Bruised total).
+ * @param {number} staminaRating — final Stamina dots (1–5 at chargen)
+ */
+export function originHealthInjurySlots(staminaRating) {
   const s = Math.max(1, Math.min(5, Math.round(Number(staminaRating) || 1)));
   let bruisedCount = 1;
   if (s >= 5) bruisedCount = 3;
@@ -128,39 +162,89 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
  * @param {Record<string, unknown>} data — `buildExportObject()` output
  * @param {Record<string, unknown>} bundle — loaded game bundle
  */
-export function buildCharacterSheet(data, bundle) {
+/**
+ * @param {Record<string, unknown>} data
+ * @param {Record<string, unknown>} bundle
+ * @param {{
+ *   getLegendPoolSpentAt: (idx: number) => boolean;
+ *   setLegendPoolSpentAt: (idx: number, v: boolean) => void;
+ *   getAwarenessPoolSpentAt: (idx: number) => boolean;
+ *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
+ *   onLegendDotClick?: (dotIndex1Based: number) => void;
+ * } | null | undefined} [sheetHooks] — Review only: pool checkboxes; optional Legend dot clicks
+ */
+export function buildCharacterSheet(data, bundle, sheetHooks) {
   const skills = bundle?.skills || {};
   const attrs = bundle?.attributes || {};
+  if (String(data.chargenLineage ?? "").trim() === "dragonHeir") {
+    const el = document.createElement("div");
+    el.className = "character-sheet character-sheet--dragon-heir";
+    el.dataset.sheetLayout = "dragon4";
+    const skillName = (id) => skills[id]?.name || id;
+    const attrName = (id) => attrs[id]?.name || id;
+    const tid = data.tierId ?? data.tier;
+    const tierKey = String(tid ?? "mortal").trim().toLowerCase();
+    const tierKeyNorm = tierKey === "origin" ? "mortal" : tierKey;
+    const ldmRaw = data.legendDotMax;
+    const legendMax =
+      ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
+        ? Math.max(1, Math.round(Number(ldmRaw)))
+        : (() => {
+            const m = {
+              mortal: 1,
+              hero: 4,
+              demigod: 8,
+              god: 12,
+              sorcerer: 1,
+              sorcerer_hero: 4,
+              sorcerer_demigod: 8,
+              sorcerer_god: 12,
+              titanic: 4,
+            };
+            return m[tierKeyNorm] ?? 1;
+          })();
+    fillDragonFourPageLayout(el, {
+      data,
+      bundle,
+      skillName,
+      attrName,
+      originHealthInjurySlots,
+      sheetHooks: sheetHooks || null,
+      legendMax,
+      legendDotTrackReadOnly: sheetLegendDotTrackReadOnly,
+      awarenessDotTrackReadOnly: sheetAwarenessDotTrackReadOnly,
+    });
+    return el;
+  }
   const tid = data.tierId ?? data.tier;
-  const tierName = (data.tierName || bundle?.tier?.[tid]?.name || tid || "—") + (tid ? ` (${tid})` : "");
-  const tierAka = data.tierAlsoKnownAs || bundle?.tier?.[tid]?.alsoKnownAs || "";
-  const legRaw = data.legendRating;
+  const tierName = data.tierName || bundle?.tier?.[tid]?.name || tid || "—";
   const tierKey = String(tid ?? "mortal").trim().toLowerCase();
   const tierKeyNorm = tierKey === "origin" ? "mortal" : tierKey;
-  const tierWizardSteps = bundle?.tier?.[tierKeyNorm]?.wizardSteps;
-  const purviewsAtThisTier = Array.isArray(tierWizardSteps) && tierWizardSteps.includes("purviews");
   const ldmRaw = data.legendDotMax;
   const legendMax =
     ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
       ? Math.max(1, Math.round(Number(ldmRaw)))
       : (() => {
-          const m = { mortal: 1, hero: 4, demigod: 8, god: 12, sorcerer: 1, titanic: 4 };
+          const m = {
+            mortal: 1,
+            hero: 4,
+            demigod: 8,
+            god: 12,
+            sorcerer: 1,
+            sorcerer_hero: 4,
+            sorcerer_demigod: 8,
+            sorcerer_god: 12,
+            titanic: 4,
+          };
           return m[tierKeyNorm] ?? 1;
         })();
 
-  const skillIds = Object.keys(skills).filter((k) => !k.startsWith("_"));
   const skillName = (id) => skills[id]?.name || id;
   const attrName = (id) => attrs[id]?.name || id;
 
   const el = document.createElement("div");
-  el.className = "character-sheet";
-
-  const arenaOrder = ["Physical", "Mental", "Social"];
-  const ARENAS = {
-    Physical: ["might", "dexterity", "stamina"],
-    Mental: ["intellect", "cunning", "resolve"],
-    Social: ["presence", "manipulation", "composure"],
-  };
+  el.className = "character-sheet character-sheet--mcg";
+  el.dataset.sheetLayout = "mcg4";
 
   function dotTrack(n) {
     const wrap = document.createElement("span");
@@ -175,134 +259,40 @@ export function buildCharacterSheet(data, bundle) {
     return wrap;
   }
 
-  function legendDotTrackReadOnly(n, max) {
-    const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
-    const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
-    const v = Math.max(0, Math.min(cap, Math.round(Number(n) || 0)));
-    for (let i = 1; i <= cap; i += 1) {
-      const d = document.createElement("span");
-      d.className = "cs-dot" + (i <= v ? " on" : "");
-      d.setAttribute("aria-hidden", "true");
-      wrap.appendChild(d);
-    }
-    return wrap;
-  }
-
-  /** Mythos Awareness: 1–10 dots (default 1). */
-  function awarenessDotTrackReadOnly(n) {
-    const wrap = document.createElement("span");
-    wrap.className = "cs-dot-track cs-legend-dot-track cs-legend-dot-track-dense";
-    wrap.setAttribute("role", "img");
-    const cap = 10;
-    const v = Math.max(1, Math.min(cap, Math.round(Number(n) || 1)));
-    wrap.setAttribute("aria-label", `Awareness ${v} of ${cap}`);
-    for (let i = 1; i <= cap; i += 1) {
-      const d = document.createElement("span");
-      d.className = "cs-dot" + (i <= v ? " on" : "");
-      d.setAttribute("aria-hidden", "true");
-      wrap.appendChild(d);
-    }
-    return wrap;
-  }
-
-  function section(title) {
-    const s = document.createElement("section");
-    s.className = "cs-section";
-    const h = document.createElement("h3");
-    h.className = "cs-section-title";
-    h.textContent = title;
-    s.appendChild(h);
-    return s;
-  }
-
-  function fieldBlock(label, value, multiline = false) {
-    const b = document.createElement("div");
-    b.className = "cs-field";
-    const lab = document.createElement("div");
-    lab.className = "cs-field-label";
-    lab.textContent = label;
-    const val = document.createElement("div");
-    val.className = "cs-field-value" + (multiline ? " cs-field-value-multiline" : "");
-    const t = value == null || value === "" ? "—" : String(value);
-    val.textContent = t;
-    b.appendChild(lab);
-    b.appendChild(val);
-    return b;
-  }
-
-  function briefCatalogText(str, max) {
-    const t = String(str ?? "")
-      .trim()
-      .replace(/\s+/g, " ");
-    if (!t) return "";
-    if (t.length <= max) return t;
-    return `${t.slice(0, max - 1).trimEnd()}…`;
-  }
-
-  /** @param {{ title: string; description?: string; source?: string }[]} rows */
-  function catalogListField(label, rows, emptyText, briefMax = 280) {
-    const b = document.createElement("div");
-    b.className = "cs-field cs-field-catalog cs-field-span-all";
-    const lab = document.createElement("div");
-    lab.className = "cs-field-label";
-    lab.textContent = label;
-    const val = document.createElement("div");
-    val.className = "cs-field-value cs-catalog-list";
-    if (!rows.length) {
-      val.classList.add("cs-field-empty");
-      val.textContent = emptyText;
-    } else {
-      for (const row of rows) {
-        const entry = document.createElement("div");
-        entry.className = "cs-catalog-entry";
-        const titleEl = document.createElement("div");
-        titleEl.className = "cs-catalog-title";
-        titleEl.textContent = row.title;
-        entry.appendChild(titleEl);
-        if (row.description) {
-          const d = document.createElement("div");
-          d.className = "cs-catalog-desc";
-          d.textContent = briefCatalogText(row.description, briefMax);
-          entry.appendChild(d);
-        }
-        if (row.source) {
-          const s = document.createElement("div");
-          s.className = "cs-catalog-src";
-          s.textContent = row.source;
-          entry.appendChild(s);
-        }
-        val.appendChild(entry);
-      }
-    }
-    b.appendChild(lab);
-    b.appendChild(val);
-    return b;
-  }
+  const admRaw = data.awarenessDotMax;
+  const awarenessMax =
+    admRaw != null && admRaw !== "" && !Number.isNaN(Number(admRaw))
+      ? Math.max(1, Math.round(Number(admRaw)))
+      : String(data.pantheonId || "").trim() === "mythos"
+        ? legendMax
+        : 1;
 
   function buildKnackSheetRows() {
-    const out = /** @type {{ title: string; description: string; source: string }[]} */ ([]);
+    const out =
+      /** @type {{ knackId: string; title: string; description: string; mechanicalEffects: string; source: string }[]} */ ([]);
     const addIds = (ids, suffix) => {
       for (const id of ids || []) {
         const k = bundle?.knacks?.[id];
         const base = k?.name || id;
         const title = suffix ? `${base} (${suffix})` : base;
         out.push({
+          knackId: String(id),
           title,
           description: (k?.description || "").trim(),
+          mechanicalEffects: (k?.mechanicalEffects || "").trim(),
           source: (k?.source || "").trim(),
         });
       }
     };
     if (Array.isArray(data.knackIds) && data.knackIds.length) addIds(data.knackIds, "");
     const finIds = data.finishing?.finishingKnackIds;
-    if (Array.isArray(finIds) && finIds.length) addIds(finIds, "finishing");
+    if (Array.isArray(finIds) && finIds.length) addIds(finIds, "");
     if (out.length) return out;
     for (const name of data.knacks || []) {
-      if (name) out.push({ title: String(name), description: "", source: "" });
+      if (name) out.push({ knackId: "", title: String(name), description: "", mechanicalEffects: "", source: "" });
     }
     for (const name of data.finishingKnacks || []) {
-      if (name) out.push({ title: `${String(name)} (finishing)`, description: "", source: "" });
+      if (name) out.push({ knackId: "", title: String(name), description: "", mechanicalEffects: "", source: "" });
     }
     return out;
   }
@@ -349,407 +339,45 @@ export function buildCharacterSheet(data, bundle) {
     return out;
   }
 
-  /** @param {string} subtitle */
-  function appendixBanner(subtitle) {
-    const h = document.createElement("header");
-    h.className = "cs-subpage-banner";
-    const left = document.createElement("div");
-    left.className = "cs-subpage-banner-name";
-    left.textContent = String(data.characterName ?? "").trim() || "Character";
-    const right = document.createElement("div");
-    right.className = "cs-subpage-banner-sub";
-    right.textContent = subtitle;
-    h.appendChild(left);
-    h.appendChild(right);
-    return h;
-  }
 
-  function page() {
-    const p = document.createElement("div");
-    p.className = "cs-page";
-    return p;
-  }
-
-  let pageEl = page();
-  el.appendChild(pageEl);
-
-  function addToPage(node) {
-    pageEl.appendChild(node);
-  }
-
-  function maybePageBreak() {
-    pageEl = page();
-    el.appendChild(pageEl);
-  }
-
-  /* —— Page 1: Identity —— */
-  const banner = document.createElement("header");
-  banner.className = "cs-banner";
-  const banT = document.createElement("div");
-  banT.className = "cs-banner-title";
-  const charName = String(data.characterName ?? "").trim();
-  banT.textContent = charName || "Character";
-  const banRight = document.createElement("div");
-  banRight.className = "cs-banner-right";
-  const banTier = document.createElement("div");
-  banTier.className = "cs-banner-tier-name";
-  banTier.textContent = String(tierName);
-  banRight.appendChild(banTier);
-  if (tierAka) {
-    const aka = document.createElement("div");
-    aka.className = "cs-banner-aka";
-    aka.textContent = String(tierAka);
-    banRight.appendChild(aka);
-  }
-  const banLeg = document.createElement("div");
-  banLeg.className = "cs-banner-legend";
-  const legLab = document.createElement("span");
-  legLab.className = "cs-banner-legend-label";
-  legLab.textContent = "Legend ";
-  banLeg.appendChild(legLab);
-  const lv =
-    legRaw != null && legRaw !== "" && !Number.isNaN(Number(legRaw)) ? Number(legRaw) : 0;
-  banLeg.appendChild(legendDotTrackReadOnly(lv, legendMax));
-  banRight.appendChild(banLeg);
-  const pantheonIdForSheet = String(data.pantheonId ?? "").trim();
-  if (pantheonIdForSheet === "mythos") {
-    const banAw = document.createElement("div");
-    banAw.className = "cs-banner-legend";
-    const awLab = document.createElement("span");
-    awLab.className = "cs-banner-legend-label";
-    awLab.textContent = "Awareness ";
-    banAw.appendChild(awLab);
-    const awRaw = data.awarenessRating;
-    const av =
-      awRaw != null && awRaw !== "" && !Number.isNaN(Number(awRaw)) ? Number(awRaw) : 1;
-    banAw.appendChild(awarenessDotTrackReadOnly(av));
-    banRight.appendChild(banAw);
-  }
-  banner.appendChild(banT);
-  banner.appendChild(banRight);
-  addToPage(banner);
-
-  const idGrid = document.createElement("div");
-  idGrid.className = "cs-id-grid";
-  idGrid.appendChild(fieldBlock("Concept", data.concept, true));
-  idGrid.appendChild(fieldBlock("Player / group notes", data.notes, true));
-  if (data.heroBirthrightDotsUnusedFromSeven != null) {
-    idGrid.appendChild(
-      fieldBlock(
-        "Birthright dots unused (Hero total 7, Step 6)",
-        `${data.heroBirthrightDotsUnusedFromSeven} — remaining of seven Birthright points on the Birthrights step (Hero pp. 172, 186)`,
-        true,
-      ),
-    );
-  }
-  addToPage(idGrid);
-
-  const deeds = section("Deeds");
-  const deedGrid = document.createElement("div");
-  deedGrid.className = "cs-deeds-grid";
-  deedGrid.appendChild(fieldBlock("Short-term", data.deeds?.short, true));
-  deedGrid.appendChild(fieldBlock("Long-term", data.deeds?.long, true));
-  deedGrid.appendChild(fieldBlock("Band", data.deeds?.band, true));
-  deeds.appendChild(deedGrid);
-  addToPage(deeds);
-
-  maybePageBreak();
-
-  /* —— Paths & patron —— */
-  const paths = section("Paths & patron");
-  const pathGrid = document.createElement("div");
-  pathGrid.className = "cs-two-col";
-  pathGrid.appendChild(fieldBlock("Pantheon", data.pantheon));
-  pathGrid.appendChild(fieldBlock("Divine parent", data.parentDeity));
-  pathGrid.appendChild(fieldBlock("Favored Approach", data.favoredApproach));
-  pathGrid.appendChild(
-    fieldBlock(
-      "Arena priority",
-      Array.isArray(data.arenaPriority) ? data.arenaPriority.map((a, i) => `${6 - i * 2} ${a}`).join(" · ") : "—",
-    ),
-  );
-  paths.appendChild(pathGrid);
-  const virtueRow = buildVirtueSpectrumElement(
-    { pantheonId: data.pantheonId, virtueSpectrum: data.virtueSpectrum },
-    bundle,
-    false,
-  );
-  if (virtueRow) paths.appendChild(virtueRow);
-  paths.appendChild(fieldBlock("Origin Path", data.paths?.origin, true));
-  paths.appendChild(fieldBlock("Role Path", data.paths?.role, true));
-  paths.appendChild(fieldBlock("Society / Pantheon Path", data.paths?.society, true));
-  const pr = data.pathPriority || {};
-  paths.appendChild(
-    fieldBlock(
-      "Path priority",
-      `Primary: ${pr.primary || "—"} · Secondary: ${pr.secondary || "—"} · Tertiary: ${pr.tertiary || "—"}`,
-    ),
-  );
-  addToPage(paths);
-
-  const ps = section("Path skills (3 per path)");
-  const psk = document.createElement("div");
-  psk.className = "cs-path-skills";
-  for (const key of ["origin", "role", "society"]) {
-    const col = document.createElement("div");
-    col.className = "cs-path-skill-col";
-    const h = document.createElement("div");
-    h.className = "cs-path-skill-head";
-    h.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-    col.appendChild(h);
-    const ids = Array.isArray(data.pathSkills?.[key]) ? data.pathSkills[key] : [];
-    const ul = document.createElement("ul");
-    ul.className = "cs-path-skill-list";
-    if (ids.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "—";
-      ul.appendChild(li);
-    } else {
-      for (const sid of ids) {
-        const li = document.createElement("li");
-        li.textContent = skillName(sid);
-        ul.appendChild(li);
-      }
-    }
-    col.appendChild(ul);
-    psk.appendChild(col);
-  }
-  ps.appendChild(psk);
-  addToPage(ps);
-
-  maybePageBreak();
-
-  /* —— Skills —— */
-  const sk = section("Skills");
-  const table = document.createElement("table");
-  table.className = "cs-skills-table";
-  const thead = document.createElement("thead");
-  const thr = document.createElement("tr");
-  ["Skill", "Rating", "Specialties"].forEach((lab, idx) => {
-    const th = document.createElement("th");
-    th.textContent = lab;
-    if (idx === 1) th.className = "cs-num";
-    thr.appendChild(th);
-  });
-  thead.appendChild(thr);
-  table.appendChild(thead);
-  const tbody = document.createElement("tbody");
+  const finalA = data.attributesAfterFavored || {};
   const skillDots = data.skills && typeof data.skills === "object" ? data.skills : {};
   const specs = data.skillSpecialties || {};
-  for (const sid of skillIds) {
-    const tr = document.createElement("tr");
-    const n = skillDots[sid] || 0;
-    const tdN = document.createElement("td");
-    tdN.textContent = skillName(sid);
-    const tdR = document.createElement("td");
-    tdR.className = "cs-num";
-    tdR.appendChild(dotTrack(n));
-    const tdS = document.createElement("td");
-    tdS.textContent = specs[sid] || "";
-    tr.appendChild(tdN);
-    tr.appendChild(tdR);
-    tr.appendChild(tdS);
-    tbody.appendChild(tr);
-  }
-  table.appendChild(tbody);
-  sk.appendChild(table);
-  addToPage(sk);
-
-  /* —— Attributes —— */
-  const at = section("Attributes (after Favored Approach)");
-  const finalA = data.attributesAfterFavored || {};
-  const arenaGrid = document.createElement("div");
-  arenaGrid.className = "cs-arena-grid";
-  for (const arena of arenaOrder) {
-    const ids = ARENAS[arena] || [];
-    const box = document.createElement("div");
-    box.className = "cs-arena-box";
-    const an = document.createElement("div");
-    an.className = "cs-arena-name";
-    an.textContent = arena;
-    box.appendChild(an);
-    for (const aid of ids) {
-      const row = document.createElement("div");
-      row.className = "cs-attr-row";
-      const lab = document.createElement("span");
-      lab.className = "cs-attr-name";
-      lab.textContent = attrName(aid);
-      const dots = document.createElement("span");
-      dots.className = "cs-attr-dots";
-      dots.appendChild(dotTrack(finalA[aid] ?? 1));
-      row.appendChild(lab);
-      row.appendChild(dots);
-      box.appendChild(row);
-    }
-    arenaGrid.appendChild(box);
-  }
-  at.appendChild(arenaGrid);
   const defRating = originDefenseFromFinalAttrs(finalA);
-  at.appendChild(fieldBlock("Defense", String(defRating)));
   const athDots = Math.max(0, Math.min(5, Math.round(Number(skillDots.athletics) || 0)));
   const moveDice = originMovementPoolDice(finalA, athDots);
-  at.appendChild(fieldBlock("Movement dice", String(moveDice)));
-  addToPage(at);
+  const healthSpec = originHealthInjurySlots(Number(finalA.stamina ?? 1));
 
-  const stamFinal = Number(finalA.stamina ?? 1);
-  const healthSpec = originHealthInjurySlots(stamFinal);
-  const inj = section("Injury & Health (Origin)");
-  const healthNote = document.createElement("p");
-  healthNote.className = "cs-health-note";
-  healthNote.textContent = `Stamina (after Favored Approach): ${healthSpec.stamina}. Track: ${healthSpec.bruisedCount} Bruised Health slot(s), then Injured, Maimed, and Taken Out (Origin pp. 63, 98–99). Write each Injury’s Condition in the box; Difficulty to related actions is shown on each slot label (Storypath).`;
-  inj.appendChild(healthNote);
-  const healthTrack = document.createElement("div");
-  healthTrack.className = "cs-health-track";
-  /** @type {Record<string, string>} */
-  const injuryPenalty = { bruised: "−1", injured: "−2", maimed: "−4" };
-  for (const slot of healthSpec.slots) {
-    const cell = document.createElement("div");
-    cell.className = `cs-health-slot cs-health-slot--${slot.tier}`;
-    const labelRow = document.createElement("div");
-    labelRow.className = "cs-health-slot-label-row";
-    const lab = document.createElement("div");
-    lab.className = "cs-health-slot-label";
-    lab.textContent = slot.label;
-    labelRow.appendChild(lab);
-    const pen = injuryPenalty[slot.tier];
-    if (pen) {
-      const badge = document.createElement("span");
-      badge.className = "cs-health-slot-penalty";
-      badge.textContent = pen;
-      badge.title = "Difficulty to related actions when this Injury applies";
-      labelRow.appendChild(badge);
-    }
-    const box = document.createElement("div");
-    box.className = "cs-health-slot-box";
-    const ariaPen = pen ? `, ${pen} Difficulty` : "";
-    box.setAttribute("aria-label", `${slot.label}${ariaPen} — write Condition`);
-    cell.appendChild(labelRow);
-    cell.appendChild(box);
-    healthTrack.appendChild(cell);
-  }
-  inj.appendChild(healthTrack);
-  addToPage(inj);
-
-  maybePageBreak();
-
-  /* —— Calling, knacks, purviews —— */
-  const pow = section("Calling, Knacks & powers");
-  const powGrid = document.createElement("div");
-  powGrid.className = "cs-two-col";
-  const callingBlock = document.createElement("div");
-  callingBlock.className = "cs-field";
-  const callingLab = document.createElement("div");
-  callingLab.className = "cs-field-label";
-  callingLab.textContent = "Calling(s)";
-  const callingVal = document.createElement("div");
-  callingVal.className = "cs-field-value cs-calling-row";
-  const slotRows = Array.isArray(data.callingSlots) ? data.callingSlots.filter((s) => s && typeof s === "object") : [];
-  if (slotRows.length >= 3) {
-    slotRows.forEach((slot, idx) => {
-      const row = document.createElement("div");
-      row.className = "cs-calling-multi-row";
-      const nm = document.createElement("span");
-      nm.className = "cs-calling-name";
-      const cid = String(slot.id || "").trim();
-      nm.textContent = cid ? bundle.callings?.[cid]?.name || cid : `— (Calling ${idx + 1})`;
-      row.appendChild(nm);
-      const d = Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1)));
-      row.appendChild(dotTrack(d));
-      callingVal.appendChild(row);
-    });
-  } else {
-    const callingName = document.createElement("div");
-    callingName.className = "cs-calling-name";
-    callingName.textContent = data.calling == null || data.calling === "" ? "—" : String(data.calling);
-    callingVal.appendChild(callingName);
-    const callingDots = Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1)));
-    callingVal.appendChild(dotTrack(callingDots));
-  }
-  callingBlock.appendChild(callingLab);
-  callingBlock.appendChild(callingVal);
-  powGrid.appendChild(callingBlock);
-  const knackRows = buildKnackSheetRows();
-  if (knackRows.length > 0) {
-    powGrid.appendChild(catalogListField("Knacks (Calling + finishing)", knackRows, "—"));
-  }
-  if (purviewsAtThisTier) {
-    const purviewIds = (data.purviews || []).filter(Boolean);
-    if (purviewIds.length > 0) {
-      const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
-      const pvField = document.createElement("div");
-      pvField.className = "cs-field";
-      const pvLab = document.createElement("div");
-      pvLab.className = "cs-field-label";
-      pvLab.textContent = "Purviews";
-      const pvVal = document.createElement("div");
-      pvVal.className = "cs-field-value";
-      purviewIds.forEach((pid, i) => {
-        if (i > 0) pvVal.appendChild(document.createTextNode(", "));
-        const sp = document.createElement("span");
-        sp.className = "cs-purview-sheet-entry";
-        sp.textContent = nameFor(pid);
-        const pv = bundle.purviews?.[pid];
-        if (pv && typeof pv === "object") applyGameDataHint(sp, pv);
-        pvVal.appendChild(sp);
-      });
-      pvField.appendChild(pvLab);
-      pvField.appendChild(pvVal);
-      powGrid.appendChild(pvField);
-    }
-    const boonRows = buildBoonSheetRows();
-    if (boonRows.length > 0) {
-      powGrid.appendChild(catalogListField("Boons", boonRows, "—"));
-    }
-    const purviewIdsForInnate = (data.purviews || []).filter(Boolean);
-    if (purviewIdsForInnate.length > 0) {
-      const nameForInnate = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
-      const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
-      const titanicSheet = tierKeyNorm === "titanic";
-      /** @type {{ title: string; description: string; source: string }[]} */
-      const innateRows = [];
-      for (const pid of [...purviewIdsForInnate].sort()) {
-        const blocks = purviewInnateBlocks(bundle, pid, { mythosPantheon: mythosSheet, titanicTier: titanicSheet });
-        const desc = blocks.map((bl) => `${bl.label}: ${bl.body}`).join("\n\n");
-        innateRows.push({
-          title: `${nameForInnate(pid)} (${pid})`,
-          description: desc,
-          source: "",
-        });
-      }
-      const mi = data.mythosInnatePower;
-      if (mythosSheet && mi && typeof mi === "object") {
-        let mythNote = "";
-        if (mi.awarenessLocked === true || (mi.style === "awareness" && mi.awarenessPurviewId)) {
-          const ap = String(mi.awarenessPurviewId || "").trim();
-          const apName = ap ? nameForInnate(ap) : "—";
-          mythNote = `Committed to Mythos Awareness Innate for “${apName}” (${ap || "—"}); cannot be reversed in play (MotM).`;
-        } else {
-          mythNote =
-            "Mythos: using standard Purview innates until you commit to an Awareness Innate on the Purviews step (wizard).";
-        }
-        innateRows.push({ title: "Mythos innate choice", description: mythNote, source: "" });
-      }
-      powGrid.appendChild(
-        catalogListField("Innate powers (granted with Purviews; not Boons)", innateRows, "—", 1600),
-      );
-    }
-  }
-  pow.appendChild(powGrid);
-  addToPage(pow);
-
-  const fin = section("Finishing touches (summary)");
-  const f = data.finishing || {};
-  const finLines = [
-    `Extra skill dots (budget): ${f.extraSkillDots ?? "—"}`,
-    `Extra attribute dots (budget): ${f.extraAttributeDots ?? "—"}`,
-    `Focus: ${f.knackOrBirthright === "birthrights" ? "Birthright points" : "Extra Knacks"}`,
-  ];
-  if (Array.isArray(f.finishingKnacksNamed) && f.finishingKnacksNamed.length)
-    finLines.push(`Finishing knacks: ${f.finishingKnacksNamed.join("; ")}`);
-  if (Array.isArray(f.birthrightsNamed) && f.birthrightsNamed.length)
-    finLines.push(`Birthrights: ${f.birthrightsNamed.join("; ")}`);
-  fin.appendChild(fieldBlock("Recorded on sheet", finLines.join("\n"), true));
-  addToPage(fin);
+  fillMcgFourPageLayout(el, {
+    data,
+    bundle,
+    tierName,
+    tid,
+    tierKeyNorm,
+    legendMax,
+    skillName,
+    attrName,
+    skillDots,
+    specs,
+    finalA,
+    defRating,
+    moveDice,
+    healthSpec,
+    dotTrack,
+    legendDotTrackReadOnly: sheetLegendDotTrackReadOnly,
+    awarenessDotTrackReadOnly: sheetAwarenessDotTrackReadOnly,
+    buildVirtueSpectrumElement,
+    buildKnackSheetRows,
+    buildBoonSheetRows,
+    buildEquipmentSheetRows,
+    purviewDisplayNameForPantheon,
+    purviewInnateBlocks,
+    boonDisplayLabel,
+    boonIsPurviewInnateAutomaticGrant,
+    applyGameDataHint,
+    awarenessMax,
+    sheetHooks: sheetHooks || null,
+  });
 
   const sp = data.sorceryProfile;
   const tp = data.titanicProfile;
@@ -774,67 +402,41 @@ export function buildCharacterSheet(data, bundle) {
       smBlock.push(`Epicenter / collateral notes: ${String(tp.suppressEpicenterNotes).trim()}`);
   }
   if (smBlock.length) {
-    maybePageBreak();
-    addToPage(appendixBanner("Saints & Monsters"));
-    const smSec = section("Sorcerer & Titanic extras");
-    smSec.appendChild(fieldBlock("Recorded in wizard (export JSON)", smBlock.join("\n\n"), true));
-    const smVal = smSec.querySelector(".cs-field-value-multiline");
-    if (smVal) smVal.classList.add("cs-field-value-sheet-appendix", "cs-field-value-sheet-appendix--tall");
-    addToPage(smSec);
+    const ap = document.createElement("div");
+    ap.className = "cs-page cs-page--mcg cs-page--mcg-appendix";
+    const h = document.createElement("header");
+    h.className = "cs-subpage-banner";
+    const left = document.createElement("div");
+    left.className = "cs-subpage-banner-name";
+    left.textContent = String(data.characterName ?? "").trim() || "Character";
+    const right = document.createElement("div");
+    right.className = "cs-subpage-banner-sub";
+    right.textContent = "Saints & Monsters";
+    h.appendChild(left);
+    h.appendChild(right);
+    ap.appendChild(h);
+    const smSec = document.createElement("section");
+    smSec.className = "cs-section";
+    const sh = document.createElement("h3");
+    sh.className = "cs-section-title";
+    sh.textContent = "Sorcerer & Titanic extras";
+    smSec.appendChild(sh);
+    const fb = document.createElement("div");
+    fb.className = "cs-field";
+    const lab = document.createElement("div");
+    lab.className = "cs-field-label";
+    lab.textContent = "Recorded in wizard (export JSON)";
+    const val = document.createElement("div");
+    val.className =
+      "cs-field-value cs-field-value-multiline cs-field-value-sheet-appendix cs-field-value-sheet-appendix--tall";
+    val.textContent = smBlock.join("\n\n");
+    fb.appendChild(lab);
+    fb.appendChild(val);
+    smSec.appendChild(fb);
+    ap.appendChild(smSec);
+    el.appendChild(ap);
   }
 
-  maybePageBreak();
-  addToPage(appendixBanner("Equipment & gear"));
-  const equipSec = section("Equipment & gear");
-  const equipRows = buildEquipmentSheetRows();
-  equipSec.appendChild(
-    catalogListField(
-      "Items (library picks + write-ins below)",
-      equipRows,
-      "No library items selected — use Finishing → Sheet appendix, or note gear in the lines below.",
-    ),
-  );
-  const eqBlankHint = document.createElement("p");
-  eqBlankHint.className = "cs-appendix-blank-hint";
-  eqBlankHint.textContent = "Additional gear, relic quirks, or legal notes:";
-  equipSec.appendChild(eqBlankHint);
-  const eqBlanks = document.createElement("div");
-  eqBlanks.className = "cs-write-lines";
-  for (let i = 0; i < 8; i += 1) {
-    const line = document.createElement("div");
-    line.className = "cs-write-line";
-    eqBlanks.appendChild(line);
-  }
-  equipSec.appendChild(eqBlanks);
-  addToPage(equipSec);
-
-  maybePageBreak();
-  addToPage(appendixBanner("Fatebindings"));
-  const fbSec = section("Fatebindings");
-  fbSec.appendChild(
-    fieldBlock(
-      "Bindings, patrons, nemeses, and story ties",
-      data.fatebindings,
-      true,
-    ),
-  );
-  const fbVal = fbSec.querySelector(".cs-field-value-multiline");
-  if (fbVal) fbVal.classList.add("cs-field-value-sheet-appendix");
-  addToPage(fbSec);
-
-  maybePageBreak();
-  addToPage(appendixBanner("Session notes & chronicle"));
-  const noteSec = section("Extended notes");
-  noteSec.appendChild(
-    fieldBlock(
-      "Session log, chronicle details, SG reminders (Finishing step)",
-      data.sheetNotesExtra,
-      true,
-    ),
-  );
-  const noteVal = noteSec.querySelector(".cs-field-value-multiline");
-  if (noteVal) noteVal.classList.add("cs-field-value-sheet-appendix", "cs-field-value-sheet-appendix--tall");
-  addToPage(noteSec);
 
   return el;
 }

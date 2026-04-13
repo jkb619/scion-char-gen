@@ -7,6 +7,61 @@ from typing import Any
 from app.config import DATA_DIR
 
 
+def _stamp_patron_asset_skills_from_pantheon(pantheons: dict[str, Any]) -> None:
+    """Copy each pantheon's `assetSkills` onto every deity/titan that does not already list its own."""
+    for pid, pant in pantheons.items():
+        if not pid or pid.startswith("_") or not isinstance(pant, dict):
+            continue
+        bas = pant.get("assetSkills")
+        if not isinstance(bas, list) or not bas:
+            continue
+        valid = [str(x).strip() for x in bas if isinstance(x, str) and str(x).strip()]
+        if not valid:
+            continue
+        for row_key in ("deities", "titans"):
+            rows = pant.get(row_key)
+            if not isinstance(rows, list):
+                continue
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                cur = row.get("assetSkills")
+                if isinstance(cur, list) and len(cur) > 0:
+                    continue
+                row["assetSkills"] = list(valid)
+
+
+def _apply_patron_asset_skill_overrides(pantheons: dict[str, Any], overrides_root: Any) -> None:
+    """Apply `pantheonId:patronId` → [skill, …] from patronAssetSkillOverrides.json (1–3 skills)."""
+    if not isinstance(overrides_root, dict):
+        return
+    table = overrides_root.get("overrides")
+    if not isinstance(table, dict):
+        return
+    for key, skills in table.items():
+        if not isinstance(key, str) or ":" not in key:
+            continue
+        pantheon_id, patron_id = key.split(":", 1)
+        pantheon_id, patron_id = pantheon_id.strip(), patron_id.strip()
+        if not pantheon_id or not patron_id:
+            continue
+        pant = pantheons.get(pantheon_id)
+        if not isinstance(pant, dict):
+            continue
+        if not isinstance(skills, list):
+            continue
+        cleaned = [str(x).strip() for x in skills if isinstance(x, str) and str(x).strip()]
+        if not cleaned or len(cleaned) > 3:
+            continue
+        for row_key in ("deities", "titans"):
+            rows = pant.get(row_key)
+            if not isinstance(rows, list):
+                continue
+            for row in rows:
+                if isinstance(row, dict) and row.get("id") == patron_id:
+                    row["assetSkills"] = list(cleaned)
+
+
 def _read_json(path: Path) -> Any:
     with path.open(encoding="utf-8") as f:
         return json.load(f)
@@ -70,6 +125,33 @@ def load_bundle() -> dict[str, Any]:
                 if isinstance(v, dict):
                     merged_b[k] = v
             bundle["boons"] = merged_b
+    tr_k = bundle.pop("knacksTitansRising", None)
+    if isinstance(tr_k, dict):
+        base_kn = bundle.get("knacks")
+        if isinstance(base_kn, dict):
+            merged_tr = dict(base_kn)
+            for k, v in tr_k.items():
+                if k == "_meta" or not k:
+                    continue
+                if isinstance(v, dict):
+                    merged_tr[k] = v
+            bundle["knacks"] = merged_tr
+    titans_table = bundle.pop("titans", None)
+    if isinstance(titans_table, dict):
+        pant_table = bundle.get("pantheons")
+        by = titans_table.get("titansByPantheon")
+        if isinstance(pant_table, dict) and isinstance(by, dict):
+            for pid, rows in by.items():
+                if not isinstance(pid, str) or not isinstance(rows, list):
+                    continue
+                pant = pant_table.get(pid)
+                if isinstance(pant, dict):
+                    pant["titans"] = rows
+    pant_table = bundle.get("pantheons")
+    if isinstance(pant_table, dict):
+        _stamp_patron_asset_skills_from_pantheon(pant_table)
+        ov = bundle.pop("patronAssetSkillOverrides", None)
+        _apply_patron_asset_skill_overrides(pant_table, ov)
     myth_inn = bundle.pop("mythosPurviewInnates", None)
     if isinstance(myth_inn, dict):
         base_p = bundle.get("purviews")
@@ -113,6 +195,39 @@ def load_bundle() -> dict[str, Any]:
                     next_pv["purviewInnateName"] = name.strip()
                 merged_p[k] = next_pv
             bundle["purviews"] = merged_p
+    tags_dr = bundle.pop("tagsDragon", None)
+    if isinstance(tags_dr, dict):
+        base_tags = bundle.get("tags")
+        if isinstance(base_tags, dict):
+            merged_tags = dict(base_tags)
+            for k, v in tags_dr.items():
+                if k == "_meta" or not k:
+                    continue
+                if isinstance(v, dict):
+                    merged_tags[k] = v
+            bundle["tags"] = merged_tags
+    equip_dr = bundle.pop("equipmentDragon", None)
+    if isinstance(equip_dr, dict):
+        base_eq = bundle.get("equipment")
+        if isinstance(base_eq, dict):
+            merged_eq = dict(base_eq)
+            for k, v in equip_dr.items():
+                if k == "_meta" or not k:
+                    continue
+                if isinstance(v, dict):
+                    merged_eq[k] = v
+            bundle["equipment"] = merged_eq
+    br_dr = bundle.pop("birthrightsDragon", None)
+    if isinstance(br_dr, dict):
+        base_br = bundle.get("birthrights")
+        if isinstance(base_br, dict):
+            merged_br = dict(base_br)
+            for k, v in br_dr.items():
+                if k == "_meta" or not k:
+                    continue
+                if isinstance(v, dict):
+                    merged_br[k] = v
+            bundle["birthrights"] = merged_br
     meta_path = DATA_DIR / "meta.json"
     if meta_path.is_file():
         meta_full = _read_json(meta_path)
