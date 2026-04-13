@@ -30,12 +30,6 @@
       <div class="brand">
         <h1>Scion - character creator</h1>
       </div>
-      <div class="header-actions">
-        <span id="header-tier-display" class="header-tier-display" title="New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation."></span>
-        <input type="file" id="input-import-json" accept=".json,application/json" hidden aria-hidden="true" />
-        <button type="button" id="btn-import-json" class="btn secondary">Import JSON</button>
-        <button type="button" id="btn-export-json" class="btn secondary">Export JSON</button>
-      </div>
     </header>
 
     <nav class="app-main-tabs" id="app-main-tabs" aria-label="Application mode"></nav>
@@ -43,7 +37,21 @@
     <nav class="wizard-nav" id="wizard-nav"></nav>
 
     <main id="wizard-root" class="wizard-root">
-      <p class="wizard-loading-msg">Loading wizard…</p>
+      <div id="wizard-line-toolbar" class="wizard-line-toolbar">
+        <div
+          id="header-tier-display"
+          class="header-tier-display"
+          title="New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation."
+        ></div>
+        <div class="wizard-json-actions">
+          <input type="file" id="input-import-json" accept=".json,application/json" hidden aria-hidden="true" />
+          <button type="button" id="btn-import-json" class="btn secondary">Import JSON</button>
+          <button type="button" id="btn-export-json" class="btn secondary">Export JSON</button>
+        </div>
+      </div>
+      <div id="wizard-step-host" class="wizard-step-host">
+        <p class="wizard-loading-msg">Loading wizard…</p>
+      </div>
     </main>
 
     <footer class="site-footer">

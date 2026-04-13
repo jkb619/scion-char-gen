@@ -6459,15 +6459,19 @@ function persistFromForm() {
 function render() {
   const root = document.getElementById("wizard-root");
   if (!root) return;
+  const stepHost = document.getElementById("wizard-step-host");
+  const contentRoot = stepHost || root;
+  const lineToolbar = document.getElementById("wizard-line-toolbar");
   try {
   renderAppMainTabs();
   const wnav = document.getElementById("wizard-nav");
   if (appMainTab !== "wizard") {
+    if (lineToolbar) lineToolbar.hidden = true;
     if (wnav) {
       wnav.style.display = "none";
       wnav.innerHTML = "";
     }
-    root.innerHTML = "<p class=\"help\">Loading library editor…</p>";
+    contentRoot.innerHTML = "<p class=\"help\">Loading library editor…</p>";
     const reloadBundle = async () => {
       const r = await fetchGameBundle();
       bundle = await r.json();
@@ -6475,33 +6479,34 @@ function render() {
     const ctx = { getBundle: () => bundle, reloadBundle };
     loadEditorsOnce()
       .then((ed) => {
-        root.innerHTML = "";
-        if (appMainTab === "birthrights_data") ed.mountBirthrightsDataEditor(root, ctx);
-        else if (appMainTab === "tags_data") ed.mountTagsDataEditor(root, ctx);
-        else if (appMainTab === "equipment_data") ed.mountEquipmentDataEditor(root, ctx);
+        contentRoot.innerHTML = "";
+        if (appMainTab === "birthrights_data") ed.mountBirthrightsDataEditor(contentRoot, ctx);
+        else if (appMainTab === "tags_data") ed.mountTagsDataEditor(contentRoot, ctx);
+        else if (appMainTab === "equipment_data") ed.mountEquipmentDataEditor(contentRoot, ctx);
         updateHeaderTierDisplay();
       })
       .catch((err) => {
         console.error(err);
-        root.innerHTML = "";
+        contentRoot.innerHTML = "";
         const p = document.createElement("p");
         p.className = "warn";
         p.textContent = `Could not load library editors: ${err instanceof Error ? err.message : String(err)}`;
-        root.appendChild(p);
+        contentRoot.appendChild(p);
         updateHeaderTierDisplay();
       });
     return;
   }
+  if (lineToolbar) lineToolbar.hidden = false;
   if (wnav) wnav.style.display = "";
 
   if (isDragonHeirChargen(character)) {
     if (!bundle?.dragonFlights || typeof bundle.dragonFlights !== "object" || !bundle?.dragonTier) {
-      root.innerHTML = "";
+      contentRoot.innerHTML = "";
       const p = document.createElement("p");
       p.className = "warn";
       p.textContent =
         "Dragon Heir data is missing from the game bundle. Add dragonTier, dragonCallingKnacks, dragonFlights, dragonMagic, and dragonKnacks to data/meta.json, restart the server, and hard-refresh.";
-      root.appendChild(p);
+      contentRoot.appendChild(p);
       updateHeaderTierDisplay();
       return;
     }
@@ -6509,9 +6514,9 @@ function render() {
     if (character.dragon?.pastConcept !== true && stepIndex > 1) stepIndex = 1;
     if (character.dragon?.pastConcept === true) {
       if (wnav) wnav.style.display = "none";
-      root.innerHTML = "";
+      contentRoot.innerHTML = "";
       renderDragonChargen({
-        root,
+        root: contentRoot,
         character,
         bundle,
         render,
@@ -6530,12 +6535,12 @@ function render() {
   }
 
   if (!bundle?.tier || typeof bundle.tier !== "object") {
-    root.innerHTML = "";
+    contentRoot.innerHTML = "";
     const p = document.createElement("p");
     p.className = "warn";
     p.textContent =
       "Game bundle has no tier data yet. Confirm the app is served by this project’s FastAPI server (so GET /api/bundle works) and that data/tier.json is listed in data/meta.json gameDataFiles.";
-    root.appendChild(p);
+    contentRoot.appendChild(p);
     updateHeaderTierDisplay();
     return;
   }
@@ -6562,25 +6567,25 @@ function render() {
   if (stepIndex >= stepsPre.length) stepIndex = Math.max(0, stepsPre.length - 1);
   /* Only persist Paths from the DOM when the Paths form is actually mounted (nav can change stepIndex before DOM is rebuilt). */
   if (stepsPre[stepIndex] === "paths" && document.getElementById("p-origin")) persistPathsStepFromDom();
-  root.innerHTML = "";
+  contentRoot.innerHTML = "";
   renderNav();
   const steps = stepDefsForTier(character.tier);
   const step = steps[stepIndex] || "welcome";
   if (step === "calling" || step === "finishing") pruneStaleKnackIds();
-  if (step === "welcome") renderWelcome(root);
-  if (step === "concept") renderConcept(root);
-  if (step === "paths") renderPaths(root);
-  if (step === "skills") renderSkills(root);
-  if (step === "attributes") renderAttributes(root);
-  if (step === "calling") renderCalling(root);
-  if (step === "purviews") renderPurviews(root);
-  if (step === "birthrights") renderBirthrights(root);
-  if (step === "boons") renderBoons(root);
-  if (step === "workings") renderWorkings(root);
-  if (step === "sorcerer") renderSorcerer(root);
-  if (step === "titanicExtras") renderTitanicExtras(root);
-  if (step === "finishing") renderFinishing(root);
-  if (step === "review") renderReview(root);
+  if (step === "welcome") renderWelcome(contentRoot);
+  if (step === "concept") renderConcept(contentRoot);
+  if (step === "paths") renderPaths(contentRoot);
+  if (step === "skills") renderSkills(contentRoot);
+  if (step === "attributes") renderAttributes(contentRoot);
+  if (step === "calling") renderCalling(contentRoot);
+  if (step === "purviews") renderPurviews(contentRoot);
+  if (step === "birthrights") renderBirthrights(contentRoot);
+  if (step === "boons") renderBoons(contentRoot);
+  if (step === "workings") renderWorkings(contentRoot);
+  if (step === "sorcerer") renderSorcerer(contentRoot);
+  if (step === "titanicExtras") renderTitanicExtras(contentRoot);
+  if (step === "finishing") renderFinishing(contentRoot);
+  if (step === "review") renderReview(contentRoot);
 
   const actions = document.createElement("div");
   actions.className = "step-actions";
@@ -6660,18 +6665,18 @@ function render() {
     }
     actions.appendChild(next);
   }
-  root.appendChild(actions);
+  contentRoot.appendChild(actions);
   updateHeaderTierDisplay();
   } catch (err) {
     console.error(err);
-    root.innerHTML = "";
+    contentRoot.innerHTML = "";
     const p = document.createElement("p");
     p.className = "warn";
     p.textContent =
       err instanceof Error
         ? `Wizard UI error: ${err.message}`
         : "Wizard UI error — check the browser console.";
-    root.appendChild(p);
+    contentRoot.appendChild(p);
     updateHeaderTierDisplay();
   }
 }
@@ -6741,12 +6746,13 @@ async function init() {
 init().catch((err) => {
   console.error(err);
   const rootEl = document.getElementById("wizard-root");
+  const host = document.getElementById("wizard-step-host") || rootEl;
   const msg = err instanceof Error ? err.message : String(err);
-  if (rootEl) {
-    rootEl.innerHTML = "";
+  if (host) {
+    host.innerHTML = "";
     const p = document.createElement("p");
     p.className = "warn";
     p.textContent = `Failed to load game data: ${msg}`;
-    rootEl.appendChild(p);
+    host.appendChild(p);
   }
 });
