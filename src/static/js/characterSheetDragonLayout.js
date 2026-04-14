@@ -10,6 +10,7 @@ import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
+import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
 const LEFT_SKILLS = [
   "academics",
@@ -67,7 +68,7 @@ export function fillDragonFourPageLayout(el, api) {
   } = api;
   const legendPoolCtx = { sheetHooks: sheetHooks ?? null, legendDotTrackReadOnly, awarenessDotTrackReadOnly };
   const d = data.dragon && typeof data.dragon === "object" ? data.dragon : {};
-  const finalA = /** @type {Record<string, number>} */ (data.attributesAfterFavored || {});
+  const finalA = /** @type {Record<string, number>} */ (sheetFinalAttrsAfterFavored(data, bundle));
   const skillDots = /** @type {Record<string, number>} */ (data.skills && typeof data.skills === "object" ? data.skills : {});
   const specs = /** @type {Record<string, string>} */ (
     data.skillSpecialties && typeof data.skillSpecialties === "object" ? data.skillSpecialties : {}

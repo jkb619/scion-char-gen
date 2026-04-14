@@ -354,6 +354,18 @@ textarea.has-doc-hint:focus-visible {
   box-shadow: 0 0 0 1px rgba(201, 74, 74, 0.45);
 }
 
+/* Non-.panel blocks that still need the same “cannot advance” affordance (Paths pantheon stack, etc.) */
+.wizard-gate-invalid {
+  border: 2px solid #c94a4a;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(201, 74, 74, 0.45);
+  padding: 0.35rem 0.5rem;
+}
+
+.skill-rating-row.skill-rating-row--gate-invalid td {
+  background: rgba(120, 30, 30, 0.35);
+}
+
 .skill-ratings-table {
   width: 100%;
   border-collapse: collapse;

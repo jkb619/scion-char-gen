@@ -5,6 +5,7 @@ import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { applyGameDataHint } from "./fieldHelp.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
+import { sheetFinalAttrsAfterFavored, sheetFinalSkillDots } from "./sheetExportAttrs.js";
 
 /** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). Bubbles stay empty for at-table Legend rating. */
 function sheetLegendDotTrackReadOnly(_filledRatingIgnored, max) {
@@ -339,8 +340,8 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   }
 
 
-  const finalA = data.attributesAfterFavored || {};
-  const skillDots = data.skills && typeof data.skills === "object" ? data.skills : {};
+  const finalA = sheetFinalAttrsAfterFavored(data, bundle);
+  const skillDots = sheetFinalSkillDots(data, bundle);
   const specs = data.skillSpecialties || {};
   const defRating = originDefenseFromFinalAttrs(finalA);
   const athDots = Math.max(0, Math.min(5, Math.round(Number(skillDots.athletics) || 0)));

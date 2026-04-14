@@ -89,13 +89,52 @@ function dragonFinishingArenaExtraDelta(attrs, baseline, arena) {
   return o;
 }
 
+function dragonAttributesStepPreFavoredForTab(d, bundle) {
+  const b = d.finishingAttrBaseline;
+  if (b && typeof b === "object") {
+    const o = {};
+    for (const id of Object.keys(bundle.attributes || {})) {
+      if (String(id).startsWith("_")) continue;
+      const v = Math.round(Number(b[id]));
+      o[id] = Number.isFinite(v) ? Math.max(1, Math.min(5, v)) : (d.attributes[id] ?? 1);
+    }
+    return o;
+  }
+  const o = {};
+  for (const id of Object.keys(bundle.attributes || {})) {
+    if (String(id).startsWith("_")) continue;
+    o[id] = d.attributes[id] ?? 1;
+  }
+  return o;
+}
+
+function dragonSkillIdsMissingChargenSpecialties(d, bundle) {
+  const out = [];
+  for (const sid of skillIds(bundle)) {
+    if ((d.skillDots[sid] || 0) < 3) continue;
+    if (String(d.skillSpecialties?.[sid] || "").trim()) continue;
+    out.push(sid);
+  }
+  return out;
+}
+
+function dragonSkillsMissingSpecialtyFinishingMessage(d, bundle) {
+  const miss = dragonSkillIdsMissingChargenSpecialties(d, bundle);
+  if (miss.length === 0) return null;
+  const nm = bundle.skills?.[miss[0]]?.name || miss[0];
+  if (miss.length === 1) {
+    return `${nm} is at 3 or more dots — add a free chargen Specialty before leaving Finishing (Origin pp. 59–60, 97).`;
+  }
+  return `${miss.length} Skills are at 3 or more dots without a Specialty — add free chargen Specialties before leaving Finishing (Origin pp. 59–60, 97).`;
+}
+
 function dragonMaxAttrRatingForArena(attrId, attrs, d) {
   const arena = arenaForAttribute(attrId);
   if (!arena) return 5;
   const pool = dragonArenaPools(d)[arena];
   if (pool == null || Number.isNaN(Number(pool))) return 5;
   const baseline = d.finishingAttrBaseline && typeof d.finishingAttrBaseline === "object" ? d.finishingAttrBaseline : null;
-  const finD = baseline ? dragonFinishingArenaExtraDelta(attrs, baseline, arena) : 0;
+  const finD = baseline ? dragonFinishingArenaExtraDelta(d.attributes, baseline, arena) : 0;
   let others = 0;
   for (const oid of ARENAS[arena]) {
     if (oid === attrId) continue;
@@ -166,14 +205,10 @@ function normalizeDragonAttributesToPools(d, bundle) {
         if ((attrs[hi] ?? 1) <= 1) break;
         attrs[hi] -= 1;
         sum -= 1;
-        if (baseline) baseline[hi] = attrs[hi];
         continue;
       }
       attrs[hi] -= 1;
       sum -= 1;
-      if (baseline && typeof baseline[hi] === "number" && attrs[hi] < baseline[hi]) {
-        baseline[hi] = attrs[hi];
-      }
     }
   }
 }
@@ -715,7 +750,7 @@ function appendDragonSkillRatingDotsCell(tr, sid, skillMeta, val) {
  * @param {Record<string, unknown>} bundle
  */
 function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
-  applyDragonPathMathToSkillDots(d, bundle);
+  const pathOnly = applyDragonPathMathToSkillDots(d, bundle);
   const list = document.createElement("div");
   list.className = "panel skill-ratings-panel";
   const head = document.createElement("h2");
@@ -741,11 +776,13 @@ function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
   const tb = document.createElement("tbody");
   for (const sid of skillIds(bundle)) {
     const sk = bundle.skills[sid];
-    const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
+    const displayVal = Math.max(0, Math.min(5, Math.round(Number(pathOnly[sid]) || 0)));
+    const mergedVal = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
+    const specGate = Math.max(displayVal, mergedVal);
     const tr = document.createElement("tr");
     tr.className = "skill-rating-row";
-    appendDragonSkillRatingNameCell(tr, sid, sk, val, d);
-    appendDragonSkillRatingDotsCell(tr, sid, sk, val);
+    appendDragonSkillRatingNameCell(tr, sid, sk, specGate, d);
+    appendDragonSkillRatingDotsCell(tr, sid, sk, displayVal);
     tb.appendChild(tr);
   }
   tbl.appendChild(tb);
@@ -2065,6 +2102,8 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
   }
   if (step === "finishing") {
     applyDragonPathMathToSkillDots(d, bundle);
+    const specFin = dragonSkillsMissingSpecialtyFinishingMessage(d, bundle);
+    if (specFin) return specFin;
     if (dragonFinishingBonusTotal(d) !== 5) {
       return "Spend exactly five finishing Skill dots (Dragon p. 112).";
     }
@@ -2280,12 +2319,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     applyHint(selF, "fav-approach");
 
     normalizeDragonAttributesToPools(d, bundle);
-    const base = {};
-    for (const arena of ARENA_ORDER) {
-      for (const id of ARENAS[arena]) {
-        base[id] = d.attributes[id] ?? 1;
-      }
-    }
+    const base = dragonAttributesStepPreFavoredForTab(d, bundle);
     const msgs = validateDragonAttributesPreFavored(d);
     const poolsOk = dragonAttributeArenaPoolsSpendOk(d);
     const msgBox = document.createElement("div");
@@ -2293,7 +2327,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     msgBox.textContent = msgs.length ? msgs.join(" ") : poolsOk ? "Arena totals match the 6/4/2 distribution." : "";
     wrap.appendChild(msgBox);
 
-    const finalDisplay = applyFavoredToDragonAttrs(d);
+    const finalDisplay = applyFavoredApproachDragonPlain(base, d.favoredApproach);
 
     for (const arena of ARENA_ORDER) {
       const sub = document.createElement("div");
@@ -2319,7 +2353,15 @@ export function renderDragonHeirStepInRoot(ctx) {
               const approachKey = APPROACH_ATTRS[fav] ? fav : "Finesse";
               const pre = APPROACH_ATTRS[approachKey].includes(id) ? picked - 2 : picked;
               const cap = dragonMaxAttrRatingForArena(id, base, d);
-              d.attributes[id] = Math.max(1, Math.min(pre, cap));
+              const newPre = Math.max(1, Math.min(pre, cap));
+              const bl = d.finishingAttrBaseline;
+              if (bl && typeof bl === "object") {
+                const bump = Math.max(0, (d.attributes[id] ?? 1) - (bl[id] ?? 1));
+                bl[id] = newPre;
+                d.attributes[id] = Math.max(1, Math.min(5, newPre + bump));
+              } else {
+                d.attributes[id] = newPre;
+              }
               render();
             },
             meta,
@@ -2999,8 +3041,28 @@ export function renderDragonHeirStepInRoot(ctx) {
       wrap.appendChild(w);
     }
 
+    const missingSpec = dragonSkillIdsMissingChargenSpecialties(d, bundle);
+    if (missingSpec.length > 0) {
+      const gateBox = document.createElement("div");
+      gateBox.className = "skills-gate-errors";
+      gateBox.setAttribute("role", "alert");
+      const gt = document.createElement("p");
+      gt.className = "skills-gate-errors-title";
+      gt.textContent = "Fix the following before leaving Finishing:";
+      gateBox.appendChild(gt);
+      const ul = document.createElement("ul");
+      for (const sid of missingSpec) {
+        const li = document.createElement("li");
+        li.textContent = `${bundle.skills?.[sid]?.name || sid} is at 3 or more dots — enter a Specialty in the Skills table below.`;
+        ul.appendChild(li);
+      }
+      gateBox.appendChild(ul);
+      wrap.appendChild(gateBox);
+    }
+
     const skPanel = document.createElement("section");
-    skPanel.className = "panel finishing-place-panel";
+    skPanel.className =
+      "panel finishing-place-panel" + (overSk || missingSpec.length > 0 ? " panel-gate-invalid" : "");
     skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
     const skTable = document.createElement("table");
     skTable.className = "skill-ratings-table finishing-skills-table";
@@ -3019,7 +3081,8 @@ export function renderDragonHeirStepInRoot(ctx) {
       const s = bundle.skills[sid];
       const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
       const tr = document.createElement("tr");
-      tr.className = "skill-rating-row";
+      tr.className =
+        "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
       appendDragonSkillRatingNameCell(tr, sid, s, val, d);
       appendDragonFinishingSkillDotsCell(tr, sid, s, val, d, bundle, character, pathOnly, render);
       skBody.appendChild(tr);
@@ -3029,7 +3092,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     wrap.appendChild(skPanel);
 
     const atPanel = document.createElement("section");
-    atPanel.className = "panel finishing-place-panel";
+    atPanel.className = "panel finishing-place-panel" + (overAt ? " panel-gate-invalid" : "");
     const atH = document.createElement("h2");
     atH.textContent = "Attributes — spend finishing dot(s)";
     atPanel.appendChild(atH);
@@ -3390,6 +3453,28 @@ export function buildDragonReviewSnapshot(character, bundle) {
   ensureDragonShape(character, bundle);
   const d = character.dragon;
   applyDragonPathMathToSkillDots(d, bundle);
+  const skillsStep = {};
+  for (const sid of skillIds(bundle)) {
+    const fin = Math.max(0, Math.round(Number(d.finishingSkillBonus?.[sid]) || 0));
+    skillsStep[sid] = Math.max(0, Math.min(5, (d.skillDots[sid] || 0) - fin));
+  }
+  const fullPreAttrs = {};
+  for (const id of Object.keys(bundle.attributes || {})) {
+    if (String(id).startsWith("_")) continue;
+    fullPreAttrs[id] = Math.max(1, Math.min(5, Math.round(Number(d.attributes[id] ?? 1))));
+  }
+  const bl = d.finishingAttrBaseline;
+  const stepPre = {};
+  if (bl && typeof bl === "object") {
+    for (const id of Object.keys(bundle.attributes || {})) {
+      if (String(id).startsWith("_")) continue;
+      const v = Math.round(Number(bl[id]));
+      stepPre[id] = Number.isFinite(v) ? Math.max(1, Math.min(5, v)) : fullPreAttrs[id];
+    }
+  } else {
+    Object.assign(stepPre, fullPreAttrs);
+  }
+  const attrsAfterFavoredStep = applyFavoredApproachDragonPlain(stepPre, d.favoredApproach);
   const finAttrs = applyFavoredToDragonAttrs(d);
   const ath = Math.max(0, Math.min(5, Math.round(Number(d.skillDots?.athletics) || 0)));
   const fl = bundle?.dragonFlights?.[d.flightId];
@@ -3408,9 +3493,12 @@ export function buildDragonReviewSnapshot(character, bundle) {
     inheritanceBand: inh?.band || "",
     flightId: d.flightId,
     flightName: fl?.name || "",
-    skills: { ...d.skillDots },
+    skills: skillsStep,
+    skillsIncludingFinishing: { ...d.skillDots },
     skillSpecialties: { ...d.skillSpecialties },
-    attributesAfterFavored: finAttrs,
+    attributesBeforeFavored: stepPre,
+    attributesAfterFavored: attrsAfterFavoredStep,
+    attributesIncludingFinishingBeforeFavored: fullPreAttrs,
     arenaPriority: [...d.arenaRank],
     favoredApproach: d.favoredApproach,
     defense: originDefenseFromFinalAttrs(finAttrs),

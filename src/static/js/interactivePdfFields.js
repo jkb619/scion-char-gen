@@ -10,6 +10,7 @@ import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { dragonSpellPdfEffectLine } from "./dragonSpellUi.js";
 import { applyFatebindingsToInteractivePdfFields } from "./fatebindingsSheet.js";
+import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
 const SKILL_ROW_IDS = [
   "academics",
@@ -48,6 +49,7 @@ const ATTR_PDF_ORDER = [
  * @param {string[]} fieldKeys
  * @param {Record<string, string | boolean>} out
  */
+
 function packLinesIntoFields(text, fieldKeys, out) {
   const lines = String(text ?? "")
     .replace(/\r\n/g, "\n")
@@ -70,7 +72,7 @@ export function buildScionInteractivePdfFields(data, bundle) {
   const f = {};
   const skills = data.skills && typeof data.skills === "object" ? data.skills : {};
   const specs = data.skillSpecialties && typeof data.skillSpecialties === "object" ? data.skillSpecialties : {};
-  const finalA = data.attributesAfterFavored && typeof data.attributesAfterFavored === "object" ? data.attributesAfterFavored : {};
+  const finalA = sheetFinalAttrsAfterFavored(data, bundle);
   const paths = data.paths && typeof data.paths === "object" ? data.paths : {};
   const ps = data.pathSkills && typeof data.pathSkills === "object" ? data.pathSkills : {};
   const skillName = (id) => (bundle.skills && bundle.skills[id] ? bundle.skills[id].name : id) || id;
@@ -225,7 +227,7 @@ export function buildDragonInteractivePdfFields(data, bundle) {
   const d = data.dragon && typeof data.dragon === "object" ? data.dragon : {};
   const skills = data.skills && typeof data.skills === "object" ? data.skills : {};
   const specs = data.skillSpecialties && typeof data.skillSpecialties === "object" ? data.skillSpecialties : {};
-  const finalA = data.attributesAfterFavored && typeof data.attributesAfterFavored === "object" ? data.attributesAfterFavored : {};
+  const finalA = sheetFinalAttrsAfterFavored(data, bundle);
   const paths = d.paths && typeof d.paths === "object" ? d.paths : {};
   const ps = d.pathSkills && typeof d.pathSkills === "object" ? d.pathSkills : {};
   const skillName = (id) => (bundle.skills && bundle.skills[id] ? bundle.skills[id].name : id) || id;

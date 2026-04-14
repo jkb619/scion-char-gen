@@ -56,6 +56,7 @@ import {
   buildDragonReviewSnapshot,
   captureDragonFinishingAttrBaseline,
 } from "./chargen/DragonChargenWizard.js";
+import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
 /** Lazy-loaded so optional data-editor modules cannot block the main wizard graph (or `init`). */
 let editorsLoadPromise = null;
@@ -1094,10 +1095,10 @@ function pathLayoutHash() {
 }
 
 /**
- * Overwrite skill ratings from Path priority + Path Skills (3 / 2 / 1 cumulative).
- * Overlap above 5 is not dropped: `pathSkillRedistribution` holds dots moved to other Path Skills (Origin p. 97).
+ * Path + redistribution totals only (no Finishing Skill dots). Mutates `pathSkillRedistribution` like `applyPathMathToSkillDots`.
+ * @returns {Record<string, number>}
  */
-function applyPathMathToSkillDots() {
+function pathOnlySkillDotsMap() {
   ensureSkillDots();
   ensurePathSkillArrays();
   const h = pathLayoutHash();
@@ -1118,10 +1119,45 @@ function applyPathMathToSkillDots() {
   } else {
     character.pathSkillRedistribution = G;
   }
+  /** @type {Record<string, number>} */
+  const out = {};
   for (const sid of skillIds()) {
     const t = trimmed[sid] || 0;
     const g = G[sid] || 0;
-    character.skillDots[sid] = t + g;
+    out[sid] = Math.max(0, Math.min(5, t + g));
+  }
+  return out;
+}
+
+/**
+ * Overwrite skill ratings from Path priority + Path Skills (3 / 2 / 1 cumulative).
+ * Overlap above 5 is not dropped: `pathSkillRedistribution` holds dots moved to other Path Skills (Origin p. 97).
+ * When `finishing.skillBaseline` exists, it tracks the Skills-step totals and Finishing bumps stay in `skillDots`.
+ */
+function applyPathMathToSkillDots() {
+  const pathOnly = pathOnlySkillDotsMap();
+  ensureFinishingShape();
+  const oldBaseline =
+    character.finishing?.skillBaseline && typeof character.finishing.skillBaseline === "object"
+      ? character.finishing.skillBaseline
+      : null;
+  /** @type {Record<string, number>} */
+  const bumps = {};
+  if (oldBaseline) {
+    for (const sid of skillIds()) {
+      bumps[sid] = Math.max(0, (character.skillDots[sid] || 0) - (oldBaseline[sid] || 0));
+    }
+  }
+  if (oldBaseline) {
+    for (const sid of skillIds()) {
+      const po = pathOnly[sid] ?? 0;
+      character.finishing.skillBaseline[sid] = po;
+      character.skillDots[sid] = Math.max(0, Math.min(5, po + (bumps[sid] || 0)));
+    }
+  } else {
+    for (const sid of skillIds()) {
+      character.skillDots[sid] = pathOnly[sid] ?? 0;
+    }
   }
   for (const sid of skillIds()) {
     if ((character.skillDots[sid] || 0) < 3) delete character.skillSpecialties[sid];
@@ -2162,7 +2198,9 @@ function maxAttrRatingForArena(attrId, attrs) {
   const pool = arenaPools()[arena];
   const baseline = character.finishing?.attrBaseline;
   const finD =
-    baseline && typeof baseline === "object" ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
+    baseline && typeof baseline === "object"
+      ? finishingArenaExtraDelta(character.attributes, baseline, arena)
+      : 0;
   let others = 0;
   for (const oid of ARENAS[arena]) {
     if (oid === attrId) continue;
@@ -2275,14 +2313,10 @@ function normalizeCharacterAttributesToPools() {
         if ((attrs[hi] ?? 1) <= 1) break;
         attrs[hi] -= 1;
         sum -= 1;
-        if (baseIsObj) baseLine[hi] = attrs[hi];
         continue;
       }
       attrs[hi] -= 1;
       sum -= 1;
-      if (baseIsObj && typeof baseLine[hi] === "number" && attrs[hi] < baseLine[hi]) {
-        baseLine[hi] = attrs[hi];
-      }
     }
   }
 }
@@ -2386,7 +2420,10 @@ function ensureFinishingShape() {
 function captureFinishingSkillBaseline() {
   ensureFinishingShape();
   ensureSkillDots();
-  character.finishing.skillBaseline = Object.fromEntries(skillIds().map((id) => [id, character.skillDots[id] || 0]));
+  if (character.finishing.skillBaseline && typeof character.finishing.skillBaseline === "object") {
+    return;
+  }
+  character.finishing.skillBaseline = pathOnlySkillDotsMap();
 }
 
 /** Sum of positive per-attribute deltas from `from` → `to` (pre–Favored ratings). */
@@ -2453,7 +2490,12 @@ function ensureFinishingBaselines() {
   ensureFinishingShape();
   if (!character.finishing.skillBaseline) {
     ensureSkillDots();
-    character.finishing.skillBaseline = Object.fromEntries(skillIds().map((id) => [id, character.skillDots[id] || 0]));
+    ensurePathSkillArrays();
+    const po = pathOnlySkillDotsMap();
+    character.finishing.skillBaseline = { ...po };
+    for (const sid of skillIds()) {
+      character.skillDots[sid] = Math.max(character.skillDots[sid] || 0, po[sid] || 0);
+    }
   }
   if (!character.finishing.attrBaseline) {
     const b = {};
@@ -2528,6 +2570,97 @@ function buildCharacterAttrsPre() {
     attrs[id] = character.attributes[id] ?? 1;
   }
   return attrs;
+}
+
+/** Path + redistribution Skill dots for the Skills step only (excludes Finishing Skill dots), for read-only display. */
+function skillsStepDotsForSkillsTab(sid) {
+  const b = character.finishing?.skillBaseline;
+  if (b && typeof b === "object") {
+    return Math.max(0, Math.min(5, Math.round(Number(b[sid]) || 0)));
+  }
+  return character.skillDots[sid] || 0;
+}
+
+/** Pre–Favored ratings for the Attributes step only (excludes Finishing Attribute dot), for UI + export staging. */
+function attributesStepPreFavoredForAttributesTab() {
+  const b = character.finishing?.attrBaseline;
+  if (b && typeof b === "object") {
+    const o = {};
+    for (const id of Object.keys(bundle.attributes)) {
+      if (String(id).startsWith("_")) continue;
+      const v = Math.round(Number(b[id]));
+      o[id] = Number.isFinite(v) ? Math.max(1, Math.min(5, v)) : (character.attributes[id] ?? 1);
+    }
+    return o;
+  }
+  const o = {};
+  for (const id of Object.keys(bundle.attributes)) {
+    if (String(id).startsWith("_")) continue;
+    o[id] = character.attributes[id] ?? 1;
+  }
+  return o;
+}
+
+/** Skill ids at 3+ dots missing a chargen Specialty (Finishing / Review gate). */
+function skillIdsMissingChargenSpecialties() {
+  ensureSkillDots();
+  const out = [];
+  for (const sid of skillIds()) {
+    if ((character.skillDots[sid] || 0) < 3) continue;
+    if (String(character.skillSpecialties?.[sid] || "").trim()) continue;
+    out.push(sid);
+  }
+  return out;
+}
+
+/** @returns {string | null} Alert text if Finishing cannot advance to Review (Origin pp. 59–60, 97). */
+function skillsNeedSpecialtyBlockingFinishingAdvance() {
+  const miss = skillIdsMissingChargenSpecialties();
+  if (miss.length === 0) return null;
+  const nm = bundle.skills?.[miss[0]]?.name || miss[0];
+  if (miss.length === 1) {
+    return `${nm} is at 3 or more dots — add a free chargen Specialty before leaving Finishing (Origin pp. 59–60, 97).`;
+  }
+  return `${miss.length} Skills are at 3 or more dots without a Specialty — add free chargen Specialties before leaving Finishing (Origin pp. 59–60, 97).`;
+}
+
+/**
+ * Scion deity/titan line only: validation after `persistFromForm()` when leaving `fromStep` toward a later step.
+ * (Wizard nav jumps call this so Finishing / Skills / Paths gates cannot be skipped by clicking ahead.)
+ * @returns {string | null}
+ */
+function forwardLeaveBlockScionAfterPersist(fromStep) {
+  if (isDragonHeirChargen(character)) return null;
+  if (fromStep === "paths" && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
+    return "Choose a pantheon and a parent before leaving the Paths step.";
+  }
+  if (fromStep === "skills") {
+    applyPathMathToSkillDots();
+    const gate = validateAllPathSkillsDetailed();
+    if (!gate.ok) {
+      skillsGateIssues = [...gate.issues];
+      return gate.issues.length ? gate.issues.map((i) => i.message).join("\n") : "Fix Path Skills before continuing.";
+    }
+    if (pathSkillOverflowDotsPending() > 0) {
+      const pend = pathSkillOverflowDotsPending();
+      skillsGateIssues = [
+        {
+          pathKey: null,
+          message: `Redistribute Path overflow: ${pend} dot(s) still unplaced (Origin p. 97 — max 5 per Skill from Paths; excess only onto other Path Skills).`,
+        },
+      ];
+      return skillsGateIssues[0].message;
+    }
+    skillsGateIssues = [];
+  }
+  if (fromStep === "purviews") {
+    const pv = heroPurviewsPatronPickRequiredAndMissing();
+    if (pv) return pv;
+  }
+  if (fromStep === "finishing") {
+    return skillsNeedSpecialtyBlockingFinishingAdvance();
+  }
+  return null;
 }
 
 /** Highest final dot allowed after finishing budget + legend cap, given current pre on other attrs. */
@@ -2891,7 +3024,30 @@ function renderNav() {
     if (idx === stepIndex) btn.classList.add("active");
     if (idx < stepIndex) btn.classList.add("done");
     btn.addEventListener("click", () => {
+      const stepsHere = stepDefsForTier(character.tier);
+      const curIdx = stepIndex;
+      const fromStep = stepsHere[curIdx] || "welcome";
       persistFromForm();
+      if (idx > curIdx) {
+        if (isDragonHeirChargen(character)) {
+          const dragBlock = dragonHeirStepLeaveBlockedReason(character, bundle, fromStep);
+          if (dragBlock) {
+            window.alert(dragBlock);
+            render();
+            return;
+          }
+          if (fromStep === "attributes") {
+            captureDragonFinishingAttrBaseline(character.dragon, bundle);
+          }
+        } else {
+          const block = forwardLeaveBlockScionAfterPersist(fromStep);
+          if (block) {
+            window.alert(block);
+            render();
+            return;
+          }
+        }
+      }
       stepIndex = idx;
       render();
       scrollWizardStepIntoView();
@@ -3246,6 +3402,10 @@ function renderPaths(root) {
       motmP.textContent = motm.trim();
       wrap.appendChild(motmP);
     }
+  }
+  const pathsPantheonStack = wrap.querySelector("#paths-pantheon-deity-stack");
+  if (pathsPantheonStack && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
+    pathsPantheonStack.classList.add("wizard-gate-invalid");
   }
   root.appendChild(panel("Paths", wrap));
   if (tierHasPurviewStep(character.tier)) {
@@ -3743,11 +3903,13 @@ function renderSkills(root) {
 
   for (const sid of skillIds()) {
     const s = bundle.skills[sid];
-    const val = character.skillDots[sid] || 0;
+    const displayVal = skillsStepDotsForSkillsTab(sid);
+    const mergedVal = character.skillDots[sid] || 0;
+    const specGate = Math.max(displayVal, mergedVal);
     const tr = document.createElement("tr");
     tr.className = "skill-rating-row";
-    appendSkillRatingNameCell(tr, sid, s, val);
-    appendSkillRatingDotsCell(tr, sid, s, val, "skills");
+    appendSkillRatingNameCell(tr, sid, s, specGate);
+    appendSkillRatingDotsCell(tr, sid, s, displayVal, "skills");
     tbody.appendChild(tr);
   }
   table.appendChild(tbody);
@@ -3826,12 +3988,7 @@ function renderAttributes(root) {
   applyHint(document.getElementById("fav-approach"), "fav-approach");
 
   normalizeCharacterAttributesToPools();
-  const base = {};
-  for (const arena of ARENA_ORDER) {
-    for (const id of ARENAS[arena]) {
-      base[id] = character.attributes[id] ?? 1;
-    }
-  }
+  const base = attributesStepPreFavoredForAttributesTab();
   const msgs = validateAttributes(base);
   const poolsOk = attributeArenaPoolsSpendOk(base);
   const msgBox = document.createElement("div");
@@ -3860,7 +4017,15 @@ function renderAttributes(root) {
             const fav = resolvedFavoredApproach();
             let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
             const cap = maxAttrRatingForArena(id, base);
-            character.attributes[id] = Math.max(1, Math.min(pre, cap));
+            const newPre = Math.max(1, Math.min(pre, cap));
+            const bl = character.finishing?.attrBaseline;
+            if (bl && typeof bl === "object") {
+              const bump = Math.max(0, (character.attributes[id] ?? 1) - (bl[id] ?? 1));
+              bl[id] = newPre;
+              character.attributes[id] = Math.max(1, Math.min(5, newPre + bump));
+            } else {
+              character.attributes[id] = newPre;
+            }
             render();
           },
           meta,
@@ -4593,6 +4758,9 @@ function renderPurviews(root) {
     }
     patronInnatePanel.appendChild(pIntro);
     patronInnatePanel.appendChild(chips);
+    if (heroPurviewsPatronPickRequiredAndMissing()) {
+      patronInnatePanel.classList.add("panel-gate-invalid");
+    }
     wrap.appendChild(patronInnatePanel);
     renderMythosInnatePowerPanel(wrap);
   } else {
@@ -5103,8 +5271,28 @@ function renderFinishing(root) {
     wrap.appendChild(w);
   }
 
+  const missingSpec = skillIdsMissingChargenSpecialties();
+  if (missingSpec.length > 0) {
+    const gateBox = document.createElement("div");
+    gateBox.className = "skills-gate-errors";
+    gateBox.setAttribute("role", "alert");
+    const gt = document.createElement("p");
+    gt.className = "skills-gate-errors-title";
+    gt.textContent = "Fix the following before leaving Finishing:";
+    gateBox.appendChild(gt);
+    const ul = document.createElement("ul");
+    for (const sid of missingSpec) {
+      const li = document.createElement("li");
+      li.textContent = `${bundle.skills?.[sid]?.name || sid} is at 3 or more dots — enter a Specialty in the Skills table below.`;
+      ul.appendChild(li);
+    }
+    gateBox.appendChild(ul);
+    wrap.appendChild(gateBox);
+  }
+
   const skPanel = document.createElement("section");
-  skPanel.className = "panel finishing-place-panel";
+  skPanel.className =
+    "panel finishing-place-panel" + (overSk || missingSpec.length > 0 ? " panel-gate-invalid" : "");
   skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
   const skTable = document.createElement("table");
   skTable.className = "skill-ratings-table finishing-skills-table";
@@ -5123,7 +5311,8 @@ function renderFinishing(root) {
     const s = bundle.skills[sid];
     const val = character.skillDots[sid] || 0;
     const tr = document.createElement("tr");
-    tr.className = "skill-rating-row";
+    tr.className =
+      "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
     appendSkillRatingNameCell(tr, sid, s, val);
     appendSkillRatingDotsCell(tr, sid, s, val, "finishing");
     skBody.appendChild(tr);
@@ -5133,7 +5322,7 @@ function renderFinishing(root) {
   wrap.appendChild(skPanel);
 
   const atPanel = document.createElement("section");
-  atPanel.className = "panel finishing-place-panel";
+  atPanel.className = "panel finishing-place-panel" + (overAt ? " panel-gate-invalid" : "");
   const atH = document.createElement("h2");
   atH.textContent = "Attributes — spend finishing dot(s)";
   atPanel.appendChild(atH);
@@ -5758,11 +5947,32 @@ function buildExportObject() {
   }
   const p = selectedPantheon();
   const deity = patronListForPantheon(p).find((d) => d.id === character.parentDeityId);
-  const baseAttrs = { ...character.attributes };
+  const fullPreAttrs = {};
   for (const id of Object.keys(bundle.attributes)) {
-    if (baseAttrs[id] == null) baseAttrs[id] = 1;
+    if (String(id).startsWith("_")) continue;
+    fullPreAttrs[id] = Math.max(1, Math.min(5, Math.round(Number(character.attributes[id] ?? 1))));
   }
-  const finalAttrs = applyFavoredApproach(baseAttrs);
+  const baseline = character.finishing?.attrBaseline;
+  const baseAttrs = {};
+  if (baseline && typeof baseline === "object") {
+    for (const id of Object.keys(bundle.attributes)) {
+      if (String(id).startsWith("_")) continue;
+      const v = Math.round(Number(baseline[id]));
+      baseAttrs[id] = Number.isFinite(v) ? Math.max(1, Math.min(5, v)) : fullPreAttrs[id];
+    }
+  } else {
+    Object.assign(baseAttrs, fullPreAttrs);
+  }
+  const finalAttrsStep = applyFavoredApproach(baseAttrs);
+  const sheetFinalA = sheetFinalAttrsAfterFavored(
+    {
+      attributesIncludingFinishingBeforeFavored: fullPreAttrs,
+      attributesBeforeFavored: baseAttrs,
+      attributesAfterFavored: finalAttrsStep,
+      favoredApproach: character.favoredApproach,
+    },
+    bundle,
+  );
   const tierMeta = bundle.tier?.[character.tier];
   const heroSeven = getTierAdvancementRule("mortal")?.heroBirthrightDotTotal ?? 7;
   const tnEx = normalizedTierId(character.tier);
@@ -5803,15 +6013,31 @@ function buildExportObject() {
     ...(sumPathSkillRedistribution(character.pathSkillRedistribution) > 0
       ? { pathSkillRedistribution: { ...character.pathSkillRedistribution } }
       : {}),
-    skills: character.skillDots,
+    ...(() => {
+      const bSk = character.finishing?.skillBaseline;
+      const fullSkills = {};
+      const skillsStep = {};
+      for (const sid of skillIds()) {
+        const full = Math.max(0, Math.min(5, Math.round(Number(character.skillDots[sid]) || 0)));
+        fullSkills[sid] = full;
+        if (bSk && typeof bSk === "object") {
+          skillsStep[sid] = Math.max(0, Math.min(5, Math.round(Number(bSk[sid]) || 0)));
+        } else {
+          skillsStep[sid] = full;
+        }
+      }
+      return { skills: skillsStep, skillsIncludingFinishing: fullSkills };
+    })(),
     skillSpecialties: { ...character.skillSpecialties },
     attributesBeforeFavored: baseAttrs,
-    attributesAfterFavored: finalAttrs,
+    attributesAfterFavored: finalAttrsStep,
+    /** Full pre–Favored ratings including Origin Finishing Attribute dot(s); sheets/PDFs use this for final dots. */
+    attributesIncludingFinishingBeforeFavored: fullPreAttrs,
     /** Origin Storypath: highest of Stamina, Resolve, Composure after Favored Approach. */
-    defense: originDefenseFromFinalAttrs(finalAttrs),
+    defense: originDefenseFromFinalAttrs(sheetFinalA),
     /** Total dice when rolling Athletics + higher of Might or Dexterity (skill + attr dots after Favored Approach). */
     movementDice: originMovementPoolDice(
-      finalAttrs,
+      sheetFinalA,
       Math.max(0, Math.min(5, Math.round(Number(character.skillDots?.athletics) || 0))),
     ),
     favoredApproach: character.favoredApproach,
@@ -5963,9 +6189,14 @@ function importCharacterFromExportPayload(data) {
   }
 
   const skillDots = { ...base.skillDots };
+  const skFull =
+    data.skillsIncludingFinishing && typeof data.skillsIncludingFinishing === "object"
+      ? data.skillsIncludingFinishing
+      : null;
   const sk = data.skills && typeof data.skills === "object" ? data.skills : {};
+  const skPick = skFull || sk;
   for (const sid of skillIds()) {
-    const v = sk[sid];
+    const v = skPick[sid];
     if (v == null || Number.isNaN(Number(v))) continue;
     skillDots[sid] = Math.max(0, Math.min(5, Math.round(Number(v))));
   }
@@ -5981,6 +6212,11 @@ function importCharacterFromExportPayload(data) {
   }
 
   const attrs = { ...base.attributes };
+  const srcFull =
+    data.attributesIncludingFinishingBeforeFavored &&
+    typeof data.attributesIncludingFinishingBeforeFavored === "object"
+      ? data.attributesIncludingFinishingBeforeFavored
+      : null;
   const srcAttrs =
     data.attributesBeforeFavored && typeof data.attributesBeforeFavored === "object"
       ? data.attributesBeforeFavored
@@ -5989,10 +6225,11 @@ function importCharacterFromExportPayload(data) {
         : data.attributes && typeof data.attributes === "object"
           ? data.attributes
           : null;
-  if (srcAttrs) {
+  const srcPick = srcFull || srcAttrs;
+  if (srcPick) {
     for (const aid of Object.keys(bundle.attributes || {})) {
       if (aid.startsWith("_")) continue;
-      const v = srcAttrs[aid];
+      const v = srcPick[aid];
       if (v == null || Number.isNaN(Number(v))) continue;
       attrs[aid] = Math.max(1, Math.min(5, Math.round(Number(v))));
     }
@@ -6709,11 +6946,6 @@ function render() {
         }
       }
       persistFromForm();
-      if (step === "paths" && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
-        window.alert("Choose a pantheon and a parent before leaving the Paths step.");
-        render();
-        return;
-      }
       if (isDragonHeirChargen(character)) {
         const dragBlock = dragonHeirStepLeaveBlockedReason(character, bundle, step);
         if (dragBlock) {
@@ -6724,33 +6956,11 @@ function render() {
         if (step === "attributes") {
           captureDragonFinishingAttrBaseline(character.dragon, bundle);
         }
-      }
-      /* Use same `step` as this render (stepDefsForTier + stepIndex) so gate matches visible screen. */
-      if (step === "skills" && !isDragonHeirChargen(character)) {
-        applyPathMathToSkillDots();
-        const gate = validateAllPathSkillsDetailed();
-        if (!gate.ok) {
-          skillsGateIssues = gate.issues;
+      } else {
+        const block = forwardLeaveBlockScionAfterPersist(step);
+        if (block) {
+          window.alert(block);
           render();
-          return;
-        }
-        if (pathSkillOverflowDotsPending() > 0) {
-          const pend = pathSkillOverflowDotsPending();
-          skillsGateIssues = [
-            {
-              pathKey: null,
-              message: `Redistribute Path overflow: ${pend} dot(s) still unplaced (Origin p. 97 — max 5 per Skill from Paths; excess only onto other Path Skills).`,
-            },
-          ];
-          render();
-          return;
-        }
-        skillsGateIssues = [];
-      }
-      if (step === "purviews") {
-        const pvBlock = heroPurviewsPatronPickRequiredAndMissing();
-        if (pvBlock) {
-          window.alert(pvBlock);
           return;
         }
       }
@@ -6768,6 +6978,13 @@ function render() {
     if (step === "paths" && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
       next.disabled = true;
       next.title = "Choose a pantheon and a parent before continuing.";
+    }
+    if (step === "finishing") {
+      const spBlock = skillsNeedSpecialtyBlockingFinishingAdvance();
+      if (spBlock) {
+        next.disabled = true;
+        next.title = spBlock;
+      }
     }
     actions.appendChild(next);
   }
