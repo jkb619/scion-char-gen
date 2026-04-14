@@ -2151,17 +2151,24 @@ function arenaForAttribute(attrId) {
   return null;
 }
 
-/** Max rating (1–5) for this attribute given siblings in the same arena and current 6/4/2 pool. */
+/**
+ * Max rating (1–5) for this attribute given siblings in the same arena and current 6/4/2 pool.
+ * When a Finishing Attribute dot sits in this arena, the allowed extra-dot total is pool + that bump
+ * (Origin p. 98 — same flex as `normalizeCharacterAttributesToPools` / `attributeArenaPoolsSpendOk`).
+ */
 function maxAttrRatingForArena(attrId, attrs) {
   const arena = arenaForAttribute(attrId);
   if (!arena) return 5;
   const pool = arenaPools()[arena];
+  const baseline = character.finishing?.attrBaseline;
+  const finD =
+    baseline && typeof baseline === "object" ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
   let others = 0;
   for (const oid of ARENAS[arena]) {
     if (oid === attrId) continue;
     others += Math.max(0, (attrs[oid] ?? 1) - 1);
   }
-  return Math.max(1, Math.min(5, 1 + pool - others));
+  return Math.max(1, Math.min(5, 1 + pool + finD - others));
 }
 
 /** Max dots after Favored Approach (+2 to approach Attributes, cap 5) for UI and clicking. */
@@ -2382,14 +2389,64 @@ function captureFinishingSkillBaseline() {
   character.finishing.skillBaseline = Object.fromEntries(skillIds().map((id) => [id, character.skillDots[id] || 0]));
 }
 
-/** Snapshot when leaving Attributes (pre–Favored Approach ratings). */
-function captureFinishingAttrBaseline() {
-  ensureFinishingShape();
-  const b = {};
+/** Sum of positive per-attribute deltas from `from` → `to` (pre–Favored ratings). */
+function sumPositiveAttributeDeltas(from, to) {
+  let s = 0;
   for (const id of Object.keys(bundle.attributes)) {
-    b[id] = character.attributes[id] ?? 1;
+    if (String(id).startsWith("_")) continue;
+    s += Math.max(0, (to[id] ?? 1) - (from[id] ?? 1));
   }
-  character.finishing.attrBaseline = b;
+  return s;
+}
+
+/**
+ * Snapshot when leaving Attributes (pre–Favored Approach ratings).
+ * @param {{ bakeTierAdvance?: boolean }} [options] Pass `{ bakeTierAdvance: true }` after tier advance so the new tier’s floor includes all prior ratings (including any Origin finishing bump).
+ */
+function captureFinishingAttrBaseline(options = {}) {
+  ensureFinishingShape();
+  const cur = {};
+  for (const id of Object.keys(bundle.attributes)) {
+    if (String(id).startsWith("_")) continue;
+    cur[id] = character.attributes[id] ?? 1;
+  }
+  if (options.bakeTierAdvance === true) {
+    character.finishing.attrBaseline = cur;
+    return;
+  }
+  const prev = character.finishing.attrBaseline;
+  if (!prev || typeof prev !== "object") {
+    character.finishing.attrBaseline = cur;
+    return;
+  }
+  const placedGains = sumPositiveAttributeDeltas(prev, cur);
+  const budget = Math.max(0, Math.round(Number(character.finishing.extraAttributeDots) || 0));
+  const finPlaced = finishingAttrDotsPlaced();
+  if (finPlaced === 0) {
+    character.finishing.attrBaseline = cur;
+    return;
+  }
+  if (placedGains === budget && finPlaced === budget && budget > 0) {
+    let strip = budget;
+    const next = { ...cur };
+    const ids = Object.keys(bundle.attributes)
+      .filter((id) => !String(id).startsWith("_"))
+      .sort(
+        (a, b) =>
+          Math.max(0, (cur[b] ?? 1) - (prev[b] ?? 1)) - Math.max(0, (cur[a] ?? 1) - (prev[a] ?? 1)),
+      );
+    for (const id of ids) {
+      const gain = Math.max(0, (cur[id] ?? 1) - (prev[id] ?? 1));
+      if (gain <= 0 || strip <= 0) continue;
+      const take = Math.min(gain, strip);
+      next[id] = (next[id] ?? 1) - take;
+      strip -= take;
+    }
+    if (strip !== 0) return;
+    character.finishing.attrBaseline = next;
+    return;
+  }
+  /* Pool edits while a finishing bump is invested: do not fold the bump into the snapshot (would make normalize strip it). */
 }
 
 function ensureFinishingBaselines() {
@@ -2743,7 +2800,7 @@ function applyTierAdvancementFromBundle() {
   syncLegendToTier();
   ensureFinishingShape();
   captureFinishingSkillBaseline();
-  captureFinishingAttrBaseline();
+  captureFinishingAttrBaseline({ bakeTierAdvance: true });
   return { oldTier: cur, newTier: next };
 }
 

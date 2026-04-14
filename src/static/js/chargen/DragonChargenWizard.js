@@ -18,7 +18,7 @@ import {
   bundleKnackById,
 } from "../eligibility.js";
 import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
-import { boonTrackedMechanicalFields } from "../boonMechanicalParse.js";
+import { dragonSpellChipHintEntity } from "../dragonSpellUi.js";
 import { downloadReviewSheetAsPdf } from "../reviewSheetPdf.js";
 import {
   coerceFatebindingsStoredList,
@@ -72,37 +72,6 @@ function arenaForAttribute(attrId) {
   return null;
 }
 
-/**
- * Tooltip payload for a spell chip (Dragon Magic step): summary + Cost/Duration/… in hover.
- * @param {Record<string, unknown>} sp
- * @param {Record<string, unknown> | null | undefined} mag
- */
-function dragonSpellChipHintEntity(sp, mag) {
-  const spell = sp && typeof sp === "object" ? sp : {};
-  const magicName = mag && typeof mag === "object" && typeof mag.name === "string" ? mag.name.trim() : "";
-  const t = boonTrackedMechanicalFields(spell);
-  const statLines = [];
-  if (t.cost) statLines.push(`Cost: ${t.cost}`);
-  if (t.duration) statLines.push(`Duration: ${t.duration}`);
-  if (t.subject) statLines.push(`Subject: ${t.subject}`);
-  if (t.range) statLines.push(`Range: ${t.range}`);
-  if (t.action) statLines.push(`Action: ${t.action}`);
-  const summ = String(spell.summary ?? "").trim();
-  const desc = String(spell.description ?? "").trim();
-  const bits = [];
-  const pre = String(spell.prerequisite ?? "").trim();
-  if (pre) bits.push(`Prerequisite: ${pre}`);
-  if (summ) bits.push(summ);
-  if (desc && desc !== summ) bits.push(desc);
-  if (statLines.length) bits.push(statLines.join("\n"));
-  return {
-    name: magicName ? `${String(spell.name || spell.id)} — ${magicName}` : String(spell.name || spell.id),
-    description: bits.join("\n\n"),
-    mechanicalEffects: String(spell.mechanicalEffects ?? "").trim(),
-    source: typeof mag?.source === "string" ? mag.source : "",
-  };
-}
-
 /** @param {Record<string, unknown>} d */
 function dragonArenaPools(d) {
   const r = d.arenaRank || [];
@@ -110,17 +79,29 @@ function dragonArenaPools(d) {
   return { [a1]: 6, [a2]: 4, [a3]: 2 };
 }
 
+/** Pre–Favored finishing bumps in one named arena (vs Attributes-step snapshot). */
+function dragonFinishingArenaExtraDelta(attrs, baseline, arena) {
+  if (!baseline || typeof baseline !== "object") return 0;
+  let o = 0;
+  for (const id of ARENAS[arena]) {
+    o += Math.max(0, (attrs[id] ?? 1) - (baseline[id] ?? 1));
+  }
+  return o;
+}
+
 function dragonMaxAttrRatingForArena(attrId, attrs, d) {
   const arena = arenaForAttribute(attrId);
   if (!arena) return 5;
   const pool = dragonArenaPools(d)[arena];
   if (pool == null || Number.isNaN(Number(pool))) return 5;
+  const baseline = d.finishingAttrBaseline && typeof d.finishingAttrBaseline === "object" ? d.finishingAttrBaseline : null;
+  const finD = baseline ? dragonFinishingArenaExtraDelta(attrs, baseline, arena) : 0;
   let others = 0;
   for (const oid of ARENAS[arena]) {
     if (oid === attrId) continue;
     others += Math.max(0, (attrs[oid] ?? 1) - 1);
   }
-  return Math.max(1, Math.min(5, 1 + pool - others));
+  return Math.max(1, Math.min(5, 1 + pool + finD - others));
 }
 
 function dragonMaxFinalRatingForAttr(attrId, attrsPre, d) {
@@ -132,12 +113,30 @@ function dragonMaxFinalRatingForAttr(attrId, attrsPre, d) {
 }
 
 /**
+ * Minimum pre–Favored rating while trimming Dragon arenas; do not drop below the Attributes-step snapshot
+ * when a Finishing Attribute dot is invested (mirrors `attrMinWhileNormalizingPools` in `app.js`).
+ * @param {DragonState} d
+ * @param {Record<string, unknown>} bundle
+ * @param {string} attrId
+ */
+function dragonAttrMinWhileNormalizingPools(d, bundle, attrId) {
+  if (dragonFinishingAttrDotsPlaced(d, bundle) <= 0) return 1;
+  const b = d.finishingAttrBaseline;
+  if (!b || typeof b !== "object") return 1;
+  const v = Math.round(Number(b[attrId]));
+  if (Number.isNaN(v)) return 1;
+  return Math.max(1, Math.min(5, v));
+}
+
+/**
  * Trim pre–Favored attributes if an arena exceeds its 6/4/2 bucket (e.g. after priority change).
+ * Honors the Finishing +1 Attribute dot vs `finishingAttrBaseline` (same flex as Origin p. 98 in `app.js`).
  * @param {Record<string, unknown>} d
  * @param {Record<string, unknown>} bundle
  */
 function normalizeDragonAttributesToPools(d, bundle) {
   const attrs = d.attributes;
+  const baseline = d.finishingAttrBaseline && typeof d.finishingAttrBaseline === "object" ? d.finishingAttrBaseline : null;
   for (const id of Object.keys(bundle.attributes || {})) {
     if (id.startsWith("_")) continue;
     if (attrs[id] == null || attrs[id] < 1) attrs[id] = 1;
@@ -148,17 +147,33 @@ function normalizeDragonAttributesToPools(d, bundle) {
     if (pool == null || Number.isNaN(Number(pool))) continue;
     const ids = ARENAS[arena];
     let sum = ids.reduce((s, id) => s + Math.max(0, (attrs[id] ?? 1) - 1), 0);
-    while (sum > pool) {
+    while (true) {
+      const cap = pool + (baseline ? dragonFinishingArenaExtraDelta(attrs, baseline, arena) : 0);
+      if (sum <= cap) break;
       let hi = null;
       for (const id of ids) {
         const v = attrs[id] ?? 1;
-        if (v > 1) {
+        const floor = dragonAttrMinWhileNormalizingPools(d, bundle, id);
+        if (v > floor) {
           if (hi === null || v > (attrs[hi] ?? 1)) hi = id;
         }
       }
-      if (hi == null || (attrs[hi] ?? 1) <= 1) break;
+      if (hi === null) {
+        hi = ids[0];
+        for (const id of ids) {
+          if ((attrs[id] ?? 1) > (attrs[hi] ?? 1)) hi = id;
+        }
+        if ((attrs[hi] ?? 1) <= 1) break;
+        attrs[hi] -= 1;
+        sum -= 1;
+        if (baseline) baseline[hi] = attrs[hi];
+        continue;
+      }
       attrs[hi] -= 1;
       sum -= 1;
+      if (baseline && typeof baseline[hi] === "number" && attrs[hi] < baseline[hi]) {
+        baseline[hi] = attrs[hi];
+      }
     }
   }
 }
@@ -258,6 +273,21 @@ function dragonHeirCallingIdsWithKnackCatalog(bundle) {
 const DRAGON_INHERITANCE_MAX = 10;
 
 /**
+ * Cumulative wizard budgets from `dragonTier.json` (milestone +Spell / +Draconic Knack paraphrases).
+ * @param {Record<string, unknown>} bundle
+ * @param {number} inh
+ */
+function dragonInheritanceWizardCaps(bundle, inh) {
+  const n = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inh) || 1)));
+  const row = bundle?.dragonTier?.inheritanceTrack?.[String(n)];
+  const knRaw = row?.wizardDraconicKnackLimit;
+  const spRaw = row?.wizardAdvancementSpellSlots;
+  const draconicKnackLimit = Number.isFinite(Number(knRaw)) ? Math.max(1, Math.round(Number(knRaw))) : 2;
+  const advancementSpellSlots = Number.isFinite(Number(spRaw)) ? Math.max(0, Math.round(Number(spRaw))) : 0;
+  return { draconicKnackLimit, advancementSpellSlots };
+}
+
+/**
  * Dragon Heir birthright picker: `chargenLines` includes `dragonHeir` (merged from `birthrightsDragon.json`).
  * Generic “(blank template)” rows from the core library are omitted here like the deity/titan wizard.
  * @param {Record<string, unknown>} bundle
@@ -312,6 +342,7 @@ export function defaultDragonState() {
     knownMagics: ["", "", ""],
     spellsByMagicId: {},
     bonusSpell: { magicId: "", spellId: "" },
+    advancementSpells: [],
     birthrightPicks: [],
     finishingFocus: "knacks",
     finishingCallingKnackIds: [],
@@ -412,6 +443,36 @@ export function ensureDragonShape(character, bundle) {
     .filter((p) => p.id);
   if (d.inheritance == null || Number.isNaN(Number(d.inheritance))) d.inheritance = 1;
   d.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
+  const inhCaps = dragonInheritanceWizardCaps(bundle, d.inheritance);
+  if (!Array.isArray(d.advancementSpells)) d.advancementSpells = [];
+  while (d.advancementSpells.length < inhCaps.advancementSpellSlots) {
+    d.advancementSpells.push({ magicId: "", spellId: "" });
+  }
+  while (d.advancementSpells.length > inhCaps.advancementSpellSlots) {
+    d.advancementSpells.pop();
+  }
+  d.advancementSpells = d.advancementSpells.map((row) => ({
+    magicId: String(row?.magicId ?? "").trim(),
+    spellId: String(row?.spellId ?? "").trim(),
+  }));
+  const magicIdsKnownForAdv = new Set([
+    ...d.knownMagics.filter(Boolean),
+    String(d.bonusSpell?.magicId || "").trim(),
+  ].filter(Boolean));
+  for (const row of d.advancementSpells) {
+    if (row.magicId && !magicIdsKnownForAdv.has(row.magicId)) {
+      row.magicId = "";
+      row.spellId = "";
+    }
+    if (row.magicId && row.spellId) {
+      const mag = bundle?.dragonMagic?.[row.magicId];
+      const ok = Array.isArray(mag?.spells) && mag.spells.some((s) => s && s.id === row.spellId);
+      if (!ok) row.spellId = "";
+    }
+  }
+  if (d.draconicKnackIds.length > inhCaps.draconicKnackLimit) {
+    d.draconicKnackIds = d.draconicKnackIds.slice(0, inhCaps.draconicKnackLimit);
+  }
   if (d.deedName == null) d.deedName = "";
   d.remembranceTrackCenter = d.remembranceTrackCenter !== false;
   /** v2: dropped leading placeholder step (Welcome lives on main wizard). Legacy saves used stepIndex ≥ 1 for Paths+. */
@@ -1414,15 +1475,63 @@ function applyDragonPathMathToSkillDots(d, bundle) {
   return pathOnly;
 }
 
-/** Snapshot Attributes step ratings for Finishing +1 dot (call when leaving Attributes). */
-export function captureDragonFinishingAttrBaseline(d, bundle) {
-  /** @type {Record<string, number>} */
-  const b = {};
+/** @param {Record<string, number>} from @param {Record<string, number>} to @param {Record<string, unknown>} bundle */
+function sumPositiveDragonAttrDeltas(from, to, bundle) {
+  let s = 0;
   for (const id of Object.keys(bundle.attributes || {})) {
     if (String(id).startsWith("_")) continue;
-    b[id] = Math.max(1, Math.min(5, Math.round(Number(d.attributes[id]) || 1)));
+    s += Math.max(0, (to[id] ?? 1) - (from[id] ?? 1));
   }
-  d.finishingAttrBaseline = b;
+  return s;
+}
+
+/**
+ * Snapshot Attributes step ratings for Finishing +1 dot (call when leaving Attributes).
+ * @param {{ bakeTierAdvance?: boolean }} [options] Use `{ bakeTierAdvance: true }` when rebasing after tier/heir advancement so the new floor includes prior ratings.
+ */
+export function captureDragonFinishingAttrBaseline(d, bundle, options = {}) {
+  /** @type {Record<string, number>} */
+  const cur = {};
+  for (const id of Object.keys(bundle.attributes || {})) {
+    if (String(id).startsWith("_")) continue;
+    cur[id] = Math.max(1, Math.min(5, Math.round(Number(d.attributes[id]) || 1)));
+  }
+  if (options.bakeTierAdvance === true) {
+    d.finishingAttrBaseline = cur;
+    return;
+  }
+  const prev = d.finishingAttrBaseline;
+  if (!prev || typeof prev !== "object") {
+    d.finishingAttrBaseline = cur;
+    return;
+  }
+  const budget = 1;
+  const placedGains = sumPositiveDragonAttrDeltas(prev, cur, bundle);
+  const finPlaced = dragonFinishingAttrDotsPlaced(d, bundle);
+  if (finPlaced === 0) {
+    d.finishingAttrBaseline = cur;
+    return;
+  }
+  if (placedGains === budget && finPlaced === budget) {
+    let strip = budget;
+    const next = { ...cur };
+    const ids = Object.keys(bundle.attributes || {})
+      .filter((id) => !String(id).startsWith("_"))
+      .sort(
+        (a, b) =>
+          Math.max(0, (cur[b] ?? 1) - (prev[b] ?? 1)) - Math.max(0, (cur[a] ?? 1) - (prev[a] ?? 1)),
+      );
+    for (const id of ids) {
+      const gain = Math.max(0, (cur[id] ?? 1) - (prev[id] ?? 1));
+      if (gain <= 0 || strip <= 0) continue;
+      const take = Math.min(gain, strip);
+      next[id] = Math.max(1, Math.min(5, (next[id] ?? 1) - take));
+      strip -= take;
+    }
+    if (strip !== 0) return;
+    d.finishingAttrBaseline = next;
+    return;
+  }
 }
 
 /**
@@ -1616,26 +1725,21 @@ function applyFavoredToDragonAttrs(d) {
   return base;
 }
 
-/** Which priority bucket (primary 6 / secondary 4 / tertiary 2 extras) an attribute belongs to. */
-function dragonAttrPriorityBucket(d, attrId) {
-  for (let i = 0; i < 3; i += 1) {
-    const arName = d.arenaRank[i];
-    if (ARENAS[arName]?.includes(attrId)) return ["primary", "secondary", "tertiary"][i];
-  }
-  return "tertiary";
-}
-
-/** True when each priority bucket spends exactly its 6 / 4 / 2 extras (Dragon p. 111; same structure as Origin p. 97). */
+/**
+ * True when each named arena spends its 6 / 4 / 2 extras plus any Finishing Attribute bump in that arena
+ * (Dragon p. 111; same structure as Origin pp. 97–98 and `attributeArenaPoolsSpendOk` in `app.js`).
+ */
 function dragonAttributeArenaPoolsSpendOk(d) {
-  const pool = { primary: 6, secondary: 4, tertiary: 2 };
-  for (const rank of ["primary", "secondary", "tertiary"]) {
-    let sum = 0;
-    for (const aid of Object.keys(d.attributes)) {
-      if (dragonAttrPriorityBucket(d, aid) === rank) {
-        sum += Math.max(0, (d.attributes[aid] ?? 1) - 1);
-      }
+  const baseline = d.finishingAttrBaseline && typeof d.finishingAttrBaseline === "object" ? d.finishingAttrBaseline : null;
+  for (const arena of ARENA_ORDER) {
+    const p = dragonArenaPools(d)[arena];
+    if (p == null || Number.isNaN(Number(p))) continue;
+    let s = 0;
+    for (const id of ARENAS[arena]) {
+      s += Math.max(0, (d.attributes[id] ?? 1) - 1);
     }
-    if (sum !== pool[rank]) return false;
+    const finD = baseline ? dragonFinishingArenaExtraDelta(d.attributes, baseline, arena) : 0;
+    if (s < p || s > p + finD) return false;
   }
   return true;
 }
@@ -1916,8 +2020,9 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     if (used > cap) {
       return "Too many Calling Knacks for your Calling dots.";
     }
-    if (d.draconicKnackIds.length !== 2) {
-      return "Select exactly two Draconic Knacks.";
+    const dkCap = dragonInheritanceWizardCaps(bundle, d.inheritance).draconicKnackLimit;
+    if (d.draconicKnackIds.length !== dkCap) {
+      return `Select exactly ${dkCap} Draconic Knack(s) for your current Inheritance (Dragon pp. 117–119).`;
     }
     return null;
   }
@@ -1932,6 +2037,16 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     }
     if (!d.bonusSpell?.magicId || !d.bonusSpell?.spellId) {
       return "Choose the bonus Spell (Magic + Spell).";
+    }
+    const advSlots = dragonInheritanceWizardCaps(bundle, d.inheritance).advancementSpellSlots;
+    if (advSlots > 0) {
+      const adv = Array.isArray(d.advancementSpells) ? d.advancementSpells : [];
+      for (let i = 0; i < advSlots; i += 1) {
+        const row = adv[i];
+        if (!row || !String(row.magicId || "").trim() || !String(row.spellId || "").trim()) {
+          return `Fill every Inheritance milestone spell row (${advSlots} total — Magic + Spell each).`;
+        }
+      }
     }
     return null;
   }
@@ -2477,11 +2592,12 @@ export function renderDragonHeirStepInRoot(ctx) {
     dkSection.className = "calling-knack-chip-group";
     const dkHead = document.createElement("h3");
     dkHead.className = "calling-knack-chip-group-title";
-    dkHead.textContent = "Draconic Knacks";
+    const dkCap = dragonInheritanceWizardCaps(bundle, d.inheritance).draconicKnackLimit;
+    dkHead.textContent = `Draconic Knacks (${d.draconicKnackIds.length} / ${dkCap} for Inheritance ${d.inheritance})`;
     dkSection.appendChild(dkHead);
     const dkChips = document.createElement("div");
     dkChips.className = "chips chips--calling-knack-subgroup";
-    const draconicFull = d.draconicKnackIds.length >= 2;
+    const draconicFull = d.draconicKnackIds.length >= dkCap;
     const draconicEntries = Object.entries(bundle.dragonKnacks || {})
       .filter(([kid, k]) => !kid.startsWith("_") && k && typeof k === "object")
       .sort((a, b) => {
@@ -2510,7 +2626,7 @@ export function renderDragonHeirStepInRoot(ctx) {
         if (set.has(kid)) set.delete(kid);
         else set.add(kid);
         const next = [...set];
-        if (next.length > 2) return;
+        if (next.length > dkCap) return;
         d.draconicKnackIds = next;
         render();
       });
@@ -2524,8 +2640,7 @@ export function renderDragonHeirStepInRoot(ctx) {
           "Pick all three Callings before adding more Draconic Knacks. You can clear this pick if you need to change Callings first.";
         chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
       } else if (draconicFull && !on) {
-        const gateHint =
-          "You already have two Draconic Knacks—clear one to pick a different Knack (same as when your Calling Knack budget is full).";
+        const gateHint = `You already have ${dkCap} Draconic Knack(s)—clear one to pick a different Knack.`;
         chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
       }
       dkChips.appendChild(chip);
@@ -2537,6 +2652,7 @@ export function renderDragonHeirStepInRoot(ctx) {
   }
 
   if (step === "magic") {
+    const inhCap = dragonInheritanceWizardCaps(bundle, d.inheritance);
     const knownMagicSet = new Set(d.knownMagics.filter(Boolean));
     if (d.bonusSpell?.magicId && !knownMagicSet.has(d.bonusSpell.magicId)) {
       d.bonusSpell.magicId = "";
@@ -2733,6 +2849,93 @@ export function renderDragonHeirStepInRoot(ctx) {
     }
     bonusWrap.appendChild(bonusSpellRow);
     spellPanel.appendChild(bonusWrap);
+
+    if (inhCap.advancementSpellSlots > 0) {
+      const mileWrap = document.createElement("div");
+      mileWrap.className = "panel dragon-milestone-spells-panel";
+      const mh = document.createElement("h2");
+      mh.textContent = "Inheritance milestone spells";
+      mileWrap.appendChild(mh);
+      const mh2 = document.createElement("p");
+      mh2.className = "help";
+      mh2.innerHTML = `Your current Inheritance grants <strong>${inhCap.advancementSpellSlots}</strong> extra spell pick(s) (choose Magic from your three known, then a Spell — Dragon pp. 117–119).`;
+      mileWrap.appendChild(mh2);
+      const knownM = d.knownMagics.filter(Boolean);
+      for (let i = 0; i < d.advancementSpells.length; i += 1) {
+        const row = d.advancementSpells[i];
+        const sub = document.createElement("div");
+        sub.className = "field dragon-wizard-spell-block";
+        const lab = document.createElement("label");
+        lab.textContent = `Milestone spell ${i + 1}`;
+        const magicRow = document.createElement("div");
+        magicRow.className = "chips";
+        for (const mid of knownM) {
+          const m = bundle.dragonMagic?.[mid];
+          if (!m || typeof m !== "object") continue;
+          const onM = String(row.magicId || "").trim() === mid;
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "chip" + (onM ? " on" : "");
+          b.textContent = m.name || mid;
+          applyGameDataHint(b, m);
+          b.addEventListener("click", () => {
+            if (onM) {
+              row.magicId = "";
+              row.spellId = "";
+            } else {
+              row.magicId = mid;
+              row.spellId = "";
+            }
+            render();
+          });
+          magicRow.appendChild(b);
+        }
+        const spellLab = document.createElement("div");
+        spellLab.className = "help";
+        spellLab.style.marginTop = "0.35rem";
+        spellLab.textContent = "Spell";
+        const spellRow = document.createElement("div");
+        spellRow.className = "chips";
+        const pickMid = String(row.magicId || "").trim();
+        const bMagM = pickMid ? bundle.dragonMagic?.[pickMid] : null;
+        const curSp = String(row.spellId || "").trim();
+        const primaryForMagic = String(d.spellsByMagicId[pickMid] || "").trim();
+        const takenAdv = new Set();
+        for (let j = 0; j < d.advancementSpells.length; j += 1) {
+          if (i === j) continue;
+          const other = d.advancementSpells[j];
+          if (String(other?.magicId || "").trim() === pickMid && String(other?.spellId || "").trim()) {
+            takenAdv.add(String(other.spellId).trim());
+          }
+        }
+        if (pickMid && bMagM && typeof bMagM === "object") {
+          const spellList = Array.isArray(bMagM.spells) ? bMagM.spells : [];
+          for (const sp of spellList) {
+            if (!sp?.id) continue;
+            if (sp.id === primaryForMagic) continue;
+            if (takenAdv.has(sp.id)) continue;
+            const onS = curSp === sp.id;
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "chip" + (onS ? " on" : "");
+            chip.textContent = sp.name || sp.id;
+            applyGameDataHint(chip, dragonSpellChipHintEntity(sp, bMagM));
+            chip.addEventListener("click", () => {
+              row.spellId = onS ? "" : sp.id;
+              render();
+            });
+            spellRow.appendChild(chip);
+          }
+        }
+        sub.appendChild(lab);
+        sub.appendChild(magicRow);
+        sub.appendChild(spellLab);
+        sub.appendChild(spellRow);
+        mileWrap.appendChild(sub);
+      }
+      spellPanel.appendChild(mileWrap);
+    }
+
     wrap.appendChild(spellPanel);
 
     root.appendChild(panel("Magic", wrap));
@@ -3069,9 +3272,21 @@ export function renderDragonHeirStepInRoot(ctx) {
       if (nextInh == null) return;
       const fromN = inhTrackRow?.name || String(inhCur);
       const toN = nextTrackRow?.name || String(nextInh);
-      const msg = `Advance from Inheritance ${inhCur} (${fromN}) to ${nextInh} (${toN})?\n\nApply milestone rewards per Scion: Dragon (pp. 117–119); confirm timing and limits with your Storyguide.`;
+      const curCaps = dragonInheritanceWizardCaps(bundle, inhCur);
+      const nextCaps = dragonInheritanceWizardCaps(bundle, nextInh);
+      const dSpell = nextCaps.advancementSpellSlots - curCaps.advancementSpellSlots;
+      const dKn = nextCaps.draconicKnackLimit - curCaps.draconicKnackLimit;
+      const unlockParts = [];
+      if (dSpell > 0) unlockParts.push(`${dSpell} milestone spell pick(s) on the Magic step`);
+      if (dKn > 0) unlockParts.push(`${dKn} Draconic Knack slot(s) on Calling & Knacks`);
+      const unlockLine =
+        unlockParts.length > 0
+          ? `\n\nThis wizard will open: ${unlockParts.join("; ")}.`
+          : "";
+      const msg = `Advance from Inheritance ${inhCur} (${fromN}) to ${nextInh} (${toN})?\n\nApply milestone rewards per Scion: Dragon (pp. 117–119); confirm timing and limits with your Storyguide.${unlockLine}`;
       if (!window.confirm(msg)) return;
       d.inheritance = nextInh;
+      ensureDragonShape(character, bundle);
       render();
       scrollStepIntoView?.();
     });

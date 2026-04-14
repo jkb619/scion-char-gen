@@ -2069,11 +2069,18 @@
   width: 32%;
 }
 
-/* Dragon spells: Boon-style line blocks (Name, Magic, Cost, …) */
+/* Dragon spells: Boon-style line blocks (Name, Magic, Cost, …) — two columns like Knacks */
 .cs-dragon-spell-plate-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .character-sheet--dragon-heir .cs-dragon-spell-plate-stack {
+    grid-template-columns: 1fr;
+  }
 }
 
 .cs-dragon-spell-plate-card {

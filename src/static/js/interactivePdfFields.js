@@ -5,27 +5,11 @@
  */
 
 import { apiUrl } from "./apiBase.js";
-import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { boonDisplayLabel } from "./boonLabels.js";
 import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { dragonSpellPdfEffectLine } from "./dragonSpellUi.js";
 import { applyFatebindingsToInteractivePdfFields } from "./fatebindingsSheet.js";
-
-/** @param {Record<string, unknown> | null | undefined} sp */
-function dragonSpellPdfEffectLine(sp) {
-  if (!sp || typeof sp !== "object") return "";
-  const t = boonTrackedMechanicalFields(sp);
-  const bits = [];
-  const summ = String(sp.summary || "").trim();
-  if (summ) bits.push(`Summary: ${summ}`);
-  if (t.cost) bits.push(`Cost: ${t.cost}`);
-  if (t.duration) bits.push(`Duration: ${t.duration}`);
-  if (t.subject) bits.push(`Target: ${t.subject}`);
-  if (t.range) bits.push(`Range: ${t.range}`);
-  if (t.action) bits.push(`Action: ${t.action}`);
-  if (t.clash) bits.push(`Clash: ${t.clash}`);
-  return bits.join(" · ").slice(0, 480);
-}
 
 const SKILL_ROW_IDS = [
   "academics",
@@ -351,7 +335,19 @@ export function buildDragonInteractivePdfFields(data, bundle) {
       effect: dragonSpellPdfEffectLine(sp),
     });
   }
-  for (let i = 0; i < 10; i += 1) {
+  const adv = Array.isArray(d.advancementSpells) ? d.advancementSpells : [];
+  for (const picked of adv) {
+    const mid = String(picked?.magicId || "").trim();
+    const sid = String(picked?.spellId || "").trim();
+    if (!mid || !sid) continue;
+    const mag = bundle.dragonMagic?.[mid];
+    const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === sid) : null;
+    spellRows.push({
+      name: `Milestone — ${mag?.name || mid} — ${sp?.name || sid}`,
+      effect: dragonSpellPdfEffectLine(sp),
+    });
+  }
+  for (let i = 0; i < 16; i += 1) {
     const row = spellRows[i];
     f[`boons${i + 1}`] = row ? row.name : "";
     f[`booneffect${i + 1}`] = row ? row.effect : "";

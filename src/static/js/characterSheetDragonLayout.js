@@ -312,6 +312,15 @@ export function fillDragonFourPageLayout(el, api) {
       const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === bs) : null;
       if (sp && mag && typeof sp === "object" && typeof mag === "object") out.push({ sp, mag });
     }
+    const adv = Array.isArray(d.advancementSpells) ? d.advancementSpells : [];
+    for (const picked of adv) {
+      const mid = String(picked?.magicId || "").trim();
+      const sid = String(picked?.spellId || "").trim();
+      if (!mid || !sid) continue;
+      const mag = bundle?.dragonMagic?.[mid];
+      const sp = Array.isArray(mag?.spells) ? mag.spells.find((x) => x && x.id === sid) : null;
+      if (sp && mag && typeof sp === "object" && typeof mag === "object") out.push({ sp, mag });
+    }
     return out;
   }
 
@@ -818,9 +827,17 @@ export function fillDragonFourPageLayout(el, api) {
 
   p4.appendChild(mcgSectionTitle("Draconic profile"));
   const drac = document.createElement("div");
-  drac.className = "cs-mcg-history";
-  drac.textContent =
-    "Feats of Scale, Transformation, scale notes — use free space on print or extended notes (Dragon).";
+  drac.className = "cs-mcg-cond-cols";
+  drac.setAttribute("aria-label", "Draconic profile — ruled lines for Feats of Scale, Transformation, and scale notes");
+  for (let c = 0; c < 2; c += 1) {
+    const col = document.createElement("div");
+    for (let i = 0; i < 6; i += 1) {
+      const ln = document.createElement("div");
+      ln.className = "cs-mcg-write-line";
+      col.appendChild(ln);
+    }
+    drac.appendChild(col);
+  }
   p4.appendChild(drac);
 
   const fin = document.createElement("footer");
