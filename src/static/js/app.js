@@ -32,6 +32,10 @@ import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.
 import { apiUrl } from "./apiBase.js";
 import { wirePickerRowFilter, wireSortableTableColumns } from "./pickerTableUtils.js";
 import {
+  isChargenWizardHiddenBirthrightRow,
+  isChargenWizardHiddenEquipmentRow,
+} from "./chargenWizardCatalogFilters.js";
+import {
   trimTrailingEmptyFatebindings,
   sanitizeFatebindingsForEditor,
   coerceFatebindingsStoredList,
@@ -4762,7 +4766,7 @@ function renderBirthrights(root) {
   tbl2.appendChild(thead2);
   const body2 = document.createElement("tbody");
   const entries = Object.entries(bundle.birthrights)
-    .filter(([id]) => !id.startsWith("_"))
+    .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id))
     .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]));
   for (const [bid, br] of entries) {
     const cost = birthrightPointCost(bid);
@@ -5253,7 +5257,7 @@ function renderFinishing(root) {
       const capBr = maxBirthrightPointsBudget();
       const usedBr = finishingBirthrightPointsUsed();
       const finEntries = Object.entries(bundle.birthrights)
-        .filter(([id]) => !id.startsWith("_"))
+        .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id))
         .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]));
       for (const [bid, br] of finEntries) {
         const cost = birthrightPointCost(bid);
@@ -5367,7 +5371,7 @@ function renderFinishing(root) {
   const eqBody = document.createElement("tbody");
   const eqSet = new Set(character.sheetEquipmentIds || []);
   const eqEntries = Object.entries(bundle.equipment || {})
-    .filter(([eid]) => !eid.startsWith("_"))
+    .filter(([eid, eq]) => !eid.startsWith("_") && !isChargenWizardHiddenEquipmentRow(eq, eid))
     .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0])));
   for (const [eid, eq] of eqEntries) {
     const tr = document.createElement("tr");

@@ -27,6 +27,10 @@ import {
 } from "../fatebindingsSheet.js";
 import { appendFatebindingsFinishingEditor } from "../fatebindingsFinishingEditor.js";
 import { appendFinishingExtendedNotesPanel } from "../finishingExtendedNotesPanel.js";
+import {
+  isChargenWizardHiddenBirthrightRow,
+  isChargenWizardHiddenEquipmentRow,
+} from "../chargenWizardCatalogFilters.js";
 
 /** Fatebinding list + editor index (shared with main wizard `character.finishing`). */
 function ensureDragonSheetFatebindingsShape(character) {
@@ -253,10 +257,9 @@ function dragonHeirCallingIdsWithKnackCatalog(bundle) {
 /** Keep in sync with `DRAGON_INHERITANCE_MAX` in app.js and `data/dragonTier.json`. */
 const DRAGON_INHERITANCE_MAX = 10;
 
-/** Blank Birthright templates plus catalog rows tagged for Dragon Heir (avoids loading the full PB Relic dump in selects). */
-const DRAGON_BIRTHRIGHT_TEMPLATE_IDS = new Set(["relic", "creature", "follower", "cult", "guide"]);
-
 /**
+ * Dragon Heir birthright picker: `chargenLines` includes `dragonHeir` (merged from `birthrightsDragon.json`).
+ * Generic “(blank template)” rows from the core library are omitted here like the deity/titan wizard.
  * @param {Record<string, unknown>} bundle
  * @returns {Record<string, unknown>}
  */
@@ -265,10 +268,7 @@ function birthrightsForDragonChargen(bundle) {
   const out = {};
   for (const [bid, b] of Object.entries(bundle.birthrights || {})) {
     if (bid.startsWith("_") || !b || typeof b !== "object") continue;
-    if (DRAGON_BIRTHRIGHT_TEMPLATE_IDS.has(bid)) {
-      out[bid] = b;
-      continue;
-    }
+    if (isChargenWizardHiddenBirthrightRow(b, bid)) continue;
     const lines = /** @type {{ chargenLines?: unknown }} */ (b).chargenLines;
     if (Array.isArray(lines) && lines.includes("dragonHeir")) out[bid] = b;
   }
@@ -818,7 +818,7 @@ function appendDragonFinishingSheetAppendix(wrap, character, bundle, render) {
   const eqBody = document.createElement("tbody");
   const eqSet = new Set(character.sheetEquipmentIds || []);
   const eqEntries = Object.entries(bundle.equipment || {})
-    .filter(([eid]) => !eid.startsWith("_"))
+    .filter(([eid, eq]) => !eid.startsWith("_") && !isChargenWizardHiddenEquipmentRow(eq, eid))
     .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0])));
   for (const [eid, eq] of eqEntries) {
     const tr = document.createElement("tr");
