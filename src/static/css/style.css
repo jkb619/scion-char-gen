@@ -1,5 +1,7 @@
 :root {
   color-scheme: dark;
+  /* Cover art: add `src/static/images/Scion Demigod Cover Artwork.jpg` (spaces OK in filename). */
+  --page-cover-image: url("/static/images/Scion%20Demigod%20Cover%20Artwork.jpg");
   --bg: #0f1115;
   --panel: #171b22;
   --text: #e8e4dc;
@@ -19,7 +21,15 @@
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 20% -10%, #1a2230, var(--bg));
+  background-color: var(--bg);
+  /* 50% black scrim on top of the tinted gradient + cover art */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    linear-gradient(160deg, rgba(15, 17, 21, 0.88) 0%, rgba(15, 17, 21, 0.78) 45%, rgba(15, 17, 21, 0.85) 100%),
+    var(--page-cover-image);
+  background-size: cover, cover, cover;
+  background-position: center center, center center, center center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
   color: var(--text);
   min-height: 100vh;
   display: flex;
@@ -45,10 +55,27 @@ body {
   margin-top: auto;
 }
 
-.brand h1 {
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.brand-logo {
+  display: block;
+  height: 1.85rem;
+  width: auto;
+  max-width: min(11rem, 42vw);
+  object-fit: contain;
+}
+
+.brand-title {
   margin: 0;
   font-size: 1.35rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .wizard-line-toolbar {

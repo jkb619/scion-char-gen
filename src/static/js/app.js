@@ -1358,13 +1358,6 @@ function saintsMonstersBundle() {
 /** Titanic Calling ids that have `sm_*` Knacks merged from knacksSaintsMonsters.json (S&M Ch. 4). */
 const TITANIC_CALLING_IDS_SM_KNACKS = new Set(["adversary", "destroyer", "monster", "primeval", "tyrant"]);
 
-function hasTitanicSaintsMonstersKnackCalling() {
-  if (heroUsesCallingSlots() && Array.isArray(character.callingSlots)) {
-    return character.callingSlots.some((s) => TITANIC_CALLING_IDS_SM_KNACKS.has(String(s?.id || "").trim()));
-  }
-  return TITANIC_CALLING_IDS_SM_KNACKS.has(String(character?.callingId || "").trim());
-}
-
 function isMythosPantheonSelected() {
   return String(character?.pantheonId || "").trim() === "mythos";
 }
@@ -2276,6 +2269,21 @@ function applyFavoredApproach(baseAttrs) {
   return out;
 }
 
+/** True when each arena’s extra-dot sum is within its Attributes-step pool, plus allowed Finishing bumps (Origin pp. 97–98). */
+function attributeArenaPoolsSpendOk(attrs) {
+  const pools = arenaPools();
+  const sums = attributeArenaSums(attrs);
+  const baseline = character.finishing?.attrBaseline;
+  const hasB = baseline && typeof baseline === "object";
+  for (const arena of ARENA_ORDER) {
+    const s = sums[arena];
+    const p = pools[arena];
+    const finDelta = hasB ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
+    if (s < p || s > p + finDelta) return false;
+  }
+  return true;
+}
+
 function validateAttributes(attrs) {
   const pools = arenaPools();
   const sums = attributeArenaSums(attrs);
@@ -2311,10 +2319,6 @@ function validateAttributes(attrs) {
     if (s > p + finDelta) {
       msgs.push(
         `${arena} arena: at most ${p} extra dots from the Attributes step, plus up to ${finDelta} from your Finishing Attribute dot(s) in this arena (you have ${s}; Origin pp. 97–98).`,
-      );
-    } else if (s < p) {
-      msgs.push(
-        `${arena} arena: distribute exactly ${p} extra dots beyond the 1‑dot base in each Attribute (currently ${s}; Origin p. 97).`,
       );
     }
   }
@@ -3014,7 +3018,7 @@ function renderWelcome(root) {
 function renderConcept(root) {
   const wrap = document.createElement("div");
   wrap.innerHTML = `
-    <p class="help" id="f-chargen-lineage-blurb">Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon Heir continues on the same wizard after Concept (Inheritance is chosen on Welcome).</p>
+    <p class="help" id="f-chargen-lineage-blurb" style="display:none"></p>
     <div class="field"><label>Character name</label><input type="text" id="f-char-name" autocomplete="name" spellcheck="false" /></div>
     <div class="field"><label>Concept</label><textarea id="f-concept"></textarea></div>
     <div class="field"><label>Player / Group notes</label><textarea id="f-notes"></textarea></div>
@@ -3035,6 +3039,7 @@ function renderConcept(root) {
       if (ll) ll.textContent = "Short-term worldly Deed";
       if (lb) lb.textContent = "Brood Deed";
       if (blurb) {
+        blurb.style.display = "";
         blurb.innerHTML =
           "Heir Deeds: one Draconic, one short-term worldly, one Brood (shared) per <em>Scion: Dragon</em> p. 110 (see Origin pp. 94–95 for Deed procedure).";
       }
@@ -3043,9 +3048,14 @@ function renderConcept(root) {
       if (ll) ll.textContent = "Long-term Deed";
       if (lb) lb.textContent = isSorcererLineTier(character.tier) ? "Coven Deed (shared)" : "Band Deed";
       if (blurb) {
-        blurb.textContent = isSorcererLineTier(character.tier)
-          ? "Sorcerer: same Deed structure as Origin (Saints & Monsters ch. 3) — short-term sorcerous deed, long-term goal, and a Coven shared deed. Paths are Origin + how you learned Sorcery + Society (S&M Step Two), not Visitation pantheon picks."
-          : "Deity/Titan uses the standard pantheon Paths and Visitation tiers. Dragon Heir uses the same wizard tabs after this step, with Flight on Paths and Dragon Magic / Birthrights steps where the book requires them (Scion: Dragon).";
+        if (isSorcererLineTier(character.tier)) {
+          blurb.style.display = "";
+          blurb.textContent =
+            "Sorcerer: same Deed structure as Origin (Saints & Monsters ch. 3) — short-term sorcerous deed, long-term goal, and a Coven shared deed. Paths are Origin + how you learned Sorcery + Society (S&M Step Two), not Visitation pantheon picks.";
+        } else {
+          blurb.textContent = "";
+          blurb.style.display = "none";
+        }
       }
     }
   };
@@ -3147,7 +3157,7 @@ function renderPaths(root) {
         <textarea id="p-mythos-deed" rows="2" spellcheck="false" placeholder="Fourth Deed slot (Masks of the Mythos)"></textarea>
         <p class="help paths-mythos-deed-hint">MotM adds a <strong>Mythos</strong> Deed alongside Short-term, Long-term, and Band (see your MotM / table guidance).</p>
       </div>
-      <p class="help paths-patron-lineage-hint">Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.</p>
+      <p class="help paths-patron-lineage-hint" style="display:none"></p>
     </div>
     <aside id="p-pantheon-virtues" class="pantheon-virtues-panel" aria-live="polite"></aside>
     <div id="p-virtue-spectrum-mount" class="p-virtue-spectrum-mount"></div>
@@ -3169,16 +3179,19 @@ function renderPaths(root) {
     ensurePatronPurviewSlots();
     renderPatronPurviewPanel(patronMount);
   } else {
-    const note = document.createElement("p");
-    note.className = "help patron-purviews-origin-note";
     const raw = bundle.tier[character.tier]?.purviewsOriginNote;
-    note.innerHTML =
+    const html =
       typeof raw === "string" && raw.trim()
         ? raw
         : isSorcererLineTier(character.tier)
           ? "<strong>Sorcerer Paths</strong> (Saints & Monsters ch. 3) use Origin’s three-Path structure (Origin p. 95) without Visitation pantheon or divine parent; Purviews come from the <strong>Magic</strong> Purview and other Sorcery rules in that chapter, not patron lists."
-          : "<strong>Patron Purviews</strong> are assigned after Visitation (<strong>Hero</strong> tier and above), not during Origin Mortal chargen. Pantheon and divine parent here still set Society Path Asset Skills (Origin p. 97).";
-    patronMount.appendChild(note);
+          : "";
+    if (html) {
+      const note = document.createElement("p");
+      note.className = "help patron-purviews-origin-note";
+      note.innerHTML = html;
+      patronMount.appendChild(note);
+    }
   }
   const ps = document.getElementById("p-pantheon");
   ps.innerHTML = `<option value="">—</option>`;
@@ -3287,6 +3300,7 @@ function renderPaths(root) {
     if (deityField) deityField.hidden = true;
     if (pantheonField) pantheonField.hidden = true;
     if (lineageHint) {
+      lineageHint.style.display = "";
       lineageHint.textContent =
         "Sorcerer: Origin, Role (how you learned Sorcery), and Society Paths per Saints & Monsters ch. 3 — pick three Skills per Path on the Skills step (no Visitation pantheon or divine parent).";
     }
@@ -3311,8 +3325,8 @@ function renderPaths(root) {
     if (deityField) deityField.hidden = false;
     if (pantheonField) pantheonField.hidden = false;
     if (lineageHint) {
-      lineageHint.textContent =
-        "Patron type sits between Pantheon and parent: it switches whether the parent list is gods or Titans.";
+      lineageHint.textContent = "";
+      lineageHint.style.display = "none";
     }
     if (socLab0) socLab0.textContent = "Society / Pantheon Path phrase";
     ps.disabled = false;
@@ -3655,7 +3669,7 @@ function renderSkills(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Ratings follow Path priority (3 / 2 / 1) when Path Skills or priority change; dots here are read-only and sit under your Path picks, priority, and any overlap controls. If overlap would exceed 5 in a Skill, place overflow dots using the panel above when it appears (Origin p. 97). At 3+ dots, add free Specialties (Origin pp. 59–60, 97).";
+    "Ratings follow Path priority (3 / 2 / 1) when Path Skills or priority change. If overlap would exceed 5 in a Skill, place overflow dots using the panel above when it appears (Origin p. 97). At 3+ dots, add free Specialties (Origin pp. 59–60, 97).";
   list.appendChild(help);
 
   const table = document.createElement("table");
@@ -3693,7 +3707,7 @@ function renderAttributes(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). On this step only the 6 / 4 / 2 arena totals apply (Origin p. 97). The separate Finishing Attribute dot (Origin p. 98) is spent later on the Finishing step and may go on any one Attribute, still capped at five dots after Favored Approach. Dot rows show final ratings after Favored Approach.";
+    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). Dot rows show final ratings after Favored Approach.";
   wrap.appendChild(help);
 
   const rankRow = document.createElement("div");
@@ -3765,9 +3779,10 @@ function renderAttributes(root) {
     }
   }
   const msgs = validateAttributes(base);
+  const poolsOk = attributeArenaPoolsSpendOk(base);
   const msgBox = document.createElement("div");
-  msgBox.className = msgs.length ? "warn" : "ok";
-  msgBox.textContent = msgs.length ? msgs.join(" ") : "Arena totals match the 6/4/2 distribution.";
+  msgBox.className = msgs.length || !poolsOk ? "warn" : "ok";
+  msgBox.textContent = msgs.length ? msgs.join(" ") : poolsOk ? "Arena totals match the 6/4/2 distribution." : "";
   wrap.appendChild(msgBox);
 
   const finalDisplay = applyFavoredApproach(base);
@@ -3856,12 +3871,12 @@ function renderCalling(root) {
   const allowedCallingIds = callingIdsAllowedForCharacter();
   const deity = selectedDeityRecord();
   if (allowedCallingIds) {
-    const hint = document.createElement("p");
-    hint.className = "help";
-    hint.textContent = isMythosPantheonSelected()
-      ? `Masks of the Mythos: only inverted Callings from this list appear — each id from ${deity?.name || "your divine parent"} in pantheon data is shown as its MotM Calling (standard names in the file map to inverted equivalents, e.g. Sage → Cosmos).`
-      : `Calling is limited to those listed for ${deity?.name || "your divine parent"} in the pantheon data (three Favored Callings for Origin — Origin p. 98). Use the pantheon write-up that row cites (often Origin Appendix 2 or Mysteries of the World): a single “Calling:” line on a Pandora’s Box Birthright Guide NPC is that servitor’s template, not your parent’s full triple.`;
-    wrap.appendChild(hint);
+    if (isMythosPantheonSelected()) {
+      const hint = document.createElement("p");
+      hint.className = "help";
+      hint.textContent = `Masks of the Mythos: only inverted Callings from this list appear — each id from ${deity?.name || "your divine parent"} in pantheon data is shown as its MotM Calling (standard names in the file map to inverted equivalents, e.g. Sage → Cosmos).`;
+      wrap.appendChild(hint);
+    }
   } else if (!character.parentDeityId) {
     const hint = document.createElement("p");
     hint.className = "help";
@@ -3910,12 +3925,9 @@ function renderCalling(root) {
           ? "Heroic band (Mortal Sorcerer → Heroic Sorcerer)"
           : "Visitation (Origin → Hero)";
     visPanel.appendChild(visH);
-    const visP = document.createElement("div");
-    visP.className = "help";
-    if (visTier === "titanic") {
-      visP.innerHTML =
-        "Use <strong>Review → Advance</strong> from Mortal when your table supports it, or start at <strong>Titanic</strong> on Welcome. After a Mortal tier-up, <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (dots can move). Assign <strong>three</strong> Callings and <strong>five</strong> dots (each at least one). <strong>Titans Rising:</strong> include <strong>at least one Titanic Calling</strong> (Adversary, Destroyer, Monster, Primeval, Tyrant). Knack budget equals the sum of row dots.";
-    } else {
+    if (visTier !== "titanic" && visTier !== "sorcerer_hero") {
+      const visP = document.createElement("div");
+      visP.className = "help";
       const intro = document.createElement("p");
       intro.className = "calling-visitation-hero-intro";
       intro.innerHTML =
@@ -3939,8 +3951,8 @@ function renderCalling(root) {
         ul.appendChild(li);
       }
       visP.appendChild(ul);
+      visPanel.appendChild(visP);
     }
-    visPanel.appendChild(visP);
     wrap.appendChild(visPanel);
     const lockPrimaryCallingSelect = visitationLocksPrimaryCallingChoice();
     for (let rowIdx = 0; rowIdx < HERO_CALLING_ROW_COUNT; rowIdx += 1) {
@@ -4133,25 +4145,7 @@ function renderCalling(root) {
 
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
-  const knackOriginNote = isOriginPlayTier(character.tier)
-    ? " <strong>Origin (Mortal):</strong> only <strong>Mortal</strong> Knacks (one Calling slot each)—<strong>Immortal</strong> Knacks need Hero tier or higher. Chips are grouped under <strong>your Calling</strong> vs <strong>Any Calling</strong> (same layout as the Hero step)."
-    : heroUsesCallingSlots()
-      ? " <strong>Hero (three Callings):</strong> each Calling row’s <strong>dots</strong> are that row’s Knack budget (each <strong>Heroic</strong> Knack costs <strong>one</strong>; an <strong>Immortal</strong> Knack costs <strong>two</strong> and must sit on a row with at least <strong>two</strong> dots). A Knack only appears if <strong>some</strong> row that matches its Calling(s) still has room—Knacks that list <strong>several</strong> Callings stay available if <strong>any</strong> of your matching rows can pay."
-      : " <strong>Hero+ (book):</strong> each additional dot you gain in any Calling allows you to purchase and know one additional Knack from that specific Calling. You may never have more Knacks known than your total Calling dots across all three Callings. <strong>This wizard:</strong> the dot row next to your primary Calling is your <strong>Calling rating</strong> budget for chips below—each <strong>Heroic</strong> (Mortal) Knack uses <strong>one</strong> slot. <strong>Alternately</strong>, you may take <strong>a single Immortal Knack instead of two Heroic Knacks</strong> when your Calling rating is <strong>two or higher</strong> (one Immortal costs <strong>two</strong> slot-equivalents; you cannot take more than one Immortal Knack from this swap).";
-  const mythosKnackNote = isMythosPantheonSelected()
-    ? " For <strong>Mythos</strong> (MotM pp. 47–49), Knacks treat your Calling as including its <strong>paired</strong> normal/inverted Calling (e.g. Cosmos ⇄ Sage), so you see MotM Knacks and the usual <cite>Pandora’s Box</cite> Calling lists for both sides."
-    : "";
-  const smTitanicNoteRaw = saintsMonstersBundle()?.titanicKnacksCallout;
-  const smTitanicKnackNote = hasTitanicSaintsMonstersKnackCalling()
-    ? ` <strong>Saints & Monsters:</strong> ${typeof smTitanicNoteRaw === "string" && smTitanicNoteRaw.trim() ? smTitanicNoteRaw.trim() : "Titanic Calling Knacks from Chapter Four appear as chips with ids prefixed <code>sm_</code> and this book in hints."}`
-    : "";
-  knackPanel.innerHTML = `<h2>Knacks</h2><p class="help">Each chip is tagged <strong>Mortal</strong> or <strong>Immortal</strong> (data: <code>knackKind</code>). <strong>Muted / disabled</strong> chips are Knacks you still pass the <strong>Calling / tier / patron-type / Purview / pantheon</strong> rules in the data for, but your current <strong>per-row dot budgets</strong> (or the one-Immortal cap) cannot pay for them yet—raise dots on a matching Calling row until they become clickable. <strong>Titans Rising</strong> (<code>tr_*</code>) and <strong>S&amp;M Titanic Calling</strong> (<code>sm_*</code>) entries use the same rules: they show up whenever those gates pass (often a <strong>Titanic Calling</strong> row or <code>callingsAny</code> on the card). Use <cite>Pandora’s Box</cite> at the table for full mechanics.${knackOriginNote}${mythosKnackNote}${smTitanicKnackNote} Picks that no longer fit stay visible so you can clear them. Knacks already taken as <strong>extra Finishing Knacks</strong> are omitted here so you cannot pick the same Knack twice.${
-    heroUsesCallingSlots()
-      ? " <strong>Hero:</strong> chips are grouped under the first Calling row they match (or <strong>Any Calling</strong> when the card applies to any Calling)."
-      : isOriginPlayTier(character.tier)
-        ? " <strong>Origin:</strong> chips are grouped under <strong>your selected Calling</strong> or <strong>Any Calling</strong>."
-        : ""
-  }</p>`;
+  knackPanel.innerHTML = `<h2>Knacks</h2>`;
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   const knackEntries = Object.entries(bundle.knacks)
     .filter(([kid]) => !kid.startsWith("_"))
@@ -4583,11 +4577,6 @@ function renderWorkings(root) {
   const cap = sorcererWorkingPickCap(character.tier);
   const rows = sorcererWorkingsCatalogRows();
   const wrap = document.createElement("div");
-  const intro = document.createElement("p");
-  intro.className = "help";
-  intro.innerHTML = `The five <strong>Workings</strong> in <cite>Saints & Monsters</cite> ch. 3 (see <strong>Workings, Techniques, and Charms</strong>, p. 65) group sorcery into broad families. Each Working includes an <strong>inherent Technique</strong>, optional <strong>Techniques</strong> as you gain Legend, and <strong>charms</strong>. Pick up to <strong>${cap}</strong> Working <em>names</em> here as sheet reminders — full mechanics stay in the PDF.`;
-  wrap.appendChild(intro);
-
   const grid = document.createElement("div");
   grid.className = "grid-2";
   const sel = new Set(character.sorceryProfile.workingIds || []);
@@ -4621,30 +4610,12 @@ function renderWorkings(root) {
     grid.appendChild(box);
   }
   wrap.appendChild(grid);
-  const foot = document.createElement("p");
-  foot.className = "help";
-  const n = (character.sorceryProfile.workingIds || []).length;
-  foot.textContent = `Selected ${n} of ${cap} Working(s). Additional Workings and extra Techniques beyond chargen are milestones and Experience at the table (p. 65).`;
-  wrap.appendChild(foot);
   root.appendChild(panel("Workings", wrap));
 }
 
 function renderSorcerer(root) {
   ensureSorceryProfileShape();
   const sp = character.sorceryProfile;
-  const tierLab = bundle.tier?.[character.tier]?.name || "Sorcerer";
-
-  const overview = document.createElement("div");
-  const p1 = document.createElement("p");
-  p1.className = "help";
-  p1.innerHTML = `<strong>${tierLab}.</strong> This step mirrors the <strong>Deity</strong> wizard: same <strong>panel</strong> layout, book citations in help text, and cross-links to <strong>Purviews</strong> / <strong>Boons</strong> / <strong>Birthrights</strong> where Heroic-band Sorcerers spend Paraphernalia. Rules text: <cite>Saints & Monsters</cite> ch. 3 (character creation summary ~pp. 83–85; mechanics ~pp. 63–65).`;
-  overview.appendChild(p1);
-  const p2 = document.createElement("p");
-  p2.className = "help";
-  p2.innerHTML =
-    "<strong>Motif</strong> is how your magic looks and feels; <strong>Sources of Power</strong> are how you refresh and risk Legend (Invocation, Patronage, Prohibition, Talisman — pp. 63–64). At <strong>Heroic band</strong> and up, pick a <strong>primary</strong> source for focus; you can still sketch the others if you blend methods.";
-  overview.appendChild(p2);
-  root.appendChild(panel("Sorcerer overview", overview));
 
   const detail = document.createElement("div");
   const primOpts = [
@@ -4679,8 +4650,7 @@ function renderSorcerer(root) {
 
   const link = document.createElement("div");
   link.className = "panel";
-  link.innerHTML =
-    "<h2>Magic Purview and Paraphernalia</h2><p class=\"help\">Use the <strong>Purviews</strong> and <strong>Boons</strong> steps for the <strong>Magic</strong> Purview (merged from supplement data). Use <strong>Birthrights</strong> for <strong>Paraphernalia</strong> (Relics, Followers, etc.) at Heroic band and above — same seven-dot default as Hero Scions unless your table adjusts it.</p>";
+  link.innerHTML = "<h2>Magic Purview and Paraphernalia</h2>";
   root.appendChild(link);
 }
 
@@ -4697,7 +4667,6 @@ function renderTitanicExtras(root) {
     .concat(callOpts.map((cid) => `<option value="${cid}">${bundle.callings?.[cid]?.name || cid}</option>`))
     .join("");
   wrap.innerHTML = `
-    <p class="help">Titanic <strong>Mutations</strong> and <strong>Maelstrom Hearts</strong> are PDF-first; use these fields as sheet reminders. Epicenter summaries appear on the <strong>Purviews</strong> step.</p>
     <div class="field"><label for="f-titan-motif">Motif (narrative)</label><input type="text" id="f-titan-motif" autocomplete="off" spellcheck="true" /></div>
     <div class="field"><label for="f-titan-mutation-calling">Mutation Calling facet</label><select id="f-titan-mutation-calling">${optsHtml}</select></div>
     <div class="field"><label for="f-titan-mutation-dots">Mutation dots (0–5)</label><input type="number" id="f-titan-mutation-dots" min="0" max="5" step="1" /></div>
@@ -5082,8 +5051,7 @@ function renderFinishing(root) {
 
   const skPanel = document.createElement("section");
   skPanel.className = "panel finishing-place-panel";
-  skPanel.innerHTML =
-    "<h2>Skills — spend finishing dots</h2><p class='help'>Same layout as the Skills step. Dots cannot go below your last snapshot from the Skills step; raised dots count against the finishing Skill budget. At 3+ dots, note Specialties.</p>";
+  skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
   const skTable = document.createElement("table");
   skTable.className = "skill-ratings-table finishing-skills-table";
   const skThead = document.createElement("thead");
@@ -5118,7 +5086,7 @@ function renderFinishing(root) {
   const atHelp = document.createElement("p");
   atHelp.className = "help";
   atHelp.textContent =
-    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded). The book does not tie it to the 6 / 4 / 2 arenas; it still cannot break the five-dot-per-Attribute cap after Favored Approach (Origin p. 97). Dots show final ratings after Favored Approach.";
+    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded).";
   atPanel.appendChild(atHelp);
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
@@ -5162,17 +5130,7 @@ function renderFinishing(root) {
     const knBr = document.createElement("section");
     knBr.className = "panel finishing-place-panel";
     if (character.finishing.knackOrBirthright === "knacks") {
-      const finKnackNote = isOriginPlayTier(character.tier)
-        ? " <strong>Origin:</strong> extra picks must also be <strong>Mortal</strong> Knacks only."
-        : "";
-      const finSmNote = hasTitanicSaintsMonstersKnackCalling()
-        ? " <strong>Saints & Monsters</strong> Titanic Knacks (<code>sm_*</code>) follow the same gates."
-        : "";
-      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2><p class="help">These are <strong>in addition to</strong> your Calling-dot Knacks from the Calling step (they do <strong>not</strong> spend that dot budget). The same Calling / tier / <code>knackKind</code> gates apply, plus at most <strong>one Immortal Knack</strong> across Calling + Finishing combined. Knacks already on Calling are hidden here. Up to two extra picks.${finKnackNote}${finSmNote}${
-        isOriginPlayTier(character.tier)
-          ? " <strong>Origin:</strong> chips are split under <strong>your Calling</strong> and <strong>Any Calling</strong>; you may pick from either group (same rules)."
-          : ""
-      }</p>`;
+      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2>`;
       const callingKnackSet = new Set(character.knackIds || []);
       const finUniq = [...new Set(character.finishing.finishingKnackIds || [])];
       const knackEntriesFin = Object.entries(bundle.knacks)
@@ -6689,9 +6647,10 @@ function render() {
     next.addEventListener("click", () => {
       if (step === "attributes" && !isDragonHeirChargen(character)) {
         normalizeCharacterAttributesToPools();
-        const attrMsgs = validateAttributes(buildCharacterAttrsPre());
-        if (attrMsgs.length) {
-          window.alert(attrMsgs.join("\n"));
+        const preAttrs = buildCharacterAttrsPre();
+        const attrMsgs = validateAttributes(preAttrs);
+        if (attrMsgs.length || !attributeArenaPoolsSpendOk(preAttrs)) {
+          window.alert(attrMsgs.length ? attrMsgs.join("\n") : "Arena attribute pools are not full.");
           render();
           return;
         }

@@ -7,7 +7,6 @@
     "mechanicalEffects": "Six-step Origin character creation (concept through finishing touches) on pp. 94–99: Paths grant Skills with 3/2/1 prioritization; Attributes use 6/4/2 extra dots per Arena on the Attributes step (Origin p. 97), then Favored Approach +2 to each Attribute in that Approach (max 5, overflow stays in Arena). Finishing Touches grant one Attribute dot per player character (Origin p. 98): any one Attribute, must be spent, still subject to the five-dot creation cap per Attribute (p. 97), no arena rule stated for that dot. One Calling and one active Mortal Knack at a time unless extras purchased (full Knack text: Pandora’s Box); five finishing Skill dots, one Attribute dot, two Knacks or four Birthright points (Birthrights: Pandora’s Box first, Origin p. 99 / Hero p. 201 cross-reference). Defense from Resilience Attributes; Injury track with extra Bruised from Stamina; record movement (Athletics + higher of Might or Dexterity).",
     "typicalLegendRange": "0–1",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "finishing", "review"],
-    "purviewsOriginNote": "Patron Purview picks are part of Hero (post-Visitation) chargen, not Origin Mortal creation. Pantheon and divine parent here still drive Society Path Asset Skills and story (Origin p. 97). Appendix 2 lists each deity’s patron Purviews for when you advance to Hero on Review.",
     "source": "Scion_Origin_(Revised_Download).pdf, Character Creation pp. 94–106"
   },
   "hero": {

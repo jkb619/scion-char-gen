@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Scion - character creator</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260484" />
+    <title>Character Creator</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=20260494" />
     <link rel="stylesheet" href="/static/css/character-sheet.css?v=20260491" />
     <!-- Unregister stray service workers on local dev hosts; they can intercept /api/bundle so uvicorn never logs it. -->
     <script>
@@ -28,7 +28,15 @@
   <body>
     <header class="site-header">
       <div class="brand">
-        <h1>Scion - character creator</h1>
+        <div class="brand-lockup">
+          <img
+            class="brand-logo"
+            src="/static/images/Scion%20Logo.tif"
+            alt=""
+            decoding="async"
+          />
+          <h1 class="brand-title">Character Creator</h1>
+        </div>
       </div>
     </header>
 

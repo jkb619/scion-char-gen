@@ -663,7 +663,7 @@ function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
   const ratingsHelp = document.createElement("p");
   ratingsHelp.className = "help";
   ratingsHelp.textContent =
-    "Ratings follow Path priority 3/2/1 (Dragon p. 111; Origin p. 97). Dots are read-only—change Path Skills or priority above, or change Flight on the Paths step. If overlap would exceed 5 in a Skill, use this step’s redistribution controls below. At 3+ dots, add free Specialties (Origin pp. 59–60).";
+    "Ratings follow Path priority 3/2/1 (Dragon p. 111; Origin p. 97). If overlap would exceed 5 in a Skill, use this step’s redistribution controls below. At 3+ dots, add free Specialties (Origin pp. 59–60).";
   list.appendChild(ratingsHelp);
   const tbl = document.createElement("table");
   tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
@@ -1625,9 +1625,8 @@ function dragonAttrPriorityBucket(d, attrId) {
   return "tertiary";
 }
 
-/** @returns {string[]} */
-function validateDragonAttributesPreFavored(d) {
-  const msgs = [];
+/** True when each priority bucket spends exactly its 6 / 4 / 2 extras (Dragon p. 111; same structure as Origin p. 97). */
+function dragonAttributeArenaPoolsSpendOk(d) {
   const pool = { primary: 6, secondary: 4, tertiary: 2 };
   for (const rank of ["primary", "secondary", "tertiary"]) {
     let sum = 0;
@@ -1636,12 +1635,14 @@ function validateDragonAttributesPreFavored(d) {
         sum += Math.max(0, (d.attributes[aid] ?? 1) - 1);
       }
     }
-    if (sum !== pool[rank]) {
-      msgs.push(
-        `${rank} arena: distribute exactly ${pool[rank]} extra dots beyond the free 1 each (currently ${sum}).`,
-      );
-    }
+    if (sum !== pool[rank]) return false;
   }
+  return true;
+}
+
+/** @returns {string[]} */
+function validateDragonAttributesPreFavored(d) {
+  const msgs = [];
   for (const aid of Object.keys(d.attributes)) {
     const v = Math.round(Number(d.attributes[aid]) || 1);
     if (v < 1 || v > 5) msgs.push(`${aid} must be between 1 and 5 before Favored Approach.`);
@@ -1900,7 +1901,9 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
   }
   if (step === "attributes") {
     const ve = validateDragonAttributesPreFavored(d);
-    return ve.length ? ve.join("\n") : null;
+    if (ve.length) return ve.join("\n");
+    if (!dragonAttributeArenaPoolsSpendOk(d)) return "Arena attribute pools are not full.";
+    return null;
   }
   if (step === "calling") {
     const sum = d.callingSlots.reduce((s, x) => s + x.dots, 0);
@@ -2097,7 +2100,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     const help = document.createElement("p");
     help.className = "help";
     help.textContent =
-      "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). On this step the 6 / 4 / 2 arena totals apply (Dragon p. 111; same structure as Origin p. 97). Dot rows show final ratings after Favored Approach.";
+      "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). Dot rows show final ratings after Favored Approach.";
     wrap.appendChild(help);
 
     const rankRow = document.createElement("div");
@@ -2169,9 +2172,10 @@ export function renderDragonHeirStepInRoot(ctx) {
       }
     }
     const msgs = validateDragonAttributesPreFavored(d);
+    const poolsOk = dragonAttributeArenaPoolsSpendOk(d);
     const msgBox = document.createElement("div");
-    msgBox.className = msgs.length ? "warn" : "ok";
-    msgBox.textContent = msgs.length ? msgs.join(" ") : "Arena totals match the 6/4/2 distribution.";
+    msgBox.className = msgs.length || !poolsOk ? "warn" : "ok";
+    msgBox.textContent = msgs.length ? msgs.join(" ") : poolsOk ? "Arena totals match the 6/4/2 distribution." : "";
     wrap.appendChild(msgBox);
 
     const finalDisplay = applyFavoredToDragonAttrs(d);
@@ -2237,8 +2241,7 @@ export function renderDragonHeirStepInRoot(ctx) {
   if (step === "calling") {
     rebalanceDragonCallingSlotDotsOverFive(d);
     const wrap = document.createElement("div");
-    wrap.innerHTML = `<p class="help">Three Callings, <strong>five dots</strong> split among them (minimum 1 each). You gain <strong>one Calling Knack per Calling dot</strong> (so <strong>five</strong> Calling Knacks from those dots). Active Calling Knacks cannot exceed your Calling dots total, including Knacks from Birthrights (Dragon pp. 111–112).</p>
-      <p class="help">Separately, pick <strong>two Draconic Knacks</strong> (Feats of Scale or Transformation) at chargen (p. 112) — <strong>not</strong> paid from Calling dots, so this step is <strong>5 + 2 = 7</strong> Knack picks in two groups.</p>`;
+    wrap.innerHTML = "";
     const slotBox = document.createElement("div");
     slotBox.className = "grid-2";
     for (let rowIdx = 0; rowIdx < 3; rowIdx += 1) {
@@ -2341,7 +2344,7 @@ export function renderDragonHeirStepInRoot(ctx) {
 
     const knPanel = document.createElement("div");
     knPanel.className = "panel calling-knacks-panel";
-    knPanel.innerHTML = `<h2>Knacks</h2><p class="help">Calling Knacks use the <strong>unified Heir list</strong> from <cite>Scion: Dragon</cite> (Calling Knacks, from p. 140).</p>`;
+    knPanel.innerHTML = `<h2>Knacks</h2>`;
 
     const knackEntries = Object.entries(bundle.dragonCallingKnacks || {})
       .filter(([kid]) => !kid.startsWith("_"))
@@ -2469,10 +2472,7 @@ export function renderDragonHeirStepInRoot(ctx) {
 
     const dkPanel = document.createElement("div");
     dkPanel.className = "panel calling-knacks-panel";
-    const dkIntro = allCallingsPicked
-      ? "<p class=\"help\"><strong>Draconic Knacks</strong> (Feats of Scale / Transformation): pick <strong>two</strong>. Same chip treatment as above—<strong>muted / disabled</strong> means you cannot add that pick yet (Calling rows incomplete, or two already chosen). Hover for full text.</p>"
-      : "<p class=\"help\"><strong>Draconic Knacks</strong> (Feats of Scale / Transformation): pick <strong>all three Callings</strong> in the rows above first; until then, chips stay <strong>disabled</strong> so you cannot take Draconic Knacks early. Then choose <strong>two</strong> Draconic Knacks. Hover for full text.</p>";
-    dkPanel.innerHTML = dkIntro;
+    dkPanel.innerHTML = "";
     const dkSection = document.createElement("div");
     dkSection.className = "calling-knack-chip-group";
     const dkHead = document.createElement("h3");
@@ -2543,7 +2543,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       d.bonusSpell.spellId = "";
     }
     const wrap = document.createElement("div");
-    wrap.innerHTML = `<p class="help">Start with three Dragon Magics: your Flight’s signature, plus two others (not another Flight’s signature block). When you define your Handler, one Magic must match theirs (Dragon p. 112). You begin with one Spell per known Magic plus one bonus Spell from any of the three. <strong>Chips</strong> replace menus—hover a chip for full text (same pattern as Calling Knacks).</p>`;
+    wrap.innerHTML = "";
 
     const sigPanel = document.createElement("div");
     sigPanel.className = "panel";
@@ -2798,8 +2798,7 @@ export function renderDragonHeirStepInRoot(ctx) {
 
     const skPanel = document.createElement("section");
     skPanel.className = "panel finishing-place-panel";
-    skPanel.innerHTML =
-      "<h2>Skills — spend finishing dots</h2><p class='help'>Same layout as the Deity Finishing step. Dots cannot go below your Path math snapshot from the Skills step; raised dots count against the five-dot Finishing Skill budget. At 3+ dots, note Specialties.</p>";
+    skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
     const skTable = document.createElement("table");
     skTable.className = "skill-ratings-table finishing-skills-table";
     const skThead = document.createElement("thead");
@@ -2833,8 +2832,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     atPanel.appendChild(atH);
     const atHelp = document.createElement("p");
     atHelp.className = "help";
-    atHelp.textContent =
-      "Dragon p. 112: one extra Attribute dot at this milestone. It must be spent on an Attribute (not banked). The five-dot-per-Attribute cap still applies after Favored Approach (Origin p. 97). Dots show final ratings after Favored Approach.";
+    atHelp.textContent = "Dragon p. 112: one extra Attribute dot at this milestone. It must be spent on an Attribute (not banked).";
     atPanel.appendChild(atHelp);
     const finAttrBase = {};
     for (const id of Object.keys(bundle.attributes || {})) {
@@ -2888,7 +2886,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       syncHeroKnackSlotAssignments(shell, bundle);
       d.callingKnackIds = [...(shell.knackIds || [])];
       d.knackSlotById = { ...shell.knackSlotById };
-      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2><p class='help'>These are <strong>in addition to</strong> your Calling-dot Knacks from the Callings step (they do <strong>not</strong> spend that dot budget). Pick up to <strong>two</strong> extra Calling Knacks from the Dragon Heir list (<cite>Scion: Dragon</cite> p. 112). Chips match the Calling step.</p>`;
+      knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2>`;
       const finChips = document.createElement("div");
       finChips.className = "chips";
       const baseSet = new Set(d.callingKnackIds);
@@ -2927,7 +2925,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       }
       knBr.appendChild(finChips);
     } else {
-      knBr.innerHTML = `<h2>Birthrights (four dots)</h2><p class='help'>Add templates below; each pick spends Birthright dots until your <strong>four-dot</strong> Finishing bonus is placed (Dragon p. 112). Remove picks to free dots. The same catalog entry may be picked more than once if your budget allows — same behavior as the Deity Finishing Birthrights option.</p>`;
+      knBr.innerHTML = `<h2>Birthrights (four dots)</h2>`;
       appendDragonHeirBirthrightDeityStyleBlock(knBr, bundle, character, "finishingBirthrightPicks", 4, render, {
         compact: true,
       });
