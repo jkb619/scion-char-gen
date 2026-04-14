@@ -12,6 +12,11 @@
   --border: #2a313d;
   --dot-empty: #2f3541;
   --dot-fill: #c9a24d;
+  /* Filled dots the user cannot change (Skills path totals, attribute/skill baselines, Calling minimum, …) */
+  --dot-locked-fill-opacity: 0.88;
+  --dot-locked-fill-border: #b89a55;
+  --dot-locked-fill-bg: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
+  --dot-locked-fill-filter: brightness(0.95);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
@@ -22,8 +27,8 @@
 body {
   margin: 0;
   background-color: var(--bg);
-  /* 50% black scrim on top of the tinted gradient + cover art */
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+  /* ~75% cover visibility: light black scrim (was 0.5 ≈ 50%) on top of tint + art */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
     linear-gradient(160deg, rgba(15, 17, 21, 0.88) 0%, rgba(15, 17, 21, 0.78) 45%, rgba(15, 17, 21, 0.85) 100%),
     var(--page-cover-image);
   background-size: cover, cover, cover;
@@ -908,10 +913,7 @@ textarea.has-doc-hint:focus-visible {
   cursor: default;
 }
 
-/*
- * Skills step (Deity, Titan, Sorcerer, Titanic, Mortal, Hero+, etc.): path-derived totals only.
- * Same palette as capped / unmodifiable attribute dots (Finishing, Callings, …).
- */
+/* Skills step: path-derived totals only (spans). Locked filled-dot look uses --dot-locked-* (shared with Attributes / Finishing / Callings). */
 .skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable:not(.filled) {
   opacity: 0.32;
   cursor: not-allowed;
@@ -919,48 +921,26 @@ textarea.has-doc-hint:focus-visible {
   background: rgba(40, 44, 52, 0.6);
 }
 
-.skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable.filled {
-  opacity: 0.88;
-  cursor: not-allowed;
-  border-color: #b89a55;
-  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
-  filter: brightness(0.95);
-}
-
 .dot.filled {
   background: radial-gradient(circle at 30% 25%, #ffe6a1, var(--dot-fill));
   border-color: #e3c56f;
 }
 
-/* Finishing attributes: darker fill for dots already fixed before this step’s bonus */
-.finishing-attr-block .dot.filled.dot-finishing-locked-fill {
-  background: radial-gradient(circle at 30% 25%, #c9a85a, #7a5c22);
-  border-color: #8a6a32;
-  filter: brightness(0.88);
+/* Filled dots that cannot be changed — one palette (same as Skills path-readonly totals) */
+.skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable.filled,
+.finishing-attr-block .dot.filled.dot-finishing-locked-fill,
+.finishing-skills-table .dot.filled.dot-finishing-locked-fill,
+.attributes-arena-panel .dot.filled.dot-finishing-locked-fill,
+.calling-inline-dots .dot.filled.dot-finishing-locked-fill,
+.dot.filled.dot-capped:disabled {
+  opacity: var(--dot-locked-fill-opacity);
+  border-color: var(--dot-locked-fill-border);
+  background: var(--dot-locked-fill-bg);
+  filter: var(--dot-locked-fill-filter);
 }
 
-/* Finishing skills: at or below Skills-step baseline — not removable; match unmodifiable / capped filled gold */
-.finishing-skills-table .dot.filled.dot-finishing-locked-fill {
-  opacity: 0.88;
-  border-color: #b89a55;
-  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
-  filter: brightness(0.95);
-}
-
-/* Attributes step: filled dots at or below minimum achievable final (free 1 pre‑Favored + Favored) — same dark gold as Finishing skills baseline */
-.attributes-arena-panel .dot.filled.dot-finishing-locked-fill {
-  opacity: 0.88;
-  border-color: #b89a55;
-  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
-  filter: brightness(0.95);
-}
-
-/* Calling rows: first filled dot is the minimum 1 dot per Calling (Origin / Heir / Sorcerer Heroic+ shared layout) */
-.calling-inline-dots .dot.filled.dot-finishing-locked-fill {
-  opacity: 0.88;
-  border-color: #b89a55;
-  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
-  filter: brightness(0.95);
+.skill-ratings-table--path-readonly .dots span.dot.dot-unmodifiable.filled {
+  cursor: not-allowed;
 }
 
 .dot:focus-visible {
@@ -975,13 +955,9 @@ textarea.has-doc-hint:focus-visible {
   background: rgba(40, 44, 52, 0.6);
 }
 
-/* Below usable range but still part of current rating (e.g. finishing baseline) */
+/* Below usable range but still part of current rating (e.g. finishing baseline) — visuals via --dot-locked-* */
 .dot.filled.dot-capped:disabled {
-  opacity: 0.88;
   cursor: not-allowed;
-  border-color: #b89a55;
-  background: radial-gradient(circle at 30% 25%, #e8d6a8, rgba(120, 92, 40, 0.9));
-  filter: brightness(0.95);
 }
 
 .pill {

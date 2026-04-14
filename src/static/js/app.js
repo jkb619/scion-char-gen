@@ -1626,7 +1626,7 @@ function fillPantheonVirtuesDisplay(pantheonId) {
   if (!pid) {
     const p = document.createElement("p");
     p.className = "help";
-    p.textContent = "Choose a pantheon to see its Virtues (confirm wording in Pandora’s Box / your pantheon’s PDF chapter).";
+    p.textContent = "Choose a pantheon to see its Virtues.";
     el.appendChild(p);
     return;
   }
@@ -3161,7 +3161,7 @@ function renderPaths(root) {
     </div>
     <aside id="p-pantheon-virtues" class="pantheon-virtues-panel" aria-live="polite"></aside>
     <div id="p-virtue-spectrum-mount" class="p-virtue-spectrum-mount"></div>
-    <p class="help" id="paths-pantheon-skills-help">Society Path skills use your pantheon’s Asset Skills plus one more Skill of your choice (Origin p. 97).</p>`;
+    <p class="help" id="paths-pantheon-skills-help" style="display:none"></p>`;
   const patronMount = document.createElement("div");
   patronMount.id = "patron-purview-mount";
   wrap.appendChild(patronMount);
@@ -3312,6 +3312,7 @@ function renderPaths(root) {
     if (deSelS) deSelS.disabled = true;
     const foot = document.getElementById("paths-pantheon-skills-help");
     if (foot) {
+      foot.style.display = "";
       foot.textContent =
         "Sorcerer Society Path Skills: any three Skills you can justify (S&M ch. 3, Step Two; Origin p. 95 for Path structure — not the Visitation-era pantheon Asset Skill rule).";
     }
@@ -3334,6 +3335,11 @@ function renderPaths(root) {
     if (pkEl1) pkEl1.disabled = false;
     const deSel2 = document.getElementById("p-deity");
     if (deSel2) deSel2.disabled = false;
+    const footDeity = document.getElementById("paths-pantheon-skills-help");
+    if (footDeity) {
+      footDeity.textContent = "";
+      footDeity.style.display = "none";
+    }
   }
   document.getElementById("p-deity").addEventListener("change", (e) => {
     if (isSorcererLineTier(character.tier)) return;
@@ -3451,7 +3457,7 @@ function renderSkills(root) {
   const intro = document.createElement("p");
   intro.className = "help";
   intro.textContent =
-    "Pick three Skills for each Path (panels below), then set primary / secondary / tertiary priority. Read-only dot totals follow 3/2/1 Path math and appear under that block (Origin p. 97). If overlap would exceed 5 in a Skill, use the overflow controls when they appear; dot rows stay read-only.";
+    "Pick three Skills for each Path (panels below), then set primary / secondary / tertiary priority. If overlap would exceed 5 in a Skill, use the overflow controls when they appear; dot rows stay read-only.";
   wrap.appendChild(intro);
 
   const pathPanelInvalid = (pk) => skillsGateIssues.some((i) => i.pathKey === pk);
@@ -3707,7 +3713,7 @@ function renderAttributes(root) {
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
-    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). Dot rows show final ratings after Favored Approach.";
+    "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5).";
   wrap.appendChild(help);
 
   const rankRow = document.createElement("div");

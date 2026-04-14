@@ -2100,7 +2100,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     const help = document.createElement("p");
     help.className = "help";
     help.textContent =
-      "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5). Dot rows show final ratings after Favored Approach.";
+      "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5).";
     wrap.appendChild(help);
 
     const rankRow = document.createElement("div");
