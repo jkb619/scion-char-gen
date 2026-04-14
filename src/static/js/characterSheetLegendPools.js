@@ -31,11 +31,11 @@ function isFullSheetHooks(h) {
  * @param {{
  *   sheetHooks: object | null | undefined;
  *   legendDotTrackReadOnly: (n: number, max: number) => HTMLElement;
- *   awarenessDotTrackReadOnly: (n: number, max: number) => HTMLElement;
+ *   awarenessDotTrackReadOnly?: (n: number, max: number) => HTMLElement;
  * }} ctx
  */
 export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx) {
-  const { sheetHooks, legendDotTrackReadOnly, awarenessDotTrackReadOnly } = ctx;
+  const { sheetHooks, legendDotTrackReadOnly } = ctx;
   const c =
     kind === "Legend"
       ? LEGEND_SHEET_DOT_COUNT
@@ -68,7 +68,28 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
       return;
     }
     const av = Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
-    cell.appendChild(awarenessDotTrackReadOnly(av, c));
+    const track = document.createElement("div");
+    /* Same spacing as read-only Legend row (always dense on the four-pager). */
+    track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
+    for (let i = 1; i <= c; i += 1) {
+      const col = document.createElement("div");
+      col.className = "cs-mcg-legend-pool-col";
+      const dot = document.createElement("span");
+      dot.className = "cs-dot" + (i <= av ? " on" : "");
+      dot.setAttribute("aria-hidden", "true");
+      col.appendChild(dot);
+      const lab = document.createElement("label");
+      lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
+      lab.setAttribute("aria-label", `Awareness pool from dot ${i} spent`);
+      const inp = document.createElement("input");
+      inp.type = "checkbox";
+      inp.disabled = true;
+      inp.className = "cs-mcg-pool-check-input";
+      lab.appendChild(inp);
+      col.appendChild(lab);
+      track.appendChild(col);
+    }
+    cell.appendChild(track);
     return;
   }
 

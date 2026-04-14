@@ -2158,6 +2158,15 @@ function arenaPools() {
   return { [a1]: 6, [a2]: 4, [a3]: 2 };
 }
 
+/** Physical / Mental / Social panels: same order as the three arena priority pulldowns. */
+function arenaRankForDisplay() {
+  const r = character?.arenaRank;
+  if (Array.isArray(r) && r.length === 3 && new Set(r).size === 3 && r.every((a) => a && ARENAS[a])) {
+    return r;
+  }
+  return [...ARENA_ORDER];
+}
+
 /** Extra dots (−1 each) per arena for a pre–Favored attribute map. */
 function attributeArenaSums(attrs) {
   const sums = { Physical: 0, Mental: 0, Social: 0 };
@@ -3998,7 +4007,9 @@ function renderAttributes(root) {
 
   const finalDisplay = applyFavoredApproach(base);
 
-  for (const arena of ARENA_ORDER) {
+  const arenasGrid = document.createElement("div");
+  arenasGrid.className = "attributes-arenas-grid";
+  for (const arena of arenaRankForDisplay()) {
     const sub = document.createElement("div");
     sub.className = "panel attributes-arena-panel";
     sub.innerHTML = `<h2>${arena} (${arenaPools()[arena]} dots beyond base 1 each)</h2>`;
@@ -4035,8 +4046,9 @@ function renderAttributes(root) {
         ),
       );
     }
-    wrap.appendChild(sub);
+    arenasGrid.appendChild(sub);
   }
+  wrap.appendChild(arenasGrid);
 
   const derivedRow = document.createElement("div");
   derivedRow.className = "attributes-derived-row";
@@ -5333,39 +5345,45 @@ function renderFinishing(root) {
   atPanel.appendChild(atHelp);
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
-  for (const id of Object.keys(bundle.attributes)) {
-    const meta = bundle.attributes[id];
-    if (!meta || String(id).startsWith("_")) continue;
-    const maxFinal = maxFinalAttrFinishing(id);
-    const finalVal = finAttrFinal[id] ?? 1;
-    const snap = character.finishing.attrBaseline?.[id];
-    const baselinePre =
-      snap != null ? Math.max(1, Math.min(5, Math.round(Number(snap)))) : (finAttrBase[id] ?? 1);
-    const attrsLockedPre = { ...finAttrBase, [id]: baselinePre };
-    const finalLockedThrough = Math.min(applyFavoredApproach(attrsLockedPre)[id] ?? 1, maxFinal);
-    const block = document.createElement("div");
-    block.className = "finishing-attr-block";
-    block.appendChild(
-      renderFinalAttrDotRow(
-        meta.name,
-        finalVal,
-        maxFinal,
-        (picked) => {
-          const fav = resolvedFavoredApproach();
-          let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
-          const minPre = character.finishing.attrBaseline?.[id] ?? 1;
-          const maxPre = maxAttrFinishing(id);
-          character.attributes[id] = Math.max(minPre, Math.min(pre, maxPre));
-          render();
-        },
-        meta,
-        1,
-        "(after Favored Approach)",
-        finalLockedThrough,
-      ),
-    );
-    atPanel.appendChild(block);
+  const finArenasGrid = document.createElement("div");
+  finArenasGrid.className = "attributes-arenas-grid";
+  for (const arena of arenaRankForDisplay()) {
+    const sub = document.createElement("div");
+    sub.className = "panel attributes-arena-panel";
+    sub.innerHTML = `<h2>${arena} (${arenaPools()[arena]} dots beyond base 1 each)</h2>`;
+    for (const id of ARENAS[arena]) {
+      const meta = bundle.attributes[id];
+      if (!meta || String(id).startsWith("_")) continue;
+      const maxFinal = maxFinalAttrFinishing(id);
+      const finalVal = finAttrFinal[id] ?? 1;
+      const snap = character.finishing.attrBaseline?.[id];
+      const baselinePre =
+        snap != null ? Math.max(1, Math.min(5, Math.round(Number(snap)))) : (finAttrBase[id] ?? 1);
+      const attrsLockedPre = { ...finAttrBase, [id]: baselinePre };
+      const finalLockedThrough = Math.min(applyFavoredApproach(attrsLockedPre)[id] ?? 1, maxFinal);
+      sub.appendChild(
+        renderFinalAttrDotRow(
+          meta.name,
+          finalVal,
+          maxFinal,
+          (picked) => {
+            const fav = resolvedFavoredApproach();
+            let pre = APPROACH_ATTRS[fav].includes(id) ? picked - 2 : picked;
+            const minPre = character.finishing.attrBaseline?.[id] ?? 1;
+            const maxPre = maxAttrFinishing(id);
+            character.attributes[id] = Math.max(minPre, Math.min(pre, maxPre));
+            render();
+          },
+          meta,
+          1,
+          "(after Favored Approach)",
+          finalLockedThrough,
+        ),
+      );
+    }
+    finArenasGrid.appendChild(sub);
   }
+  atPanel.appendChild(finArenasGrid);
   wrap.appendChild(atPanel);
 
   /* Hero / Titanic / Heroic Sorcerer: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */

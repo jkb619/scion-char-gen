@@ -79,6 +79,15 @@ function dragonArenaPools(d) {
   return { [a1]: 6, [a2]: 4, [a3]: 2 };
 }
 
+/** Match primary / secondary / tertiary arena selects on the Attributes step. */
+function dragonArenaRankForDisplay(d) {
+  const r = d?.arenaRank;
+  if (Array.isArray(r) && r.length === 3 && new Set(r).size === 3 && r.every((a) => a && ARENAS[a])) {
+    return r;
+  }
+  return [...ARENA_ORDER];
+}
+
 /** Pre–Favored finishing bumps in one named arena (vs Attributes-step snapshot). */
 function dragonFinishingArenaExtraDelta(attrs, baseline, arena) {
   if (!baseline || typeof baseline !== "object") return 0;
@@ -2329,10 +2338,13 @@ export function renderDragonHeirStepInRoot(ctx) {
 
     const finalDisplay = applyFavoredApproachDragonPlain(base, d.favoredApproach);
 
-    for (const arena of ARENA_ORDER) {
+    const dArenasGrid = document.createElement("div");
+    dArenasGrid.className = "attributes-arenas-grid";
+    const dPools = dragonArenaPools(d);
+    for (const arena of dragonArenaRankForDisplay(d)) {
       const sub = document.createElement("div");
       sub.className = "panel attributes-arena-panel";
-      const poolN = dragonArenaPools(d)[arena] ?? 0;
+      const poolN = dPools[arena] ?? 0;
       sub.innerHTML = `<h2>${arena} (${poolN} dots beyond base 1 each)</h2>`;
       for (const id of ARENAS[arena]) {
         const meta = bundle.attributes[id];
@@ -2371,8 +2383,9 @@ export function renderDragonHeirStepInRoot(ctx) {
           ),
         );
       }
-      wrap.appendChild(sub);
+      dArenasGrid.appendChild(sub);
     }
+    wrap.appendChild(dArenasGrid);
 
     const derivedRow = document.createElement("div");
     derivedRow.className = "attributes-derived-row";
@@ -3106,43 +3119,51 @@ export function renderDragonHeirStepInRoot(ctx) {
       finAttrBase[id] = d.attributes[id] ?? 1;
     }
     const finAttrFinal = applyFavoredApproachDragonPlain(finAttrBase, d.favoredApproach);
-    for (const id of Object.keys(bundle.attributes || {})) {
-      const meta = bundle.attributes[id];
-      if (!meta || String(id).startsWith("_")) continue;
-      const maxFinal = maxDragonFinalAttrFinishing(id, d, bundle);
-      const finalVal = finAttrFinal[id] ?? 1;
-      const snap = d.finishingAttrBaseline?.[id];
-      const baselinePre =
-        snap != null ? Math.max(1, Math.min(5, Math.round(Number(snap)))) : (finAttrBase[id] ?? 1);
-      const attrsLockedPre = { ...finAttrBase, [id]: baselinePre };
-      const finalLockedThrough = Math.min(
-        applyFavoredApproachDragonPlain(attrsLockedPre, d.favoredApproach)[id] ?? 1,
-        maxFinal,
-      );
-      const block = document.createElement("div");
-      block.className = "finishing-attr-block";
-      block.appendChild(
-        dragonRenderFinalAttrDotRow(
-          meta.name,
-          finalVal,
+    const dragonFinArenasGrid = document.createElement("div");
+    dragonFinArenasGrid.className = "attributes-arenas-grid";
+    const finPools = dragonArenaPools(d);
+    for (const arena of dragonArenaRankForDisplay(d)) {
+      const sub = document.createElement("div");
+      sub.className = "panel attributes-arena-panel";
+      const poolN = finPools[arena] ?? 0;
+      sub.innerHTML = `<h2>${arena} (${poolN} dots beyond base 1 each)</h2>`;
+      for (const id of ARENAS[arena]) {
+        const meta = bundle.attributes[id];
+        if (!meta || String(id).startsWith("_")) continue;
+        const maxFinal = maxDragonFinalAttrFinishing(id, d, bundle);
+        const finalVal = finAttrFinal[id] ?? 1;
+        const snap = d.finishingAttrBaseline?.[id];
+        const baselinePre =
+          snap != null ? Math.max(1, Math.min(5, Math.round(Number(snap)))) : (finAttrBase[id] ?? 1);
+        const attrsLockedPre = { ...finAttrBase, [id]: baselinePre };
+        const finalLockedThrough = Math.min(
+          applyFavoredApproachDragonPlain(attrsLockedPre, d.favoredApproach)[id] ?? 1,
           maxFinal,
-          (picked) => {
-            const fav = d.favoredApproach;
-            const approachKey = APPROACH_ATTRS[fav] ? fav : "Finesse";
-            let pre = APPROACH_ATTRS[approachKey].includes(id) ? picked - 2 : picked;
-            const minPre = d.finishingAttrBaseline?.[id] ?? 1;
-            const maxPre = maxDragonAttrFinishing(id, d, bundle);
-            d.attributes[id] = Math.max(minPre, Math.min(pre, maxPre));
-            render();
-          },
-          meta,
-          1,
-          "(after Favored Approach)",
-          finalLockedThrough,
-        ),
-      );
-      atPanel.appendChild(block);
+        );
+        sub.appendChild(
+          dragonRenderFinalAttrDotRow(
+            meta.name,
+            finalVal,
+            maxFinal,
+            (picked) => {
+              const fav = d.favoredApproach;
+              const approachKey = APPROACH_ATTRS[fav] ? fav : "Finesse";
+              let pre = APPROACH_ATTRS[approachKey].includes(id) ? picked - 2 : picked;
+              const minPre = d.finishingAttrBaseline?.[id] ?? 1;
+              const maxPre = maxDragonAttrFinishing(id, d, bundle);
+              d.attributes[id] = Math.max(minPre, Math.min(pre, maxPre));
+              render();
+            },
+            meta,
+            1,
+            "(after Favored Approach)",
+            finalLockedThrough,
+          ),
+        );
+      }
+      dragonFinArenasGrid.appendChild(sub);
     }
+    atPanel.appendChild(dragonFinArenasGrid);
     wrap.appendChild(atPanel);
 
     const knBr = document.createElement("section");

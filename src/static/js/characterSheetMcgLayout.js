@@ -49,6 +49,7 @@ export function fillMcgFourPageLayout(el, api) {
   } = api;
 
   const charName = String(data.characterName ?? "").trim();
+  const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
   const legendPoolCtx = { sheetHooks, legendDotTrackReadOnly, awarenessDotTrackReadOnly };
 
   function mcgSheetTick() {
@@ -398,7 +399,7 @@ export function fillMcgFourPageLayout(el, api) {
   leftCol.appendChild(mcgDeedSheetRow("Short-term", d.short));
   leftCol.appendChild(mcgDeedSheetRow("Long-term", d.long));
   leftCol.appendChild(mcgDeedSheetRow("Band", d.band));
-  if (String(data.pantheonId || "").trim() === "mythos") {
+  if (mythosSheet) {
     leftCol.appendChild(mcgDeedSheetRow("Mythos", d.mythos));
   }
 
@@ -423,13 +424,7 @@ export function fillMcgFourPageLayout(el, api) {
   legStack.appendChild(legBlock);
   rightCol.appendChild(legStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
-  const virt = buildVirtueSpectrumElement(
-    { pantheonId: data.pantheonId, virtueSpectrum: data.virtueSpectrum },
-    bundle,
-    false,
-  );
-  if (virt) rightCol.appendChild(virt);
-  if (String(data.pantheonId || "").trim() === "mythos") {
+  if (mythosSheet) {
     const awStack = document.createElement("div");
     awStack.className = "cs-mcg-track-stack";
     const awBlock = document.createElement("div");
@@ -447,8 +442,24 @@ export function fillMcgFourPageLayout(el, api) {
     awStack.appendChild(awBlock);
     rightCol.appendChild(awStack);
   }
+  const virt = buildVirtueSpectrumElement(
+    { pantheonId: data.pantheonId, virtueSpectrum: data.virtueSpectrum },
+    bundle,
+    false,
+  );
+  if (virt) rightCol.appendChild(virt);
   const diceGrid = document.createElement("div");
   diceGrid.className = "cs-mcg-dice-track-grid";
+  const momPersonalL = document.createElement("span");
+  momPersonalL.className = "cs-mcg-track-label";
+  momPersonalL.textContent = "Momentum (personal)";
+  const momPersonalSq = document.createElement("span");
+  momPersonalSq.className = "cs-mcg-square-track";
+  for (let i = 0; i < 12; i += 1) {
+    const s = document.createElement("span");
+    s.className = "cs-mcg-sq";
+    momPersonalSq.appendChild(s);
+  }
   const momL = document.createElement("span");
   momL.className = "cs-mcg-track-label";
   momL.textContent = "Momentum (track at table)";
@@ -469,6 +480,8 @@ export function fillMcgFourPageLayout(el, api) {
     s.className = "cs-mcg-sq";
     divSq.appendChild(s);
   }
+  diceGrid.appendChild(momPersonalL);
+  diceGrid.appendChild(momPersonalSq);
   diceGrid.appendChild(momL);
   diceGrid.appendChild(momSq);
   diceGrid.appendChild(divL);
@@ -657,7 +670,6 @@ export function fillMcgFourPageLayout(el, api) {
     const pvWrap = document.createElement("div");
     pvWrap.className = "cs-mcg-purview-grid";
     const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
-    const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
     const titanicSheet = tierKeyNorm === "titanic";
     for (const pid of purIds) {
       const blk = document.createElement("div");

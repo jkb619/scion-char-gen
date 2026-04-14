@@ -527,6 +527,16 @@ export function fillDragonFourPageLayout(el, api) {
 
   const diceGrid = document.createElement("div");
   diceGrid.className = "cs-mcg-dice-track-grid";
+  const momPersonalL = document.createElement("span");
+  momPersonalL.className = "cs-mcg-track-label";
+  momPersonalL.textContent = "Momentum (personal)";
+  const momPersonalSq = document.createElement("span");
+  momPersonalSq.className = "cs-mcg-square-track";
+  for (let i = 0; i < 12; i += 1) {
+    const s = document.createElement("span");
+    s.className = "cs-mcg-sq";
+    momPersonalSq.appendChild(s);
+  }
   const momL = document.createElement("span");
   momL.className = "cs-mcg-track-label";
   momL.textContent = "Momentum (track at table)";
@@ -547,6 +557,8 @@ export function fillDragonFourPageLayout(el, api) {
     s.className = "cs-mcg-sq";
     divSq.appendChild(s);
   }
+  diceGrid.appendChild(momPersonalL);
+  diceGrid.appendChild(momPersonalSq);
   diceGrid.appendChild(momL);
   diceGrid.appendChild(momSq);
   diceGrid.appendChild(divL);

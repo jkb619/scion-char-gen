@@ -337,6 +337,7 @@ textarea.has-doc-hint:focus-visible {
   flex-shrink: 0;
 }
 
+/* Legacy single-column Finishing attr wrappers (kept for any older markup). */
 .finishing-attr-block {
   margin-bottom: 0.85rem;
   padding-bottom: 0.65rem;
@@ -347,6 +348,26 @@ textarea.has-doc-hint:focus-visible {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+/* Attributes step + Finishing: Physical / Mental / Social as three columns when space allows. */
+.attributes-arenas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  align-items: stretch;
+}
+
+@media (min-width: 52rem) {
+  .attributes-arenas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.attributes-arenas-grid > .panel.attributes-arena-panel {
+  margin-bottom: 0;
+  min-width: 0;
 }
 
 .panel.panel-gate-invalid {
