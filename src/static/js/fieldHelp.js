@@ -101,12 +101,8 @@ export const HELP = {
     source: "Scion_Dragon_(Final_Download).pdf — Flights / broods (chargen).",
   },
   "p-pantheon": {
-    example: "Òrìshà, Theoi, Æsir — sets your two automatic Society Path Skills.",
+    example: "Òrìshà, Theoi, Æsir — sets your two automatic Society Path Skills. Divine vs Titan parent lists follow your Welcome line (Deity or Titan).",
     source: cite("origin", "Pantheon list (Character Creation)", "95"),
-  },
-  "p-patron-kind": {
-    example: "Divine: parent list from Origin Appendix 2. Titan: parent list from Titanomachy data (data/titans.json).",
-    source: "Scion_Origin_(Revised_Download).pdf (Appendix 2); Scion_-_Titanomachy_(Final_Download).pdf",
   },
   "p-deity": {
     example: "Odin — lists patron innate Purview ids from Appendix 2 (reference for Society Path + for Hero Visitation; Mortal chargen does not assign them as picks).",

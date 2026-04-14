@@ -1172,6 +1172,25 @@ function welcomeTierRowLabel(tierId) {
   return nm;
 }
 
+/** Deity / Titan Paths step: pantheon + parent required (set on Welcome: Divine vs Titan line). */
+function pathsStepRequiresPantheonAndParent() {
+  if (isDragonHeirChargen(character) || isSorcererLineTier(character.tier)) return false;
+  const p = welcomePartsFromCharacter();
+  return p.line === "deity" || p.line === "titan";
+}
+
+function pathsPantheonAndParentSatisfiedOnCharacter() {
+  return Boolean(String(character.pantheonId || "").trim() && String(character.parentDeityId || "").trim());
+}
+
+/** Keep `patronKind` aligned with Welcome line — Paths no longer exposes Divine/Titan toggle. */
+function syncPatronKindFromWelcomeLine() {
+  if (isSorcererLineTier(character.tier) || isDragonHeirChargen(character)) return;
+  const wp = welcomePartsFromCharacter();
+  if (wp.line === "titan") character.patronKind = "titan";
+  else if (wp.line === "deity") character.patronKind = "deity";
+}
+
 /** @returns {{ line: "deity"|"titan"|"dragon"|"sorcerer"; payload: string }} */
 function welcomePartsFromCharacter() {
   if (isDragonHeirChargen(character)) {
@@ -3143,13 +3162,6 @@ function renderPaths(root) {
       </div>
       <div class="paths-pantheon-deity-stack" id="paths-pantheon-deity-stack">
         <div class="field paths-pantheon-field"><label for="p-pantheon">Pantheon</label><select id="p-pantheon"></select></div>
-        <div class="field paths-patron-kind-field">
-          <label for="p-patron-kind">Patron type</label>
-          <select id="p-patron-kind" name="patronKind" autocomplete="off" aria-label="Patron type">
-            <option value="deity">Divine</option>
-            <option value="titan">Titan</option>
-          </select>
-        </div>
         <div class="field paths-deity-field"><label id="p-deity-label" for="p-deity">Parent</label><select id="p-deity"></select></div>
       </div>
       <div class="field paths-mythos-deed-field" id="p-mythos-deed-wrap" hidden style="display: none">
@@ -3245,24 +3257,6 @@ function renderPaths(root) {
     render();
   });
   fillDeities();
-  const pkSel = document.getElementById("p-patron-kind");
-  if (pkSel) {
-    pkSel.value = patronKindIsTitan() ? "titan" : "deity";
-    pkSel.addEventListener("change", () => {
-      if (isSorcererLineTier(character.tier)) return;
-      persistPathsPhrasesFromDom();
-      character.patronKind = pkSel.value === "titan" ? "titan" : "deity";
-      character.parentDeityId = "";
-      fillDeities();
-      if (!isMythosPantheonSelected() && character.deeds) {
-        character.deeds.mythos = "";
-      }
-      ensureSocietyDefaultAssetSkills();
-      onPatronPurviewContextChange();
-      syncCallingToParentDeity();
-      render();
-    });
-  }
   document.getElementById("p-mythos-deity-empty")?.remove();
   document.getElementById("p-titan-patron-empty")?.remove();
   const pantheonChosen = Boolean(String(character.pantheonId || "").trim());
@@ -3280,12 +3274,11 @@ function renderPaths(root) {
     w.id = "p-titan-patron-empty";
     w.className = "help paths-titan-patron-empty";
     w.textContent =
-      "No Titan parents are in bundle data for this pantheon yet (`titans.json` → titansByPantheon). Choose another pantheon, switch Patron type to Divine, or add Titan rows for this pantheon id.";
+      "No Titan parents are in bundle data for this pantheon yet (`titans.json` → titansByPantheon). Choose another pantheon, start a Deity-line character for god parents, or add Titan rows for this pantheon id.";
     deitySel?.parentElement?.appendChild(w);
   }
   const stackEl = document.getElementById("paths-pantheon-deity-stack");
   const lineageHint = wrap.querySelector(".paths-patron-lineage-hint");
-  const pkField = document.getElementById("p-patron-kind")?.closest(".field");
   const deityField = document.getElementById("p-deity")?.closest(".field");
   const pantheonField = document.getElementById("p-pantheon")?.closest(".field");
   const socTa0 = document.getElementById("p-soc");
@@ -3296,7 +3289,6 @@ function renderPaths(root) {
       stackEl.hidden = true;
       stackEl.style.display = "none";
     }
-    if (pkField) pkField.hidden = true;
     if (deityField) deityField.hidden = true;
     if (pantheonField) pantheonField.hidden = true;
     if (lineageHint) {
@@ -3306,8 +3298,6 @@ function renderPaths(root) {
     }
     if (socLab0) socLab0.textContent = "Society Path phrase";
     ps.disabled = true;
-    const pkElS = document.getElementById("p-patron-kind");
-    if (pkElS) pkElS.disabled = true;
     const deSelS = document.getElementById("p-deity");
     if (deSelS) deSelS.disabled = true;
     const foot = document.getElementById("paths-pantheon-skills-help");
@@ -3322,7 +3312,6 @@ function renderPaths(root) {
       stackEl.hidden = false;
       stackEl.style.removeProperty("display");
     }
-    if (pkField) pkField.hidden = false;
     if (deityField) deityField.hidden = false;
     if (pantheonField) pantheonField.hidden = false;
     if (lineageHint) {
@@ -3331,8 +3320,6 @@ function renderPaths(root) {
     }
     if (socLab0) socLab0.textContent = "Society / Pantheon Path phrase";
     ps.disabled = false;
-    const pkEl1 = document.getElementById("p-patron-kind");
-    if (pkEl1) pkEl1.disabled = false;
     const deSel2 = document.getElementById("p-deity");
     if (deSel2) deSel2.disabled = false;
     const footDeity = document.getElementById("paths-pantheon-skills-help");
@@ -3397,7 +3384,7 @@ function renderPaths(root) {
   applyHint(document.getElementById("p-role"), "p-role");
   applyHint(document.getElementById("p-soc"), "p-soc");
   if (!isSorcererLineTier(character.tier)) {
-    ["p-pantheon", "p-patron-kind", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
+    ["p-pantheon", "p-deity"].forEach((id) => applyHint(document.getElementById(id), id));
   }
   const mythDeedEl = document.getElementById("p-mythos-deed");
   if (pathsStepShowsMythosDeedFields()) {
@@ -6366,9 +6353,8 @@ function persistPathsStepFromDom() {
   if (isSorcererLineTier(character.tier)) {
     return;
   }
+  syncPatronKindFromWelcomeLine();
   character.pantheonId = document.getElementById("p-pantheon")?.value || "";
-  const pk = document.getElementById("p-patron-kind")?.value;
-  character.patronKind = pk === "titan" ? "titan" : "deity";
   character.parentDeityId = document.getElementById("p-deity")?.value || "";
   syncAwarenessWithPantheon();
   ensurePatronPurviewSlots();
@@ -6662,6 +6648,11 @@ function render() {
         }
       }
       persistFromForm();
+      if (step === "paths" && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
+        window.alert("Choose a pantheon and a parent before leaving the Paths step.");
+        render();
+        return;
+      }
       if (isDragonHeirChargen(character)) {
         const dragBlock = dragonHeirStepLeaveBlockedReason(character, bundle, step);
         if (dragBlock) {
@@ -6712,6 +6703,10 @@ function render() {
         next.disabled = true;
         next.title = pvBlock;
       }
+    }
+    if (step === "paths" && pathsStepRequiresPantheonAndParent() && !pathsPantheonAndParentSatisfiedOnCharacter()) {
+      next.disabled = true;
+      next.title = "Choose a pantheon and a parent before continuing.";
     }
     actions.appendChild(next);
   }
