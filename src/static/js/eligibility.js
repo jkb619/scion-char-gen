@@ -27,10 +27,27 @@ function normalizedTierIdEligibility(tierId) {
   return raw;
 }
 
-/** Hero and Titanic tiers use three Calling rows in the wizard (`callingSlots`); Knacks use per-row dot budgets. */
+/** Demigod- and God-band tiers: deity line (Hero→Demigod→God), Titan line (Titanic→Demigod→God), Sorcerer divine band. */
+export function isPostHeroBandCallingTierId(tierId) {
+  const t = normalizedTierIdEligibility(tierId);
+  return t === "demigod" || t === "god" || t === "sorcerer_demigod" || t === "sorcerer_god";
+}
+
+const HERO_STYLE_CALLING_SLOT_ROW_COUNT = 3;
+
+/**
+ * Hero / Titanic / Heroic Sorcerer: always three Calling rows.
+ * Demigod and God (deity or Titan welcome line) and Sorcerer divine-band tiers: keep the same three
+ * `callingSlots` when carried forward from Hero/Titanic so Calling / Knacks / export stay aligned.
+ */
 export function heroUsesCallingSlotRows(character) {
   const t = normalizedTierIdEligibility(character?.tier);
-  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
+  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return true;
+  const slots = character?.callingSlots;
+  if (Array.isArray(slots) && slots.length === HERO_STYLE_CALLING_SLOT_ROW_COUNT && isPostHeroBandCallingTierId(t)) {
+    return true;
+  }
+  return false;
 }
 
 function sumHeroCallingSlotDots(character) {
@@ -442,7 +459,10 @@ export function callingKnackSlotCap(character) {
   const norm = t === "origin" ? "mortal" : t;
   if (norm === "mortal" || norm === "sorcerer") return 1;
   const sumSlots = sumHeroCallingSlotDots(character);
-  if (sumSlots != null && sumSlots > 0) return Math.max(1, Math.min(5, sumSlots));
+  if (sumSlots != null && sumSlots > 0) {
+    const cap = isPostHeroBandCallingTierId(norm) ? 15 : 5;
+    return Math.max(1, Math.min(cap, sumSlots));
+  }
   const d = Math.round(Number(character?.callingDots) || 1);
   return Math.max(1, Math.min(5, d));
 }

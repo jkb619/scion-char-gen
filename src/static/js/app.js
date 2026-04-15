@@ -17,6 +17,8 @@ import {
   heroCallingRowMatchesKnack,
   knackCallingTokensForRowMatch,
   originCallingKnackChipGroupKey,
+  heroUsesCallingSlotRows,
+  isPostHeroBandCallingTierId,
   boonEligible,
   boonIsPurviewInnateAutomaticGrant,
   boonPrimaryPurview,
@@ -1560,8 +1562,7 @@ function remapCallingIdIntoAllowedList(id, allowed) {
 const HERO_CALLING_ROW_COUNT = 3;
 
 function heroUsesCallingSlots() {
-  const t = normalizedTierId(character.tier);
-  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
+  return heroUsesCallingSlotRows(character);
 }
 
 /** True after Review → Advance from Mortal to Hero/Titanic: row-0 Calling must stay the Origin pick (dots may still move). */
@@ -1583,7 +1584,9 @@ function syncCallingAggregatesFromHeroSlots() {
   if (!Array.isArray(slots) || slots.length !== HERO_CALLING_ROW_COUNT) return;
   character.callingId = String(slots[0]?.id || "").trim();
   const sum = slots.reduce((a, s) => a + Math.max(1, Math.min(5, Math.round(Number(s?.dots) || 1))), 0);
-  character.callingDots = Math.max(1, Math.min(5, sum));
+  const t = normalizedTierId(character.tier);
+  const maxAgg = t === "hero" || t === "titanic" || t === "sorcerer_hero" ? 5 : 15;
+  character.callingDots = Math.max(1, Math.min(maxAgg, sum));
 }
 
 function rebalanceHeroCallingSlotDotsOverFive() {
@@ -1634,7 +1637,10 @@ function ensureCallingSlotsForHero() {
       dots: Math.max(1, Math.min(5, Math.round(Number(raw.dots) || 1))),
     };
   }
-  rebalanceHeroCallingSlotDotsOverFive();
+  const t = normalizedTierId(character.tier);
+  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") {
+    rebalanceHeroCallingSlotDotsOverFive();
+  }
   syncCallingAggregatesFromHeroSlots();
 }
 
@@ -2798,7 +2804,7 @@ function equipmentFilterHaystack(eid, eq) {
 function maxBirthrightPointsBudget() {
   const t = normalizedTierId(character.tier);
   if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 7;
-  if (t === "demigod" || t === "god" || t === "sorcerer_demigod" || t === "sorcerer_god") return 11;
+  if (isPostHeroBandCallingTierId(t)) return 11;
   return 4;
 }
 
@@ -4255,9 +4261,18 @@ function renderCalling(root) {
         ? "Visitation (Origin → Titanic)"
         : visTier === "sorcerer_hero"
           ? "Heroic band (Mortal Sorcerer → Heroic Sorcerer)"
-          : "Visitation (Origin → Hero)";
+          : visTier === "hero"
+            ? "Visitation (Origin → Hero)"
+            : "Callings";
     visPanel.appendChild(visH);
-    if (visTier !== "titanic" && visTier !== "sorcerer_hero") {
+    if (isPostHeroBandCallingTierId(visTier)) {
+      const dg = document.createElement("p");
+      dg.className = "help";
+      dg.textContent =
+        "The three Calling rows from Hero or Titanic Visitation (Deity- or Titan-line welcome) carry forward here at Demigod and God, and the same layout applies on Sorcerer divine-band tiers—sheet, export, and per-row Knack budgets. Update dots when your chronicle grants new Calling ratings.";
+      visPanel.appendChild(dg);
+    }
+    if (visTier === "hero") {
       const visP = document.createElement("div");
       visP.className = "help";
       const intro = document.createElement("p");
@@ -4287,6 +4302,8 @@ function renderCalling(root) {
     }
     wrap.appendChild(visPanel);
     const lockPrimaryCallingSelect = visitationLocksPrimaryCallingChoice();
+    const maxCallingDotPool =
+      visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero" ? 5 : 15;
     for (let rowIdx = 0; rowIdx < HERO_CALLING_ROW_COUNT; rowIdx += 1) {
       const slot = character.callingSlots[rowIdx];
       const fieldH = document.createElement("div");
@@ -4332,7 +4349,9 @@ function renderCalling(root) {
         selH.addEventListener("change", () => {
           ensureCallingSlotsForHero();
           character.callingSlots[rowIdx].id = selH.value || "";
-          rebalanceHeroCallingSlotDotsOverFive();
+          if (visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero") {
+            rebalanceHeroCallingSlotDotsOverFive();
+          }
           syncCallingAggregatesFromHeroSlots();
           pruneStaleKnackIds();
           render();
@@ -4343,10 +4362,15 @@ function renderCalling(root) {
       dotsWrapH.className = "dots calling-inline-dots";
       dotsWrapH.setAttribute("role", "radiogroup");
       const othersSum = character.callingSlots.reduce((a, s, j) => (j !== rowIdx ? a + s.dots : a), 0);
-      const maxForRow = Math.min(5, Math.max(1, 5 - othersSum));
+      const maxForRow = Math.min(5, Math.max(1, maxCallingDotPool - othersSum));
       const cdh = Math.max(1, Math.min(maxForRow, slot.dots));
       character.callingSlots[rowIdx].dots = cdh;
-      dotsWrapH.setAttribute("aria-label", `Calling ${rowIdx + 1} rating ${cdh} of 5 (five dots shared across three Callings)`);
+      dotsWrapH.setAttribute(
+        "aria-label",
+        maxCallingDotPool === 5
+          ? `Calling ${rowIdx + 1} rating ${cdh} of 5 (five dots shared across three Callings)`
+          : `Calling ${rowIdx + 1} rating ${cdh} of 5 (up to ${maxCallingDotPool} dots across three rows)`,
+      );
       for (let dotN = 1; dotN <= 5; dotN += 1) {
         const b = document.createElement("button");
         b.type = "button";
@@ -4363,7 +4387,9 @@ function renderCalling(root) {
           b.addEventListener("click", () => {
             ensureCallingSlotsForHero();
             character.callingSlots[rowIdx].dots = dotN;
-            rebalanceHeroCallingSlotDotsOverFive();
+            if (visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero") {
+              rebalanceHeroCallingSlotDotsOverFive();
+            }
             syncCallingAggregatesFromHeroSlots();
             pruneStaleKnackIds();
             render();
@@ -4379,7 +4405,8 @@ function renderCalling(root) {
     wrap.appendChild(grid);
     const dotSumHero = character.callingSlots.reduce((a, s) => a + s.dots, 0);
     const missingCallingPick = character.callingSlots.some((s) => !String(s.id || "").trim());
-    if (dotSumHero < 5 || missingCallingPick) {
+    const heroBandVis = visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero";
+    if (heroBandVis && (dotSumHero < 5 || missingCallingPick)) {
       const wHero = document.createElement("p");
       wHero.className = "warn";
       wHero.textContent =
@@ -4388,6 +4415,12 @@ function renderCalling(root) {
           ? `Distribute all five Calling dots for Hero Visitation (currently ${dotSumHero} / 5 on the three rows).`
           : "");
       wrap.appendChild(wHero);
+    }
+    if (!heroBandVis && missingCallingPick) {
+      const wDg = document.createElement("p");
+      wDg.className = "warn";
+      wDg.textContent = "Pick a Calling in every row (three total).";
+      wrap.appendChild(wDg);
     }
     if (normalizedTierId(character.tier) === "titanic" && !missingCallingPick && dotSumHero >= 5) {
       const hasTitanCalling = character.callingSlots.some((s) => TITANIC_CALLING_IDS_SM_KNACKS.has(String(s?.id || "").trim()));
@@ -4489,6 +4522,12 @@ function renderCalling(root) {
       return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
     });
 
+  /** Three Calling rows (Hero-style): group Knacks by row + “Any Calling” even when tier id isn’t Hero (e.g. Demigod+). */
+  const useThreeRowKnackBuckets =
+    !isOriginPlayTier(character.tier) &&
+    Array.isArray(character.callingSlots) &&
+    character.callingSlots.length === HERO_CALLING_ROW_COUNT;
+
   /** @param {HTMLElement} container */
   function appendKnackChip(container, kid, k) {
     const baseOk = knackEligible(k, character, bundle);
@@ -4505,7 +4544,7 @@ function renderCalling(root) {
     chip.disabled = slotBlocked;
     if (!eligible && on) {
       chip.title = baseOk
-        ? heroUsesCallingSlots()
+        ? useThreeRowKnackBuckets
           ? "This Knack no longer fits your per-Calling Knack budgets on the three rows (each row’s dots cap that row’s Knacks; one Immortal uses two on a row with two+ dots; at most one Immortal overall). Adjust dots, Callings, or clear Knacks."
           : "This Knack no longer fits your Calling dot budget (one Immortal Knack uses two dot-equivalents; you may only have one Immortal). Lower Calling dots or clear Knacks."
         : "This Knack no longer matches your Calling, tier, or optional gates—remove it or adjust your character.";
@@ -4518,18 +4557,18 @@ function renderCalling(root) {
       if (set.has(kid)) set.delete(kid);
       else if (eligible && !finSet.has(kid)) set.add(kid);
       character.knackIds = [...set];
-      if (heroUsesCallingSlots()) syncHeroKnackSlotAssignments(character, bundle);
+      if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
       render();
     });
     const appliesLine = knackAppliesToCallingsLine(k, bundle);
     applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
     if (slotBlocked) {
-      const gateHint = heroUsesCallingSlots()
+      const gateHint = useThreeRowKnackBuckets
         ? "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack."
         : "You qualify for this Knack (Calling / tier / optional data gates), but your Calling Knack budget is full—clear a pick first (Origin: one Mortal Knack from Calling dots).";
       chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
     }
-    if (on && heroUsesCallingSlots() && character.knackSlotById && character.knackSlotById[kid] != null && Array.isArray(character.callingSlots)) {
+    if (on && useThreeRowKnackBuckets && character.knackSlotById && character.knackSlotById[kid] != null && Array.isArray(character.callingSlots)) {
       const ri = character.knackSlotById[kid];
       const rowId = String(character.callingSlots[ri]?.id || "").trim();
       const rowName = (rowId && bundle.callings[rowId] && bundle.callings[rowId].name) || rowId || `row ${ri + 1}`;
@@ -4539,7 +4578,7 @@ function renderCalling(root) {
     container.appendChild(chip);
   }
 
-  if (heroUsesCallingSlots()) {
+  if (useThreeRowKnackBuckets) {
     /** @type {Map<number | "any", [string, Record<string, unknown>][]>} */
     const buckets = new Map();
     const pushBucket = (key, pair) => {
@@ -4641,16 +4680,68 @@ function renderCalling(root) {
       knackPanel.appendChild(section);
     }
   } else {
-    const chips = document.createElement("div");
-    chips.className = "chips";
-    for (const [kid, k] of knackEntries) {
-      const baseOk = knackEligible(k, character, bundle);
-      const on = character.knackIds.includes(kid);
-      if (!baseOk && !on) continue;
-      if (!on && finishingKnackSet.has(kid)) continue;
-      appendKnackChip(chips, kid, k);
+    const tierN = normalizedTierId(character.tier);
+    if (isPostHeroBandCallingTierId(tierN)) {
+      /** @type {Map<"selected" | "any", [string, Record<string, unknown>][]>} */
+      const buckets = new Map([
+        ["selected", []],
+        ["any", []],
+      ]);
+      const pushBucket = (key, pair) => {
+        buckets.get(key).push(pair);
+      };
+      for (const [kid, k] of knackEntries) {
+        const baseOk = knackEligible(k, character, bundle);
+        const on = character.knackIds.includes(kid);
+        if (!baseOk && !on) continue;
+        if (!on && finishingKnackSet.has(kid)) continue;
+        const key = originCallingKnackChipGroupKey(k, character);
+        pushBucket(key, [kid, k]);
+      }
+      const order = /** @type {("selected" | "any")[]} */ (["selected", "any"]);
+      for (const key of order) {
+        const list = buckets.get(key) || [];
+        const section = document.createElement("div");
+        section.className = "calling-knack-chip-group";
+        const head = document.createElement("h3");
+        head.className = "calling-knack-chip-group-title";
+        if (key === "any") {
+          head.textContent = "Any Calling";
+        } else {
+          const rid = String(character.callingId || "").trim();
+          head.textContent = rid
+            ? `${bundle.callings[rid]?.name || rid} (your Calling)`
+            : "Your Calling — pick above";
+        }
+        section.appendChild(head);
+        const chipWrap = document.createElement("div");
+        chipWrap.className = "chips chips--calling-knack-subgroup";
+        if (list.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "help";
+          empty.textContent =
+            "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
+          chipWrap.appendChild(empty);
+        } else {
+          for (const [kid, k] of list) {
+            appendKnackChip(chipWrap, kid, k);
+          }
+        }
+        section.appendChild(chipWrap);
+        knackPanel.appendChild(section);
+      }
+    } else {
+      const chips = document.createElement("div");
+      chips.className = "chips";
+      for (const [kid, k] of knackEntries) {
+        const baseOk = knackEligible(k, character, bundle);
+        const on = character.knackIds.includes(kid);
+        if (!baseOk && !on) continue;
+        if (!on && finishingKnackSet.has(kid)) continue;
+        appendKnackChip(chips, kid, k);
+      }
+      knackPanel.appendChild(chips);
     }
-    knackPanel.appendChild(chips);
   }
   applyHint(knackPanel, "knack-select");
   wrap.appendChild(knackPanel);
