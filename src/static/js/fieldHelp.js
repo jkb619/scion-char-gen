@@ -267,6 +267,21 @@ export function applyHintDirect(el, example, source) {
 }
 
 /**
+ * Strip useless catalog placeholders so Boon chips show a single PDF pointer instead of five "(printed)." lines.
+ * @param {{ description?: string; mechanicalEffects?: string }} entity
+ */
+function sanitizeGameDataEntityForHint(entity) {
+  const out = { ...entity };
+  const mech = String(out.mechanicalEffects || "").trim();
+  const printedHits = (mech.match(/\(printed\)\./g) || []).length;
+  if (printedHits >= 3) {
+    out.mechanicalEffects =
+      "Printed Storypath fields (Cost, Duration, Subject, Range, Action, clash) for this title are in Pandora’s Box (Revised) under Pantheon Signature Purviews — open that entry at the table.";
+  }
+  return out;
+}
+
+/**
  * Tooltip from bundled game entities (skills, attributes, knacks, etc.):
  * name, description, optional mechanics line, source. Optional `prefix` (e.g. Asset Skill callout).
  * @param {HTMLElement | null} el
@@ -275,6 +290,7 @@ export function applyHintDirect(el, example, source) {
  */
 export function applyGameDataHint(el, entity, opts) {
   if (!el || !entity) return;
+  entity = sanitizeGameDataEntityForHint(entity);
   const prefix = opts?.prefix?.trim();
   const name = (entity.name || "").trim();
   const desc = (entity.description || "").trim();

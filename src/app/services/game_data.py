@@ -68,6 +68,49 @@ def _read_json(path: Path) -> Any:
         return json.load(f)
 
 
+def _pb_boon_overlay_needs_apply(row: dict[str, Any], key: str) -> bool:
+    """Prefer PDF-extract snippets over catalog placeholders / pointer-only rows."""
+    cur = row.get(key)
+    if not isinstance(cur, str) or not cur.strip():
+        return True
+    if "(printed)" in cur:
+        return True
+    if key == "description" and "see Pandora" in cur and "Pantheon Signature" in cur:
+        return True
+    return False
+
+
+def _merge_pb_boon_mechanics_into_boons(bundle: dict[str, Any]) -> None:
+    """Shallow-merge `boonPbMechanics.json` (+ patch) into merged `boons` for richer wizard/sheet tooltips."""
+    boons = bundle.get("boons")
+    if not isinstance(boons, dict):
+        return
+    overlays: dict[str, dict[str, Any]] = {}
+    for path in (DATA_DIR / "boonPbMechanics.json", DATA_DIR / "boonPbMechanicsPatch.json"):
+        if not path.is_file():
+            continue
+        raw = _read_json(path)
+        if not isinstance(raw, dict):
+            continue
+        for bid, ov in raw.items():
+            if str(bid).startswith("_") or not isinstance(ov, dict):
+                continue
+            base = dict(overlays.get(str(bid), {}))
+            base.update(ov)
+            overlays[str(bid)] = base
+    for bid, ov in overlays.items():
+        row = boons.get(bid)
+        if not isinstance(row, dict):
+            continue
+        for key in ("name", "description", "mechanicalEffects"):
+            inc = ov.get(key)
+            if not isinstance(inc, str) or not inc.strip():
+                continue
+            if not _pb_boon_overlay_needs_apply(row, key):
+                continue
+            row[key] = inc.strip()
+
+
 def allowed_names() -> frozenset[str]:
     meta_path = DATA_DIR / "meta.json"
     if not meta_path.exists():
@@ -120,6 +163,7 @@ def load_bundle() -> dict[str, Any]:
                 if isinstance(v, dict):
                     merged_b[k] = v
             bundle["boons"] = merged_b
+    _merge_pb_boon_mechanics_into_boons(bundle)
     tr_k = bundle.pop("knacksTitansRising", None)
     if isinstance(tr_k, dict):
         base_kn = bundle.get("knacks")

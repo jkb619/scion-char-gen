@@ -438,6 +438,18 @@
     "description": "You use the art of seiðr to lay a blessing or curse on another character, entering into a ritual trance that lasts one scene and envisioning their future. You predict a specific triumph or downfall the character will face, and impose a Condition that represents this destiny on them. If an action is likely to bring about the foretold fate, the Condition provides En­ hancement 2. Actions that struggle against this…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Condition\nSubject: One character\nRange: Infinite\nAction: Complex"
   },
+  "wyrd_cast_the_runes": {
+    "description": "Æsir Wyrd specialty Boon — Cast the Runes: replaces the default Hero Wyrd dot-1 ladder pick for Scions of the Æsir; you perform a rune divination for a lead about the near future, with costs and limits per the Wyrd chapter. Confirm the printed block in Scion: Hero (Wyrd — Æsir specialty).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and clash (if any) are printed in Scion: Hero for the Æsir Wyrd specialty ladder (Cast the Runes); confirm any cross-list with SCION_Pandoras_Box_(Revised_Download).pdf at the table."
+  },
+  "wyrd_runic_charm": {
+    "description": "Æsir Wyrd specialty Boon — Runic Charm: replaces the default Hero Wyrd dot-2 pick for Scions of the Æsir; you fix a Title into an object so another user can invoke it within limits. Confirm the printed block in Scion: Hero (Wyrd — Æsir specialty).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and clash (if any) are printed in Scion: Hero for the Æsir Wyrd specialty ladder (Runic Charm); confirm any cross-list with SCION_Pandoras_Box_(Revised_Download).pdf at the table."
+  },
+  "wyrd_spin_the_thread": {
+    "description": "Æsir Wyrd specialty Boon — Spin the Thread: replaces the default Hero Wyrd dot-3 pick for Scions of the Æsir; you lay seiðr-style destiny on a target with a foretold Condition. Confirm the printed block in Scion: Hero (Wyrd — Æsir specialty).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and clash (if any) are printed in Scion: Hero for the Æsir Wyrd specialty ladder (Spin the Thread); confirm any cross-list with SCION_Pandoras_Box_(Revised_Download).pdf at the table."
+  },
   "health_dot_01": {
     "description": "Wounds, sickness, and old age are all temporary under your hands. For one scene, your eyes shine with a divine light, and you can remove any sickness, disease, or wounds from as many characters as you can touch. You may end any Con­ dition or Complication affecting a target and may heal any lost Health on a Storyguide character. If you instead focus all of your might on only one target, you may remove 1 Divine…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One scene\nSubject: Any targets in short range\nRange: Short\nAction: Simple"
@@ -1150,6 +1162,10 @@
     "description": "You ask one of the ancestors to protect a person or place. When protecting a person, their charge gains +3 Enhance­ ment to detect ambushes, traps, and other dangers. They also gain a special pool of four successes per scene that can be spent on Dive to Cover and Roll Away stunts. When protecting a place, any attempts to infiltrate it suffer a +3 Complication as the guardian spirits raise the alarm, giving those…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One character or place\nAction: Simple"
   },
+  "paganito_dot_03": {
+    "description": "Third Paganito Signature Boon — Sacred Compact (Balahala): you bind host, guest, and witnesses to ancestor-backed terms over a threshold or meal; breaking taboo or betraying hospitality invites sharp spiritual backlash. Confirm Conditions, Complications, Enhancement, and costs in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (Balahala: Paganito).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line for Sacred Compact are printed in Pandora’s Box (Revised) — Balahala: Paganito (Pantheon Signature Purviews); use that entry at the table."
+  },
   "dvoeverie_dot_01": {
     "description": "Scions of the Bogovi have learned to sustain themselves without drawing unnecessary attention from other Gods. Once per session, when an ally regains Legend by per­ forming a minor or major sacrifice, you regain a point as well. If you use this Boon while under the effect of the Mnogoverie Boon, you can turn it to a more aggressive use instead. Once per session, when you are in a sacred place dedicated to the…",
     "mechanicalEffects": "Cost: None Range: Short\nSubject: Self\nAction: Reflexive"
@@ -1182,6 +1198,10 @@
     "description": "You sanctify a shared meal with the spirit of community and kinship. Anyone who freely partakes of it can sense if another guest is harmed, distressed, or in danger, and the general nature of the related trouble. Players can spend 1 Momentum for their character to arrive in time to intervene with that situation, regardless of distance, barriers, and other obstacles. When guests undertake teamwork, the maximum…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite\nSubject: One meal\nAction: Simple"
   },
+  "marzeh_dot_03": {
+    "description": "Third Marzeh Signature Boon — Guest’s Oath (Ilhm): you extend feast-kinship into sworn obligations across distance so guests and hosts can enforce mutual aid when the oath is invoked. Confirm costs, Momentum use, and limits in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (Ilhm: Marzeh).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line for Guest’s Oath are printed in Pandora’s Box (Revised) — Ilhm: Marzeh (Pantheon Signature Purviews); use that entry at the table."
+  },
   "tzolkin_dot_01": {
     "description": "You foretell a truly awful day in your target's future, when all their hopes will crumble. This can be an actual date or a general description, such as \"the day your first child is born\" or \"sometime this summer,\" so long as it can be roughly anticipated and is at least a week away. Your target is filled with deep, existential dread that robs them of any real sleep, inflicting a +2 Complication on any action…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: Indefinite (until one very bad day)\nSubject: One character\nAction: Simple"
@@ -1189,6 +1209,10 @@
   "tzolkin_dot_02": {
     "description": "The K'uh are rarely surprised, for their deep plans are writ­ ten in the substrate of the eons of the World. Upon activat­ ing this Boon, you may frame a single scene that happened in the past in response to a current opportunity or peril, allowing you to undertake a single Intrigue or Procedural action meant to prepare you for just this eventuality. These scenes must be plausible, and the Storyguide and other…",
     "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: Instant\nSubject: Self\nAction: Simple"
+  },
+  "tzolkin_dot_03": {
+    "description": "Third Tzolk’in Signature Boon — Daykeeper’s Verdict (K’uh): you bind the weight of a named sacred day into the scene—who must answer for it, who receives fortune’s edge, and what the calendar demands before the day turns. Confirm Conditions, Complication values, Enhancement, and costs in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (K’uh: Tzolk’in).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line are printed for Daykeeper’s Verdict in Pandora’s Box (Revised) — K’uh: Tzolk’in (Pantheon Signature Purviews); use that entry at the table."
   },
   "yaoyorozuNoKamigami_dot_01": {
     "description": "You entreat the kami of an object with a show of respect and decorum. The object's Enhancement is increased by one point when you or an ally uses it. When an enemy uses it, they face a +2 Complication. Failure to buy off the Complication causes the object to \"misbehave,\" avoiding causing harm or disadvantage to you.",
@@ -1254,6 +1278,14 @@
     "description": "You perfectly embody your tutelary deity, transforming your flesh into a reflection of their enlightened form. When you first gain this Boon, select three attainments and one devotion, which define the nature of your yidam-form and the restrictions you must obey when invoking it. You may select this Boon additional times, gaining two attainments and one devotion for each purchase. If you violate your devotions,…",
     "mechanicalEffects": "Cost: Spend 1 Legend\nDuration: One scene\nSubject: Self\nAction: Simple"
   },
+  "yidam_dot_02": {
+    "description": "Second Yidam Signature Boon — Mandala’s Keening (Pālas): sacred sound or mantra woven through your mandala steadies allies, rattles intruders, or marks spiritual boundaries tied to your practice. Confirm costs, range, and Conditions in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (Pālas: Yidam).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line for Mandala’s Keening are printed in Pandora’s Box (Revised) — Pālas: Yidam (Pantheon Signature Purviews); use that entry at the table."
+  },
+  "yidam_dot_03": {
+    "description": "Third Yidam Signature Boon — Refuge in the Image (Pālas): you slip into your tutelary’s image or sanctified diagram as shelter from harm or scrutiny for a scene, subject to your devotions. Confirm limits and costs in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (Pālas: Yidam).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line for Refuge in the Image are printed in Pandora’s Box (Revised) — Pālas: Yidam (Pantheon Signature Purviews); use that entry at the table."
+  },
   "behique_dot_01": {
     "description": "You introduce yourself to the raw materials arrayed before you and ask them to reveal their names and natures to you in return so that you may help their material form match their numinous truth. When undertaking a crafting project using natural materials, you reduce any Complications based on materials by 3. You may choose to extend a project by an additional Milestone; if you do, the object carries an…",
     "mechanicalEffects": "Cost: Imbue 1 Legend\nDuration: One project\nSubject: Self\nAction: Simple"
@@ -1261,5 +1293,9 @@
   "behique_dot_02": {
     "description": "By carving, marking, or otherwise refashioning an object, you can transform it into an idol, endowing it with numi­ nous power. This allows you to store a marvel within the idol, using the Zemí Motif and the Fertility, Health, Water, or Sky Purview. Once created, any character may activate the idol as a simple action, although you may require a password or other security feature, at your discretion. If the stored…",
     "mechanicalEffects": "Cost: Free\nDuration: Indefinite\nSubject: One object\nAction: Complex"
+  },
+  "behique_dot_03": {
+    "description": "Third Behique Signature Boon — Healer’s Claim (Zem): you mark who may heal or harm under your spiritual authority—contesting rival hexers or staking recovery on oaths to the spirits. Confirm costs, clash, and Conditions in SCION_Pandoras_Box_(Revised_Download).pdf under Pantheon Signature Purviews (Zem: Behique).",
+    "mechanicalEffects": "Cost, Duration, Subject, Range, Action, and any clash line for Healer’s Claim are printed in Pandora’s Box (Revised) — Zem: Behique (Pantheon Signature Purviews); use that entry at the table."
   }
 }

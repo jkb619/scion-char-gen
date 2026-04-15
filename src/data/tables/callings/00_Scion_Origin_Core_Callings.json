@@ -14,70 +14,70 @@
     "id": "guardian",
     "name": "Guardian",
     "description": "Protectors who stand between harm and what they value.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "healer": {
     "id": "healer",
     "name": "Healer",
     "description": "Those who mend bodies, minds, and communities.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "hunter": {
     "id": "hunter",
     "name": "Hunter",
     "description": "Trackers and predators—literal or metaphorical.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "judge": {
     "id": "judge",
     "name": "Judge",
     "description": "Arbiters who weigh truth, debt, and consequence.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "leader": {
     "id": "leader",
     "name": "Leader",
     "description": "Those who organize, inspire, and bear responsibility for others.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "liminal": {
     "id": "liminal",
     "name": "Liminal",
     "description": "Boundary-walkers between states, places, and identities.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "lover": {
     "id": "lover",
     "name": "Lover",
     "description": "Those driven by passion, devotion, beauty, or connection.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "sage": {
     "id": "sage",
     "name": "Sage",
     "description": "Teachers, students, and problem-solvers through knowledge.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "trickster": {
     "id": "trickster",
     "name": "Trickster",
     "description": "Clever operators who bend rules and expectations.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   },
   "warrior": {
     "id": "warrior",
     "name": "Warrior",
     "description": "Those who meet conflict head-on as a way of life.",
-    "mechanicalEffects": "See creator entry for Calling match guidance at Origin tier.",
+    "mechanicalEffects": "At Origin/Mortal, choose a Calling that fits your concept; when your divine parent is known, prefer a Favored Calling (Origin Appendix 2). Knack picks and costs follow Pandora’s Box (Revised) Calling chapters; confirm tier limits at the table.",
     "source": "Scion_Origin_(Revised_Download).pdf, pp. 98–99"
   }
 }

@@ -21,7 +21,8 @@
       "The Earworm",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Your performances and crafted works carry clear intent: witnesses experience your chosen emotional or informational message as if you had spoken plainly to them, even across language barriers (you choose who counts as intended audience). You gain Enhancement on appropriate Expression (or related Skill) rolls when creating or performing for others. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "beasts": {
     "id": "beasts",
@@ -42,7 +43,8 @@
       "Tooth and Claw",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You can speak with and understand mundane animals; they are inclined to aid you when you ask, within the limits of their intelligence and nature. You may treat Bonds with animals similarly to Bonds with people for purposes of teamwork the table approves. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "chaos": {
     "id": "chaos",
@@ -63,7 +65,8 @@
       "Rising Chaos",
       "Telekinesis",
       "Test of Faith"
-    ]
+    ],
+    "purviewInnateSummary": "Random mishaps and unplanned hazards slide off you: you ignore harm from accidental, unaimed peril (flying debris in a riot, a careless driver’s swerve, being trampled in a panicked crowd) so long as no attacker specifically meant to hurt you. Deliberate attacks and intentional hazards affect you normally. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "death": {
     "id": "death",
@@ -83,7 +86,7 @@
       "",
       ""
     ],
-    "purviewInnateSummary": "You sense death’s touch—recent deaths, corpses, and restless dead nearby register clearly; you can read a body’s obvious cause of death. (Full mechanics and limits: Scion: Hero / Pandora’s Box — Death Purview innate.)",
+    "purviewInnateSummary": "You sense death’s touch: recent deaths, corpses, and restless dead nearby register clearly; you can read a body’s obvious cause of death. Ghosts and the dead cannot hide their presence from you simply by being unseen (magic that veils them may still apply). — Pandora’s Box (Revised) / Scion: Hero, Death Purview innate.",
     "mechanicalEffects": "Purview Boons per Pandora’s Box.",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
   },
@@ -106,7 +109,8 @@
       "Perfect Replica",
       "Walk Unnoticed",
       "Visiting Hours"
-    ]
+    ],
+    "purviewInnateSummary": "Mortal observers cannot reliably catch you in a lie unless they have supernatural aid: mundane Insight or Perception fails automatically to pierce simple falsehoods you speak; supernatural onlookers may invoke a Clash of Wills as usual. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "earth": {
     "id": "earth",
@@ -127,7 +131,8 @@
       "Benefit of the Doubt",
       "Can'T Hit That Face",
       "Reassurance"
-    ]
+    ],
+    "purviewInnateSummary": "You feel vibrations and shifts through stone and soil touching your feet: you sense movement through connected earth out to a meaningful distance (Storyguide sets exact range), learning approximate mass, direction, and urgency. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "fertility": {
     "id": "fertility",
@@ -148,7 +153,8 @@
       "Wine and Revels",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Once per scene you can radiate a pulse of vital growth: nearby plants visibly perk or bloom, and allies in line of sight may shed bashing damage as if catching their breath in spring sunlight (resolve specifics at the table). — Scion: Hero; Pandora’s Box (Revised)."
   },
   "fire": {
     "id": "fire",
@@ -169,7 +175,8 @@
       "Rain of Fire",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You cannot take damage or suffer any form of harm from fire, heat, or smoke inhalation. You can walk through wildfires or industrial microwaves unharmed, swim in magma for as long as you can hold your breath, and perform similar feats of fireproof heroism. Extreme cold is likewise harmless to you. Everything you wear is also immune to fire, and you possess the ability to create or douse small flames within Close range at will. You can light or put out a candle or a cigarette with a glance. Finally, you can sense the direction, location, and approximate size of any fire within Extreme Range. — Pandora’s Box (Revised), Elemental Manipulation (Fire): Ember Skin."
   },
   "forge": {
     "id": "forge",
@@ -190,13 +197,14 @@
       "Divine Gateway",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Tools and machines make sense in your hands: you ignore Complications from unfamiliar controls or improvised use, and you may treat appropriate equipment as one dot better for Enhancement when operating it for its designed task. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "fortune": {
     "id": "fortune",
     "name": "Fortune",
     "description": "Luck, omen, and the weaving of chance—threads of fate, omens, and turning points. This is the universal fate-and-luck Purview from Pandora’s Box (other books may name related Specialty Purviews separately).",
-    "purviewInnateSummary": "Use Scion: Hero and Pandora’s Box for the standard Fortune Purview Innate (not a Boon).",
+    "purviewInnateSummary": "You feel when blind chance is being bent: you sense the outcome bias of risky actions around you and notice when another power manipulates fate or prophecy in your presence, even if the effect would normally be hidden. — Scion: Hero; Pandora’s Box (Revised).",
     "mechanicalEffects": "Purview Boons per Pandora’s Box.",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf",
     "boonLadderNames": [
@@ -218,7 +226,7 @@
     "id": "wyrd",
     "name": "Wyrd",
     "description": "The Æsir Hero **Signature** Specialty—binding, orlæg, and what was woven before you drew breath (Scion: Hero). Wyrd has its own Boon entries in this app; it is not the universal fate Purview other Scions take from the same chapter.",
-    "purviewInnateSummary": "Use Scion: Hero for the Wyrd Innate (Æsir Signature).",
+    "purviewInnateSummary": "You perceive bindings of orlæg and oaths that touch you: when a Fatebinding relevant to you is created or tugged, the Storyguide should give you a sensory cue, and you gain Enhancement to uncover or contest hidden wyrd laid on people or places you study. Æsir also work marvels of binding and foretold consequence per the Wyrd chapter. — Scion: Hero; Pandora’s Box (Revised).",
     "mechanicalEffects": "Wyrd Boons: Cast the Runes, Spin the Thread (Scion: Hero); resolve details with your Storyguide.",
     "source": "SCION_Scion_Hero_(Final_Download).pdf",
     "boonLadderNames": [
@@ -255,7 +263,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Your body mends quickly: you heal bashing damage each combat turn, lethal damage on a faster cadence than mortals, and aggravated damage on a daily scale (exact timing per tier in Hero/Pandora’s Box). — Scion: Hero; Pandora’s Box (Revised)."
   },
   "journeys": {
     "id": "journeys",
@@ -276,7 +285,8 @@
       "Unbarred Passage",
       "Wrong Turns",
       "Assumption of the Godform"
-    ]
+    ],
+    "purviewInnateSummary": "You always know which way to walk to reach a named place in the World unless magic obscures it, and you sense nearby Axis Mundi, gates, or otherworld thresholds within roughly Legend-scaled miles. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "moon": {
     "id": "moon",
@@ -297,7 +307,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "The moon’s phases answer you: you gain Enhancement when acting under moonlight or while manipulating tides of emotion and transformation tied to lunar cycles; exact bonuses follow the Purview chapter. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "order": {
     "id": "order",
@@ -318,7 +329,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "When you truthfully explain laws or rightful authority, listeners know you speak correctly for the duration of the scene; you may extend that mantle of legitimacy to innocents you declare free of guilt while using Order marvels or Code of Heaven–compatible effects. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "passion": {
     "id": "passion",
@@ -339,7 +351,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You read hearts at a glance: you gain Enhancement to uncover or influence strong emotions, and you forge Bonds more readily when you spend a scene reinforcing intimacy or devotion. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "prosperity": {
     "id": "prosperity",
@@ -360,7 +373,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Fortune’s small kindnesses find you: you always have enough mundane currency for reasonable purchases when it matters to the story, and you can spot lucrative opportunities others overlook. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "sky": {
     "id": "sky",
@@ -381,7 +395,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Weather in your vicinity responds to your mood in small ways, and you may nudge clouds, wind, or temperature within reason without spending Legend for minor atmospheric shifts. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "stars": {
     "id": "stars",
@@ -402,7 +417,8 @@
       "The Spotlight",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Once per scene you may read a thread of destiny written in the stars, asking the Storyguide one concrete yes/no about an action you or a Bandmate is about to take; they answer truthfully to the best of their knowledge. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "sun": {
     "id": "sun",
@@ -423,7 +439,8 @@
       "Tear the Fabric",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You are a walking atmosphere: you may raise or lower hope within a Field as if you were a minor environmental effect, with rating tied to half your Legend (see Sun Purview chapter). — Scion: Hero; Pandora’s Box (Revised)."
   },
   "war": {
     "id": "war",
@@ -444,7 +461,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Whenever you are embroiled in conflict—social, mental, or physical—you gain Enhancement on actions that escalate or press the fight rather than defuse it. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "water": {
     "id": "water",
@@ -465,7 +483,8 @@
       "Up From the Depths",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Water welcomes you: you breathe and move through water as easily as air for mundane environments, and liquid currents subtly assist you, granting Enhancement when swimming or manipulating flowing water. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "wild": {
     "id": "wild",
@@ -486,7 +505,8 @@
       "Master of Beasts",
       "Merge With Beast",
       "Accelerated Decay"
-    ]
+    ],
+    "purviewInnateSummary": "The wild recognizes its kin: animals native to untamed places treat you with favorable Attitude unless you provoke them, and you gain Enhancement when surviving or navigating hostile wilderness. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "darkness": {
     "id": "darkness",
@@ -507,7 +527,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You see clearly in natural darkness and can snuff or dim mundane light sources within Close range as a reflexive trick of shadow; magical darkness may still oppose you per the usual rules. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "epicStrength": {
     "id": "epicStrength",
@@ -528,7 +549,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You gain +1 Enhancement on Might-based rolls where raw power or lifting applies, and you may waive one Complication per scene caused by sheer bulk or weight when carrying or hefting objects, subject to Storyguide limits. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "epicStamina": {
     "id": "epicStamina",
@@ -549,7 +571,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "You ignore Complications from ordinary hunger, thirst, and fatigue, and you are immune to mundane diseases and environmental illnesses; supernatural ailments still apply. (Epic Stamina also gates many resilience Boons.) — Scion: Hero; Pandora’s Box (Revised)."
   },
   "epicDexterity": {
     "id": "epicDexterity",
@@ -570,7 +593,8 @@
       "Predatory Focus",
       "Living Spectrograph",
       "Third Eye"
-    ]
+    ],
+    "purviewInnateSummary": "You gain +1 Enhancement on rolls using Dexterity where speed, coordination, or precision apply, and once per scene you may waive a single Complication on a Defense roll tied to agility, as the table interprets your tier limits. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "beauty": {
     "id": "beauty",
@@ -591,7 +615,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Your presence and presentation carry divine weight: when your looks or bearing matter, you gain Enhancement on appropriate social rolls, and attempts to use superficial appeal to manipulate you suffer increased Difficulty or Scale on resistance, as agreed with the Storyguide. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "frost": {
     "id": "frost",
@@ -612,7 +637,8 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "Cold cannot harm you, nor do ice, snow, or winter terrain impose Complications on your movement; you may briefly freeze a footpath of water or mist solid enough to walk as part of normal movement while the Purview holds. — Scion: Hero; Pandora’s Box (Revised)."
   },
   "arcaneCalculus": {
     "id": "arcaneCalculus",
@@ -633,27 +659,30 @@
       "",
       "",
       ""
-    ]
+    ],
+    "purviewInnateSummary": "When performing analysis, research, or surveying investigation actions, you gain +1 Enhancement. You can ignore up to 1 Complication from such actions that would lead you to misinterpret the information you gain on the action. — Masks of the Mythos, Arcane Calculus (Innate Power)."
   },
   "nemeton": {
     "id": "nemeton",
     "name": "Nemeton",
     "description": "The Nemetondevos pantheon Signature Purview: sacred shrines whose mementos open gates to Gaulish Godsrealms or your Sanctum—terrain, memory, and the Wheel’s cycle.",
     "mechanicalEffects": "Innate power, Marvels, and Boons per Mysteries of the World (Nemeton chapter); Hero limits on how many nemetons you may hold apply per that write-up.",
-    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Signature Purview: Nemeton"
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Signature Purview: Nemeton",
+    "purviewInnateSummary": "Your nemeton is never far: you may sense its condition, and you can open brief passages between its sacred ground and the Field you occupy when the Storyguide agrees the miracle fits (limits on simultaneous nemetons per MotW). — Mysteries of the World; Pandora’s Box (Revised), Nemeton."
   },
   "asha": {
     "id": "asha",
     "name": "Asha",
     "description": "The Yazata pantheon Signature Purview: the Threefold Path of good thoughts, words, and deeds—cosmic harmony, truth, and the struggle against the Druj.",
     "mechanicalEffects": "Innate powers, Marvels, Mantles, and Boons per Mysteries of the World; confirm tiers and costs with that book.",
-    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Signature Purview: Asha"
+    "source": "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf — Signature Purview: Asha",
+    "purviewInnateSummary": "You walk the Threefold Path in deed as well as word: when your thoughts, words, and actions align with Asha, gain Enhancement to resist the Druj’s lies and to bolster allies who mirror that harmony. — Mysteries of the World; Pandora’s Box (Revised)."
   },
   "shuila": {
     "id": "shuila",
     "name": "Shuilá",
     "description": "The Anunna Signature: fate-deeds, tablets of office, and the weight of what was decreed before you spoke.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "The tablets remember deeds before speech: when you gather clues toward a declared Deed, later rolls using the same Skill + Attribute toward that Deed may buy Enhancements from those threshold successes, and catastrophic failure may be bought as future complications instead (see Me of the Deed). — Pandora’s Box (Revised), Shuilá.",
     "mechanicalEffects": "Boons per Pandora’s Box (Anunna: Shuilá).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -675,7 +704,7 @@
     "id": "pachakutic",
     "name": "Pachakutic",
     "description": "The Apu Signature: world-turning, mountain omens, and the hinge moments of ages.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Huaca remember sacrifice: you may bank a point of Legend at a prepared huaca and sense when its stored power is tapped; you gain Enhancement when reading omens in mountains or weather omens tied to world-turning events. — Pandora’s Box (Revised), Pachakutic.",
     "mechanicalEffects": "Boons per Pandora’s Box (Apu: Pachakutic).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -697,7 +726,7 @@
     "id": "atuaMana",
     "name": "Mana",
     "description": "The Atua Signature: power-as-presence, right relationship, and the face you cannot fake before your kin.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Right relationship shows on your face before your kin: you sense breaches of tapu or improper standing in a community gathering, and you gain Enhancement to call others back into proper roles. — Pandora’s Box (Revised), Mana.",
     "mechanicalEffects": "Boons per Pandora’s Box (Atua: Mana).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -719,7 +748,7 @@
     "id": "paganito",
     "name": "Paganito",
     "description": "The Balahala Signature: ancestor compact, vigil of the dead, and bargains sealed in smoke.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Ancestors press close at the threshold: you sense restless dead or broken ancestor bargains within Short range of a home shrine, and you gain Enhancement to negotiate or chastise such spirits. — Pandora’s Box (Revised), Paganito.",
     "mechanicalEffects": "Boons per Pandora’s Box (Balahala: Paganito).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -741,7 +770,7 @@
     "id": "dvoeverie",
     "name": "Dvoeverie",
     "description": "The Bogovi Signature: twinned truth, hidden worship, and the old law that walks in two skins.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Twinned truths tug at you: when someone wears two faces socially, you gain Enhancement to spot the seam, and you may sense hidden worship or dual loyalties in a crowd. — Pandora’s Box (Revised), Dvoeverie.",
     "mechanicalEffects": "Boons per Pandora’s Box (Bogovi: Dvoeverie).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -763,7 +792,7 @@
     "id": "yoga",
     "name": "Yógá",
     "description": "The Devá Signature: disciplined devotion, earned insight, and the body as a practiced instrument of truth.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Disciplined breath aligns body and truth: you ignore Complications from ordinary fatigue during yoga-like centering, and you gain Enhancement on Academics or Occult rolls to recall sacred practice. — Pandora’s Box (Revised), Yógá.",
     "mechanicalEffects": "Boons per Pandora’s Box (Devá: Yógá).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -785,7 +814,7 @@
     "id": "marzeh",
     "name": "Marzeh",
     "description": "The Ilhm Signature: feast-law, lineage rolls, and the obligations guests inherit when bread is broken.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Guests and hosts know the law of the table: you sense when hospitality is about to be broken, and you gain Enhancement to enforce oaths sworn over shared bread. — Pandora’s Box (Revised), Marzeh.",
     "mechanicalEffects": "Boons per Pandora’s Box (Ilhm: Marzeh).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -807,7 +836,7 @@
     "id": "tzolkin",
     "name": "Tzolk’in",
     "description": "The K’uh Signature: sacred calendar, appointed sorrow, and days that arrive already decided.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Named days arrive carrying weight: once per session you may declare a day’s omen and gain Enhancement on actions that lean into or avert that omen, as the calendar permits. — Pandora’s Box (Revised), Tzolk’in.",
     "mechanicalEffects": "Boons per Pandora’s Box (K’uh: Tzolk’in).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -829,7 +858,7 @@
     "id": "yaoyorozuNoKamigami",
     "name": "Yaoyorozu-no-Kamigami",
     "description": "The Kami Signature: myriad kami acknowledged, propitiated, and set quietly watching at thresholds.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Myriad kami murmur in busy places: you sense shrines, pollution, or offended spirits in urban crowds, and you gain Enhancement to appease or command minor kami tied to a location. — Pandora’s Box (Revised), Yaoyorozu no Kamigami.",
     "mechanicalEffects": "Boons per Pandora’s Box (Kami: Yaoyorozu-no-Kamigami).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -851,7 +880,7 @@
     "id": "dodaem",
     "name": "Dodaem",
     "description": "The Manitou Signature: totem medicine, dream-quest instruction, and war-songs that bind the camp.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "The Manitou watch through your courtesy: you feel when spirits tied to a place are insulted or pleased, and you gain Enhancement to mediate between humans and local wights. — Pandora’s Box (Revised), Dodaem.",
     "mechanicalEffects": "Boons per Pandora’s Box (Manitou: Dodaem).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -873,7 +902,7 @@
     "id": "heku",
     "name": "Heku",
     "description": "The Netjer Signature: speaking power, effigies that move, and the harvest of living sekhem.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Speaking a true name shapes the soul’s light: you gain Enhancement when acting on ren you know, and you feel when another Netjer scion harvests renown tied to you. — Pandora’s Box (Revised), Heku.",
     "mechanicalEffects": "Boons per Pandora’s Box (Netjer: Heku).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -895,7 +924,7 @@
     "id": "tianming",
     "name": "Tianming",
     "description": "The Shén Signature: Heaven’s mandate read in omens, promotion earned in trial, and the red thread of office.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Mandate flickers when rulers fail Heaven’s measure: you sense unjust edicts or corrupt magistrates within a civil scene, and you gain Enhancement to call out Heaven’s displeasure with evidence. — Pandora’s Box (Revised), Tianming.",
     "mechanicalEffects": "Boons per Pandora’s Box (Shén: Tianming).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -917,7 +946,7 @@
     "id": "qut",
     "name": "Qut",
     "description": "The Tengri Signature: contest-fortune, spirit interrogation, and the ransom taken from spilled blood.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "The eternal blue hears honest wind: you feel when oaths sworn under open sky are tested, and you gain Enhancement to ride or call wind that carries truth-telling voices. — Pandora’s Box (Revised), Qut.",
     "mechanicalEffects": "Boons per Pandora’s Box (Tengri: Qut).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -939,7 +968,7 @@
     "id": "yidam",
     "name": "Yidam",
     "description": "The Pālas Signature: tutelary manifestation, vows made visible, and practice pressed into the world.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Your meditation opens vistas beyond the self: you gain Enhancement when discerning illusions or soul-tests tied to practiced devotion, and you may briefly manifest an advisor-aspect of your yidam for counsel. — Pandora’s Box (Revised), Yidam.",
     "mechanicalEffects": "Boons per Pandora’s Box (Pālas: Yidam).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
@@ -961,7 +990,7 @@
     "id": "behique",
     "name": "Behique",
     "description": "The Zem Signature: spirit-shapes, idols that answer, and medicine that follows form, not argument.",
-    "purviewInnateSummary": "Use SCION_Pandoras_Box_(Revised_Download).pdf and Scion: Hero for this Signature Purview’s Innate (not a Boon pick in the catalog).",
+    "purviewInnateSummary": "Healing and oath-smoke mark your steps: you sense lingering curses or unfulfilled healing oaths nearby, and you may sanctify small spaces for restful recovery. — Pandora’s Box (Revised), Behique.",
     "mechanicalEffects": "Boons per Pandora’s Box (Zem: Behique).",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
