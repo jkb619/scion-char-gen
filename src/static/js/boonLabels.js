@@ -33,7 +33,7 @@ export function isPlaceholderBoonCatalogName(name) {
 }
 
 /**
- * When no official title is in data, show ordinal Boon on Purview (not a printed Boon name from the books).
+ * Last resort when `purviews.json` / `boons.json` supply no title string (unnamed catalog row).
  * @param {string} purviewId
  * @param {number} dot
  * @param {{ purviews?: Record<string, Record<string, unknown>>; pantheons?: Record<string, Record<string, unknown>> }} bundle
@@ -46,8 +46,9 @@ function honestBoonRungChipLabel(purviewId, dot, bundle, pantheonId) {
 }
 
 /**
- * Display label for a Boon chip / sheet row: prefer Pandora’s Box names from `purviews.json`,
- * then any non-placeholder `boons.json` name, then an honest “Nth Boon on Purview” label (never a fake “• Boon n” title).
+ * Display label for a Boon chip / sheet row: prefer `purviews.json` ladder (`boonLadderNames` / `boonLadderNameByDot`),
+ * then a proper `boons.json` `name`, then any remaining catalog `name` (including “Purview • Boon n” stubs), then
+ * “Nth Boon on … Purview”, then the raw boon id.
  * @param {Record<string, unknown>} b — one entry from bundle.boons
  * @param {{ purviews?: Record<string, Record<string, unknown>>; pantheons?: Record<string, Record<string, unknown>> }} bundle
  * @param {string} [pantheonId] — passed through for Purview display labels (e.g. pantheon Specialty names)
@@ -79,7 +80,13 @@ export function boonDisplayLabel(b, bundle, pantheonId) {
 
   if (base && !isPlaceholderBoonCatalogName(base)) return base;
 
+  /**
+   * Catalog rows sometimes use “Purview • Boon n” while `purviews.json` has no ladder string yet.
+   * Prefer that (or any other non-empty catalog `name`) over “Nth Boon on … Purview”, which reads like a bug.
+   */
+  if (base) return base;
+
   if (pid && Number.isFinite(dot)) return honestBoonRungChipLabel(pid, dot, bundle, pantheonId);
 
-  return base || bid;
+  return bid;
 }
