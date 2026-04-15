@@ -325,6 +325,22 @@ function slotRowCallingTokenSet(rowCallingId, character) {
 }
 
 /**
+ * Knacks shown under Origin / Finishing “Any Calling” (general pool): explicit any-Calling, no list,
+ * or PB-style “one of several Callings” rows. These may sit on a Hero `callingSlots` row whose Calling
+ * is not chosen yet (`id: ""`) until Visitation rows are filled — same idea as {@link originCallingKnackChipGroupKey}.
+ * @param {Record<string, unknown>} k
+ * @param {CharacterLike} [_character]
+ */
+export function knackMayUsePendingHeroCallingRow(k, _character) {
+  if (!k || typeof k !== "object") return false;
+  if (k.callingsAny === true || k.calling === "any") return true;
+  const raw = knackRawCallingIdList(k);
+  if (raw.length === 0) return true;
+  if (new Set(raw).size >= 2) return true;
+  return false;
+}
+
+/**
  * Origin / single-Calling Calling step: chip group heading (mirrors Hero row vs “Any Calling”).
  * @param {Record<string, unknown>} k
  * @param {CharacterLike} character
@@ -332,11 +348,7 @@ function slotRowCallingTokenSet(rowCallingId, character) {
  */
 export function originCallingKnackChipGroupKey(k, character) {
   if (!k || typeof k !== "object") return "any";
-  if (k.callingsAny === true || k.calling === "any") return "any";
-  const raw = knackRawCallingIdList(k);
-  if (raw.length === 0) return "any";
-  /** PB / MotM rows that list multiple Callings (“one of …”) — show with the general pool on Origin. */
-  if (new Set(raw).size >= 2) return "any";
+  if (knackMayUsePendingHeroCallingRow(k, character)) return "any";
   const knTok = knackCallingTokensForRowMatch(k, character);
   if (knTok === null || knTok.size === 0) return "any";
   const cid = String(character?.callingId ?? "").trim();
@@ -399,9 +411,17 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(slots)) return false;
   if (rowIdx < 0 || rowIdx >= slots.length) return false;
   const rowId = String(slots[rowIdx]?.id ?? "").trim();
-  if (!rowId) return false;
-  const rowTok = slotRowCallingTokenSet(rowId, character);
   const knTok = knackCallingTokensForRowMatch(k, character);
+  /**
+   * After Mortal→Hero, `initHeroCallingSlotsAfterVisitation` leaves rows 1–2 at 1 dot each with `id: ""`
+   * until the Calling step picks Visitation Callings. Only row 0 has a Calling id, so without this rule
+   * `solveHeroKnackSlotAssignment` could place at most one Knack; `pruneKnackIdsToCallingSlotCap` then
+   * drops trailing picks — including the two Origin Finishing bonus Knacks merged into `knackIds`.
+   * Match the Finishing “Any Calling” bucket ({@link knackMayUsePendingHeroCallingRow}), not only
+   * `knTok === null` — multi-Calling (“one of …”) rows use a non-null Set and still belong in that pool.
+   */
+  if (!rowId) return knackMayUsePendingHeroCallingRow(k, character);
+  const rowTok = slotRowCallingTokenSet(rowId, character);
   if (knTok === null) return true;
   for (const x of knTok) {
     if (rowTok.has(x)) return true;
