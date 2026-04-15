@@ -19,6 +19,7 @@ import {
   originCallingKnackChipGroupKey,
   heroUsesCallingSlotRows,
   isPostHeroBandCallingTierId,
+  maxWizardBoonPicksForTier,
   immortalKnackCostsTwoCallingSlots,
   boonEligible,
   boonIsPurviewInnateAutomaticGrant,
@@ -209,9 +210,6 @@ function pathPhraseSnippet(pk, maxChars = 96) {
 
 /** Stored patron Purview slot array length (Hero uses slot 0 only; Demigod/God may use up to four). */
 const PATRON_PURVIEW_SLOT_COUNT = 4;
-/** Initial Boon picks on the Boons wizard step (Hero-style creation cap). */
-const MAX_WIZARD_BOON_PICKS = 2;
-
 /**
  * Core tier order: Origin (Mortal) → Hero → Demigod → God.
  * Defaults apply if `/api/bundle` omits `tierAdvancement` (e.g. stale server meta cache).
@@ -457,6 +455,9 @@ let bundle = null;
 let character = defaultCharacter();
 
 let stepIndex = 0;
+
+/** Purviews step: which Purview id shows the innate preview below the chip row (cleared when that chip is toggled off). */
+let purviewInnateDetailFocusId = "";
 
 /**
  * After a failed “Next” on the Skills step: `{ pathKey?, message }[]` for red summary + panel highlights.
@@ -2086,9 +2087,24 @@ function hydratePatronPurviewSlotsFromPurviewIds() {
   character.patronPurviewSlots = slots;
 }
 
+/** Drop duplicate patron Purview ids, keeping earliest filled slots (Demigod+ slot order). */
+function normalizePatronPurviewSlotsNoDuplicates() {
+  ensurePatronPurviewSlots();
+  const lim = Math.max(0, Math.min(PATRON_PURVIEW_SLOT_COUNT, patronPurviewSlotLimitForCharacter()));
+  const seen = new Set();
+  character.patronPurviewSlots = character.patronPurviewSlots.map((s, i) => {
+    if (i >= lim) return "";
+    if (!s) return "";
+    if (seen.has(s)) return "";
+    seen.add(s);
+    return s;
+  });
+}
+
 /** Merge patron slots into `purviewIds`. Hero: one parent innate + pantheon Signature; other tiers: picks then extras. */
 function syncPurviewIdsFromPatronSlots() {
   ensurePatronPurviewSlots();
+  normalizePatronPurviewSlotsNoDuplicates();
   const picks = character.patronPurviewSlots.filter(Boolean);
   const tn = normalizedTierId(character.tier);
   if (tn === "hero" || tn === "titanic") {
@@ -2119,13 +2135,7 @@ function commitPatronPurviewSlotChange(slotIndex, newVal) {
   const slots = [...character.patronPurviewSlots];
   const old = slots[slotIndex];
   if (newVal === old) return;
-  const other = slots.findIndex((v, j) => j !== slotIndex && v === newVal && newVal);
-  if (other >= 0) {
-    slots[slotIndex] = newVal;
-    slots[other] = old;
-  } else {
-    slots[slotIndex] = newVal;
-  }
+  slots[slotIndex] = newVal;
   character.patronPurviewSlots = slots;
   syncPurviewIdsFromPatronSlots();
   render();
@@ -2183,11 +2193,11 @@ function renderPatronPurviewPanel(mount) {
     const tierLab = tierPv === "titanic" ? "Titanic (Hero-tier)" : tierPv === "hero" ? "Hero" : bundle.tier?.[character.tier]?.name || "this tier";
     intro.innerHTML = `At <strong>${tierLab}</strong>, pick <strong>one innate Purview</strong> from this parent’s list below. Your pantheon’s <strong>Signature Purview</strong> (<strong>${sigLab}</strong>) is added automatically on the Purviews step — you do not spend your single pick on it.`;
   } else {
-    intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (same id may not appear twice — changing a slot to one already chosen swaps the two). Other Purviews (Relics, etc.) are chosen on the Purviews step.`;
+    intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (each Purview once — options already picked in another slot are omitted here). Other Purviews (Relics, etc.) are chosen on the Purviews step.`;
   }
   panel.appendChild(intro);
   const grid = document.createElement("div");
-  grid.className = "grid-2";
+  grid.className = "patron-purviews-slot-grid";
   for (let i = 0; i < slotLim; i += 1) {
     const field = document.createElement("div");
     field.className = "field";
@@ -2200,7 +2210,12 @@ function renderPatronPurviewPanel(mount) {
     blank.value = "";
     blank.textContent = "—";
     sel.appendChild(blank);
+    const curSlot = character.patronPurviewSlots[i] || "";
+    const takenElsewhere = new Set(
+      character.patronPurviewSlots.map((v, j) => (j !== i && v ? v : null)).filter(Boolean),
+    );
     for (const pid of opts) {
+      if (takenElsewhere.has(pid) && pid !== curSlot) continue;
       const o = document.createElement("option");
       o.value = pid;
       o.textContent = purviewLabel(pid);
@@ -2894,7 +2909,8 @@ function pruneStaleBoonIds() {
     const b = tbl[id];
     return !boonIsPurviewInnateAutomaticGrant(b, bundle);
   });
-  if (ids.length > MAX_WIZARD_BOON_PICKS) ids = ids.slice(0, MAX_WIZARD_BOON_PICKS);
+  const boonCap = maxWizardBoonPicksForTier(character.tier, bundle);
+  if (Number.isFinite(boonCap) && ids.length > boonCap) ids = ids.slice(0, boonCap);
   character.boonIds = ids;
 }
 
@@ -3037,6 +3053,11 @@ function firstNewWizardStepIndex(oldTierId, newTierId) {
     const steps = stepDefsForTier(newTierId);
     const ci = steps.indexOf("calling");
     if (ci >= 0) return ci;
+  }
+  /** Hero / Titanic → Demigod: assign extra patron Purview slots on Paths before other same-list steps. */
+  if (newN === "demigod" && (oldN === "hero" || oldN === "titanic")) {
+    const pi = stepDefsForTier(newTierId).indexOf("paths");
+    if (pi >= 0) return pi;
   }
   const oldSet = new Set(stepDefsForTier(oldTierId));
   const steps = stepDefsForTier(newTierId);
@@ -4825,6 +4846,12 @@ function renderPurviews(root) {
   restrictHeroPurviewsToPatronList();
   const tierNorm = normalizedTierId(character.tier);
   const singlePatronPurviewTier = tierNorm === "hero" || tierNorm === "titanic";
+  const detailSelectionSet = singlePatronPurviewTier
+    ? new Set(patronDetailSelected ? [patronDetailSelected] : [])
+    : new Set(character.purviewIds || []);
+  if (purviewInnateDetailFocusId && !detailSelectionSet.has(purviewInnateDetailFocusId)) {
+    purviewInnateDetailFocusId = "";
+  }
   const patronOpts = patronPurviewOptionIds();
   const patronSet = new Set(patronOpts);
   const wrap = document.createElement("div");
@@ -4979,14 +5006,12 @@ function renderPurviews(root) {
     );
   }
   for (const [pid, p] of purviewEntries) {
-    const chipWrap = document.createElement("div");
-    chipWrap.className = "purview-chip-wrap";
     const chip = document.createElement("button");
     chip.type = "button";
     const chipOn = singlePatronPurviewTier
       ? (character.patronPurviewSlots[0] || "") === pid
       : character.purviewIds.includes(pid);
-    chip.className = "chip" + (chipOn ? " on" : "");
+    chip.className = "chip purview-chip" + (chipOn ? " on" : "");
     chip.textContent = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId) || p.name;
     chip.addEventListener("click", () => {
       ensurePatronPurviewSlots();
@@ -4996,25 +5021,27 @@ function renderPurviews(root) {
         character.patronPurviewSlots[0] = next;
         for (let j = 1; j < PATRON_PURVIEW_SLOT_COUNT; j += 1) character.patronPurviewSlots[j] = "";
         syncPurviewIdsFromPatronSlots();
+        purviewInnateDetailFocusId = next ? pid : "";
         render();
         return;
       }
       const set = new Set(character.purviewIds);
-      if (set.has(pid)) set.delete(pid);
+      const wasOn = set.has(pid);
+      if (wasOn) set.delete(pid);
       else set.add(pid);
       character.purviewIds = [...set];
       syncPurviewIdsFromPatronSlots();
+      if (!wasOn) purviewInnateDetailFocusId = pid;
+      else if (purviewInnateDetailFocusId === pid) purviewInnateDetailFocusId = "";
       render();
     });
     applyGameDataHint(chip, p);
-    chipWrap.appendChild(chip);
-    if (chipOn) {
-      const innateUnder = document.createElement("div");
-      innateUnder.className = "purview-innate-under-chip";
-      appendPurviewInnateDetails(innateUnder, pid);
-      chipWrap.appendChild(innateUnder);
-    }
-    chips.appendChild(chipWrap);
+    chips.appendChild(chip);
+  }
+  const innateBelowChips = document.createElement("div");
+  innateBelowChips.className = "purview-innate-below-chips";
+  if (purviewInnateDetailFocusId && detailSelectionSet.has(purviewInnateDetailFocusId)) {
+    appendPurviewInnateDetails(innateBelowChips, purviewInnateDetailFocusId);
   }
   if (singlePatronPurviewTier) {
     const patronInnatePanel = document.createElement("section");
@@ -5029,10 +5056,11 @@ function renderPurviews(root) {
         "Turn <strong>one</strong> chip on. That is the patron Purview whose <strong>standard innate</strong> you use (Pandora’s Box / Hero). It is <strong>not</strong> chosen with the Awareness dropdown—use the next panel only if you deliberately replace that model with MotM’s <strong>Awareness Innate</strong> (and commit).";
     } else {
       pIntro.innerHTML =
-        "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list (same value as Patron Purview 1 on Paths). Innate write-ups preview under the selected chip.";
+        "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list (same value as Patron Purview 1 on Paths). Innate write-ups preview below the chip row when a chip is on.";
     }
     patronInnatePanel.appendChild(pIntro);
     patronInnatePanel.appendChild(chips);
+    patronInnatePanel.appendChild(innateBelowChips);
     if (heroPurviewsPatronPickRequiredAndMissing()) {
       patronInnatePanel.classList.add("panel-gate-invalid");
     }
@@ -5041,6 +5069,7 @@ function renderPurviews(root) {
   } else {
     renderMythosInnatePowerPanel(wrap);
     wrap.appendChild(chips);
+    wrap.appendChild(innateBelowChips);
   }
   const patronPickWarn = heroPurviewsPatronPickRequiredAndMissing();
   if (patronPickWarn) {
@@ -5381,7 +5410,10 @@ function renderBoons(root) {
 
   const capHelp = document.createElement("p");
   capHelp.className = "help";
-  capHelp.textContent = `You may select up to ${MAX_WIZARD_BOON_PICKS} Boons from the lists below. Purview Innate powers are granted with each Purview you hold — they are not Boons and do not use a slot here. After ${MAX_WIZARD_BOON_PICKS} Boons are chosen, other options are hidden until you remove a pick.`;
+  const boonCap = maxWizardBoonPicksForTier(character.tier, bundle);
+  capHelp.textContent = Number.isFinite(boonCap)
+    ? `You may select up to ${boonCap} Boons from the lists below. Purview Innate powers are granted with each Purview you hold — they are not Boons and do not use a slot here. After ${boonCap} Boons are chosen, other options are hidden until you remove a pick.`
+    : "Select Boons from the lists below for each Purview you track. Purview Innate powers are granted with each Purview you hold — they are not Boons. At this tier (Demigod, God, or other advanced line in tier.json) the wizard does not cap how many Boons you list — Legend and Marvel budgets stay with your Storyguide and the books.";
   wrap.appendChild(capHelp);
 
   const entries = Object.entries(bundle.boons)
@@ -5395,7 +5427,7 @@ function renderBoons(root) {
   let lastPurview = null;
   let chips = null;
   let anyShown = false;
-  const atBoonCap = (character.boonIds || []).length >= MAX_WIZARD_BOON_PICKS;
+  const atBoonCap = Number.isFinite(boonCap) && (character.boonIds || []).length >= boonCap;
 
   for (const [bid, b] of entries) {
     if (boonIsPurviewInnateAutomaticGrant(b, bundle)) continue;
@@ -5451,7 +5483,7 @@ function renderBoons(root) {
     chip.addEventListener("click", () => {
       const set = new Set(character.boonIds);
       if (set.has(bid)) set.delete(bid);
-      else if (eligible && set.size < MAX_WIZARD_BOON_PICKS) set.add(bid);
+      else if (eligible && set.size < boonCap) set.add(bid);
       character.boonIds = [...set];
       render();
     });
@@ -6623,7 +6655,8 @@ function importCharacterFromExportPayload(data) {
     const bb = bundle.boons?.[id];
     return !bb || !boonIsPurviewInnateAutomaticGrant(bb, bundle);
   });
-  if (boonIds.length > MAX_WIZARD_BOON_PICKS) boonIds = boonIds.slice(0, MAX_WIZARD_BOON_PICKS);
+  const importBoonCap = maxWizardBoonPicksForTier(tier, bundle);
+  if (Number.isFinite(importBoonCap) && boonIds.length > importBoonCap) boonIds = boonIds.slice(0, importBoonCap);
   let knackIds = Array.isArray(data.knackIds)
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [];

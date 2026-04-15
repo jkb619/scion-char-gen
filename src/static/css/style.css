@@ -837,6 +837,22 @@ textarea.has-doc-hint:focus-visible {
   gap: 0.75rem 1rem;
 }
 
+/* Paths: parent patron Purview slots — always two columns (not three from auto-fit). */
+.patron-purviews-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 36rem) {
+  .patron-purviews-slot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /*
  * Three equal columns on narrow viewports (`.grid-2` uses minmax(240px) and stacks).
  * Skills: path priority — all non-Dragon tiers (deity, titan, sorcerer, etc.) + Dragon.
@@ -1139,14 +1155,31 @@ textarea.has-doc-hint:focus-visible {
   margin-top: 0.1rem;
 }
 
-/* Purviews step: selected chip expands to show innate text (not choosable like Boons) */
-.purview-chip-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  max-width: min(100%, 22rem);
-  margin-bottom: 0.15rem;
+.purviews-patron-innate-chips .purview-chip {
+  flex: 0 1 auto;
+}
+
+/* Purviews step: innate preview for the focused chip sits below the whole chip row (no reflow). */
+.purview-innate-below-chips {
+  width: 100%;
+  max-width: 48rem;
+  margin-top: 0.55rem;
+  padding: 0.45rem 0.6rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(12, 14, 18, 0.55);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+  box-sizing: border-box;
+}
+
+.purview-innate-below-chips:empty {
+  display: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .purview-innate-under-chip {

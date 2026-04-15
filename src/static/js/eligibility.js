@@ -33,6 +33,30 @@ export function isPostHeroBandCallingTierId(tierId) {
   return t === "demigod" || t === "god" || t === "sorcerer_demigod" || t === "sorcerer_god";
 }
 
+/** Hero / Titanic / Heroic Sorcerer: two starting Purview Boons on the wizard Boons step (Hero-style chargen). */
+export const MAX_HERO_BAND_WIZARD_BOON_PICKS = 2;
+
+/**
+ * Boons wizard: cap at {@link MAX_HERO_BAND_WIZARD_BOON_PICKS} for Hero-band tiers; uncapped when `tier.json`
+ * lists a `boons` step for any other tier (Demigod, God, divine-band Sorcerer, etc.). Tiers without a Boons step
+ * use the Hero-band cap so stray imports stay bounded. If the bundle row is missing, Demigod+ ids still return
+ * uncapped picks (same as `isPostHeroBandCallingTierId`).
+ *
+ * @param {string | undefined} tierId
+ * @param {{ tier?: Record<string, { wizardSteps?: string[] }> }} [bundle]
+ */
+export function maxWizardBoonPicksForTier(tierId, bundle) {
+  const t = normalizedTierIdEligibility(tierId);
+  const tierRow = bundle?.tier?.[t];
+  const steps = tierRow && Array.isArray(tierRow.wizardSteps) ? tierRow.wizardSteps : null;
+  if (steps && steps.includes("boons")) {
+    if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return MAX_HERO_BAND_WIZARD_BOON_PICKS;
+    return Number.POSITIVE_INFINITY;
+  }
+  if (isPostHeroBandCallingTierId(t)) return Number.POSITIVE_INFINITY;
+  return MAX_HERO_BAND_WIZARD_BOON_PICKS;
+}
+
 /**
  * Hero-band tiers (Hero / Titanic / Heroic Sorcerer): one Immortal Knack costs two Calling “slots”
  * and must sit on a Calling row with two+ dots (Hero p.184). Demigod/God use 1:1 slots (no double cost).
