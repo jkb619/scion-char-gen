@@ -635,6 +635,210 @@
   border-bottom: none;
 }
 
+/* Titanic line (red) — same remap pattern as Dragon green on cs-mcg-* */
+.character-sheet--mcg-titan {
+  --ttn-ink: #1a0f12;
+  --ttn-paper: #faf6f6;
+  --ttn-line: #9a6f78;
+  --ttn-stone: #3d2028;
+  --ttn-ember: #9e3442;
+  --ttn-muted: #5c3d44;
+  --cs-ink: var(--ttn-ink);
+  --cs-paper: var(--ttn-paper);
+  --cs-line: var(--ttn-line);
+  --cs-accent: var(--ttn-ember);
+  --cs-muted: var(--ttn-muted);
+  background:
+    radial-gradient(ellipse 100% 45% at 50% 0%, rgba(255, 255, 255, 0.92), transparent 55%),
+    linear-gradient(178deg, #f6f0f1 0%, #e8dce0 55%, #d8c8cc 100%);
+  border: 3px solid var(--ttn-stone);
+  color: var(--ttn-ink);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 10px 32px rgba(0, 0, 0, 0.38);
+}
+
+.character-sheet--mcg-titan .cs-page--mcg {
+  border-left: 6px solid #6b2a38;
+  border-right: 6px solid #6b2a38;
+  border-bottom: 2px solid rgba(61, 32, 40, 0.28);
+  background: rgba(255, 252, 252, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(74, 45, 56, 0.12);
+}
+
+.character-sheet--mcg-titan .cs-mcg-band-title {
+  background: linear-gradient(180deg, #4f3a40, #221a1c);
+  color: #faf4f6;
+  border-color: #140f10;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.character-sheet--mcg-titan .cs-mcg-path-col,
+.character-sheet--mcg-titan .cs-mcg-skill-col,
+.character-sheet--mcg-titan .cs-mcg-attr-cell {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--ttn-line);
+}
+
+.character-sheet--mcg-titan .cs-mcg-skill-row {
+  border-bottom-color: rgba(120, 88, 96, 0.42);
+}
+
+.character-sheet--mcg-titan .cs-mcg-knack-block {
+  border-bottom-color: rgba(120, 88, 96, 0.42);
+}
+
+.character-sheet--mcg-titan .cs-mcg-mini-table th,
+.character-sheet--mcg-titan .cs-mcg-eq-table th {
+  background: rgba(74, 45, 56, 0.12);
+}
+
+.character-sheet--mcg-titan .cs-mcg-sq {
+  border-color: var(--ttn-line);
+  background: rgba(232, 220, 224, 0.92);
+}
+
+.character-sheet--mcg-titan .cs-mcg-sheet-tick {
+  border-color: var(--ttn-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--mcg-titan .cs-mcg-pool-check input.cs-mcg-pool-check-input {
+  border-color: var(--ttn-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--mcg-titan .cs-mcg-pool-check input.cs-mcg-pool-check-input:checked {
+  background: var(--ttn-ember);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.95);
+}
+
+.character-sheet--mcg-titan .cs-mcg-br-block,
+.character-sheet--mcg-titan .cs-mcg-fb-block,
+.character-sheet--mcg-titan .cs-mcg-cond-cols > div {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--ttn-line);
+}
+
+.character-sheet--mcg-titan .cs-mcg-sheet-footer {
+  border-top-color: var(--ttn-line);
+}
+
+.character-sheet--mcg-titan .cs-mcg-finishing-strip {
+  background: rgba(158, 52, 60, 0.08);
+}
+
+.character-sheet--mcg-titan .cs-dot.on {
+  background: linear-gradient(145deg, #e6c5c8, #905a62);
+  border-color: #4a2d34;
+}
+
+.character-sheet--mcg-titan .cs-health-note {
+  color: var(--ttn-muted);
+}
+
+/* Sorcerer line (blue) — same remap pattern as Dragon green on cs-mcg-* */
+.character-sheet--mcg-sorcerer {
+  --src-ink: #0f141c;
+  --src-paper: #f6f8fc;
+  --src-line: #7a8fa8;
+  --src-stone: #243040;
+  --src-arc: #3d6b9e;
+  --src-muted: #3d4a5a;
+  --cs-ink: var(--src-ink);
+  --cs-paper: var(--src-paper);
+  --cs-line: var(--src-line);
+  --cs-accent: var(--src-arc);
+  --cs-muted: var(--src-muted);
+  background:
+    radial-gradient(ellipse 100% 45% at 50% 0%, rgba(255, 255, 255, 0.92), transparent 55%),
+    linear-gradient(178deg, #f0f3f8 0%, #dce4ec 55%, #c8d2e0 100%);
+  border: 3px solid var(--src-stone);
+  color: var(--src-ink);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 10px 32px rgba(0, 0, 0, 0.38);
+}
+
+.character-sheet--mcg-sorcerer .cs-page--mcg {
+  border-left: 6px solid #335a82;
+  border-right: 6px solid #335a82;
+  border-bottom: 2px solid rgba(36, 48, 64, 0.26);
+  background: rgba(252, 253, 255, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(45, 60, 74, 0.12);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-band-title {
+  background: linear-gradient(180deg, #3a4554, #1a2028);
+  color: #f4f8fc;
+  border-color: #0f1218;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-path-col,
+.character-sheet--mcg-sorcerer .cs-mcg-skill-col,
+.character-sheet--mcg-sorcerer .cs-mcg-attr-cell {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--src-line);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-skill-row {
+  border-bottom-color: rgba(90, 110, 130, 0.42);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-knack-block {
+  border-bottom-color: rgba(90, 110, 130, 0.42);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-mini-table th,
+.character-sheet--mcg-sorcerer .cs-mcg-eq-table th {
+  background: rgba(45, 60, 74, 0.12);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-sq {
+  border-color: var(--src-line);
+  background: rgba(220, 228, 240, 0.92);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-sheet-tick {
+  border-color: var(--src-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-pool-check input.cs-mcg-pool-check-input {
+  border-color: var(--src-line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-pool-check input.cs-mcg-pool-check-input:checked {
+  background: var(--src-arc);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.95);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-br-block,
+.character-sheet--mcg-sorcerer .cs-mcg-fb-block,
+.character-sheet--mcg-sorcerer .cs-mcg-cond-cols > div {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: var(--src-line);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-sheet-footer {
+  border-top-color: var(--src-line);
+}
+
+.character-sheet--mcg-sorcerer .cs-mcg-finishing-strip {
+  background: rgba(61, 107, 158, 0.08);
+}
+
+.character-sheet--mcg-sorcerer .cs-dot.on {
+  background: linear-gradient(145deg, #c5d4e8, #5a78a0);
+  border-color: #2d3c50;
+}
+
+.character-sheet--mcg-sorcerer .cs-health-note {
+  color: var(--src-muted);
+}
+
 .cs-mcg-p1-top {
   margin-bottom: 0.5rem;
 }
@@ -1531,7 +1735,9 @@
 }
 
 @media print {
-  .character-sheet--mcg {
+  .character-sheet--mcg,
+  .character-sheet--mcg-titan,
+  .character-sheet--mcg-sorcerer {
     max-width: none;
     margin: 0;
     box-shadow: none;
@@ -1539,7 +1745,9 @@
     background: #fff;
   }
 
-  .character-sheet--mcg .cs-page--mcg {
+  .character-sheet--mcg .cs-page--mcg,
+  .character-sheet--mcg-titan .cs-page--mcg,
+  .character-sheet--mcg-sorcerer .cs-page--mcg {
     border-left: 2px solid #333;
     border-right: 2px solid #333;
     background: #fff;

@@ -28,13 +28,17 @@ body.sheet-pdf-export .character-sheet {
 }
 
 body.sheet-pdf-export .character-sheet--mcg,
+body.sheet-pdf-export .character-sheet--mcg-titan,
+body.sheet-pdf-export .character-sheet--mcg-sorcerer,
 body.sheet-pdf-export .character-sheet--dragon-heir {
   max-width: 100% !important;
   width: 100%;
   box-sizing: border-box;
 }
 
-body.sheet-pdf-export .character-sheet--mcg {
+body.sheet-pdf-export .character-sheet--mcg,
+body.sheet-pdf-export .character-sheet--mcg-titan,
+body.sheet-pdf-export .character-sheet--mcg-sorcerer {
   font-size: 0.76rem;
   line-height: 1.32;
   padding: 0.38rem 0.3rem 0.48rem !important;
@@ -47,6 +51,8 @@ body.sheet-pdf-export .character-sheet--dragon-heir {
 }
 
 body.sheet-pdf-export .character-sheet--mcg .cs-page--mcg,
+body.sheet-pdf-export .character-sheet--mcg-titan .cs-page--mcg,
+body.sheet-pdf-export .character-sheet--mcg-sorcerer .cs-page--mcg,
 body.sheet-pdf-export .character-sheet--dragon-heir .cs-page--dragon {
   padding: 0.45rem 0.48rem 0.72rem !important;
   margin-bottom: 0.5rem !important;

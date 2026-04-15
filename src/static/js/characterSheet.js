@@ -243,8 +243,19 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   const skillName = (id) => skills[id]?.name || id;
   const attrName = (id) => attrs[id]?.name || id;
 
+  const patronKind = String(data.patronKind ?? "").trim().toLowerCase();
+  const isTitanLine = patronKind === "titan" || tierKeyNorm === "titanic";
+  const isSorcererLine =
+    tierKeyNorm === "sorcerer" ||
+    tierKeyNorm === "sorcerer_hero" ||
+    tierKeyNorm === "sorcerer_demigod" ||
+    tierKeyNorm === "sorcerer_god";
+  let mcgPaletteClass = "";
+  if (isSorcererLine) mcgPaletteClass = " character-sheet--mcg-sorcerer";
+  else if (isTitanLine) mcgPaletteClass = " character-sheet--mcg-titan";
+
   const el = document.createElement("div");
-  el.className = "character-sheet character-sheet--mcg";
+  el.className = "character-sheet character-sheet--mcg" + mcgPaletteClass;
   el.dataset.sheetLayout = "mcg4";
 
   function dotTrack(n) {

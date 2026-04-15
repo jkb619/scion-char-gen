@@ -240,6 +240,29 @@ const DEFAULT_TIER_ADVANCEMENT = {
     source: "Scion: God — Apotheosis and full Godhood.",
     checklist: ["Godhood, Mantles, and Legend 8–10+ per your chronicle and Scion: God."],
   },
+  /** Titans Rising + S&M: same Apotheosis jump as deity-line Hero → Demigod when bundle JSON is absent. */
+  titanic: {
+    nextTier: "demigod",
+    source: "Saints & Monsters / Titans Rising — Titanic Apotheosis toward Demigod-scale play.",
+    checklist: [
+      "Resolve Maelstrom Heart / Epicenter suppression and Collateral (or Tension alternate) per PDF.",
+      "Update Calling dots, Knacks, Purviews, and Birthrights for Demigod when your table advances you.",
+      "Raise Legend in the header when your chronicle agrees.",
+    ],
+  },
+  god: {
+    nextTier: null,
+    source: "Scion: God — top of the deity/titanic ladder in this app; further growth is chronicle-specific.",
+    checklist: ["Record Mantles, Purviews, Fatebindings, and Marvel limits with Scion: God at the table."],
+  },
+  sorcerer_god: {
+    nextTier: null,
+    source: "Saints & Monsters — top of the written Sorcerer ladder in this chapter.",
+    checklist: [
+      "You may know four of the five Workings; the fifth remains inaccessible without Storyguide exception (p. 65).",
+      "Record Motif, Sources of Power, and any Denizen / Saint crossover hooks at the table.",
+    ],
+  },
 };
 
 function normalizedTierId(tierId) {
@@ -419,7 +442,8 @@ function getTierAdvancementRule(tierId) {
   const fallback = DEFAULT_TIER_ADVANCEMENT[id];
   const fromBundle = bundle?.tierAdvancement?.[id];
   const merged = { ...(fallback || {}), ...(fromBundle || {}) };
-  if (!merged.nextTier) return null;
+  /* Top tiers use `nextTier: null`; still return metadata (checklist/source) for Review UI. */
+  if (!("nextTier" in merged)) return null;
   return merged;
 }
 
@@ -681,18 +705,17 @@ function renderMythosInnatePowerPanel(wrap) {
   leg.textContent = "Standard innate vs Awareness Innate";
   fieldset.appendChild(leg);
 
-  const heroLikeInnate =
-    normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic";
+  const singlePatronSlotUi = patronPurviewSingleSlotHeroStyle();
 
   const stdBlock = document.createElement("div");
   stdBlock.className = "field mythos-innate-standard-block";
   const stdTitle = document.createElement("div");
   stdTitle.className = "field mythos-innate-subhead";
-  stdTitle.textContent = heroLikeInnate ? "Standard innate (patron Purview)" : "Standard innate Purview";
+  stdTitle.textContent = singlePatronSlotUi ? "Standard innate (patron Purview)" : "Standard innate Purview";
   stdBlock.appendChild(stdTitle);
   const stdP = document.createElement("p");
   stdP.className = "help";
-  if (heroLikeInnate) {
+  if (singlePatronSlotUi) {
     stdP.innerHTML =
       "On Hero / Titanic, choose your patron innate with the <strong>Patron innate Purview</strong> chips <strong>above</strong>. That uses the <strong>standard innate</strong> from <strong>Pandora’s Box (Revised)</strong> (and Hero where PB points there)—not the Awareness dropdown in this section.";
   } else {
@@ -713,7 +736,7 @@ function renderMythosInnatePowerPanel(wrap) {
     w.className = "warn";
     w.textContent = "This divine parent has no patron Purviews listed in pantheon data yet.";
     stdBlock.appendChild(w);
-  } else if (!heroLikeInnate) {
+  } else if (!singlePatronSlotUi) {
     const ul = document.createElement("ul");
     ul.className = "mythos-innate-parent-purviews";
     for (const pid of [...parentPvIds].sort((a, b) =>
@@ -737,17 +760,18 @@ function renderMythosInnatePowerPanel(wrap) {
   fieldset.appendChild(awTitle);
   const awIntro = document.createElement("p");
   awIntro.className = "help";
-  awIntro.innerHTML = heroLikeInnate
+  awIntro.innerHTML = singlePatronSlotUi
     ? "The <strong>dropdown</strong> is only for picking <strong>which parent Purview</strong> receives MotM’s <strong>Awareness Innate</strong> text if you press <strong>Awareness Innate Power…</strong>. It does <strong>not</strong> set your normal innate—that stays the chip selection above unless you commit and replace the model (MotM pp. 49–59; irreversible once committed)."
     : "Optionally commit to the <strong>Awareness Innate</strong> for <strong>one</strong> Purview from your <strong>divine parent’s</strong> list (MotM pp. 49–59). Once confirmed, you cannot revert.";
   fieldset.appendChild(awIntro);
 
-  const heroTier = normalizedTierId(character.tier) === "hero" || normalizedTierId(character.tier) === "titanic";
+  const mythosAwarenessInlineLayout = singlePatronSlotUi;
   const rowPv = document.createElement("div");
-  rowPv.className = "field mythos-innate-awareness-row" + (heroTier ? " mythos-innate-awareness-row--hero-inline" : "");
+  rowPv.className =
+    "field mythos-innate-awareness-row" + (mythosAwarenessInlineLayout ? " mythos-innate-awareness-row--hero-inline" : "");
   const labPv = document.createElement("label");
   labPv.htmlFor = "f-mythos-innate-purview";
-  labPv.textContent = heroLikeInnate
+  labPv.textContent = singlePatronSlotUi
     ? "Purview for Awareness Innate (parent list; if committing)"
     : "Purview (must be on divine parent’s list)";
   const sel = document.createElement("select");
@@ -779,7 +803,7 @@ function renderMythosInnatePowerPanel(wrap) {
   commitBtn.textContent = "Awareness Innate Power…";
   commitWrap.appendChild(commitBtn);
 
-  if (heroTier) {
+  if (mythosAwarenessInlineLayout) {
     const labRow = document.createElement("div");
     labRow.className = "field mythos-innate-awareness-label";
     labRow.appendChild(labPv);
@@ -915,8 +939,18 @@ function appendSkillRatingNameCell(tr, sid, skillMeta, val, opts) {
       if (t) character.skillSpecialties[sid] = specIn.value;
       else delete character.skillSpecialties[sid];
     };
-    specIn.addEventListener("input", syncSpec);
-    specIn.addEventListener("change", syncSpec);
+    const onSpecFieldEdit = () => {
+      syncSpec();
+      refreshFinishingWizardGateUiFromDom();
+    };
+    specIn.addEventListener("input", onSpecFieldEdit);
+    specIn.addEventListener("change", onSpecFieldEdit);
+    specIn.addEventListener("blur", onSpecFieldEdit);
+    specIn.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      onSpecFieldEdit();
+    });
     nameRow.appendChild(specWrap);
   }
   nameTd.appendChild(nameRow);
@@ -1930,11 +1964,24 @@ function pantheonSignaturePurviewId() {
   return id;
 }
 
+/** Tiers that may carry Hero-era Signature / patron Purview ids into Demigod+ saves. */
+function tierAllowsSignaturePatronMigration() {
+  const t = normalizedTierId(character.tier);
+  return (
+    t === "hero" ||
+    t === "titanic" ||
+    t === "demigod" ||
+    t === "god" ||
+    t === "sorcerer_hero" ||
+    t === "sorcerer_demigod" ||
+    t === "sorcerer_god"
+  );
+}
+
 /** Hero Æsir: older saves stored Signature as `fortune`; migrate to `wyrd` when parent does not grant Fortune. */
 function migrateAesirLegacyFortuneSignatureToWyrd() {
   if (!bundle?.purviews?.wyrd || !bundle?.pantheons?.aesir) return;
-  const tnA = normalizedTierId(character.tier);
-  if ((tnA !== "hero" && tnA !== "titanic") || character.pantheonId !== "aesir") return;
+  if (!tierAllowsSignaturePatronMigration() || character.pantheonId !== "aesir") return;
   if (pantheonSignaturePurviewId() !== "wyrd") return;
   const ids = character.purviewIds || [];
   if (ids.includes("wyrd")) return;
@@ -1948,8 +1995,7 @@ function migrateAesirLegacyFortuneSignatureToWyrd() {
  * When the parent’s patron list does not grant the legacy id, swap it for the current `signaturePurviewId`.
  */
 function migrateLegacyPantheonSignaturePurviewIds() {
-  const t = normalizedTierId(character.tier);
-  if (t !== "hero" && t !== "titanic") return;
+  if (!tierAllowsSignaturePatronMigration()) return;
   const rows = [
     ["kami", "yaoyorozuNoKamigami", "moon"],
     ["manitou", "dodaem", "wild"],
@@ -2123,11 +2169,11 @@ function renderPatronPurviewPanel(mount) {
   }
   const intro = document.createElement("p");
   intro.className = "help";
-  const tierPv = normalizedTierId(character.tier);
-  if (tierPv === "hero" || tierPv === "titanic") {
+  if (patronPurviewSingleSlotHeroStyle()) {
     const sig = pantheonSignaturePurviewId();
     const sigLab = sig ? pantheonSignaturePurviewDisplayLabel() : "— (set pantheon in data)";
-    const tierLab = tierPv === "titanic" ? "Titanic (Hero-tier)" : "Hero";
+    const tierPv = normalizedTierId(character.tier);
+    const tierLab = tierPv === "titanic" ? "Titanic (Hero-tier)" : tierPv === "hero" ? "Hero" : bundle.tier?.[character.tier]?.name || "this tier";
     intro.innerHTML = `At <strong>${tierLab}</strong>, pick <strong>one innate Purview</strong> from this parent’s list below. Your pantheon’s <strong>Signature Purview</strong> (<strong>${sigLab}</strong>) is added automatically on the Purviews step — you do not spend your single pick on it.`;
   } else {
     intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (same id may not appear twice — changing a slot to one already chosen swaps the two). Other Purviews (Relics, etc.) are chosen on the Purviews step.`;
@@ -2889,6 +2935,11 @@ function patronPurviewSlotLimitForCharacter() {
   return PATRON_PURVIEW_SLOT_COUNT;
 }
 
+/** Hero / Titanic Paths: one patron innate slot; Demigod+ uses up to four (tier.json). */
+function patronPurviewSingleSlotHeroStyle() {
+  return patronPurviewSlotLimitForCharacter() === 1;
+}
+
 /** Mortal / Sorcerer (no Purviews step): drop Purview and Boon picks so export and gates match the books. */
 function clearPurviewsAndBoonsIfInapplicableTier() {
   if (tierHasPurviewStep(character.tier)) return;
@@ -2897,7 +2948,11 @@ function clearPurviewsAndBoonsIfInapplicableTier() {
   character.boonIds = [];
 }
 
-/** First wizard step id present in `newTier` but not in `oldTier` (same lists → Review). */
+/**
+ * First wizard step the player should open after advancing from `oldTierId` to `newTierId`.
+ * Prefers a step present in the new tier but not the old; when both tiers share the same
+ * `wizardSteps` (e.g. Hero→Demigod), falls back to Callings then other progression tabs — not Review.
+ */
 function firstNewWizardStepIndex(oldTierId, newTierId) {
   const oldN = normalizedTierId(oldTierId);
   const newN = normalizedTierId(newTierId);
@@ -2917,8 +2972,30 @@ function firstNewWizardStepIndex(oldTierId, newTierId) {
   const steps = stepDefsForTier(newTierId);
   const idx = steps.findIndex((s) => !oldSet.has(s));
   if (idx >= 0) return idx;
+  /**
+   * Several tier pairs (e.g. Hero→Demigod, Demigod→God, Sorcerer Hero→Divine band) use the same
+   * `wizardSteps` list in `tier.json`, so nothing is strictly “new” vs the old tier. Review would
+   * be a dead-end for “what do I update next?” — prefer the first substantive chargen tab instead.
+   */
+  const priority = [
+    "calling",
+    "workings",
+    "sorcerer",
+    "purviews",
+    "birthrights",
+    "boons",
+    "titanicExtras",
+    "paths",
+    "skills",
+    "attributes",
+    "concept",
+  ];
+  for (const id of priority) {
+    const i = steps.indexOf(id);
+    if (i >= 0) return i;
+  }
   const ri = steps.indexOf("review");
-  return ri >= 0 ? ri : Math.max(0, steps.length - 1);
+  return ri >= 0 ? ri : 0;
 }
 
 function buildAdvanceConfirmMessage(adv, nextTierName) {
@@ -2997,14 +3074,14 @@ function updateHeaderTierDisplay() {
   if (isDragonHeirChargen(character) && bundle?.dragonTier && bundle?.dragonFlights) {
     ensureDragonShape(character, bundle);
     const d = character.dragon;
-    const inh = String(d.inheritance ?? "1");
-    const m = bundle.dragonTier?.inheritanceTrack?.[inh];
+    const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
+    const m = bundle.dragonTier?.inheritanceTrack?.[String(inhN)];
     el.title =
       "Heirs use Inheritance (1–10; True Dragon at 10) instead of Legend for this line. Chargen follows the shared Origin spine, then the same wizard tabs as Origin Mortal with Dragon-specific steps after Concept (Scion: Dragon pp. 110–119).";
     const tierLine = document.createElement("div");
     tierLine.className = "header-tier-line";
     const fl = bundle.dragonFlights[d.flightId];
-    const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inh}`;
+    const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inhN}`;
     tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Paths)`;
     el.appendChild(tierLine);
     return;
@@ -5294,18 +5371,19 @@ function renderFinishing(root) {
   const overAt = placedAt > (character.finishing.extraAttributeDots || 0);
 
   const sum = document.createElement("p");
+  sum.id = "fin-budget-summary";
   sum.className = "help finishing-budget-summary";
   sum.textContent = `Skill finishing: ${placedSk} / ${character.finishing.extraSkillDots || 0} dots placed (${remSk} remaining). Attribute finishing: ${placedAt} / ${character.finishing.extraAttributeDots || 0} dot(s) placed (${remAt} remaining).`;
   wrap.appendChild(sum);
 
-  if (overSk || overAt) {
-    const w = document.createElement("p");
-    w.className = "warn";
-    w.textContent =
-      (overSk ? "Placed skill dots exceed the budget — raise “Extra skill dots” or lower Skills below. " : "") +
-      (overAt ? "Placed attribute dots exceed the budget — raise “Extra attribute dot(s)” or lower Attributes below." : "");
-    wrap.appendChild(w);
-  }
+  const w = document.createElement("p");
+  w.id = "fin-budget-warn";
+  w.className = "warn";
+  w.hidden = !(overSk || overAt);
+  w.textContent =
+    (overSk ? "Placed skill dots exceed the budget — raise “Extra skill dots” or lower Skills below. " : "") +
+    (overAt ? "Placed attribute dots exceed the budget — raise “Extra attribute dot(s)” or lower Attributes below." : "");
+  wrap.appendChild(w);
 
   const missingSpec = skillIdsMissingChargenSpecialties();
   if (missingSpec.length > 0) {
@@ -5358,6 +5436,7 @@ function renderFinishing(root) {
   wrap.appendChild(skPanel);
 
   const atPanel = document.createElement("section");
+  atPanel.id = "fin-attrs-panel";
   atPanel.className = "panel finishing-place-panel" + (overAt ? " panel-gate-invalid" : "");
   const atH = document.createElement("h2");
   atH.textContent = "Attributes — spend finishing dot(s)";
@@ -5784,8 +5863,20 @@ function renderFinishing(root) {
     character.finishing.extraAttributeDots = Math.max(0, Number(document.getElementById("fin-attr")?.value || 0));
     render();
   };
-  document.getElementById("fin-skill").onchange = syncBudget;
-  document.getElementById("fin-attr").onchange = syncBudget;
+  const finSkillInput = document.getElementById("fin-skill");
+  const finAttrInput = document.getElementById("fin-attr");
+  finSkillInput.onchange = syncBudget;
+  finAttrInput.onchange = syncBudget;
+  finSkillInput.addEventListener("input", () => {
+    ensureFinishingShape();
+    character.finishing.extraSkillDots = Math.max(0, Number(finSkillInput.value || 0));
+    refreshFinishingWizardGateUiFromDom();
+  });
+  finAttrInput.addEventListener("input", () => {
+    ensureFinishingShape();
+    character.finishing.extraAttributeDots = Math.max(0, Number(finAttrInput.value || 0));
+    refreshFinishingWizardGateUiFromDom();
+  });
   if (finFocusEl) {
     finFocusEl.onchange = (e) => {
       ensureFinishingShape();
@@ -5931,7 +6022,7 @@ function renderReview(root) {
         ? normalizedTierId(character.tier) === "sorcerer_god"
           ? "Already at top Sorcerer tier"
           : "No scripted next tier"
-        : character.tier === "god"
+        : normalizedTierId(character.tier) === "god"
           ? "Already at God tier"
           : "No further tier";
     } else {
@@ -5945,7 +6036,8 @@ function renderReview(root) {
       if (!res) return;
       updateHeaderTierDisplay();
       stepIndex = firstNewWizardStepIndex(res.oldTier, res.newTier);
-      reviewViewMode = "sheet";
+      const landedStep = stepDefsForTier(res.newTier)[stepIndex];
+      if (landedStep === "review") reviewViewMode = "sheet";
       render();
       scrollWizardStepIntoView();
     });
@@ -6741,6 +6833,105 @@ function persistSkillSpecialtiesFromForm() {
     const t = inp.value.trim();
     if (t) character.skillSpecialties[sid] = inp.value;
     else delete character.skillSpecialties[sid];
+  }
+}
+
+/**
+ * Finishing step only: sync specialties (and budget inputs) from the DOM, then refresh the Next button
+ * and inline gate visuals without a full `render()` (keeps focus/caret in Specialty fields).
+ */
+function refreshFinishingWizardGateUiFromDom() {
+  const steps = stepDefsForTier(character.tier);
+  const step = steps[stepIndex];
+  if (step !== "finishing" || isDragonHeirChargen(character)) return;
+  persistSkillSpecialtiesFromForm();
+  ensureFinishingShape();
+  const finSkillEl = document.getElementById("fin-skill");
+  const finAttrEl = document.getElementById("fin-attr");
+  if (finSkillEl) character.finishing.extraSkillDots = Math.max(0, Number(finSkillEl.value || 0));
+  if (finAttrEl) character.finishing.extraAttributeDots = Math.max(0, Number(finAttrEl.value || 0));
+
+  const host = document.getElementById("wizard-step-host");
+  if (!host) return;
+
+  const placedSk = finishingSkillDotsPlaced();
+  const remSk = finishingSkillDotsRemaining();
+  const placedAt = finishingAttrDotsPlaced();
+  const remAt = finishingAttrDotsRemaining();
+  const overSk = placedSk > (character.finishing.extraSkillDots || 0);
+  const overAt = placedAt > (character.finishing.extraAttributeDots || 0);
+  const missing = skillIdsMissingChargenSpecialties();
+  const missingSet = new Set(missing);
+
+  const summary = document.getElementById("fin-budget-summary");
+  if (summary) {
+    summary.textContent = `Skill finishing: ${placedSk} / ${character.finishing.extraSkillDots || 0} dots placed (${remSk} remaining). Attribute finishing: ${placedAt} / ${character.finishing.extraAttributeDots || 0} dot(s) placed (${remAt} remaining).`;
+  }
+
+  const warnEl = document.getElementById("fin-budget-warn");
+  if (warnEl) {
+    warnEl.hidden = !(overSk || overAt);
+    warnEl.textContent =
+      (overSk ? "Placed skill dots exceed the budget — raise “Extra skill dots” or lower Skills below. " : "") +
+      (overAt ? "Placed attribute dots exceed the budget — raise “Extra attribute dot(s)” or lower Attributes below." : "");
+  }
+
+  const skPanel = host.querySelector(".finishing-skills-table")?.closest(".finishing-place-panel");
+  if (skPanel) {
+    skPanel.classList.toggle("panel-gate-invalid", overSk || missing.length > 0);
+  }
+
+  const atPanel = document.getElementById("fin-attrs-panel");
+  if (atPanel) {
+    atPanel.classList.toggle("panel-gate-invalid", overAt);
+  }
+
+  let gateBox = host.querySelector(".skills-gate-errors");
+  if (missing.length === 0) {
+    gateBox?.remove();
+  } else {
+    if (!gateBox) {
+      gateBox = document.createElement("div");
+      gateBox.className = "skills-gate-errors";
+      gateBox.setAttribute("role", "alert");
+      const gt = document.createElement("p");
+      gt.className = "skills-gate-errors-title";
+      gt.textContent = "Fix the following before leaving Finishing:";
+      gateBox.appendChild(gt);
+      const ul = document.createElement("ul");
+      gateBox.appendChild(ul);
+      skPanel?.insertAdjacentElement("beforebegin", gateBox);
+    }
+    let ul = gateBox.querySelector("ul");
+    if (!ul) {
+      ul = document.createElement("ul");
+      gateBox.appendChild(ul);
+    }
+    ul.innerHTML = "";
+    for (const sid of missing) {
+      const li = document.createElement("li");
+      li.textContent = `${bundle.skills?.[sid]?.name || sid} is at 3 or more dots — enter a Specialty in the Skills table below.`;
+      ul.appendChild(li);
+    }
+  }
+
+  for (const inp of host.querySelectorAll('input[id^="specialty-"]')) {
+    const tr = inp.closest("tr");
+    if (!tr || !tr.classList.contains("skill-rating-row")) continue;
+    const sid = String(inp.id || "").replace(/^specialty-/, "");
+    tr.classList.toggle("skill-rating-row--gate-invalid", missingSet.has(sid));
+  }
+
+  const nextBtn = host.querySelector(".step-actions .btn.primary");
+  if (nextBtn && nextBtn.textContent.trim() === "Next") {
+    const spBlock = skillsNeedSpecialtyBlockingFinishingAdvance();
+    if (spBlock) {
+      nextBtn.disabled = true;
+      nextBtn.title = spBlock;
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.removeAttribute("title");
+    }
   }
 }
 

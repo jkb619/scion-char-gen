@@ -41,6 +41,9 @@ const ARENAS = {
 };
 const APPROACH_FOR_ATTR = { might: "Power", dexterity: "Finesse", stamina: "Resilience" };
 
+/** Heir Inheritance milestones (Scion: Dragon pp. 117–119); keep aligned with `data/dragonTier.json` and `DRAGON_INHERITANCE_MAX` in app.js / DragonChargenWizard.js. */
+const DRAGON_INHERITANCE_STAGE_COUNT = 10;
+
 /**
  * @param {HTMLElement} el
  * @param {{
@@ -481,10 +484,13 @@ export function fillDragonFourPageLayout(el, api) {
   inhL.textContent = "Inheritance";
   const inhDotsCell = document.createElement("div");
   inhDotsCell.className = "cs-mcg-legend-dots-cell";
-  const inhFill = Math.min(4, Math.max(0, Math.round(Number(data.inheritance) || 0)));
+  const inhFill = Math.min(
+    DRAGON_INHERITANCE_STAGE_COUNT,
+    Math.max(0, Math.round(Number(data.inheritance) || 0)),
+  );
   const inhTrack = document.createElement("div");
-  inhTrack.className = "cs-mcg-legend-pool-track";
-  for (let i = 1; i <= 4; i += 1) {
+  inhTrack.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
+  for (let i = 1; i <= DRAGON_INHERITANCE_STAGE_COUNT; i += 1) {
     const col = document.createElement("div");
     col.className = "cs-mcg-legend-pool-col";
     const dot = document.createElement("span");

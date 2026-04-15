@@ -36,6 +36,13 @@
       "Set Legend in the header to match God-tier play (often 8–10+); this wizard does not auto-fill Legend on tier advance."
     ]
   },
+  "god": {
+    "nextTier": null,
+    "source": "Scion: God — top of the deity/titanic ladder in this app; further growth is chronicle-specific.",
+    "checklist": [
+      "Record Mantles, Purviews, Fatebindings, and Marvel limits with Scion: God at the table."
+    ]
+  },
   "sorcerer": {
     "nextTier": "sorcerer_hero",
     "source": "Saints & Monsters ch. 3 — moving from Mortal-band to Heroic-band Sorcerer (Legend 1+): extra Working, Techniques, Paraphernalia, and Purviews.",
