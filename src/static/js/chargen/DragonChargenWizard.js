@@ -27,6 +27,7 @@ import {
 } from "../fatebindingsSheet.js";
 import { appendFatebindingsFinishingEditor } from "../fatebindingsFinishingEditor.js";
 import { appendFinishingExtendedNotesPanel } from "../finishingExtendedNotesPanel.js";
+import { appendSkillRatingsTableThead, skillIdsSplitForSkillsTables } from "../skillTableColumns.js";
 import {
   isChargenWizardHiddenBirthrightRow,
   isChargenWizardHiddenEquipmentRow,
@@ -693,10 +694,14 @@ function dragonBumpPathSkillRedistribution(d, bundle, sid, delta) {
   applyDragonPathMathToSkillDots(d, bundle);
 }
 
-/** Same layout/classes as main wizard `appendSkillRatingNameCell` (Deity/Titan Skills step). */
-function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d) {
+/**
+ * Same layout as main wizard `appendSkillRatingNameCell`.
+ * @param {{ skillsTableSpecialty?: boolean }} [opts] If true, same compact specialty cell as Skills + Finishing in main wizard.
+ */
+function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d, opts) {
+  const skillsTable = opts?.skillsTableSpecialty === true;
   const nameTd = document.createElement("td");
-  nameTd.className = "skill-ratings-col-name";
+  nameTd.className = "skill-ratings-col-name" + (skillsTable ? " skill-ratings-col-name--skills-step" : "");
   const nameRow = document.createElement("div");
   nameRow.className = "skill-ratings-name-row";
   const nameSpan = document.createElement("span");
@@ -706,16 +711,34 @@ function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d) {
   nameRow.appendChild(nameSpan);
   if (val >= 3) {
     const specWrap = document.createElement("div");
-    specWrap.className = "field skill-specialty-field skill-specialty-inline";
-    const specLab = document.createElement("label");
-    specLab.htmlFor = `d-skill-specialty-${sid}`;
-    specLab.textContent = "Specialties";
+    specWrap.className =
+      "field skill-specialty-field skill-specialty-inline" +
+      (skillsTable ? " skill-specialty-inline--skills-table" : "");
     const specIn = document.createElement("input");
     specIn.type = "text";
     specIn.id = `d-skill-specialty-${sid}`;
-    specIn.placeholder = "e.g. Greek Mythology, Parkour…";
-    specIn.value = d.skillSpecialties[sid] || "";
     specIn.autocomplete = "off";
+    if (skillsTable) {
+      specIn.placeholder = "specialty";
+      specIn.setAttribute("aria-label", `${skillMeta?.name || sid} specialty`);
+      specIn.value = d.skillSpecialties[sid] || "";
+      const ghostLab = document.createElement("label");
+      ghostLab.htmlFor = `d-skill-specialty-${sid}`;
+      ghostLab.className = "skill-specialty-sr-only";
+      ghostLab.textContent = "Specialty";
+      specWrap.appendChild(ghostLab);
+      specWrap.appendChild(specIn);
+      applySkillSpecialtyHints(ghostLab, specIn, sid);
+    } else {
+      const specLab = document.createElement("label");
+      specLab.htmlFor = `d-skill-specialty-${sid}`;
+      specLab.textContent = "Specialties";
+      specIn.placeholder = "e.g. Greek Mythology, Parkour…";
+      specIn.value = d.skillSpecialties[sid] || "";
+      specWrap.appendChild(specLab);
+      specWrap.appendChild(specIn);
+      applySkillSpecialtyHints(specLab, specIn, sid);
+    }
     const syncSpec = () => {
       const t = specIn.value.trim();
       if (t) d.skillSpecialties[sid] = specIn.value;
@@ -723,9 +746,6 @@ function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d) {
     };
     specIn.addEventListener("input", syncSpec);
     specIn.addEventListener("change", syncSpec);
-    specWrap.appendChild(specLab);
-    specWrap.appendChild(specIn);
-    applySkillSpecialtyHints(specLab, specIn, sid);
     nameRow.appendChild(specWrap);
   }
   nameTd.appendChild(nameRow);
@@ -770,32 +790,32 @@ function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
   ratingsHelp.textContent =
     "Ratings follow Path priority 3/2/1 (Dragon p. 111; Origin p. 97). If overlap would exceed 5 in a Skill, use this step’s redistribution controls below. At 3+ dots, add free Specialties (Origin pp. 59–60).";
   list.appendChild(ratingsHelp);
-  const tbl = document.createElement("table");
-  tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
-  const thead = document.createElement("thead");
-  const hr = document.createElement("tr");
-  ["Skill", "Dots"].forEach((label, idx) => {
-    const th = document.createElement("th");
-    th.textContent = label;
-    if (idx > 0) th.className = "skill-ratings-th-num";
-    hr.appendChild(th);
-  });
-  thead.appendChild(hr);
-  tbl.appendChild(thead);
-  const tb = document.createElement("tbody");
-  for (const sid of skillIds(bundle)) {
-    const sk = bundle.skills[sid];
-    const displayVal = Math.max(0, Math.min(5, Math.round(Number(pathOnly[sid]) || 0)));
-    const mergedVal = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
-    const specGate = Math.max(displayVal, mergedVal);
-    const tr = document.createElement("tr");
-    tr.className = "skill-rating-row";
-    appendDragonSkillRatingNameCell(tr, sid, sk, specGate, d);
-    appendDragonSkillRatingDotsCell(tr, sid, sk, displayVal);
-    tb.appendChild(tr);
+  const { left: dSkLeft, right: dSkRight } = skillIdsSplitForSkillsTables(bundle);
+  const dSkTwoCol = document.createElement("div");
+  dSkTwoCol.className = "skill-ratings-two-cols";
+
+  function appendDragonReadonlySkillTable(skillIdList) {
+    const tbl = document.createElement("table");
+    tbl.className = "skill-ratings-table skill-ratings-table--path-readonly";
+    appendSkillRatingsTableThead(tbl);
+    const tb = document.createElement("tbody");
+    for (const sid of skillIdList) {
+      const sk = bundle.skills[sid];
+      const displayVal = Math.max(0, Math.min(5, Math.round(Number(pathOnly[sid]) || 0)));
+      const mergedVal = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
+      const specGate = Math.max(displayVal, mergedVal);
+      const tr = document.createElement("tr");
+      tr.className = "skill-rating-row";
+      appendDragonSkillRatingNameCell(tr, sid, sk, specGate, d, { skillsTableSpecialty: true });
+      appendDragonSkillRatingDotsCell(tr, sid, sk, displayVal);
+      tb.appendChild(tr);
+    }
+    tbl.appendChild(tb);
+    dSkTwoCol.appendChild(tbl);
   }
-  tbl.appendChild(tb);
-  list.appendChild(tbl);
+  appendDragonReadonlySkillTable(dSkLeft);
+  appendDragonReadonlySkillTable(dSkRight);
+  list.appendChild(dSkTwoCol);
   parent.appendChild(list);
 }
 
@@ -1871,8 +1891,10 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render) {
   parent.appendChild(rule);
 
   const rankMount = document.createElement("div");
-  rankMount.className = "grid-2";
+  rankMount.className = "wizard-triple-field-row";
   rankMount.id = "d-path-ranks";
+  rankMount.setAttribute("role", "group");
+  rankMount.setAttribute("aria-label", "Path priority");
   ["primary", "secondary", "tertiary"].forEach((rk) => {
     const field = document.createElement("div");
     field.className = "field";
@@ -2267,7 +2289,9 @@ export function renderDragonHeirStepInRoot(ctx) {
     wrap.appendChild(help);
 
     const rankRow = document.createElement("div");
-    rankRow.className = "grid-2";
+    rankRow.className = "wizard-triple-field-row";
+    rankRow.setAttribute("role", "group");
+    rankRow.setAttribute("aria-label", "Arena priority");
     ["Primary arena (6 extras)", "Secondary (4 extras)", "Tertiary (2 extras)"].forEach((label, idx) => {
       const field = document.createElement("div");
       field.className = "field";
@@ -3014,7 +3038,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     wrap.appendChild(intro);
 
     const budget = document.createElement("div");
-    budget.className = "grid-2";
+    budget.className = "wizard-triple-field-row finishing-budget-row";
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="d-fin-skill" min="0" max="20" value="5" readonly title="Dragon Heir: fixed +5 Skill dots at this milestone (Dragon p. 112)." /></div>
     <div class="field"><label>Extra attribute dot(s) (budget)</label><input type="number" id="d-fin-attr" min="0" max="10" value="1" readonly title="Dragon Heir: fixed +1 Attribute dot (Dragon p. 112)." /></div>
@@ -3077,31 +3101,31 @@ export function renderDragonHeirStepInRoot(ctx) {
     skPanel.className =
       "panel finishing-place-panel" + (overSk || missingSpec.length > 0 ? " panel-gate-invalid" : "");
     skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
-    const skTable = document.createElement("table");
-    skTable.className = "skill-ratings-table finishing-skills-table";
-    const skThead = document.createElement("thead");
-    const skHr = document.createElement("tr");
-    ["Skill", "Dots"].forEach((lab, i) => {
-      const th = document.createElement("th");
-      th.textContent = lab;
-      if (i > 0) th.className = "skill-ratings-th-num";
-      skHr.appendChild(th);
-    });
-    skThead.appendChild(skHr);
-    skTable.appendChild(skThead);
-    const skBody = document.createElement("tbody");
-    for (const sid of skillIds(bundle)) {
-      const s = bundle.skills[sid];
-      const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
-      const tr = document.createElement("tr");
-      tr.className =
-        "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
-      appendDragonSkillRatingNameCell(tr, sid, s, val, d);
-      appendDragonFinishingSkillDotsCell(tr, sid, s, val, d, bundle, character, pathOnly, render);
-      skBody.appendChild(tr);
+    const { left: dFinSkLeft, right: dFinSkRight } = skillIdsSplitForSkillsTables(bundle);
+    const dFinSkTwoCol = document.createElement("div");
+    dFinSkTwoCol.className = "skill-ratings-two-cols";
+
+    function appendDragonFinishingSkillsTable(skillIdList) {
+      const skTable = document.createElement("table");
+      skTable.className = "skill-ratings-table finishing-skills-table";
+      appendSkillRatingsTableThead(skTable);
+      const skBody = document.createElement("tbody");
+      for (const sid of skillIdList) {
+        const s = bundle.skills[sid];
+        const val = Math.max(0, Math.min(5, Math.round(Number(d.skillDots[sid]) || 0)));
+        const tr = document.createElement("tr");
+        tr.className =
+          "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
+        appendDragonSkillRatingNameCell(tr, sid, s, val, d, { skillsTableSpecialty: true });
+        appendDragonFinishingSkillDotsCell(tr, sid, s, val, d, bundle, character, pathOnly, render);
+        skBody.appendChild(tr);
+      }
+      skTable.appendChild(skBody);
+      dFinSkTwoCol.appendChild(skTable);
     }
-    skTable.appendChild(skBody);
-    skPanel.appendChild(skTable);
+    appendDragonFinishingSkillsTable(dFinSkLeft);
+    appendDragonFinishingSkillsTable(dFinSkRight);
+    skPanel.appendChild(dFinSkTwoCol);
     wrap.appendChild(skPanel);
 
     const atPanel = document.createElement("section");

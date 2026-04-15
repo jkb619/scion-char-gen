@@ -57,6 +57,7 @@ import {
   captureDragonFinishingAttrBaseline,
 } from "./chargen/DragonChargenWizard.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
+import { appendSkillRatingsTableThead, skillIdsSplitForSkillsTables } from "./skillTableColumns.js";
 
 /** Lazy-loaded so optional data-editor modules cannot block the main wizard graph (or `init`). */
 let editorsLoadPromise = null;
@@ -862,10 +863,14 @@ function ensureSkillDots() {
   }
 }
 
-/** Name + optional Specialties (same layout as Skills step). */
-function appendSkillRatingNameCell(tr, sid, skillMeta, val) {
+/**
+ * Name + optional Specialty field.
+ * @param {{ skillsTableSpecialty?: boolean }} [opts] If true (Skills + Finishing skill rows): specialty input only, placeholder `specialty`, to the right of the name.
+ */
+function appendSkillRatingNameCell(tr, sid, skillMeta, val, opts) {
+  const skillsTable = opts?.skillsTableSpecialty === true;
   const nameTd = document.createElement("td");
-  nameTd.className = "skill-ratings-col-name";
+  nameTd.className = "skill-ratings-col-name" + (skillsTable ? " skill-ratings-col-name--skills-step" : "");
   const nameRow = document.createElement("div");
   nameRow.className = "skill-ratings-name-row";
   const nameSpan = document.createElement("span");
@@ -875,16 +880,34 @@ function appendSkillRatingNameCell(tr, sid, skillMeta, val) {
   nameRow.appendChild(nameSpan);
   if (val >= 3) {
     const specWrap = document.createElement("div");
-    specWrap.className = "field skill-specialty-field skill-specialty-inline";
-    const specLab = document.createElement("label");
-    specLab.htmlFor = `specialty-${sid}`;
-    specLab.textContent = "Specialties";
+    specWrap.className =
+      "field skill-specialty-field skill-specialty-inline" +
+      (skillsTable ? " skill-specialty-inline--skills-table" : "");
     const specIn = document.createElement("input");
     specIn.type = "text";
     specIn.id = `specialty-${sid}`;
-    specIn.placeholder = "e.g. Greek Mythology, Parkour…";
-    specIn.value = character.skillSpecialties[sid] || "";
     specIn.autocomplete = "off";
+    if (skillsTable) {
+      specIn.placeholder = "specialty";
+      specIn.setAttribute("aria-label", `${skillMeta.name} specialty`);
+      specIn.value = character.skillSpecialties[sid] || "";
+      const ghostLab = document.createElement("label");
+      ghostLab.htmlFor = `specialty-${sid}`;
+      ghostLab.className = "skill-specialty-sr-only";
+      ghostLab.textContent = "Specialty";
+      specWrap.appendChild(ghostLab);
+      specWrap.appendChild(specIn);
+      applySkillSpecialtyHints(ghostLab, specIn, sid);
+    } else {
+      const specLab = document.createElement("label");
+      specLab.htmlFor = `specialty-${sid}`;
+      specLab.textContent = "Specialties";
+      specIn.placeholder = "e.g. Greek Mythology, Parkour…";
+      specIn.value = character.skillSpecialties[sid] || "";
+      specWrap.appendChild(specLab);
+      specWrap.appendChild(specIn);
+      applySkillSpecialtyHints(specLab, specIn, sid);
+    }
     const syncSpec = () => {
       const t = specIn.value.trim();
       if (t) character.skillSpecialties[sid] = specIn.value;
@@ -892,9 +915,6 @@ function appendSkillRatingNameCell(tr, sid, skillMeta, val) {
     };
     specIn.addEventListener("input", syncSpec);
     specIn.addEventListener("change", syncSpec);
-    specWrap.appendChild(specLab);
-    specWrap.appendChild(specIn);
-    applySkillSpecialtyHints(specLab, specIn, sid);
     nameRow.appendChild(specWrap);
   }
   nameTd.appendChild(nameRow);
@@ -3783,7 +3803,9 @@ function renderSkills(root) {
   });
 
   const rankGrid = document.createElement("div");
-  rankGrid.className = "grid-2";
+  rankGrid.className = "wizard-triple-field-row";
+  rankGrid.setAttribute("role", "group");
+  rankGrid.setAttribute("aria-label", "Path priority");
   ["primary", "secondary", "tertiary"].forEach((rk) => {
     const field = document.createElement("div");
     field.className = "field";
@@ -3895,34 +3917,32 @@ function renderSkills(root) {
     "Ratings follow Path priority (3 / 2 / 1) when Path Skills or priority change. If overlap would exceed 5 in a Skill, place overflow dots using the panel above when it appears (Origin p. 97). At 3+ dots, add free Specialties (Origin pp. 59–60, 97).";
   list.appendChild(help);
 
-  const table = document.createElement("table");
-  /** Path 3/2/1 totals only — read-only dots (all tiers that include the Skills step). */
-  table.className = "skill-ratings-table skill-ratings-table--path-readonly";
-  const thead = document.createElement("thead");
-  const hr = document.createElement("tr");
-  ["Skill", "Dots"].forEach((label, idx) => {
-    const th = document.createElement("th");
-    th.textContent = label;
-    if (idx > 0) th.className = "skill-ratings-th-num";
-    hr.appendChild(th);
-  });
-  thead.appendChild(hr);
-  table.appendChild(thead);
-  const tbody = document.createElement("tbody");
+  const { left: skillColLeft, right: skillColRight } = skillIdsSplitForSkillsTables(bundle);
+  const skillsTwoCol = document.createElement("div");
+  skillsTwoCol.className = "skill-ratings-two-cols";
 
-  for (const sid of skillIds()) {
-    const s = bundle.skills[sid];
-    const displayVal = skillsStepDotsForSkillsTab(sid);
-    const mergedVal = character.skillDots[sid] || 0;
-    const specGate = Math.max(displayVal, mergedVal);
-    const tr = document.createElement("tr");
-    tr.className = "skill-rating-row";
-    appendSkillRatingNameCell(tr, sid, s, specGate);
-    appendSkillRatingDotsCell(tr, sid, s, displayVal, "skills");
-    tbody.appendChild(tr);
+  function appendSkillsReadonlyTable(skillIdList) {
+    const table = document.createElement("table");
+    table.className = "skill-ratings-table skill-ratings-table--path-readonly";
+    appendSkillRatingsTableThead(table);
+    const tbody = document.createElement("tbody");
+    for (const sid of skillIdList) {
+      const s = bundle.skills[sid];
+      const displayVal = skillsStepDotsForSkillsTab(sid);
+      const mergedVal = character.skillDots[sid] || 0;
+      const specGate = Math.max(displayVal, mergedVal);
+      const tr = document.createElement("tr");
+      tr.className = "skill-rating-row";
+      appendSkillRatingNameCell(tr, sid, s, specGate, { skillsTableSpecialty: true });
+      appendSkillRatingDotsCell(tr, sid, s, displayVal, "skills");
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    skillsTwoCol.appendChild(table);
   }
-  table.appendChild(tbody);
-  list.appendChild(table);
+  appendSkillsReadonlyTable(skillColLeft);
+  appendSkillsReadonlyTable(skillColRight);
+  list.appendChild(skillsTwoCol);
   wrap.appendChild(list);
   root.appendChild(panel("Skills", wrap));
 }
@@ -3936,7 +3956,9 @@ function renderAttributes(root) {
   wrap.appendChild(help);
 
   const rankRow = document.createElement("div");
-  rankRow.className = "grid-2";
+  rankRow.className = "wizard-triple-field-row";
+  rankRow.setAttribute("role", "group");
+  rankRow.setAttribute("aria-label", "Arena priority");
   ["Primary arena (6 extras)", "Secondary (4 extras)", "Tertiary (2 extras)"].forEach((label, idx) => {
     const field = document.createElement("div");
     field.className = "field";
@@ -5243,7 +5265,7 @@ function renderFinishing(root) {
   wrap.appendChild(intro);
 
   const budget = document.createElement("div");
-  budget.className = "grid-2";
+  budget.className = "wizard-triple-field-row finishing-budget-row";
   if (heroLikeFinishing) {
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
@@ -5306,31 +5328,31 @@ function renderFinishing(root) {
   skPanel.className =
     "panel finishing-place-panel" + (overSk || missingSpec.length > 0 ? " panel-gate-invalid" : "");
   skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
-  const skTable = document.createElement("table");
-  skTable.className = "skill-ratings-table finishing-skills-table";
-  const skThead = document.createElement("thead");
-  const skHr = document.createElement("tr");
-  ["Skill", "Dots"].forEach((lab, i) => {
-    const th = document.createElement("th");
-    th.textContent = lab;
-    if (i > 0) th.className = "skill-ratings-th-num";
-    skHr.appendChild(th);
-  });
-  skThead.appendChild(skHr);
-  skTable.appendChild(skThead);
-  const skBody = document.createElement("tbody");
-  for (const sid of skillIds()) {
-    const s = bundle.skills[sid];
-    const val = character.skillDots[sid] || 0;
-    const tr = document.createElement("tr");
-    tr.className =
-      "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
-    appendSkillRatingNameCell(tr, sid, s, val);
-    appendSkillRatingDotsCell(tr, sid, s, val, "finishing");
-    skBody.appendChild(tr);
+  const { left: finSkLeft, right: finSkRight } = skillIdsSplitForSkillsTables(bundle);
+  const finSkTwoCol = document.createElement("div");
+  finSkTwoCol.className = "skill-ratings-two-cols";
+
+  function appendFinishingSkillsTable(skillIdList) {
+    const skTable = document.createElement("table");
+    skTable.className = "skill-ratings-table finishing-skills-table";
+    appendSkillRatingsTableThead(skTable);
+    const skBody = document.createElement("tbody");
+    for (const sid of skillIdList) {
+      const s = bundle.skills[sid];
+      const val = character.skillDots[sid] || 0;
+      const tr = document.createElement("tr");
+      tr.className =
+        "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
+      appendSkillRatingNameCell(tr, sid, s, val, { skillsTableSpecialty: true });
+      appendSkillRatingDotsCell(tr, sid, s, val, "finishing");
+      skBody.appendChild(tr);
+    }
+    skTable.appendChild(skBody);
+    finSkTwoCol.appendChild(skTable);
   }
-  skTable.appendChild(skBody);
-  skPanel.appendChild(skTable);
+  appendFinishingSkillsTable(finSkLeft);
+  appendFinishingSkillsTable(finSkRight);
+  skPanel.appendChild(finSkTwoCol);
   wrap.appendChild(skPanel);
 
   const atPanel = document.createElement("section");

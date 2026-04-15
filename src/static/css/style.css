@@ -24,19 +24,39 @@
   box-sizing: border-box;
 }
 
+html {
+  background-color: var(--bg);
+  /* Avoid width jump when vertical scrollbar appears/disappears (can nudge `cover` framing). */
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
-  background-color: var(--bg);
-  /* Full-bleed cover art only (100% visibility); panels keep solid fills for UI contrast */
-  background-image: var(--page-cover-image);
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
+  isolation: isolate;
+  /* Cover art on a fixed viewport layer so toggling chips/panels (body height changes) does not re-scale `cover`. */
+  background-color: transparent;
   color: var(--text);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--bg);
+  background-image: var(--page-cover-image);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .site-header,
@@ -252,6 +272,11 @@ textarea.has-doc-hint:focus-visible {
   flex-wrap: wrap;
 }
 
+/* Skills + Finishing skill ratings: keep name + specialty input on one row where space allows. */
+.skill-ratings-col-name--skills-step .skill-ratings-name-row {
+  flex-wrap: nowrap;
+}
+
 .skill-ratings-skill-label {
   flex: 0 0 auto;
   font-weight: 600;
@@ -278,6 +303,34 @@ textarea.has-doc-hint:focus-visible {
 .skill-specialty-inline input[type="text"] {
   flex: 1;
   min-width: 0;
+}
+
+/* Skills + Finishing skill tables: placeholder specialty field to the right of the skill name (no visible “Specialties” label). */
+.skill-specialty-inline--skills-table {
+  flex: 1 1 8rem;
+  min-width: 0;
+  margin-top: 0;
+  max-width: none;
+  position: relative;
+  display: block;
+}
+
+.skill-specialty-inline--skills-table input[type="text"] {
+  width: 100%;
+  max-width: 18rem;
+  min-width: 0;
+}
+
+.skill-specialty-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Skills step: cannot advance until path picks are valid */
@@ -391,6 +444,25 @@ textarea.has-doc-hint:focus-visible {
   width: 100%;
   border-collapse: collapse;
   margin-top: 0.5rem;
+}
+
+/* Skills + Finishing: Academics–Leadership | Medicine–Technology (Origin skill order). */
+.skill-ratings-two-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+  align-items: start;
+}
+
+.skill-ratings-two-cols .skill-ratings-table {
+  margin-top: 0;
+}
+
+@media (max-width: 44rem) {
+  .skill-ratings-two-cols {
+    grid-template-columns: 1fr;
+  }
 }
 
 .skill-ratings-table th,
@@ -763,6 +835,45 @@ textarea.has-doc-hint:focus-visible {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.75rem 1rem;
+}
+
+/*
+ * Three equal columns on narrow viewports (`.grid-2` uses minmax(240px) and stacks).
+ * Skills: path priority — all non-Dragon tiers (deity, titan, sorcerer, etc.) + Dragon.
+ * Attributes: arena priority — same tiers + Dragon Heir.
+ * Finishing: budget row (2 number fields + select, or 2 fields + full-width note at Hero/Titanic/Sorcerer Hero).
+ */
+.wizard-triple-field-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem 0.65rem;
+  align-items: end;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wizard-triple-field-row .field {
+  min-width: 0;
+}
+
+.wizard-triple-field-row label {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.wizard-triple-field-row select,
+.wizard-triple-field-row input[type="number"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Hero / Titanic / Heroic Sorcerer Finishing: helper line spans under both budget fields. */
+.wizard-triple-field-row.finishing-budget-row > #fin-focus-hero-note {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .paths-step-grid {
