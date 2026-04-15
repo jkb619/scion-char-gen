@@ -57,6 +57,7 @@ import {
   persistDragonFromDom,
   ensureDragonShape,
   isDragonHeirChargen,
+  dragonHeirAttributesCoreLayoutLocked,
   buildDragonReviewSnapshot,
   captureDragonFinishingAttrBaseline,
 } from "./chargen/DragonChargenWizard.js";
@@ -895,10 +896,11 @@ function ensureSkillDots() {
 
 /**
  * Name + optional Specialty field.
- * @param {{ skillsTableSpecialty?: boolean }} [opts] If true (Skills + Finishing skill rows): specialty input only, placeholder `specialty`, to the right of the name.
+ * @param {{ skillsTableSpecialty?: boolean; specialtyReadOnly?: boolean }} [opts] If true (Skills + Finishing skill rows): specialty input only, placeholder `specialty`, to the right of the name. `specialtyReadOnly`: Skills step after Origin — no specialty edits.
  */
 function appendSkillRatingNameCell(tr, sid, skillMeta, val, opts) {
   const skillsTable = opts?.skillsTableSpecialty === true;
+  const specReadOnly = opts?.specialtyReadOnly === true;
   const nameTd = document.createElement("td");
   nameTd.className = "skill-ratings-col-name" + (skillsTable ? " skill-ratings-col-name--skills-step" : "");
   const nameRow = document.createElement("div");
@@ -938,23 +940,28 @@ function appendSkillRatingNameCell(tr, sid, skillMeta, val, opts) {
       specWrap.appendChild(specIn);
       applySkillSpecialtyHints(specLab, specIn, sid);
     }
-    const syncSpec = () => {
-      const t = specIn.value.trim();
-      if (t) character.skillSpecialties[sid] = specIn.value;
-      else delete character.skillSpecialties[sid];
-    };
-    const onSpecFieldEdit = () => {
-      syncSpec();
-      refreshFinishingWizardGateUiFromDom();
-    };
-    specIn.addEventListener("input", onSpecFieldEdit);
-    specIn.addEventListener("change", onSpecFieldEdit);
-    specIn.addEventListener("blur", onSpecFieldEdit);
-    specIn.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      onSpecFieldEdit();
-    });
+    if (specReadOnly) {
+      specIn.readOnly = true;
+      specIn.disabled = true;
+    } else {
+      const syncSpec = () => {
+        const t = specIn.value.trim();
+        if (t) character.skillSpecialties[sid] = specIn.value;
+        else delete character.skillSpecialties[sid];
+      };
+      const onSpecFieldEdit = () => {
+        syncSpec();
+        refreshFinishingWizardGateUiFromDom();
+      };
+      specIn.addEventListener("input", onSpecFieldEdit);
+      specIn.addEventListener("change", onSpecFieldEdit);
+      specIn.addEventListener("blur", onSpecFieldEdit);
+      specIn.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        onSpecFieldEdit();
+      });
+    }
     nameRow.appendChild(specWrap);
   }
   nameTd.appendChild(nameRow);
@@ -2319,6 +2326,7 @@ function maxFinalRatingForAttr(attrId, attrsPre) {
 /**
  * Dot row: always 5 positions; `value` / fills use final ratings (post–Favored Approach).
  * @param {number | null} [lockedFinalThrough] When set (e.g. Finishing), filled dots with index <= this value use a darker fill so dots above show the new finishing bump only.
+ * @param {boolean} [readOnly] When true (Hero+ / post–Hatchling Dragon), dots are display-only.
  */
 function renderFinalAttrDotRow(
   label,
@@ -2329,9 +2337,10 @@ function renderFinalAttrDotRow(
   minFinal = 1,
   ariaSuffix = "(after Favored Approach)",
   lockedFinalThrough = null,
+  readOnly = false,
 ) {
   const row = document.createElement("div");
-  row.className = "dot-row";
+  row.className = "dot-row" + (readOnly ? " dot-row--readonly" : "");
   if (attrMeta) applyGameDataHint(row, attrMeta);
   const lab = document.createElement("div");
   lab.className = "label";
@@ -2344,7 +2353,7 @@ function renderFinalAttrDotRow(
   for (let i = 1; i <= 5; i += 1) {
     const b = document.createElement("button");
     b.type = "button";
-    const allowed = i >= minFinal && i <= maxFinal;
+    const allowed = !readOnly && i >= minFinal && i <= maxFinal;
     b.disabled = !allowed;
     let cls = "dot" + (i <= shown ? " filled" : "") + (allowed ? "" : " dot-capped");
     if (lockedCut != null && i <= shown && i <= lockedCut) cls += " dot-finishing-locked-fill";
@@ -2358,6 +2367,16 @@ function renderFinalAttrDotRow(
   row.appendChild(lab);
   row.appendChild(dots);
   return row;
+}
+
+/**
+ * Mortal / Mortal-band Sorcerer / Dragon Hatchling: Path Skills, Attributes, and related layout stay editable.
+ * All higher tiers (and Dragon Asset+): read-only until a dedicated tier-raise UI exists.
+ */
+function postOriginMortalChargenLocked(character) {
+  if (isDragonHeirChargen(character)) return dragonHeirAttributesCoreLayoutLocked(character);
+  const t = normalizedTierId(character.tier);
+  return t !== "mortal" && t !== "sorcerer";
 }
 
 /**
@@ -2434,6 +2453,7 @@ function applyFavoredApproach(baseAttrs) {
 
 /** True when each arena’s extra-dot sum is within its Attributes-step pool, plus allowed Finishing bumps (Origin pp. 97–98). */
 function attributeArenaPoolsSpendOk(attrs) {
+  if (postOriginMortalChargenLocked(character)) return true;
   const pools = arenaPools();
   const sums = attributeArenaSums(attrs);
   const baseline = character.finishing?.attrBaseline;
@@ -2448,6 +2468,15 @@ function attributeArenaPoolsSpendOk(attrs) {
 }
 
 function validateAttributes(attrs) {
+  if (postOriginMortalChargenLocked(character)) {
+    const msgs = [];
+    for (const id of Object.keys(bundle.attributes)) {
+      if (String(id).startsWith("_")) continue;
+      const v = attrs[id];
+      if (v < 1 || v > 5) msgs.push(`${id} must stay between 1 and 5 before applying Favored Approach.`);
+    }
+    return msgs;
+  }
   const pools = arenaPools();
   const sums = attributeArenaSums(attrs);
   const baseline = character.finishing?.attrBaseline;
@@ -2537,7 +2566,9 @@ function sumPositiveAttributeDeltas(from, to) {
 
 /**
  * Snapshot when leaving Attributes (pre–Favored Approach ratings).
- * @param {{ bakeTierAdvance?: boolean }} [options] Pass `{ bakeTierAdvance: true }` after tier advance so the new tier’s floor includes all prior ratings (including any Origin finishing bump).
+ * @param {{ bakeTierAdvance?: boolean }} [options] Pass `{ bakeTierAdvance: true }` after tier advance: keep
+ * `character.attributes` as-is (still includes Finishing bumps) but refresh `attrBaseline` to the Attributes-step
+ * map only — Finishing bumps stay outside the snapshot so arena pool checks (Origin p. 97) stay valid.
  */
 function captureFinishingAttrBaseline(options = {}) {
   ensureFinishingShape();
@@ -2547,6 +2578,25 @@ function captureFinishingAttrBaseline(options = {}) {
     cur[id] = character.attributes[id] ?? 1;
   }
   if (options.bakeTierAdvance === true) {
+    /**
+     * Tier advance must not fold Finishing Attribute dot(s) into `attrBaseline`: validation and
+     * `finishingArenaExtraDelta` expect the snapshot to match Origin p. 97 arena pools only,
+     * with pp. 97–98 finishing bumps tracked as current − baseline (Hero→Demigod etc.).
+     */
+    const prev = character.finishing.attrBaseline;
+    if (prev && typeof prev === "object") {
+      const finPlaced = finishingAttrDotsPlaced();
+      if (finPlaced > 0) {
+        const step = { ...cur };
+        for (const id of Object.keys(bundle.attributes)) {
+          if (String(id).startsWith("_")) continue;
+          const bump = Math.max(0, (cur[id] ?? 1) - (prev[id] ?? 1));
+          if (bump > 0) step[id] = (cur[id] ?? 1) - bump;
+        }
+        character.finishing.attrBaseline = step;
+        return;
+      }
+    }
     character.finishing.attrBaseline = cur;
     return;
   }
@@ -2585,6 +2635,54 @@ function captureFinishingAttrBaseline(options = {}) {
   /* Pool edits while a finishing bump is invested: do not fold the bump into the snapshot (would make normalize strip it). */
 }
 
+/**
+ * If tier advance once copied full `attributes` into `attrBaseline`, Finishing dot(s) sit inside the “snapshot” and
+ * `finishingAttrDotsPlaced()` is 0 because baseline === attributes. Drop baseline only (highest rating per overfull
+ * arena) until each arena matches its 6/4/2 pool so validation and Mental-dot UI match again.
+ */
+function repairAttrBaselineIfFinishingWasFoldedIntoSnapshot() {
+  const baseline = character.finishing?.attrBaseline;
+  if (!baseline || typeof baseline !== "object" || !bundle?.attributes) return;
+  const attrs = character.attributes;
+  if (!attrs || typeof attrs !== "object") return;
+  if (finishingAttrDotsPlaced() > 0) return;
+  const pools = arenaPools();
+  const baseSums = attributeArenaSums(baseline);
+  let over = false;
+  for (const arena of ARENA_ORDER) {
+    if (baseSums[arena] > pools[arena]) over = true;
+  }
+  if (!over) return;
+  for (const id of Object.keys(bundle.attributes)) {
+    if (String(id).startsWith("_")) continue;
+    if ((attrs[id] ?? 1) !== (baseline[id] ?? 1)) return;
+  }
+  const b = { ...baseline };
+  for (const arena of ARENA_ORDER) {
+    let excess = attributeArenaSums(b)[arena] - pools[arena];
+    while (excess > 0) {
+      let pick = null;
+      let pickV = -Infinity;
+      for (const id of ARENAS[arena]) {
+        const v = b[id] ?? 1;
+        if (v <= 1) continue;
+        if (v > pickV) {
+          pickV = v;
+          pick = id;
+        }
+      }
+      if (!pick) break;
+      b[pick] = (b[pick] ?? 1) - 1;
+      excess -= 1;
+    }
+  }
+  const after = attributeArenaSums(b);
+  for (const arena of ARENA_ORDER) {
+    if (after[arena] !== pools[arena]) return;
+  }
+  character.finishing.attrBaseline = b;
+}
+
 function ensureFinishingBaselines() {
   ensureFinishingShape();
   if (!character.finishing.skillBaseline) {
@@ -2603,6 +2701,7 @@ function ensureFinishingBaselines() {
     }
     character.finishing.attrBaseline = b;
   }
+  repairAttrBaselineIfFinishingWasFoldedIntoSnapshot();
 }
 
 function finishingSkillDotsPlaced() {
@@ -3832,6 +3931,7 @@ function renderSkills(root) {
   ensurePathSkillArrays();
   ensureSocietyDefaultAssetSkills();
   applyPathMathToSkillDots();
+  const skLocked = postOriginMortalChargenLocked(character);
   const pathGate = validateAllPathSkillsDetailed();
   skillsGateIssues = pathGate.ok ? [] : [...pathGate.issues];
   if (pathGate.ok) {
@@ -3844,6 +3944,7 @@ function renderSkills(root) {
     }
   }
   const wrap = document.createElement("div");
+  if (skLocked) wrap.classList.add("skills-step-readonly");
   if (skillsGateIssues.length > 0) {
     const box = document.createElement("div");
     box.className = "skills-gate-errors";
@@ -3866,6 +3967,13 @@ function renderSkills(root) {
   intro.textContent =
     "Pick three Skills for each Path (panels below), then set primary / secondary / tertiary priority. If overlap would exceed 5 in a Skill, use the overflow controls when they appear; dot rows stay read-only.";
   wrap.appendChild(intro);
+  if (skLocked) {
+    const lock = document.createElement("p");
+    lock.className = "help attributes-core-locked-note";
+    lock.textContent =
+      "Path Skills, Path priority, overflow placement, and Specialties are read-only after Origin (Mortal / Mortal-band Sorcerer). Chronicle-based increases are not edited here yet.";
+    wrap.appendChild(lock);
+  }
 
   const pathPanelInvalid = (pk) => skillsGateIssues.some((i) => i.pathKey === pk);
 
@@ -3945,27 +4053,31 @@ function renderSkills(root) {
           ? { prefix: "Patron / pantheon Asset Skill — include in your three Society Path picks (Origin pp. 96–97)." }
           : undefined,
       );
-      chip.addEventListener("click", () => {
-        const set = new Set(character.pathSkills[pk]);
-        if (set.has(sid)) set.delete(sid);
-        else set.add(sid);
-        const next = [...set];
-        const viol = document.getElementById(`path-skill-violation-${pk}`);
-        if (next.length > 3) {
-          if (viol) viol.textContent = "Each Path may only include three Skills at creation (Origin p. 96).";
-          return;
-        }
-        if (pk === "society") {
-          const v = societySkillsAllowed(next);
-          if (!v.ok) {
-            if (viol) viol.textContent = v.reason;
+      if (!skLocked) {
+        chip.addEventListener("click", () => {
+          const set = new Set(character.pathSkills[pk]);
+          if (set.has(sid)) set.delete(sid);
+          else set.add(sid);
+          const next = [...set];
+          const viol = document.getElementById(`path-skill-violation-${pk}`);
+          if (next.length > 3) {
+            if (viol) viol.textContent = "Each Path may only include three Skills at creation (Origin p. 96).";
             return;
           }
-        }
-        if (viol) viol.textContent = "";
-        character.pathSkills[pk] = next;
-        render();
-      });
+          if (pk === "society") {
+            const v = societySkillsAllowed(next);
+            if (!v.ok) {
+              if (viol) viol.textContent = v.reason;
+              return;
+            }
+          }
+          if (viol) viol.textContent = "";
+          character.pathSkills[pk] = next;
+          render();
+        });
+      } else {
+        chip.disabled = true;
+      }
       cdiv.appendChild(chip);
     }
     chips.appendChild(cdiv);
@@ -3991,19 +4103,22 @@ function renderSkills(root) {
       sel.appendChild(o);
     });
     sel.value = character.pathRank[rk];
-    sel.addEventListener("change", () => {
-      const prev = { ...character.pathRank };
-      const newPath = sel.value;
-      const oldPath = prev[rk];
-      if (newPath === oldPath) return;
-      const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
-      if (otherRank) {
-        character.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
-      } else {
-        character.pathRank = { ...prev, [rk]: newPath };
-      }
-      render();
-    });
+    sel.disabled = skLocked;
+    if (!skLocked) {
+      sel.addEventListener("change", () => {
+        const prev = { ...character.pathRank };
+        const newPath = sel.value;
+        const oldPath = prev[rk];
+        if (newPath === oldPath) return;
+        const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
+        if (otherRank) {
+          character.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
+        } else {
+          character.pathRank = { ...prev, [rk]: newPath };
+        }
+        render();
+      });
+    }
     field.appendChild(lab);
     field.appendChild(sel);
     rankGrid.appendChild(field);
@@ -4053,21 +4168,25 @@ function renderSkills(root) {
       minus.type = "button";
       minus.className = "btn secondary";
       minus.textContent = "−1 overflow";
-      minus.disabled = g <= 0;
-      minus.addEventListener("click", () => {
-        bumpPathSkillRedistribution(sid, -1);
-        render();
-      });
+      minus.disabled = skLocked || g <= 0;
+      if (!skLocked) {
+        minus.addEventListener("click", () => {
+          bumpPathSkillRedistribution(sid, -1);
+          render();
+        });
+      }
       const plus = document.createElement("button");
       plus.type = "button";
       plus.className = "btn secondary";
       plus.textContent = "+1 overflow";
       const room = Math.max(0, 5 - t - g);
-      plus.disabled = pending <= 0 || room <= 0;
-      plus.addEventListener("click", () => {
-        bumpPathSkillRedistribution(sid, 1);
-        render();
-      });
+      plus.disabled = skLocked || pending <= 0 || room <= 0;
+      if (!skLocked) {
+        plus.addEventListener("click", () => {
+          bumpPathSkillRedistribution(sid, 1);
+          render();
+        });
+      }
       cap.appendChild(minus);
       cap.appendChild(plus);
       row.appendChild(cap);
@@ -4103,7 +4222,7 @@ function renderSkills(root) {
       const specGate = Math.max(displayVal, mergedVal);
       const tr = document.createElement("tr");
       tr.className = "skill-rating-row";
-      appendSkillRatingNameCell(tr, sid, s, specGate, { skillsTableSpecialty: true });
+      appendSkillRatingNameCell(tr, sid, s, specGate, { skillsTableSpecialty: true, specialtyReadOnly: skLocked });
       appendSkillRatingDotsCell(tr, sid, s, displayVal, "skills");
       tbody.appendChild(tr);
     }
@@ -4118,12 +4237,21 @@ function renderSkills(root) {
 }
 
 function renderAttributes(root) {
+  const attrLocked = postOriginMortalChargenLocked(character);
   const wrap = document.createElement("div");
+  if (attrLocked) wrap.classList.add("attributes-step-readonly");
   const help = document.createElement("p");
   help.className = "help";
   help.textContent =
     "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5).";
   wrap.appendChild(help);
+  if (attrLocked) {
+    const lock = document.createElement("p");
+    lock.className = "help attributes-core-locked-note";
+    lock.textContent =
+      "Arena priority, Favored Approach, and Attribute dots are read-only after your first-tier Finishing (Mortal or equivalent). Chronicle-based increases are not edited here yet.";
+    wrap.appendChild(lock);
+  }
 
   const rankRow = document.createElement("div");
   rankRow.className = "wizard-triple-field-row";
@@ -4143,22 +4271,25 @@ function renderAttributes(root) {
       sel.appendChild(o);
     });
     sel.value = character.arenaRank[idx];
-    sel.addEventListener("change", () => {
-      const prev = [...character.arenaRank];
-      const newArena = sel.value;
-      const oldArena = prev[idx];
-      if (newArena === oldArena) return;
-      const otherIdx = prev.indexOf(newArena);
-      const next = [...prev];
-      if (otherIdx >= 0) {
-        next[idx] = newArena;
-        next[otherIdx] = oldArena;
-      } else {
-        next[idx] = newArena;
-      }
-      character.arenaRank = next;
-      render();
-    });
+    sel.disabled = attrLocked;
+    if (!attrLocked) {
+      sel.addEventListener("change", () => {
+        const prev = [...character.arenaRank];
+        const newArena = sel.value;
+        const oldArena = prev[idx];
+        if (newArena === oldArena) return;
+        const otherIdx = prev.indexOf(newArena);
+        const next = [...prev];
+        if (otherIdx >= 0) {
+          next[idx] = newArena;
+          next[otherIdx] = oldArena;
+        } else {
+          next[idx] = newArena;
+        }
+        character.arenaRank = next;
+        render();
+      });
+    }
     field.appendChild(lab);
     field.appendChild(sel);
     rankRow.appendChild(field);
@@ -4179,16 +4310,19 @@ function renderAttributes(root) {
     sel.appendChild(o);
   });
   sel.value = character.favoredApproach;
-  sel.addEventListener("change", () => {
-    character.favoredApproach = sel.value;
-    render();
-  });
+  sel.disabled = attrLocked;
+  if (!attrLocked) {
+    sel.addEventListener("change", () => {
+      character.favoredApproach = sel.value;
+      render();
+    });
+  }
   favField.appendChild(lab);
   favField.appendChild(sel);
   wrap.appendChild(favField);
   applyHint(document.getElementById("fav-approach"), "fav-approach");
 
-  normalizeCharacterAttributesToPools();
+  if (!attrLocked) normalizeCharacterAttributesToPools();
   const base = attributesStepPreFavoredForAttributesTab();
   const msgs = validateAttributes(base);
   const poolsOk = attributeArenaPoolsSpendOk(base);
@@ -4235,6 +4369,7 @@ function renderAttributes(root) {
           1,
           "(after Favored Approach)",
           minFinalDisplay,
+          attrLocked,
         ),
       );
     }
@@ -4846,8 +4981,9 @@ function renderPurviews(root) {
   restrictHeroPurviewsToPatronList();
   const tierNorm = normalizedTierId(character.tier);
   const singlePatronPurviewTier = tierNorm === "hero" || tierNorm === "titanic";
+  const patronChipPid = String(character.patronPurviewSlots?.[0] || "").trim();
   const detailSelectionSet = singlePatronPurviewTier
-    ? new Set(patronDetailSelected ? [patronDetailSelected] : [])
+    ? new Set(patronChipPid ? [patronChipPid] : [])
     : new Set(character.purviewIds || []);
   if (purviewInnateDetailFocusId && !detailSelectionSet.has(purviewInnateDetailFocusId)) {
     purviewInnateDetailFocusId = "";
@@ -5685,6 +5821,7 @@ function renderFinishing(root) {
           1,
           "(after Favored Approach)",
           finalLockedThrough,
+          false,
         ),
       );
     }
@@ -7037,6 +7174,9 @@ function persistPathsStepFromDom() {
 }
 
 function persistSkillSpecialtiesFromForm() {
+  const steps = stepDefsForTier(character.tier);
+  const step = steps[stepIndex];
+  if (step === "skills" && postOriginMortalChargenLocked(character)) return;
   for (const sid of skillIds()) {
     if ((character.skillDots[sid] || 0) < 3) {
       delete character.skillSpecialties[sid];
@@ -7428,13 +7568,15 @@ function render() {
     next.textContent = "Next";
     next.addEventListener("click", () => {
       if (step === "attributes" && !isDragonHeirChargen(character)) {
-        normalizeCharacterAttributesToPools();
-        const preAttrs = buildCharacterAttrsPre();
-        const attrMsgs = validateAttributes(preAttrs);
-        if (attrMsgs.length || !attributeArenaPoolsSpendOk(preAttrs)) {
-          window.alert(attrMsgs.length ? attrMsgs.join("\n") : "Arena attribute pools are not full.");
-          render();
-          return;
+        if (!postOriginMortalChargenLocked(character)) {
+          normalizeCharacterAttributesToPools();
+          const preAttrs = buildCharacterAttrsPre();
+          const attrMsgs = validateAttributes(preAttrs);
+          if (attrMsgs.length || !attributeArenaPoolsSpendOk(preAttrs)) {
+            window.alert(attrMsgs.length ? attrMsgs.join("\n") : "Arena attribute pools are not full.");
+            render();
+            return;
+          }
         }
       }
       persistFromForm();

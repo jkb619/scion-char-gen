@@ -226,6 +226,7 @@ function normalizeDragonAttributesToPools(d, bundle) {
 /**
  * Dot row for final (post–Favored) display; same behavior as main `renderFinalAttrDotRow` (app.js).
  * @param {number | null} [lockedFinalThrough]
+ * @param {boolean} [readOnly]
  */
 function dragonRenderFinalAttrDotRow(
   label,
@@ -236,9 +237,10 @@ function dragonRenderFinalAttrDotRow(
   minFinal = 1,
   ariaSuffix = "(after Favored Approach)",
   lockedFinalThrough = null,
+  readOnly = false,
 ) {
   const row = document.createElement("div");
-  row.className = "dot-row";
+  row.className = "dot-row" + (readOnly ? " dot-row--readonly" : "");
   if (attrMeta) applyGameDataHint(row, attrMeta);
   const lab = document.createElement("div");
   lab.className = "label";
@@ -251,7 +253,7 @@ function dragonRenderFinalAttrDotRow(
   for (let i = 1; i <= 5; i += 1) {
     const b = document.createElement("button");
     b.type = "button";
-    const allowed = i >= minFinal && i <= maxFinal;
+    const allowed = !readOnly && i >= minFinal && i <= maxFinal;
     b.disabled = !allowed;
     let cls = "dot" + (i <= shown ? " filled" : "") + (allowed ? "" : " dot-capped");
     if (lockedCut != null && i <= shown && i <= lockedCut) cls += " dot-finishing-locked-fill";
@@ -350,7 +352,16 @@ function birthrightsForDragonChargen(bundle) {
   return out;
 }
 
-/** @param {Record<string, unknown>} character */
+/**
+ * Hatchling (Inheritance 1): arena / approach / Attribute dots editable; Asset+ locked until a future tier-raise UI exists.
+ * @param {Record<string, unknown>} character
+ */
+export function dragonHeirAttributesCoreLayoutLocked(character) {
+  if (!isDragonHeirChargen(character)) return false;
+  const inh = Math.max(1, Math.round(Number(character?.dragon?.inheritance) || 1));
+  return inh > 1;
+}
+
 export function isDragonHeirChargen(character) {
   const x = String(character?.chargenLineage ?? "").trim().toLowerCase();
   return x === "dragonheir" || x === "dragon_heir";
@@ -696,10 +707,11 @@ function dragonBumpPathSkillRedistribution(d, bundle, sid, delta) {
 
 /**
  * Same layout as main wizard `appendSkillRatingNameCell`.
- * @param {{ skillsTableSpecialty?: boolean }} [opts] If true, same compact specialty cell as Skills + Finishing in main wizard.
+ * @param {{ skillsTableSpecialty?: boolean; specialtyReadOnly?: boolean }} [opts] If true, same compact specialty cell as Skills + Finishing in main wizard.
  */
 function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d, opts) {
   const skillsTable = opts?.skillsTableSpecialty === true;
+  const specReadOnly = opts?.specialtyReadOnly === true;
   const nameTd = document.createElement("td");
   nameTd.className = "skill-ratings-col-name" + (skillsTable ? " skill-ratings-col-name--skills-step" : "");
   const nameRow = document.createElement("div");
@@ -739,13 +751,18 @@ function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d, opts) {
       specWrap.appendChild(specIn);
       applySkillSpecialtyHints(specLab, specIn, sid);
     }
-    const syncSpec = () => {
-      const t = specIn.value.trim();
-      if (t) d.skillSpecialties[sid] = specIn.value;
-      else delete d.skillSpecialties[sid];
-    };
-    specIn.addEventListener("input", syncSpec);
-    specIn.addEventListener("change", syncSpec);
+    if (specReadOnly) {
+      specIn.readOnly = true;
+      specIn.disabled = true;
+    } else {
+      const syncSpec = () => {
+        const t = specIn.value.trim();
+        if (t) d.skillSpecialties[sid] = specIn.value;
+        else delete d.skillSpecialties[sid];
+      };
+      specIn.addEventListener("input", syncSpec);
+      specIn.addEventListener("change", syncSpec);
+    }
     nameRow.appendChild(specWrap);
   }
   nameTd.appendChild(nameRow);
@@ -777,8 +794,9 @@ function appendDragonSkillRatingDotsCell(tr, sid, skillMeta, val) {
  * @param {HTMLElement} parent
  * @param {Record<string, unknown>} d
  * @param {Record<string, unknown>} bundle
+ * @param {boolean} [specialtyReadOnly]
  */
-function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
+function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle, specialtyReadOnly = false) {
   const pathOnly = applyDragonPathMathToSkillDots(d, bundle);
   const list = document.createElement("div");
   list.className = "panel skill-ratings-panel";
@@ -806,7 +824,10 @@ function appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle) {
       const specGate = Math.max(displayVal, mergedVal);
       const tr = document.createElement("tr");
       tr.className = "skill-rating-row";
-      appendDragonSkillRatingNameCell(tr, sid, sk, specGate, d, { skillsTableSpecialty: true });
+      appendDragonSkillRatingNameCell(tr, sid, sk, specGate, d, {
+        skillsTableSpecialty: true,
+        specialtyReadOnly,
+      });
       appendDragonSkillRatingDotsCell(tr, sid, sk, displayVal);
       tb.appendChild(tr);
     }
@@ -1872,8 +1893,9 @@ export function syncDragonFlightPathRequiredSkills(d, bundle) {
  * @param {DragonState} d
  * @param {Record<string, unknown>} bundle
  * @param {() => void} render
+ * @param {boolean} [pathReadOnly] After Hatchling: Path picks, priority, and specialties read-only.
  */
-function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render) {
+function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render, pathReadOnly = false) {
   syncDragonFlightPathRequiredSkills(d, bundle);
   const rule = document.createElement("p");
   rule.className = "help";
@@ -1909,16 +1931,19 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render) {
       sel.appendChild(o);
     }
     sel.value = d.pathRank[rk] && PATH_KEYS.includes(d.pathRank[rk]) ? d.pathRank[rk] : "origin";
-    sel.addEventListener("change", () => {
-      const prev = { ...d.pathRank };
-      const newPath = sel.value;
-      const oldPath = prev[rk];
-      if (newPath === oldPath) return;
-      const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
-      if (otherRank) d.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
-      else d.pathRank = { ...prev, [rk]: newPath };
-      render();
-    });
+    sel.disabled = pathReadOnly;
+    if (!pathReadOnly) {
+      sel.addEventListener("change", () => {
+        const prev = { ...d.pathRank };
+        const newPath = sel.value;
+        const oldPath = prev[rk];
+        if (newPath === oldPath) return;
+        const otherRank = ["primary", "secondary", "tertiary"].find((key) => key !== rk && prev[key] === newPath);
+        if (otherRank) d.pathRank = { ...prev, [rk]: newPath, [otherRank]: oldPath };
+        else d.pathRank = { ...prev, [rk]: newPath };
+        render();
+      });
+    }
     field.appendChild(lab);
     field.appendChild(sel);
     rankMount.appendChild(field);
@@ -1989,38 +2014,42 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render) {
             }
           : undefined,
       );
-      chip.addEventListener("click", () => {
-        const set = new Set(d.pathSkills[pk] || []);
-        if (pk === "flight" && reqFlight.includes(sid) && set.has(sid)) {
-          return;
-        }
-        if (set.has(sid)) set.delete(sid);
-        else set.add(sid);
-        const next = [...set];
-        const viol = document.getElementById(`d-path-skill-violation-${pk}`);
-        if (next.length > 3) {
-          if (viol) viol.textContent = "Each Path may only include three Skills.";
-          return;
-        }
-        if (pk === "flight" && reqFlight.length >= 1 && next.length === 3) {
-          const picked = new Set(next);
-          const ok = reqFlight.every((id) => picked.has(id));
-          if (!ok) {
-            if (viol) viol.textContent = "Flight Path must include every Flight-listed required skill.";
+      if (!pathReadOnly) {
+        chip.addEventListener("click", () => {
+          const set = new Set(d.pathSkills[pk] || []);
+          if (pk === "flight" && reqFlight.includes(sid) && set.has(sid)) {
             return;
           }
-        }
-        if (viol) viol.textContent = "";
-        d.pathSkills[pk] = next;
-        render();
-      });
+          if (set.has(sid)) set.delete(sid);
+          else set.add(sid);
+          const next = [...set];
+          const viol = document.getElementById(`d-path-skill-violation-${pk}`);
+          if (next.length > 3) {
+            if (viol) viol.textContent = "Each Path may only include three Skills.";
+            return;
+          }
+          if (pk === "flight" && reqFlight.length >= 1 && next.length === 3) {
+            const picked = new Set(next);
+            const ok = reqFlight.every((id) => picked.has(id));
+            if (!ok) {
+              if (viol) viol.textContent = "Flight Path must include every Flight-listed required skill.";
+              return;
+            }
+          }
+          if (viol) viol.textContent = "";
+          d.pathSkills[pk] = next;
+          render();
+        });
+      } else {
+        chip.disabled = true;
+      }
       cdiv.appendChild(chip);
     }
     box.appendChild(cdiv);
     panels.appendChild(box);
   }
   parent.appendChild(panels);
-  appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle);
+  appendDragonReadonlyPathSkillRatingsPanel(parent, d, bundle, pathReadOnly);
 }
 
 /**
@@ -2182,7 +2211,9 @@ export function renderDragonHeirStepInRoot(ctx) {
 
   if (step === "skills") {
     applyDragonPathMathToSkillDots(d, bundle);
+    const skLocked = dragonHeirAttributesCoreLayoutLocked(character);
     const wrap = document.createElement("div");
+    if (skLocked) wrap.classList.add("skills-step-readonly");
     const ovMeta = dragonPathSkillTrimmedLostAndUnion(d, bundle);
     const pend = dragonPathSkillOverflowDotsPending(d, bundle);
     if (pend > 0) {
@@ -2205,7 +2236,14 @@ export function renderDragonHeirStepInRoot(ctx) {
     intro.textContent =
       "Set Path priority (primary / secondary / tertiary), three Skills per Path, and review derived dot totals here. Path phrases stay on the Paths step. When overlap would exceed 5 dots in a Skill, use the redistribution controls below (Origin p. 97).";
     wrap.appendChild(intro);
-    appendDragonPathSkillsAssignmentSection(wrap, d, bundle, render);
+    if (skLocked) {
+      const lock = document.createElement("p");
+      lock.className = "help attributes-core-locked-note";
+      lock.textContent =
+        "Path Skills, Path priority, overflow placement, and Specialties are read-only after Hatchling (Inheritance 1). Chronicle-based increases are not edited here yet.";
+      wrap.appendChild(lock);
+    }
+    appendDragonPathSkillsAssignmentSection(wrap, d, bundle, render, skLocked);
     if (ovMeta.lost > 0) {
       const placed = dragonSumPathSkillRedistribution(d.pathSkillRedistribution);
       const pending = Math.max(0, ovMeta.lost - placed);
@@ -2247,21 +2285,25 @@ export function renderDragonHeirStepInRoot(ctx) {
         minus.type = "button";
         minus.className = "btn secondary";
         minus.textContent = "−1 overflow";
-        minus.disabled = g <= 0;
-        minus.addEventListener("click", () => {
-          dragonBumpPathSkillRedistribution(d, bundle, sid, -1);
-          render();
-        });
+        minus.disabled = skLocked || g <= 0;
+        if (!skLocked) {
+          minus.addEventListener("click", () => {
+            dragonBumpPathSkillRedistribution(d, bundle, sid, -1);
+            render();
+          });
+        }
         const plus = document.createElement("button");
         plus.type = "button";
         plus.className = "btn secondary";
         plus.textContent = "+1 overflow";
         const room = Math.max(0, 5 - t - g);
-        plus.disabled = pending <= 0 || room <= 0;
-        plus.addEventListener("click", () => {
-          dragonBumpPathSkillRedistribution(d, bundle, sid, 1);
-          render();
-        });
+        plus.disabled = skLocked || pending <= 0 || room <= 0;
+        if (!skLocked) {
+          plus.addEventListener("click", () => {
+            dragonBumpPathSkillRedistribution(d, bundle, sid, 1);
+            render();
+          });
+        }
         cap.appendChild(minus);
         cap.appendChild(plus);
         row.appendChild(cap);
@@ -2281,12 +2323,21 @@ export function renderDragonHeirStepInRoot(ctx) {
 
   if (step === "attributes") {
     applyDragonPathMathToSkillDots(d, bundle);
+    const attrLocked = dragonHeirAttributesCoreLayoutLocked(character);
     const wrap = document.createElement("div");
+    if (attrLocked) wrap.classList.add("attributes-step-readonly");
     const help = document.createElement("p");
     help.className = "help";
     help.textContent =
       "Set arena priority (6 / 4 / 2 extra dots beyond the free 1 each in that arena), distribute those dots, then choose Favored Approach (+2 to each Attribute in that Approach, max 5).";
     wrap.appendChild(help);
+    if (attrLocked) {
+      const lock = document.createElement("p");
+      lock.className = "help attributes-core-locked-note";
+      lock.textContent =
+        "Arena priority, Favored Approach, and Attribute dots are read-only after Hatchling (Inheritance 1). Use your table for later raises until this app adds a dedicated control.";
+      wrap.appendChild(lock);
+    }
 
     const rankRow = document.createElement("div");
     rankRow.className = "wizard-triple-field-row";
@@ -2306,22 +2357,25 @@ export function renderDragonHeirStepInRoot(ctx) {
         sel.appendChild(o);
       });
       sel.value = d.arenaRank[idx] || ARENA_ORDER[idx];
-      sel.addEventListener("change", () => {
-        const prev = [...d.arenaRank];
-        const newArena = sel.value;
-        const oldArena = prev[idx];
-        if (newArena === oldArena) return;
-        const otherIdx = prev.indexOf(newArena);
-        const next = [...prev];
-        if (otherIdx >= 0) {
-          next[idx] = newArena;
-          next[otherIdx] = oldArena;
-        } else {
-          next[idx] = newArena;
-        }
-        d.arenaRank = next;
-        render();
-      });
+      sel.disabled = attrLocked;
+      if (!attrLocked) {
+        sel.addEventListener("change", () => {
+          const prev = [...d.arenaRank];
+          const newArena = sel.value;
+          const oldArena = prev[idx];
+          if (newArena === oldArena) return;
+          const otherIdx = prev.indexOf(newArena);
+          const next = [...prev];
+          if (otherIdx >= 0) {
+            next[idx] = newArena;
+            next[otherIdx] = oldArena;
+          } else {
+            next[idx] = newArena;
+          }
+          d.arenaRank = next;
+          render();
+        });
+      }
       field.appendChild(lab);
       field.appendChild(sel);
       rankRow.appendChild(field);
@@ -2342,10 +2396,13 @@ export function renderDragonHeirStepInRoot(ctx) {
       selF.appendChild(o);
     });
     selF.value = d.favoredApproach;
-    selF.addEventListener("change", () => {
-      d.favoredApproach = selF.value;
-      render();
-    });
+    selF.disabled = attrLocked;
+    if (!attrLocked) {
+      selF.addEventListener("change", () => {
+        d.favoredApproach = selF.value;
+        render();
+      });
+    }
     favField.appendChild(labFav);
     favField.appendChild(selF);
     wrap.appendChild(favField);
@@ -2404,6 +2461,7 @@ export function renderDragonHeirStepInRoot(ctx) {
             1,
             "(after Favored Approach)",
             minFinalDisplay,
+            attrLocked,
           ),
         );
       }
