@@ -214,8 +214,8 @@ export const HELP = {
   },
   "knack-select": {
     example:
-      "Hero: each dot in a Calling buys Knacks for that Calling; you may never know more Knacks than your total Calling dots across all three Callings. This step uses one Calling rating row as the slot budget for the chip list (each Heroic Knack = one slot; at most one Immortal = two slots). Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
-    source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}.`,
+      "Hero: each dot in a Calling buys Knacks for that Calling; you may never know more Knacks than your total Calling dots across all three Callings. Hero-band: each Heroic Knack = one slot; at most one Immortal = two slots on a Calling row with two+ dots (Hero p.184). Demigod/God: Heroic and Immortal each = one slot against the same total Calling-dot pool; no separate Immortal count cap (Demigod pp.149–150). Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
+    source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}; ${cite("demigod", "Knacks", "149–150")}.`,
   },
   "purview-select": {
     example: "At Hero: one innate Purview from the parent list (Paths or chips) plus the pantheon Signature Purview from pantheons.json; Demigod+ can add more Purviews (e.g. Relics).",

@@ -1509,6 +1509,30 @@ textarea.has-doc-hint:focus-visible {
 
 .finishing-birthright-picks {
   margin: 0.5rem 0 0 1.25rem;
+  padding-left: 0.2rem;
+}
+
+/* Birthrights / Finishing: deity-line rows (label + Remove) — space so buttons don’t overlap text */
+.finishing-birthright-picks > li.birthrights-pick-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 0.75rem;
+  row-gap: 0.4rem;
+  margin-bottom: 0.65rem;
+  line-height: 1.35;
+}
+
+.finishing-birthright-picks .birthrights-pick-label {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+  padding-top: 0.12rem;
+}
+
+.finishing-birthright-picks > li.birthrights-pick-row .btn {
+  flex: 0 0 auto;
 }
 
 .dragon-br-pick-li {

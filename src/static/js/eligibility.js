@@ -33,6 +33,16 @@ export function isPostHeroBandCallingTierId(tierId) {
   return t === "demigod" || t === "god" || t === "sorcerer_demigod" || t === "sorcerer_god";
 }
 
+/**
+ * Hero-band tiers (Hero / Titanic / Heroic Sorcerer): one Immortal Knack costs two Calling “slots”
+ * and must sit on a Calling row with two+ dots (Hero p.184). Demigod/God use 1:1 slots (no double cost).
+ * @param {string | undefined} tierId
+ */
+export function immortalKnackCostsTwoCallingSlots(tierId) {
+  const t = normalizedTierIdEligibility(tierId);
+  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
+}
+
 const HERO_STYLE_CALLING_SLOT_ROW_COUNT = 3;
 
 /**
@@ -60,7 +70,7 @@ function sumHeroCallingSlotDots(character) {
   return sum;
 }
 
-/** Largest dot rating among Hero Calling rows (for Immortal Knack gate). */
+/** Largest dot rating among Hero Calling rows (for Hero-band Immortal Knack gate). */
 function maxHeroCallingSlotDotCount(character) {
   const slots = character?.callingSlots;
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(slots)) return null;
@@ -259,10 +269,17 @@ export function bundleKnackById(kid, bundle) {
   return null;
 }
 
-/** Calling-dot–equivalent cost: Heroic (Mortal) Knack = 1; Immortal Knack = 2 (Hero+). */
-export function knackCallingSlotCost(k) {
+/**
+ * Calling-dot–equivalent cost per Knack.
+ * Hero-band: Heroic = 1; Immortal = 2 (Hero p.184). Post-Hero: Immortal and Heroic each = 1 (Demigod pp.149–150).
+ * @param {Record<string, unknown> | null} k
+ * @param {{ tier?: string } | null} [character] — omit for legacy callers (treated as Hero-band costs).
+ */
+export function knackCallingSlotCost(k, character) {
   if (!k || typeof k !== "object") return 1;
-  return k.knackKind === "immortal" ? 2 : 1;
+  if (k.knackKind !== "immortal") return 1;
+  if (character?.tier != null && !immortalKnackCostsTwoCallingSlots(character.tier)) return 1;
+  return 2;
 }
 
 function heroCallingSlotRowDots(character, rowIdx) {
@@ -369,8 +386,9 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
 }
 
 /**
- * Assign each main Knack to a Calling row so each row’s spent cost ≤ that row’s dots (Hero `callingSlots`);
- * Immortal Knacks only on rows with two+ dots; Hero+ at most one Immortal in the list.
+ * Assign each main Knack to a Calling row so each row’s spent cost ≤ that row’s dots (Hero `callingSlots`).
+ * Hero-band: Immortal only on rows with two+ dots, costs two slots, at most one Immortal in the list.
+ * Post-Hero: Immortal costs one slot per row dot like Heroic; multiple Immortals allowed if rows allow.
  * @param {string[]} knackIds
  * @param {CharacterLike} character
  * @param {{ knacks?: Record<string, unknown> }} bundle
@@ -379,23 +397,24 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
 export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return {};
   const ids = [...(knackIds || [])].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
-  const tr = tierRank(character.tier);
-  if (tr > 0 && immortalKnackCountInList(ids, bundle) > 1) return null;
+  const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
+  if (heroImm && immortalKnackCountInList(ids, bundle) > 1) return null;
   if (ids.length === 0) return {};
   const slots = character.callingSlots;
   const rowCount = slots.length;
   const rowCaps = slots.map((_, i) => heroCallingSlotRowDots(character, i));
   const n = ids.length;
+  const minDotsForImmortalRow = heroImm ? 2 : 1;
 
   function dfs(i, rowUsed, slotMap) {
     if (i >= n) return { ...slotMap };
     const kid = ids[i];
     const kn = bundleKnackById(kid, bundle);
     if (!kn) return null;
-    const cost = knackCallingSlotCost(kn);
+    const cost = knackCallingSlotCost(kn, character);
     for (let r = 0; r < rowCount; r += 1) {
       if (!heroCallingRowMatchesKnack(r, kn, character, bundle)) continue;
-      if (kn.knackKind === "immortal" && rowCaps[r] < 2) continue;
+      if (kn.knackKind === "immortal" && rowCaps[r] < minDotsForImmortalRow) continue;
       if (rowUsed[r] + cost > rowCaps[r]) continue;
       rowUsed[r] += cost;
       slotMap[kid] = r;
@@ -410,7 +429,7 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
 }
 
 /**
- * Whether each main Knack can be assigned to some row without exceeding that row’s dots (and Immortal count).
+ * Whether each main Knack can be assigned to some row without exceeding that row’s dots (and Hero-band Immortal count).
  * @param {string[]} knackIds
  * @param {CharacterLike} character
  * @param {{ knacks?: Record<string, unknown> }} bundle
@@ -468,12 +487,12 @@ export function callingKnackSlotCap(character) {
 }
 
 /** Sum of slot costs for the given knack id list. */
-export function knackIdsCallingSlotsUsed(knackIds, bundle) {
+export function knackIdsCallingSlotsUsed(knackIds, bundle, character) {
   let sum = 0;
   for (const id of knackIds || []) {
     if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
     const kn = bundleKnackById(id, bundle);
-    sum += knackCallingSlotCost(kn);
+    sum += knackCallingSlotCost(kn, character);
   }
   return sum;
 }
@@ -488,18 +507,22 @@ export function immortalKnackCountInList(knackIds, bundle) {
 }
 
 /**
- * Hero+ (Scion: Hero / Saints & Monsters Step Five): total slot cost ≤ Calling dots;
- * at most one Immortal Knack (it replaces two Heroic slots) when Calling has two+ dots.
+ * Hero+ (Scion: Hero / Saints & Monsters Step Five): total slot cost ≤ Calling dots.
+ * Hero-band: at most one Immortal (two slots); needs two+ Calling dots if any Immortal.
+ * Post-Hero: Immortal and Heroic each one slot; no cap on Immortal count beyond dot budget.
  */
 export function knackSetWithinCallingSlots(knackIds, character, bundle) {
   const cap = callingKnackSlotCap(character);
-  const used = knackIdsCallingSlotsUsed(knackIds, bundle);
+  const used = knackIdsCallingSlotsUsed(knackIds, bundle, character);
   if (used > cap) return false;
   const tr = tierRank(character.tier);
   const imm = immortalKnackCountInList(knackIds, bundle);
   if (tr <= 0) return imm === 0;
-  if (imm > 1) return false;
-  if (cap < 2 && imm > 0) return false;
+  const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
+  if (heroImm) {
+    if (imm > 1) return false;
+    if (cap < 2 && imm > 0) return false;
+  }
   return true;
 }
 
@@ -520,8 +543,8 @@ export function pruneKnackIdsToCallingSlotCap(knackIds, character, bundle) {
 
 /**
  * Hero+ Finishing “extra” Knacks (e.g. Hero p. 99): same data gates as `knackEligible`, do **not**
- * spend Calling dot budget, but **do** count toward the global “at most one Immortal Knack” rule
- * together with `knackIds` and other finishing picks.
+ * spend Calling dot budget. Hero-band: combined Calling + Finishing Immortal count capped at one
+ * (and Immortal needs two+ Calling dots). Post-Hero: no separate Immortal count cap.
  */
 export function knackEligibleForFinishingExtraKnack(k, character, bundle) {
   if (!knackEligible(k, character, bundle)) return false;
@@ -538,13 +561,15 @@ export function knackEligibleForFinishingExtraKnack(k, character, bundle) {
 
   const combined = [...main, ...fin, kid];
   const imm = immortalKnackCountInList(combined, bundle);
-  if (imm > 1) return false;
-  if (k.knackKind === "immortal" && callingKnackSlotCap(character) < 2) return false;
+  const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
+  if (heroImm && imm > 1) return false;
+  const minCapForImm = heroImm ? 2 : 1;
+  if (k.knackKind === "immortal" && callingKnackSlotCap(character) < minCapForImm) return false;
   return true;
 }
 
 /**
- * Whether a Knack id already listed in `finishingKnackIds` is still valid to keep (gates + at most one Immortal in Calling ∪ Finishing).
+ * Whether a Knack id already listed in `finishingKnackIds` is still valid to keep (gates + Hero-band Immortal cap in Calling ∪ Finishing).
  */
 export function knackFinishingPickIsValidHeld(k, character, bundle) {
   if (!k || typeof k !== "object") return false;
@@ -558,6 +583,7 @@ export function knackFinishingPickIsValidHeld(k, character, bundle) {
   if (main.includes(kid)) return false;
   const tr = tierRank(character.tier);
   if (tr < 1) return true;
+  if (!immortalKnackCostsTwoCallingSlots(character.tier)) return true;
   const combined = [...main, ...fin];
   return immortalKnackCountInList(combined, bundle) <= 1;
 }
@@ -634,8 +660,8 @@ export function knackEligible(k, character, _bundle) {
     if (lr < leg) return false;
   }
 
-  /** Immortal Knacks need a Calling row (or single Calling rating) of at least two dots. */
-  if (k.knackKind === "immortal") {
+  /** Hero-band Immortal Knacks need a Calling row (or single Calling rating) of at least two dots (Hero p.184). */
+  if (k.knackKind === "immortal" && immortalKnackCostsTwoCallingSlots(character.tier)) {
     const maxRow = maxHeroCallingSlotDotCount(character);
     if (maxRow != null) {
       if (maxRow < 2) return false;

@@ -19,6 +19,7 @@ import {
   originCallingKnackChipGroupKey,
   heroUsesCallingSlotRows,
   isPostHeroBandCallingTierId,
+  immortalKnackCostsTwoCallingSlots,
   boonEligible,
   boonIsPurviewInnateAutomaticGrant,
   boonPrimaryPurview,
@@ -2708,6 +2709,69 @@ function skillsNeedSpecialtyBlockingFinishingAdvance() {
 }
 
 /**
+ * @returns {string | null} Blocker text if Finishing cannot advance to Review (skill/attribute finishing spends,
+ * specialties, optional Knacks vs Birthrights when that UI is shown — Origin pp. 98–99; Hero+ tiers omit Finishing Knacks/Birthrights here when `heroLikeFinishing`).
+ */
+function finishingStepLeaveBlockedReason() {
+  if (isDragonHeirChargen(character)) return null;
+  ensureFinishingShape();
+  ensureFinishingBaselines();
+  ensureSkillDots();
+
+  const spec = skillsNeedSpecialtyBlockingFinishingAdvance();
+  if (spec) return spec;
+
+  const tierFin = normalizedTierId(character.tier);
+  const heroLikeFinishing = tierFin === "hero" || tierFin === "titanic" || tierFin === "sorcerer_hero";
+
+  const budgetSk = Math.max(0, Math.round(Number(character.finishing.extraSkillDots) || 0));
+  const budgetAt = Math.max(0, Math.round(Number(character.finishing.extraAttributeDots) || 0));
+  const placedSk = finishingSkillDotsPlaced();
+  const placedAt = finishingAttrDotsPlaced();
+  const remSk = finishingSkillDotsRemaining();
+  const remAt = finishingAttrDotsRemaining();
+
+  if (placedSk > budgetSk) {
+    return "Placed Finishing Skill dots exceed your Extra skill dots budget — lower Skills on this step or raise the budget field.";
+  }
+  if (placedAt > budgetAt) {
+    return "Placed Finishing Attribute dot(s) exceed your budget — lower Attributes on this step or raise the budget field.";
+  }
+  if (budgetSk > 0 && remSk > 0) {
+    return `Spend all ${budgetSk} extra Finishing Skill dot(s) on the Skills table below (${remSk} still unspent; Origin p. 99).`;
+  }
+  if (budgetAt > 0 && remAt > 0) {
+    return `Spend all ${budgetAt} Finishing Attribute dot(s) in the Attributes section (${remAt} still unspent; Origin pp. 98–99).`;
+  }
+
+  if (!heroLikeFinishing) {
+    if (character.finishing.knackOrBirthright === "knacks") {
+      const fin = [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean);
+      if (fin.length !== 2) {
+        return "Pick exactly two extra Finishing Knacks, or switch to Four Birthright points (Origin p. 99).";
+      }
+      for (const kid of fin) {
+        const k = bundle.knacks?.[kid];
+        if (!k || !knackFinishingPickIsValidHeld(k, character, bundle)) {
+          return `A Finishing Knack pick is no longer valid (${bundle.knacks?.[kid]?.name || kid}) — replace or clear it.`;
+        }
+      }
+    } else {
+      const used = finishingBirthrightPointsUsed();
+      if (used !== 4) {
+        return `Spend exactly four Birthright points on Finishing picks (currently ${used} / 4), or switch to two extra Knacks (Origin p. 99).`;
+      }
+    }
+  }
+
+  const preAttrs = buildCharacterAttrsPre();
+  const attrMsgs = validateAttributes(preAttrs);
+  if (attrMsgs.length) return attrMsgs.join("\n");
+
+  return null;
+}
+
+/**
  * Scion deity/titan line only: validation after `persistFromForm()` when leaving `fromStep` toward a later step.
  * (Wizard nav jumps call this so Finishing / Skills / Paths gates cannot be skipped by clicking ahead.)
  * @returns {string | null}
@@ -2741,7 +2805,7 @@ function forwardLeaveBlockScionAfterPersist(fromStep) {
     if (pv) return pv;
   }
   if (fromStep === "finishing") {
-    return skillsNeedSpecialtyBlockingFinishingAdvance();
+    return finishingStepLeaveBlockedReason();
   }
   return null;
 }
@@ -4511,6 +4575,7 @@ function renderCalling(root) {
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
   knackPanel.innerHTML = `<h2>Knacks</h2>`;
+  const heroImmKnackSlots = immortalKnackCostsTwoCallingSlots(character.tier);
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   const knackEntries = Object.entries(bundle.knacks)
     .filter(([kid]) => !kid.startsWith("_"))
@@ -4545,8 +4610,12 @@ function renderCalling(root) {
     if (!eligible && on) {
       chip.title = baseOk
         ? useThreeRowKnackBuckets
-          ? "This Knack no longer fits your per-Calling Knack budgets on the three rows (each row’s dots cap that row’s Knacks; one Immortal uses two on a row with two+ dots; at most one Immortal overall). Adjust dots, Callings, or clear Knacks."
-          : "This Knack no longer fits your Calling dot budget (one Immortal Knack uses two dot-equivalents; you may only have one Immortal). Lower Calling dots or clear Knacks."
+          ? heroImmKnackSlots
+            ? "This Knack no longer fits your per-Calling Knack budgets on the three rows (each row’s dots cap that row’s Knacks; one Immortal uses two on a row with two+ dots; at most one Immortal overall). Adjust dots, Callings, or clear Knacks."
+            : "This Knack no longer fits your per-Calling Knack budgets on the three rows (each row’s dots cap that row’s Knacks; Heroic and Immortal Knacks each spend one dot on a matching row). Adjust dots, Callings, or clear Knacks."
+          : heroImmKnackSlots
+            ? "This Knack no longer fits your Calling dot budget (one Immortal Knack uses two dot-equivalents; you may only have one Immortal). Lower Calling dots or clear Knacks."
+            : "This Knack no longer fits your Calling dot budget (each Knack including Immortal costs one dot-equivalent). Lower Calling dots or clear Knacks."
         : "This Knack no longer matches your Calling, tier, or optional gates—remove it or adjust your character.";
     }
     setKnackChipContents(chip, k);
@@ -4564,7 +4633,9 @@ function renderCalling(root) {
     applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
     if (slotBlocked) {
       const gateHint = useThreeRowKnackBuckets
-        ? "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack."
+        ? heroImmKnackSlots
+          ? "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack."
+          : "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic or Immortal Knack needs one free dot on a matching row (same cost for both)."
         : "You qualify for this Knack (Calling / tier / optional data gates), but your Calling Knack budget is full—clear a pick first (Origin: one Mortal Knack from Calling dots).";
       chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
     }
@@ -5261,8 +5332,12 @@ function renderBirthrights(root) {
   plist.className = "finishing-birthright-picks";
   (character.finishing.birthrightPicks || []).forEach((bid, idx) => {
     const li = document.createElement("li");
+    li.className = "birthrights-pick-row";
     const br = bundle.birthrights[bid];
-    li.textContent = `${br?.name || bid} (${birthrightPointCost(bid)} pt) — `;
+    const lab = document.createElement("span");
+    lab.className = "birthrights-pick-label";
+    lab.textContent = `${br?.name || bid} (${birthrightPointCost(bid)} pt)`;
+    li.appendChild(lab);
     const rm = document.createElement("button");
     rm.type = "button";
     rm.className = "btn secondary";
@@ -5460,6 +5535,10 @@ function renderFinishing(root) {
   const remAt = finishingAttrDotsRemaining();
   const overSk = placedSk > (character.finishing.extraSkillDots || 0);
   const overAt = placedAt > (character.finishing.extraAttributeDots || 0);
+  const budgetSkFin = Math.max(0, Math.round(Number(character.finishing.extraSkillDots) || 0));
+  const budgetAtFin = Math.max(0, Math.round(Number(character.finishing.extraAttributeDots) || 0));
+  const underspendSkFin = budgetSkFin > 0 && remSk > 0;
+  const underspendAtFin = budgetAtFin > 0 && remAt > 0;
 
   const sum = document.createElement("p");
   sum.id = "fin-budget-summary";
@@ -5497,7 +5576,8 @@ function renderFinishing(root) {
 
   const skPanel = document.createElement("section");
   skPanel.className =
-    "panel finishing-place-panel" + (overSk || missingSpec.length > 0 ? " panel-gate-invalid" : "");
+    "panel finishing-place-panel" +
+    (overSk || underspendSkFin || missingSpec.length > 0 ? " panel-gate-invalid" : "");
   skPanel.innerHTML = "<h2>Skills — spend finishing dots</h2>";
   const { left: finSkLeft, right: finSkRight } = skillIdsSplitForSkillsTables(bundle);
   const finSkTwoCol = document.createElement("div");
@@ -5528,7 +5608,8 @@ function renderFinishing(root) {
 
   const atPanel = document.createElement("section");
   atPanel.id = "fin-attrs-panel";
-  atPanel.className = "panel finishing-place-panel" + (overAt ? " panel-gate-invalid" : "");
+  atPanel.className =
+    "panel finishing-place-panel" + (overAt || underspendAtFin ? " panel-gate-invalid" : "");
   const atH = document.createElement("h2");
   atH.textContent = "Attributes — spend finishing dot(s)";
   atPanel.appendChild(atH);
@@ -5582,8 +5663,13 @@ function renderFinishing(root) {
 
   /* Hero / Titanic / Heroic Sorcerer: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
   if (!heroLikeFinishing) {
+    const knBrInvalid =
+      character.finishing.knackOrBirthright === "knacks"
+        ? [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean).length !== 2
+        : finishingBirthrightPointsUsed() !== 4;
     const knBr = document.createElement("section");
-    knBr.className = "panel finishing-place-panel";
+    knBr.id = "fin-knack-br-panel";
+    knBr.className = "panel finishing-place-panel" + (knBrInvalid ? " panel-gate-invalid" : "");
     if (character.finishing.knackOrBirthright === "knacks") {
       knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2>`;
       const callingKnackSet = new Set(character.knackIds || []);
@@ -5775,8 +5861,12 @@ function renderFinishing(root) {
       list.className = "finishing-birthright-picks";
       (character.finishing.birthrightPicks || []).forEach((bid, idx) => {
         const li = document.createElement("li");
+        li.className = "birthrights-pick-row";
         const br = bundle.birthrights[bid];
-        li.textContent = `${br?.name || bid} (${birthrightPointCost(bid)} pt) — `;
+        const lab = document.createElement("span");
+        lab.className = "birthrights-pick-label";
+        lab.textContent = `${br?.name || bid} (${birthrightPointCost(bid)} pt)`;
+        li.appendChild(lab);
         const rm = document.createElement("button");
         rm.type = "button";
         rm.className = "btn secondary";
@@ -6941,6 +7031,12 @@ function refreshFinishingWizardGateUiFromDom() {
   const finAttrEl = document.getElementById("fin-attr");
   if (finSkillEl) character.finishing.extraSkillDots = Math.max(0, Number(finSkillEl.value || 0));
   if (finAttrEl) character.finishing.extraAttributeDots = Math.max(0, Number(finAttrEl.value || 0));
+  const finFocusEl = document.getElementById("fin-focus");
+  if (finFocusEl) {
+    character.finishing.knackOrBirthright =
+      finFocusEl.value === "birthrights" || finFocusEl.value === "knacks" ? finFocusEl.value : "knacks";
+  }
+  ensureFinishingBaselines();
 
   const host = document.getElementById("wizard-step-host");
   if (!host) return;
@@ -6949,8 +7045,12 @@ function refreshFinishingWizardGateUiFromDom() {
   const remSk = finishingSkillDotsRemaining();
   const placedAt = finishingAttrDotsPlaced();
   const remAt = finishingAttrDotsRemaining();
-  const overSk = placedSk > (character.finishing.extraSkillDots || 0);
-  const overAt = placedAt > (character.finishing.extraAttributeDots || 0);
+  const budgetSk = Math.max(0, Math.round(Number(character.finishing.extraSkillDots) || 0));
+  const budgetAt = Math.max(0, Math.round(Number(character.finishing.extraAttributeDots) || 0));
+  const overSk = placedSk > budgetSk;
+  const overAt = placedAt > budgetAt;
+  const underspendSk = budgetSk > 0 && remSk > 0;
+  const underspendAt = budgetAt > 0 && remAt > 0;
   const missing = skillIdsMissingChargenSpecialties();
   const missingSet = new Set(missing);
 
@@ -6969,12 +7069,25 @@ function refreshFinishingWizardGateUiFromDom() {
 
   const skPanel = host.querySelector(".finishing-skills-table")?.closest(".finishing-place-panel");
   if (skPanel) {
-    skPanel.classList.toggle("panel-gate-invalid", overSk || missing.length > 0);
+    skPanel.classList.toggle("panel-gate-invalid", overSk || underspendSk || missing.length > 0);
   }
 
   const atPanel = document.getElementById("fin-attrs-panel");
   if (atPanel) {
-    atPanel.classList.toggle("panel-gate-invalid", overAt);
+    atPanel.classList.toggle("panel-gate-invalid", overAt || underspendAt);
+  }
+
+  const knBrPanel = document.getElementById("fin-knack-br-panel");
+  if (knBrPanel) {
+    const tierRf = normalizedTierId(character.tier);
+    const heroLf = tierRf === "hero" || tierRf === "titanic" || tierRf === "sorcerer_hero";
+    if (!heroLf) {
+      const knBad =
+        character.finishing.knackOrBirthright === "knacks"
+          ? [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean).length !== 2
+          : finishingBirthrightPointsUsed() !== 4;
+      knBrPanel.classList.toggle("panel-gate-invalid", knBad);
+    }
   }
 
   let gateBox = host.querySelector(".skills-gate-errors");
@@ -7015,10 +7128,10 @@ function refreshFinishingWizardGateUiFromDom() {
 
   const nextBtn = host.querySelector(".step-actions .btn.primary");
   if (nextBtn && nextBtn.textContent.trim() === "Next") {
-    const spBlock = skillsNeedSpecialtyBlockingFinishingAdvance();
-    if (spBlock) {
+    const finBlock = finishingStepLeaveBlockedReason();
+    if (finBlock) {
       nextBtn.disabled = true;
-      nextBtn.title = spBlock;
+      nextBtn.title = finBlock;
     } else {
       nextBtn.disabled = false;
       nextBtn.removeAttribute("title");
@@ -7326,10 +7439,10 @@ function render() {
       next.title = "Choose a pantheon and a parent before continuing.";
     }
     if (step === "finishing") {
-      const spBlock = skillsNeedSpecialtyBlockingFinishingAdvance();
-      if (spBlock) {
+      const finBlock = finishingStepLeaveBlockedReason();
+      if (finBlock) {
         next.disabled = true;
-        next.title = spBlock;
+        next.title = finBlock;
       }
     }
     actions.appendChild(next);
