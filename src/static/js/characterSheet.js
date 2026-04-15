@@ -3,6 +3,7 @@ import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
 import { purviewInnateBlocks } from "./purviewInnate.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { applyGameDataHint } from "./fieldHelp.js";
+import { LEGEND_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 import { sheetFinalAttrsAfterFavored, sheetFinalSkillDots } from "./sheetExportAttrs.js";
@@ -262,9 +263,9 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   const admRaw = data.awarenessDotMax;
   const awarenessMax =
     admRaw != null && admRaw !== "" && !Number.isNaN(Number(admRaw))
-      ? Math.max(1, Math.round(Number(admRaw)))
+      ? Math.max(LEGEND_SHEET_DOT_COUNT, Math.round(Number(admRaw)))
       : String(data.pantheonId || "").trim() === "mythos"
-        ? legendMax
+        ? Math.max(LEGEND_SHEET_DOT_COUNT, legendMax)
         : 1;
 
   function buildKnackSheetRows() {

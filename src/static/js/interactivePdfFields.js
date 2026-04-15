@@ -109,18 +109,30 @@ export function buildScionInteractivePdfFields(data, bundle) {
     f[`attributes${i + 1}`] = v != null && v !== "" ? String(Math.round(Number(v) || 1)) : "1";
   }
 
-  const slots = Array.isArray(data.callingSlots) ? data.callingSlots.filter((s) => s && typeof s === "object") : [];
-  if (slots.length) {
+  const slotSrc = Array.isArray(data.callingSlots) ? data.callingSlots : [];
+  const hasHeroSlotPick = slotSrc.some(
+    (s) => s && typeof s === "object" && String(s.id || "").trim(),
+  );
+  if (hasHeroSlotPick) {
     for (let i = 0; i < 4; i += 1) {
-      const slot = slots[i];
-      const cid = String(slot?.id || "").trim();
+      const slot = slotSrc[i];
+      const cid = slot && typeof slot === "object" ? String(slot.id || "").trim() : "";
       const nm = cid ? bundle.callings?.[cid]?.name || cid : "";
-      const dots = Math.max(1, Math.min(5, Math.round(Number(slot?.dots) || 1)));
+      const dots = Math.max(1, Math.min(5, Math.round(Number(slot && slot.dots) || 1)));
       f[`callings${i + 1}`] = nm ? `${nm} (${dots})` : "";
     }
   } else {
-    f.callings1 = String(data.calling ?? "").trim();
-    f.callings2 = String(Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))));
+    const flatId = typeof data.callingId === "string" ? data.callingId.trim() : "";
+    const nmFlat = flatId
+      ? bundle.callings?.[flatId]?.name || flatId
+      : String(data.calling ?? "").trim();
+    if (nmFlat) {
+      f.callings1 = nmFlat;
+      f.callings2 = String(Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))));
+    } else {
+      f.callings1 = "";
+      f.callings2 = "";
+    }
     f.callings3 = "";
     f.callings4 = "";
   }
@@ -269,9 +281,9 @@ export function buildDragonInteractivePdfFields(data, bundle) {
   const slots = Array.isArray(d.callingSlots) ? d.callingSlots : [];
   for (let i = 0; i < 3; i += 1) {
     const slot = slots[i];
-    const cid = String(slot?.id || "").trim();
+    const cid = slot && typeof slot === "object" ? String(slot.id || "").trim() : "";
     const nm = cid ? bundle.callings?.[cid]?.name || cid : "";
-    const dots = Math.max(1, Math.min(5, Math.round(Number(slot?.dots) || 1)));
+    const dots = Math.max(1, Math.min(5, Math.round(Number(slot && slot.dots) || 1)));
     f[`calling${i + 2}`] = nm ? `${nm} (${dots})` : "";
   }
 

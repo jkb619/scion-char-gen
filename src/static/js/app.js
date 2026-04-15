@@ -348,7 +348,9 @@ function ensureLegendAwarenessPoolSlotArrays() {
   } else {
     character.legendPoolDotSpentSlots = padPoolSlotArray(character.legendPoolDotSpentSlots, legN);
   }
-  const awN = isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1;
+  const awN = isMythosPantheonSelected()
+    ? Math.max(LEGEND_SHEET_DOT_COUNT, awarenessDotMaxForTier(character.tier))
+    : 1;
   if (!Array.isArray(character.awarenessPoolDotSpentSlots)) {
     character.awarenessPoolDotSpentSlots = Array(awN).fill(false);
     if (character.awarenessPoolDotSpent === true) character.awarenessPoolDotSpentSlots[0] = true;
@@ -5980,7 +5982,9 @@ function buildExportObject() {
       awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
       awarenessPoolDotSpentSlots: padPoolSlotArray(
         character.awarenessPoolDotSpentSlots || [],
-        isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+        isMythosPantheonSelected()
+          ? Math.max(LEGEND_SHEET_DOT_COUNT, awarenessDotMaxForTier(character.tier))
+          : 1,
       ),
       ...snap,
     };
@@ -6035,7 +6039,9 @@ function buildExportObject() {
     awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
     awarenessPoolDotSpentSlots: padPoolSlotArray(
       character.awarenessPoolDotSpentSlots || [],
-      isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
+      isMythosPantheonSelected()
+        ? Math.max(LEGEND_SHEET_DOT_COUNT, awarenessDotMaxForTier(character.tier))
+        : 1,
     ),
     tierAdvancementLog: [...(character.tierAdvancementLog || [])],
     characterName: character.characterName ?? "",
@@ -6082,20 +6088,33 @@ function buildExportObject() {
     ),
     favoredApproach: character.favoredApproach,
     arenaPriority: character.arenaRank,
-    calling: bundle.callings[character.callingId]?.name || "",
-    callingId: character.callingId || "",
-    callingDots: isOriginPlayTier(character.tier)
-      ? 1
-      : Math.max(1, Math.min(5, Math.round(Number(character.callingDots) || 1))),
-    ...(heroUsesCallingSlots() && Array.isArray(character.callingSlots)
-      ? {
-          callingSlots: character.callingSlots.map((s) => ({
-            id: String(s.id || "").trim(),
+    ...(function callingFieldsForExport() {
+      const flatId = String(character.callingId || "").trim();
+      /** @type {Record<string, unknown>} */
+      const out = {};
+      if (flatId) {
+        out.calling = bundle.callings[flatId]?.name || "";
+        out.callingId = flatId;
+        out.callingDots = isOriginPlayTier(character.tier)
+          ? 1
+          : Math.max(1, Math.min(5, Math.round(Number(character.callingDots) || 1)));
+      }
+      if (heroUsesCallingSlots() && Array.isArray(character.callingSlots)) {
+        const slots = character.callingSlots.map((s) => {
+          const id = String(s?.id || "").trim();
+          if (!id) return null;
+          return {
+            id,
             dots: Math.max(1, Math.min(5, Math.round(Number(s.dots) || 1))),
-          })),
-          knackSlotById: { ...(character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {}) },
-        }
-      : {}),
+          };
+        });
+        if (slots.some((x) => x != null)) out.callingSlots = slots;
+        out.knackSlotById = {
+          ...(character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {}),
+        };
+      }
+      return out;
+    })(),
     knackIds: [...character.knackIds],
     knacks: character.knackIds.map((id) => bundle.knacks[id]?.name || id),
     finishingKnacks: (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
@@ -6366,16 +6385,20 @@ function importCharacterFromExportPayload(data) {
   if (
     (tierNormImp === "hero" || tierNormImp === "titanic" || tierNormImp === "sorcerer_hero") &&
     Array.isArray(data.callingSlots) &&
-    data.callingSlots.length >= 3
+    data.callingSlots.length > 0
   ) {
-    callingSlots = data.callingSlots.slice(0, 3).map((x) =>
-      x && typeof x === "object"
-        ? {
-            id: typeof x.id === "string" ? x.id.trim() : "",
-            dots: Math.max(1, Math.min(5, Math.round(Number(x.dots) || 1))),
-          }
-        : { id: "", dots: 1 },
+    const raw = data.callingSlots.slice(0, 3).map((x) =>
+      x == null
+        ? { id: "", dots: 1 }
+        : x && typeof x === "object"
+          ? {
+              id: typeof x.id === "string" ? x.id.trim() : "",
+              dots: Math.max(1, Math.min(5, Math.round(Number(x.dots) || 1))),
+            }
+          : { id: "", dots: 1 },
     );
+    while (raw.length < 3) raw.push({ id: "", dots: 1 });
+    callingSlots = raw;
     callingDots = Math.max(1, Math.min(5, callingSlots.reduce((a, s) => a + s.dots, 0)));
   }
   const knackImportCtx = {
@@ -6480,7 +6503,8 @@ function importCharacterFromExportPayload(data) {
     legendPoolDotSpentSlots = Array(legNImp).fill(false);
     legendPoolDotSpentSlots[0] = true;
   }
-  const awNImp = pantheonId === "mythos" ? awarenessDotMaxForTier(tier) : 1;
+  const awNImp =
+    pantheonId === "mythos" ? Math.max(LEGEND_SHEET_DOT_COUNT, awarenessDotMaxForTier(tier)) : 1;
   let awarenessPoolDotSpentSlots = padPoolSlotArray([], awNImp);
   if (Array.isArray(data.awarenessPoolDotSpentSlots) && data.awarenessPoolDotSpentSlots.length) {
     awarenessPoolDotSpentSlots = padPoolSlotArray(data.awarenessPoolDotSpentSlots.map((x) => !!x), awNImp);

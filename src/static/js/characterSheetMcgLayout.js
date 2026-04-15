@@ -366,8 +366,6 @@ export function fillMcgFourPageLayout(el, api) {
     ln.className = "cs-mcg-write-line";
     leftCol.appendChild(ln);
   }
-  leftCol.appendChild(mcgSectionTitle("Callings"));
-  const slotRows = Array.isArray(data.callingSlots) ? data.callingSlots.filter((s) => s && typeof s === "object") : [];
   const pushCallingRow = (label, dots) => {
     const row = document.createElement("div");
     row.className = "cs-mcg-calling-line";
@@ -377,21 +375,33 @@ export function fillMcgFourPageLayout(el, api) {
     row.appendChild(dotTrack(dots));
     leftCol.appendChild(row);
   };
-  if (slotRows.length) {
-    for (let i = 0; i < 3; i += 1) {
-      const slot = slotRows[i];
-      if (slot) {
-        const cid = String(slot.id || "").trim();
-        const label = cid ? bundle?.callings?.[cid]?.name || cid : "—";
-        pushCallingRow(label, Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1))));
-      } else {
-        pushCallingRow("—", 1);
-      }
+  /** @type {{ label: string; dots: number }[]} */
+  const callingSheetRows = [];
+  if (Array.isArray(data.callingSlots) && data.callingSlots.length) {
+    for (const slot of data.callingSlots) {
+      if (!slot || typeof slot !== "object") continue;
+      const cid = String(slot.id || "").trim();
+      if (!cid) continue;
+      callingSheetRows.push({
+        label: bundle?.callings?.[cid]?.name || cid,
+        dots: Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1))),
+      });
     }
   } else {
-    pushCallingRow(data.calling || "—", Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))));
-    pushCallingRow("—", 1);
-    pushCallingRow("—", 1);
+    const cid = typeof data.callingId === "string" ? data.callingId.trim() : "";
+    const label = cid
+      ? bundle?.callings?.[cid]?.name || cid
+      : String(data.calling ?? "").trim();
+    if (label) {
+      callingSheetRows.push({
+        label,
+        dots: Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))),
+      });
+    }
+  }
+  if (callingSheetRows.length) {
+    leftCol.appendChild(mcgSectionTitle("Callings"));
+    for (const r of callingSheetRows) pushCallingRow(r.label, r.dots);
   }
   leftCol.appendChild(mcgLinedField("Guide", ""));
   leftCol.appendChild(mcgSectionTitle("Deeds"));

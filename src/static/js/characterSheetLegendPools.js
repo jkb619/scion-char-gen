@@ -23,10 +23,10 @@ function isFullSheetHooks(h) {
 }
 
 /**
- * Legend (always 15 columns) or Mythos Awareness (tier cap).
+ * Legend and Mythos Awareness: **15** pool columns on the four-pager (same as community sheet); rating not filled on dots (table/pencil).
  * @param {HTMLElement} cell
- * @param {number|string|undefined} filled
- * @param {number} cap — used for Awareness only
+ * @param {number|string|undefined} filled — ignored for dot fill on sheet (Legend + Awareness); pool hooks still receive indices 0..14
+ * @param {number} cap — unused for column count for Legend/Awareness (always {@link LEGEND_SHEET_DOT_COUNT})
  * @param {"Legend" | "Awareness"} kind
  * @param {{
  *   sheetHooks: object | null | undefined;
@@ -35,52 +35,29 @@ function isFullSheetHooks(h) {
  * }} ctx
  */
 export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx) {
-  const { sheetHooks, legendDotTrackReadOnly } = ctx;
-  const c =
-    kind === "Legend"
-      ? LEGEND_SHEET_DOT_COUNT
-      : Math.max(1, Math.min(20, Math.round(Number(cap) || 1)));
+  void filled;
+  void cap;
+  const { sheetHooks } = ctx;
+  /* This helper is only used for four-pager Legend + Mythos Awareness rows; both use 15 sheet columns (community PDF). */
+  const c = LEGEND_SHEET_DOT_COUNT;
   const hooks = isFullSheetHooks(sheetHooks) ? sheetHooks : null;
 
   if (!hooks) {
-    if (kind === "Legend") {
-      const track = document.createElement("div");
-      track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
-      for (let i = 1; i <= c; i += 1) {
-        const col = document.createElement("div");
-        col.className = "cs-mcg-legend-pool-col";
-        const dot = document.createElement("span");
-        dot.className = "cs-dot";
-        dot.setAttribute("aria-hidden", "true");
-        col.appendChild(dot);
-        const lab = document.createElement("label");
-        lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
-        lab.setAttribute("aria-label", `Legend pool from dot ${i} spent`);
-        const inp = document.createElement("input");
-        inp.type = "checkbox";
-        inp.disabled = true;
-        inp.className = "cs-mcg-pool-check-input";
-        lab.appendChild(inp);
-        col.appendChild(lab);
-        track.appendChild(col);
-      }
-      cell.appendChild(track);
-      return;
-    }
-    const av = Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
     const track = document.createElement("div");
-    /* Same spacing as read-only Legend row (always dense on the four-pager). */
     track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
     for (let i = 1; i <= c; i += 1) {
       const col = document.createElement("div");
       col.className = "cs-mcg-legend-pool-col";
       const dot = document.createElement("span");
-      dot.className = "cs-dot" + (i <= av ? " on" : "");
+      dot.className = "cs-dot";
       dot.setAttribute("aria-hidden", "true");
       col.appendChild(dot);
       const lab = document.createElement("label");
       lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
-      lab.setAttribute("aria-label", `Awareness pool from dot ${i} spent`);
+      lab.setAttribute(
+        "aria-label",
+        kind === "Legend" ? `Legend pool from dot ${i} spent` : `Awareness pool from dot ${i} spent`,
+      );
       const inp = document.createElement("input");
       inp.type = "checkbox";
       inp.disabled = true;
@@ -93,17 +70,14 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
     return;
   }
 
-  const v =
-    kind === "Legend"
-      ? 0 /* rating not shown filled on sheet; use checkboxes + pencil */
-      : Math.max(1, Math.min(c, Math.round(Number(filled) || 1)));
+  /* Same as Legend row: empty rating bubbles; pool spent at table via checkboxes (+ pencil for rating). */
   const track = document.createElement("div");
-  track.className = "cs-mcg-legend-pool-track" + (c > 6 ? " cs-mcg-legend-pool-track--dense" : "");
+  track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
   for (let i = 1; i <= c; i += 1) {
     const col = document.createElement("div");
     col.className = "cs-mcg-legend-pool-col";
     const dot = document.createElement("span");
-    dot.className = "cs-dot" + (i <= v ? " on" : "");
+    dot.className = "cs-dot";
     dot.setAttribute("aria-hidden", "true");
     if (kind === "Legend" && typeof hooks.onLegendDotClick === "function") {
       dot.tabIndex = 0;
