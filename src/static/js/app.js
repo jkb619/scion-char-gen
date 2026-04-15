@@ -2614,7 +2614,7 @@ function ensureFinishingShape() {
     f.extraAttributeDots = 0;
     f.skillBaseline = null;
     f.attrBaseline = null;
-    f.finishingKnackIds = [];
+    /** Do not clear `finishingKnackIds`: Hero+ may hold Origin-carried bonus Knacks here until Visitation rows can absorb them into `knackIds` (see `mergeFinishingBonusKnacksIntoMainKnackList`). */
     /** Hero+ etc. use the Birthrights step without a Finishing step; picks still live under `finishing.birthrightPicks`. */
     if (!stepDefsForTier(character.tier).includes("birthrights")) {
       f.birthrightPicks = [];
@@ -4827,7 +4827,7 @@ function renderCalling(root) {
   function appendKnackChip(container, kid, k) {
     const baseOk = knackEligible(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
-    const on = character.knackIds.includes(kid);
+    const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
     const slotBlocked = baseOk && !eligible && !on;
     const chip = document.createElement("button");
     chip.type = "button";
@@ -4852,10 +4852,16 @@ function renderCalling(root) {
     chip.addEventListener("click", () => {
       if (chip.disabled) return;
       const set = new Set(character.knackIds);
-      const finSet = new Set(character.finishing?.finishingKnackIds || []);
-      if (set.has(kid)) set.delete(kid);
-      else if (eligible && !finSet.has(kid)) set.add(kid);
+      character.finishing ||= {};
+      if (!Array.isArray(character.finishing.finishingKnackIds)) character.finishing.finishingKnackIds = [];
+      const finSet = new Set(character.finishing.finishingKnackIds);
+      const inMain = set.has(kid);
+      const inFin = finSet.has(kid);
+      if (inMain) set.delete(kid);
+      else if (inFin) finSet.delete(kid);
+      else if (eligible) set.add(kid);
       character.knackIds = [...set];
+      character.finishing.finishingKnackIds = [...finSet];
       if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
       render();
     });
@@ -4869,7 +4875,13 @@ function renderCalling(root) {
         : "You qualify for this Knack (Calling / tier / optional data gates), but your Calling Knack budget is full—clear a pick first (Origin: one Mortal Knack from Calling dots).";
       chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
     }
-    if (on && useThreeRowKnackBuckets && character.knackSlotById && character.knackSlotById[kid] != null && Array.isArray(character.callingSlots)) {
+    if (
+      character.knackIds.includes(kid) &&
+      useThreeRowKnackBuckets &&
+      character.knackSlotById &&
+      character.knackSlotById[kid] != null &&
+      Array.isArray(character.callingSlots)
+    ) {
       const ri = character.knackSlotById[kid];
       const rowId = String(character.callingSlots[ri]?.id || "").trim();
       const rowName = (rowId && bundle.callings[rowId] && bundle.callings[rowId].name) || rowId || `row ${ri + 1}`;
@@ -4888,9 +4900,8 @@ function renderCalling(root) {
     };
     for (const [kid, k] of knackEntries) {
       const baseOk = knackEligible(k, character, bundle);
-      const on = character.knackIds.includes(kid);
-      if (!baseOk && !on) continue;
-      if (!on && finishingKnackSet.has(kid)) continue;
+      const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
+      if (!baseOk && !selected) continue;
       const tok = knackCallingTokensForRowMatch(k, character);
       let key = /** @type {number | "any"} */ ("any");
       if (tok !== null) {
@@ -4942,9 +4953,10 @@ function renderCalling(root) {
     };
     for (const [kid, k] of knackEntries) {
       const baseOk = knackEligible(k, character, bundle);
-      const on = character.knackIds.includes(kid);
-      if (!baseOk && !on) continue;
-      if (!on && finishingKnackSet.has(kid)) continue;
+      const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
+      if (!baseOk && !selected) continue;
+      /* Origin Calling step lists only the one Knack paid by Calling dots; Finishing extras stay on Finishing. */
+      if (!character.knackIds.includes(kid) && finishingKnackSet.has(kid)) continue;
       const key = originCallingKnackChipGroupKey(k, character);
       pushBucket(key, [kid, k]);
     }
@@ -5036,9 +5048,8 @@ function renderCalling(root) {
       chips.className = "chips";
       for (const [kid, k] of knackEntries) {
         const baseOk = knackEligible(k, character, bundle);
-        const on = character.knackIds.includes(kid);
-        if (!baseOk && !on) continue;
-        if (!on && finishingKnackSet.has(kid)) continue;
+        const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
+        if (!baseOk && !selected) continue;
         appendKnackChip(chips, kid, k);
       }
       knackPanel.appendChild(chips);
@@ -7163,11 +7174,13 @@ function pruneStaleKnackIds() {
 
 /**
  * Origin / Mortal-band Finishing “two extra Knacks” are stored in `finishing.finishingKnackIds`.
- * Hero+ tiers omit the Finishing step, so `ensureFinishingShape` would clear that list; Calling only
- * highlights `knackIds`. Merge bonus ids into `knackIds`, then prune (deity, Titan, Sorcerer, Titanic).
+ * Hero+ omits the Finishing step; merge bonus ids into `knackIds` when Calling rows can pay for them.
+ * After Mortal→Hero, `pruneKnackIdsToCallingSlotCap` may drop picks while Visitation Callings are still
+ * empty; any merge survivor that fails assignment stays in `finishingKnackIds` until rows absorb them.
  */
 function mergeFinishingBonusKnacksIntoMainKnackList() {
   if (wizardIncludesFinishingTouchesStep(character.tier)) return;
+  if (!bundle?.knacks) return;
   character.finishing ||= {};
   const raw = character.finishing.finishingKnackIds;
   const bonus = Array.isArray(raw)
@@ -7178,13 +7191,22 @@ function mergeFinishingBonusKnacksIntoMainKnackList() {
   const next = [...cur];
   for (const kid of bonus) {
     if (next.includes(kid)) continue;
-    const k = bundle?.knacks?.[kid];
+    const k = bundle.knacks[kid];
     if (!k || typeof k !== "object") continue;
     next.push(kid);
   }
   character.knackIds = next;
   character.finishing.finishingKnackIds = [];
   pruneStaleKnackIds();
+  const main = new Set(character.knackIds || []);
+  const held = [];
+  for (const kid of bonus) {
+    if (main.has(kid)) continue;
+    const k = bundle.knacks[kid];
+    if (!k || typeof k !== "object") continue;
+    if (knackEligible(k, character, bundle)) held.push(kid);
+  }
+  character.finishing.finishingKnackIds = [...new Set(held)];
 }
 
 /** After replacing `character` (import) or on first load: clamp, hydrate paths/purviews, prune invalid ids. */
@@ -7651,6 +7673,7 @@ function render() {
     if (character.callingDots == null || Number.isNaN(Number(character.callingDots))) character.callingDots = 1;
     character.callingDots = Math.max(1, Math.min(5, Math.round(Number(character.callingDots) || 1)));
   }
+  mergeFinishingBonusKnacksIntoMainKnackList();
   clearPurviewsAndBoonsIfInapplicableTier();
   if (tierHasPurviewStep(character.tier)) restrictHeroPurviewsToPatronList();
   trimBirthrightPicksToBudget();
