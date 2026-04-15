@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Hand patches for PB titles that do not match extract heuristics or lack Storypath Cost:/Duration: lines. Merged after boonPbMechanics.json in generate_boons_catalog.py."
+    "note": "Hand patches for PB titles that do not match extract heuristics or lack Storypath Cost:/Duration: lines. Merged after boonPbMechanics.json in generate_boons_catalog.py. Optional ``name`` supplies the wizard chip title when the Purview ladder row is blank but this Boon is still included."
   },
   "epicDexterity_dot_02": {
     "description": "Standard prisons or manacles cannot hold you; you may Imbue for Scale to escape any confinement (supermax, labyrinth, an Underworld cell). Later subheads add disguise Knacks (onlookers, the world, the Overworld, fate) and pantheon-specific riders—see Pandora’s Box.",
@@ -11,26 +11,32 @@
     "mechanicalEffects": "Cost: Knack activation (see printed Boon).\nDuration: Days equal to Trickster Calling.\nSubject: Self.\nRange: —\nAction: Knack Skill roll."
   },
   "paganito_dot_03": {
+    "name": "Sacred Compact",
     "description": "“Sacred Compact” (Balahala Paganito Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   },
   "marzeh_dot_03": {
+    "name": "Guest's Oath",
     "description": "“Guest’s Oath” (Ilhm Marzeh Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   },
   "tzolkin_dot_03": {
+    "name": "Daykeeper's Verdict",
     "description": "“Daykeeper’s Verdict” (K’uh Tzolk’in Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   },
   "yidam_dot_02": {
+    "name": "Mandala's Keening",
     "description": "“Mandala’s Keening” (Pālas Yidam Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   },
   "yidam_dot_03": {
+    "name": "Refuge in the Image",
     "description": "“Refuge in the Image” (Pālas Yidam Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   },
   "behique_dot_03": {
+    "name": "Healer's Claim",
     "description": "“Healer’s Claim” (Zem Behique Signature): see Pandora’s Box Pantheon Signature Purviews.",
     "mechanicalEffects": "Cost: (printed).\nDuration: (printed).\nSubject: (printed).\nRange: (printed).\nAction: (printed)."
   }

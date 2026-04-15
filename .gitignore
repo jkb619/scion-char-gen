@@ -1,5 +1,9 @@
 src/data/_extracted/
+src/data/_migrated_backup/
 .certs/
+
+# Local Scion PDF library (not committed)
+books/
 
 # Terragrunt / Terraform
 **/.terragrunt-cache/

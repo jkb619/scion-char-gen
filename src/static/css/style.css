@@ -867,7 +867,7 @@ textarea.has-doc-hint:focus-visible {
   gap: 0.75rem 1rem;
 }
 
-/* Paths: parent patron Purview slots — always two columns (not three from auto-fit). */
+/* Purviews (Demigod+): parent patron Purview slots — always two columns (not three from auto-fit). */
 .patron-purviews-slot-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1189,7 +1189,7 @@ textarea.has-doc-hint:focus-visible {
   flex: 0 1 auto;
 }
 
-/* Purviews step: innate preview for the focused chip sits below the whole chip row (no reflow). */
+/* Purviews step: innate preview below chips — Hero/Titanic: focused chip only; Demigod/God: stacked sections per selected Purview. */
 .purview-innate-below-chips {
   width: 100%;
   max-width: 48rem;
@@ -1210,6 +1210,21 @@ textarea.has-doc-hint:focus-visible {
   padding: 0;
   border: none;
   background: transparent;
+}
+
+.purview-innate-accum-section {
+  margin-top: 0.65rem;
+}
+
+.purview-innate-accum-section:first-child {
+  margin-top: 0;
+}
+
+.purview-innate-accum-heading {
+  margin: 0 0 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e8ecf0;
 }
 
 .purview-innate-under-chip {

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Full Knack lists and rules text: Pandora’s Box (Revised) Calling chapters (primary). Each knack includes `knackKind`: \"mortal\" (Mortal Knack, one Calling slot; only kind allowed at Origin / Mortal tier) or \"immortal\" (Immortal Knack, two Calling slots; Hero+). Tier gates use `tierMin` / `tierMax` (titanic tier counts as Hero tier for these gates). Mythos inverted knacks (mythos_*) require pantheon mythos per MotM pp. 47–48. Saints & Monsters knacks (sm_*), including Titanic Callings and Outsider/Shepherd lists, merge from knacksSaintsMonsters.json at bundle load. Titans Rising Titanic Knacks (tr_*) merge from knacksTitansRising.json after S&M (see app/services/game_data.py). Optional `patronKindAnyOf`: [\"titan\"] / [\"deity\"] gates knacks or boons by Paths patron type.",
+    "note": "Full Knack lists and rules text: Pandora’s Box (Revised) Calling chapters (primary). Each knack includes `knackKind`: \"mortal\" (Mortal Knack, one Calling slot; only kind allowed at Origin / Mortal tier) or \"immortal\" (Immortal Knack, two Calling slots; Hero+). Tier gates use `tierMin` / `tierMax` (titanic tier counts as Hero tier for these gates). Mythos inverted knacks (mythos_*) require pantheon mythos per MotM pp. 47–48. Saints & Monsters knacks (sm_*), including Titanic Callings and Outsider/Shepherd lists, merge from ``data/tables/knacks/20_*.json`` at bundle load. Titans Rising Titanic Knacks (tr_*) merge from ``data/tables/knacks/30_*.json`` after S&M (see ``app/services/data_tables.py``). Optional `patronKindAnyOf`: [\"titan\"] / [\"deity\"] gates knacks or boons by Paths patron type.",
     "eligibility": {
       "callings": "Array of Calling ids, or omit / callingsAny true for any Calling.",
       "callingsAny": "If true, ignore callings (any Calling).",
@@ -374,7 +374,7 @@
   },
   "healer_surgeon_with_the_hands_of_gods": {
     "id": "healer_surgeon_with_the_hands_of_gods",
-    "name": "Surgeon with the Hands of Gods",
+    "name": "Surgeon with the Hands of God",
     "callings": [
       "healer"
     ],
@@ -1298,7 +1298,7 @@
   },
   "trickster_doppelgaenger": {
     "id": "trickster_doppelgaenger",
-    "name": "Doppelgaenger",
+    "name": "Doppelganger",
     "callings": [
       "trickster"
     ],

@@ -20,8 +20,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+from app.services.data_tables import primary_write_path
+
 EXTRACT = SRC / "data" / "_extracted" / "pandoras_box.txt"
-PURVIEWS_PATH = SRC / "data" / "purviews.json"
+PURVIEWS_PATH = primary_write_path("purviews")
 
 # PDF section headers that differ from purviews.json `name` (uppercase, single line).
 ANCHOR_ALIASES: dict[str, tuple[str, ...]] = {

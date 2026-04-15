@@ -49,8 +49,7 @@ import { appendFatebindingsFinishingEditor } from "./fatebindingsFinishingEditor
 import { appendFinishingExtendedNotesPanel } from "./finishingExtendedNotesPanel.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
 import {
-  DRAGON_HEIR_POST_CONCEPT_STEPS,
-  DRAGON_HEIR_SUBMODULE_STEPS,
+  dragonHeirPostConceptStepList,
   renderDragonHeirStepInRoot,
   dragonHeirStepLeaveBlockedReason,
   syncDragonFlightPathRequiredSkills,
@@ -323,6 +322,21 @@ function sorcererWorkingPickCap(tierId) {
 function isOriginPlayTier(tierId) {
   const t = normalizedTierId(tierId);
   return t === "mortal" || t === "sorcerer";
+}
+
+/** Max Inheritance dot on the Heir track (Scion: Dragon pp. 117–119); keep in sync with `data/dragonTier.json`. */
+const DRAGON_INHERITANCE_MAX = 10;
+
+/**
+ * When false, the wizard omits the Finishing tab: no Origin-style extra Skill/Attribute dots or bonus Knacks/Birthrights
+ * here (Hero+, Demigod, God, Sorcerer Hero+, Titanic extras→Review, Dragon Heir past Hatchling — books use other steps).
+ */
+function wizardIncludesFinishingTouchesStep(tierId) {
+  if (isDragonHeirChargen(character)) {
+    const inh = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character?.dragon?.inheritance) || 1)));
+    return inh <= 1;
+  }
+  return isOriginPlayTier(tierId);
 }
 
 /** Max Legend dots on the track per tier (sheet / UI). */
@@ -836,7 +850,7 @@ function renderMythosInnatePowerPanel(wrap) {
     const warn = document.createElement("p");
     warn.className = "warn";
     warn.textContent =
-      "None of this parent’s Purviews have MotM Awareness Innate text in this app yet (see mythosPurviewInnates.json).";
+      "None of this parent’s Purviews have MotM Awareness Innate text in this app yet (MotM fragment under data/tables/purviews/).";
     fieldset.appendChild(warn);
   }
 
@@ -1254,8 +1268,6 @@ function pantheonOptionsForCurrentPatronKind() {
 const WELCOME_DEITY_TIER_ORDER = ["mortal", "hero", "demigod", "god"];
 const WELCOME_TITAN_TIER_ORDER = ["mortal", "titanic", "demigod", "god"];
 const WELCOME_SORCERER_TIER_ORDER = ["sorcerer", "sorcerer_hero", "sorcerer_demigod", "sorcerer_god"];
-/** Max Inheritance dot on the Heir track (Scion: Dragon pp. 117–119). */
-const DRAGON_INHERITANCE_MAX = 10;
 
 /** Inheritance labels when `dragonTier.json` is missing from the bundle (matches data/dragonTier.json). */
 const DRAGON_INHERITANCE_WELCOME_STAGES = [
@@ -1481,7 +1493,7 @@ function saintsMonstersBundle() {
   return m && typeof m === "object" ? m : null;
 }
 
-/** Titanic Calling ids that have `sm_*` Knacks merged from knacksSaintsMonsters.json (S&M Ch. 4). */
+/** Titanic Calling ids that have `sm_*` Knacks merged from the Saints & Monsters knacks fragment (S&M Ch. 4). */
 const TITANIC_CALLING_IDS_SM_KNACKS = new Set(["adversary", "destroyer", "monster", "primeval", "tyrant"]);
 
 function isMythosPantheonSelected() {
@@ -1919,7 +1931,7 @@ function appendPurviewInnateDetails(container, purviewId, opts) {
   if (includeGrantedNote) {
     const note = document.createElement("p");
     note.className = "purview-innate-granted-note";
-    note.textContent = "Granted with this Purview — not a Boon pick.";
+    note.textContent = "Purview innate — not a Boon.";
     container.appendChild(note);
   }
   for (const bl of blocks) {
@@ -2043,6 +2055,71 @@ function patronPurviewOptionIds() {
   return [...new Set(raw)].sort((a, b) => purviewLabel(a).localeCompare(purviewLabel(b), undefined, { sensitivity: "base" }));
 }
 
+/**
+ * Universal Purview ids that are also used as a pantheon’s `signaturePurviewId` “skin” (still on the universal list for Demigod+).
+ * @see Scion: Demigod (Purviews / Specialty treatment); Mythic Shards cross-references.
+ */
+const PURVIEW_IDS_UNIVERSAL_EVEN_IF_PANTHEON_SIG = new Set(["order", "passion", "sun", "wild"]);
+
+/** Collect every `signaturePurviewId` from `pantheons.json` ( Specialty Purviews from other pantheons are not free picks at Demigod+ ). */
+function allPantheonSignaturePurviewIdSet() {
+  const s = new Set();
+  const pants = bundle?.pantheons;
+  if (!pants || typeof pants !== "object") return s;
+  for (const [k, v] of Object.entries(pants)) {
+    if (String(k).startsWith("_") || !v || typeof v !== "object") continue;
+    const id = typeof v.signaturePurviewId === "string" ? v.signaturePurviewId.trim() : "";
+    if (id) s.add(id);
+  }
+  return s;
+}
+
+/**
+ * Purview ids that may appear as optional chips on the Purviews step at Demigod / God (and Sorcerer Demigod / God): standard universals,
+ * your pantheon’s Signature, and Sorcerer-line Magic — not Denizen-only rows or another pantheon’s dedicated Signature Purview.
+ */
+function demigodTierPurviewChipSelectable(pid) {
+  const row = bundle?.purviews?.[pid];
+  if (!row || typeof row !== "object") return false;
+  if (row.denizenPurview === true) return false;
+  if (isSorcererLineTier(character.tier) && pid === "magic") return true;
+  if (row.denizenOrSorcery === true) return false;
+
+  const mySig = pantheonSignaturePurviewId();
+  const allSig = allPantheonSignaturePurviewIdSet();
+  if (allSig.has(pid)) {
+    if (pid === mySig) return true;
+    if (PURVIEW_IDS_UNIVERSAL_EVEN_IF_PANTHEON_SIG.has(pid)) return true;
+    return false;
+  }
+  return true;
+}
+
+/** Drop Demigod+ `purviewIds` extras that violate Specialty / Denizen access; keeps patron slot picks. */
+function restrictDemigodGodPurviewExtrasToLegal() {
+  const tn = normalizedTierId(character.tier);
+  if (tn !== "demigod" && tn !== "god" && tn !== "sorcerer_demigod" && tn !== "sorcerer_god") return;
+  ensurePatronPurviewSlots();
+  normalizePatronPurviewSlotsNoDuplicates();
+  const picks = character.patronPurviewSlots.filter(Boolean);
+  const pickSet = new Set(picks);
+  const extras = (character.purviewIds || []).filter((id) => id && !pickSet.has(id));
+  const legal = extras.filter((id) => demigodTierPurviewChipSelectable(id));
+  const merged = [...new Set([...picks, ...legal])];
+  const sig = pantheonSignaturePurviewId();
+  if (sig && !merged.includes(sig)) merged.push(sig);
+  character.purviewIds = merged;
+}
+
+/** Display sort key for Purview chips (pantheon Specialty labels where applicable). */
+function purviewChipSortLabel(pid, p) {
+  return (
+    purviewDisplayNameForPantheon(pid, bundle, character.pantheonId) ||
+    (p && typeof p === "object" && typeof p.name === "string" ? p.name : "") ||
+    purviewLabel(pid)
+  );
+}
+
 /** Hero / Titanic: keep only parent innate Purview(s) in slot 0 and pantheon Signature Purview; strip other ids. */
 function restrictHeroPurviewsToPatronList() {
   const t = normalizedTierId(character.tier);
@@ -2125,7 +2202,14 @@ function syncPurviewIdsFromPatronSlots() {
   }
   const pickSet = new Set(picks);
   const extras = (character.purviewIds || []).filter((id) => !pickSet.has(id));
-  character.purviewIds = [...picks, ...extras];
+  const merged = [...picks, ...extras];
+  const demigodLikeSync =
+    tn === "demigod" || tn === "god" || tn === "sorcerer_demigod" || tn === "sorcerer_god";
+  if (demigodLikeSync) {
+    const sig = pantheonSignaturePurviewId();
+    if (sig && !merged.includes(sig)) merged.push(sig);
+  }
+  character.purviewIds = merged;
 }
 
 /** After pantheon / divine parent change: drop invalid patron picks and re-merge `purviewIds`. */
@@ -2135,6 +2219,7 @@ function onPatronPurviewContextChange() {
   character.patronPurviewSlots = character.patronPurviewSlots.map((s) => (allowed.has(s) ? s : ""));
   hydratePatronPurviewSlotsFromPurviewIds();
   syncPurviewIdsFromPatronSlots();
+  restrictDemigodGodPurviewExtrasToLegal();
 }
 
 function commitPatronPurviewSlotChange(slotIndex, newVal) {
@@ -2185,7 +2270,7 @@ function renderPatronPurviewPanel(mount) {
     const p = document.createElement("p");
     p.className = "help";
     p.textContent =
-      "This tier does not assign patron Purview slots on Paths — choose Purviews (including Magic for Sorcerers) on the Purviews step.";
+      "This tier does not use patron Purview slots from a divine parent’s list — choose Purviews (including Magic for Sorcerers) with the chips on this step.";
     panel.appendChild(p);
     mount.appendChild(panel);
     applyHint(panel, "patron-purviews");
@@ -2200,7 +2285,7 @@ function renderPatronPurviewPanel(mount) {
     const tierLab = tierPv === "titanic" ? "Titanic (Hero-tier)" : tierPv === "hero" ? "Hero" : bundle.tier?.[character.tier]?.name || "this tier";
     intro.innerHTML = `At <strong>${tierLab}</strong>, pick <strong>one innate Purview</strong> from this parent’s list below. Your pantheon’s <strong>Signature Purview</strong> (<strong>${sigLab}</strong>) is added automatically on the Purviews step — you do not spend your single pick on it.`;
   } else {
-    intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (each Purview once — options already picked in another slot are omitted here). Other Purviews (Relics, etc.) are chosen on the Purviews step.`;
+    intro.textContent = `Choose up to ${slotLim} Purview(s) from this parent’s patron list only (each Purview once — options already picked in another slot are omitted here). Other Purviews (Relics, etc.) use the universal chips below.`;
   }
   panel.appendChild(intro);
   const grid = document.createElement("div");
@@ -2524,18 +2609,21 @@ function validateAttributes(attrs) {
 function ensureFinishingShape() {
   character.finishing ||= {};
   const f = character.finishing;
-  if (heroFinishingOmittedAfterOriginAdvance()) {
+  if (!wizardIncludesFinishingTouchesStep(character.tier)) {
     f.extraSkillDots = 0;
     f.extraAttributeDots = 0;
+    f.skillBaseline = null;
+    f.attrBaseline = null;
+    f.finishingKnackIds = [];
+    /** Hero+ etc. use the Birthrights step without a Finishing step; picks still live under `finishing.birthrightPicks`. */
+    if (!stepDefsForTier(character.tier).includes("birthrights")) {
+      f.birthrightPicks = [];
+    }
   } else {
     if (f.extraSkillDots == null) f.extraSkillDots = 5;
     if (f.extraAttributeDots == null) f.extraAttributeDots = 1;
   }
   if (!f.knackOrBirthright) f.knackOrBirthright = "knacks";
-  const tnFin = normalizedTierId(character.tier);
-  if ((tnFin === "hero" || tnFin === "titanic" || tnFin === "sorcerer_hero") && f.knackOrBirthright === "birthrights") {
-    f.knackOrBirthright = "knacks";
-  }
   if (!Array.isArray(f.finishingKnackIds)) f.finishingKnackIds = [];
   else
     f.finishingKnackIds = [...new Set(f.finishingKnackIds.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")))];
@@ -2546,6 +2634,7 @@ function ensureFinishingShape() {
 
 /** Snapshot for “finishing” budget: call when leaving Skills (Path + dot totals). */
 function captureFinishingSkillBaseline() {
+  if (!wizardIncludesFinishingTouchesStep(character.tier)) return;
   ensureFinishingShape();
   ensureSkillDots();
   if (character.finishing.skillBaseline && typeof character.finishing.skillBaseline === "object") {
@@ -2571,6 +2660,7 @@ function sumPositiveAttributeDeltas(from, to) {
  * map only — Finishing bumps stay outside the snapshot so arena pool checks (Origin p. 97) stay valid.
  */
 function captureFinishingAttrBaseline(options = {}) {
+  if (!wizardIncludesFinishingTouchesStep(character.tier)) return;
   ensureFinishingShape();
   const cur = {};
   for (const id of Object.keys(bundle.attributes)) {
@@ -2685,6 +2775,7 @@ function repairAttrBaselineIfFinishingWasFoldedIntoSnapshot() {
 
 function ensureFinishingBaselines() {
   ensureFinishingShape();
+  if (!wizardIncludesFinishingTouchesStep(character.tier)) return;
   if (!character.finishing.skillBaseline) {
     ensureSkillDots();
     ensurePathSkillArrays();
@@ -2811,15 +2902,24 @@ function skillIdsMissingChargenSpecialties() {
   return out;
 }
 
-/** @returns {string | null} Alert text if Finishing cannot advance to Review (Origin pp. 59–60, 97). */
-function skillsNeedSpecialtyBlockingFinishingAdvance() {
+/** @param {string} wherePhrase e.g. "before leaving Finishing" or "before continuing to Review" */
+function skillsNeedSpecialtyChargenBlockReason(wherePhrase) {
   const miss = skillIdsMissingChargenSpecialties();
   if (miss.length === 0) return null;
   const nm = bundle.skills?.[miss[0]]?.name || miss[0];
   if (miss.length === 1) {
-    return `${nm} is at 3 or more dots — add a free chargen Specialty before leaving Finishing (Origin pp. 59–60, 97).`;
+    return `${nm} is at 3 or more dots — add a free chargen Specialty ${wherePhrase} (Origin pp. 59–60, 97).`;
   }
-  return `${miss.length} Skills are at 3 or more dots without a Specialty — add free chargen Specialties before leaving Finishing (Origin pp. 59–60, 97).`;
+  return `${miss.length} Skills are at 3 or more dots without a Specialty — add free chargen Specialties ${wherePhrase} (Origin pp. 59–60, 97).`;
+}
+
+/** When the wizard has no Finishing step, free chargen Specialties (Skill ≥3) are enforced before Review instead. */
+function reviewAdvanceSpecialtyBlockIfApplicable(fromStep) {
+  const stepsNav = stepDefsForTier(character.tier);
+  const revI = stepsNav.indexOf("review");
+  const fromI = stepsNav.indexOf(fromStep);
+  if (revI < 0 || fromI < 0 || fromI !== revI - 1 || stepsNav.includes("finishing")) return null;
+  return skillsNeedSpecialtyChargenBlockReason("before continuing to Review");
 }
 
 /**
@@ -2832,7 +2932,7 @@ function finishingStepLeaveBlockedReason() {
   ensureFinishingBaselines();
   ensureSkillDots();
 
-  const spec = skillsNeedSpecialtyBlockingFinishingAdvance();
+  const spec = skillsNeedSpecialtyChargenBlockReason("before leaving Finishing");
   if (spec) return spec;
 
   const tierFin = normalizedTierId(character.tier);
@@ -2921,7 +3021,7 @@ function forwardLeaveBlockScionAfterPersist(fromStep) {
   if (fromStep === "finishing") {
     return finishingStepLeaveBlockedReason();
   }
-  return null;
+  return reviewAdvanceSpecialtyBlockIfApplicable(fromStep);
 }
 
 /** Highest final dot allowed after finishing budget + legend cap, given current pre on other attrs. */
@@ -3049,23 +3149,6 @@ function removeFinishingBirthright(index) {
   character.finishing.birthrightPicks = next;
 }
 
-/**
- * Hero after Visitation from Origin: Origin Finishing already spent the extra Skill / Attribute dots (p. 99);
- * Hero does not grant another Finishing step or another 5+1 budget in this wizard.
- */
-function heroFinishingOmittedAfterOriginAdvance() {
-  const tn = normalizedTierId(character.tier);
-  if (tn !== "hero" && tn !== "titanic" && tn !== "sorcerer_hero") return false;
-  return (character.tierAdvancementLog || []).some(
-    (e) =>
-      e &&
-      typeof e === "object" &&
-      ((normalizedTierId(e.fromTier) === "mortal" &&
-        (normalizedTierId(e.toTier) === "hero" || normalizedTierId(e.toTier) === "titanic")) ||
-        (String(e.fromTier || "").trim() === "sorcerer" && String(e.toTier || "").trim() === "sorcerer_hero")),
-  );
-}
-
 function stepDefsForTier(tierId) {
   /** Dragon Heir: same Welcome/Concept + tab ids as Origin Mortal (`tier.json`), then inserts Magic and Birthrights before Finishing (Scion: Dragon). */
   const dragonLine = isDragonHeirChargen(character);
@@ -3077,16 +3160,9 @@ function stepDefsForTier(tierId) {
   }
   let steps = [...raw];
   if (dragonLine) {
-    steps = ["welcome", "concept", ...DRAGON_HEIR_POST_CONCEPT_STEPS];
-  }
-  if (
-    !isDragonHeirChargen(character) &&
-    (normalizedTierId(tierId) === "hero" ||
-      normalizedTierId(tierId) === "titanic" ||
-      normalizedTierId(tierId) === "sorcerer_hero") &&
-    heroFinishingOmittedAfterOriginAdvance()
-  ) {
-    return steps.filter((s) => s !== "finishing");
+    steps = ["welcome", "concept", ...dragonHeirPostConceptStepList(character)];
+  } else if (!wizardIncludesFinishingTouchesStep(tierId)) {
+    steps = steps.filter((s) => s !== "finishing");
   }
   return steps;
 }
@@ -3108,10 +3184,10 @@ function heroPurviewsPatronPickRequiredAndMissing() {
   ensurePatronPurviewSlots();
   const pick = String(character.patronPurviewSlots?.[0] || "").trim();
   if (pick && patronOpts.includes(pick)) return "";
-  return "Choose one innate Purview from your divine parent’s patron list (use a chip in Patron innate Purview above, or the Patron Purview control on Paths) before continuing.";
+  return "Choose one innate Purview from your divine parent’s patron list (use a chip in Patron innate Purview below) before continuing.";
 }
 
-/** Patron Purview dropdown count on Paths (from `tier.json` patronPurviewSlotCount, capped at four). */
+/** Patron Purview slot count from `tier.json` patronPurviewSlotCount (capped at four) when this tier has a Purviews step. */
 function patronPurviewSlotLimitForCharacter() {
   if (!tierHasPurviewStep(character.tier)) return 0;
   const raw = bundle.tier[character.tier]?.patronPurviewSlotCount;
@@ -3120,7 +3196,7 @@ function patronPurviewSlotLimitForCharacter() {
   return PATRON_PURVIEW_SLOT_COUNT;
 }
 
-/** Hero / Titanic Paths: one patron innate slot; Demigod+ uses up to four (tier.json). */
+/** Hero / Titanic: one patron innate slot (chips); Demigod+ uses up to four dropdown slots on the Purviews step (tier.json). */
 function patronPurviewSingleSlotHeroStyle() {
   return patronPurviewSlotLimitForCharacter() === 1;
 }
@@ -3153,7 +3229,7 @@ function firstNewWizardStepIndex(oldTierId, newTierId) {
     const ci = steps.indexOf("calling");
     if (ci >= 0) return ci;
   }
-  /** Hero / Titanic → Demigod: assign extra patron Purview slots on Paths before other same-list steps. */
+  /** Hero / Titanic → Demigod: confirm pantheon/parent on Paths before Purviews patron slots. */
   if (newN === "demigod" && (oldN === "hero" || oldN === "titanic")) {
     const pi = stepDefsForTier(newTierId).indexOf("paths");
     if (pi >= 0) return pi;
@@ -3229,6 +3305,7 @@ function applyTierAdvancementFromBundle() {
   }
   if (nextN === "hero" || nextN === "titanic") restrictHeroPurviewsToPatronList();
   syncLegendToTier();
+  mergeFinishingBonusKnacksIntoMainKnackList();
   ensureFinishingShape();
   captureFinishingSkillBaseline();
   captureFinishingAttrBaseline({ bakeTierAdvance: true });
@@ -3689,9 +3766,6 @@ function renderPaths(root) {
     <aside id="p-pantheon-virtues" class="pantheon-virtues-panel" aria-live="polite"></aside>
     <div id="p-virtue-spectrum-mount" class="p-virtue-spectrum-mount"></div>
     <p class="help" id="paths-pantheon-skills-help" style="display:none"></p>`;
-  const patronMount = document.createElement("div");
-  patronMount.id = "patron-purview-mount";
-  wrap.appendChild(patronMount);
   if (isMythosPantheonSelected()) {
     const motm = masksMotMBundle()?.pathsCallout;
     if (typeof motm === "string" && motm.trim()) {
@@ -3706,10 +3780,10 @@ function renderPaths(root) {
     pathsPantheonStack.classList.add("wizard-gate-invalid");
   }
   root.appendChild(panel("Paths", wrap));
-  if (tierHasPurviewStep(character.tier)) {
-    ensurePatronPurviewSlots();
-    renderPatronPurviewPanel(patronMount);
-  } else {
+  if (!tierHasPurviewStep(character.tier)) {
+    const patronMount = document.createElement("div");
+    patronMount.id = "patron-purview-mount";
+    wrap.appendChild(patronMount);
     const raw = bundle.tier[character.tier]?.purviewsOriginNote;
     const html =
       typeof raw === "string" && raw.trim()
@@ -4979,6 +5053,7 @@ function renderCalling(root) {
 function renderPurviews(root) {
   ensurePatronPurviewSlots();
   restrictHeroPurviewsToPatronList();
+  restrictDemigodGodPurviewExtrasToLegal();
   const tierNorm = normalizedTierId(character.tier);
   const singlePatronPurviewTier = tierNorm === "hero" || tierNorm === "titanic";
   const patronChipPid = String(character.patronPurviewSlots?.[0] || "").trim();
@@ -5102,11 +5177,18 @@ function renderPurviews(root) {
     wrap.appendChild(epNote);
   }
 
+  if (!singlePatronPurviewTier && lim > 0) {
+    const patronSlotsMount = document.createElement("div");
+    patronSlotsMount.className = "purviews-patron-slots-mount";
+    renderPatronPurviewPanel(patronSlotsMount);
+    wrap.appendChild(patronSlotsMount);
+  }
+
   if (singlePatronPurviewTier) {
     if (patronOpts.length > 0) {
       help.innerHTML = isMythosPantheonSelected()
-        ? `Use <strong>Patron innate Purview</strong> (chips) for your <strong>standard</strong> innate Purview. The <strong>Mythos: Awareness Innate</strong> section below is <em>only</em> if you commit MotM’s optional Awareness Innate—same page, different choice. Your pantheon Signature stays automatic (see above). You can also set the patron pick on <strong>Paths</strong>.`
-        : `Pick <strong>one</strong> innate Purview from your parent’s list—use the chips in <strong>Patron innate Purview</strong> below or the Patron Purview control on <strong>Paths</strong>. (Your pantheon Signature is separate; see above.)`;
+        ? `Use <strong>Patron innate Purview</strong> (chips) for your <strong>standard</strong> innate Purview. The <strong>Mythos: Awareness Innate</strong> section below is <em>only</em> if you commit MotM’s optional Awareness Innate—same page, different choice. Your pantheon Signature stays automatic (see above).`
+        : `Pick <strong>one</strong> innate Purview from your parent’s list using the chips in <strong>Patron innate Purview</strong> below. (Your pantheon Signature is separate; see above.)`;
     } else {
       const motmPaths = isMythosPantheonSelected() ? masksMotMBundle()?.pathsCallout : "";
       if (typeof motmPaths === "string" && motmPaths.trim()) {
@@ -5116,8 +5198,20 @@ function renderPurviews(root) {
           "At <strong>Hero</strong> or <strong>Titanic</strong>, choose a <strong>divine parent</strong> on Paths to see that parent’s innate Purview options. Your pantheon Signature Purview still applies when your pantheon is set.";
       }
     }
+  } else if (
+    tierNorm === "demigod" ||
+    tierNorm === "god" ||
+    tierNorm === "sorcerer_demigod" ||
+    tierNorm === "sorcerer_god"
+  ) {
+    const pathLine =
+      patronOpts.length > 0 && lim > 0
+        ? `Assign patron Purviews from your parent’s list above (up to <strong>${lim}</strong>). `
+        : "";
+    help.innerHTML =
+      `${pathLine}<strong>Standard universal Purviews</strong> appear as chips below. Your pantheon’s <strong>Signature Purview</strong> stays automatic (not a chip); see innate summaries below. No other pantheon’s Specialty Purviews; no <strong>Denizen</strong> Purviews unless your table adds them via Birthright or another grant. Sorcerers: <strong>Magic</strong> stays available. See <em>Scion: Demigod</em> and <em>Mythic Shards</em>.`;
   } else if (patronOpts.length > 0 && lim > 0) {
-    help.innerHTML = `Patron Purviews from your divine parent are chosen on the <strong>Paths</strong> step (up to <strong>${lim}</strong> from that parent’s list only). Here, add <em>other</em> Purviews you track (e.g. from Relics or other Birthrights). Full Boon and Purview write-ups: <em>Pandora’s Box (Revised)</em> first; tier books where PB references them.`;
+    help.innerHTML = `Use the <strong>Patron Purviews (parent)</strong> panel above for up to <strong>${lim}</strong> picks from your parent’s list only. Below, add <em>other</em> Purviews you track (e.g. from Relics or other Birthrights). Full Boon and Purview write-ups: <em>Pandora’s Box (Revised)</em> first; tier books where PB references them.`;
   } else {
     help.innerHTML =
       "Select Purviews to track on the sheet (choose a divine parent on Paths to restrict patron picks to Appendix 2). Full Boon and Purview text: <em>Pandora’s Box (Revised)</em> (primary); <em>Origin</em> Appendix 2 lists patron Purviews by deity.";
@@ -5131,14 +5225,26 @@ function renderPurviews(root) {
   if (singlePatronPurviewTier) {
     purviewEntries = patronOpts
       .map((pid) => [pid, bundle.purviews?.[pid]])
-      .filter(([pid, p]) => !String(pid).startsWith("_") && p && typeof p === "object");
+      .filter(([pid, p]) => !String(pid).startsWith("_") && p && typeof p === "object")
+      .sort((a, b) =>
+        purviewChipSortLabel(a[0], a[1]).localeCompare(purviewChipSortLabel(b[0], b[1]), undefined, { sensitivity: "base" }),
+      );
   } else {
-    purviewEntries = Object.entries(bundle.purviews || {}).filter(
-      ([pid, p]) =>
-        !pid.startsWith("_") &&
-        p &&
-        typeof p === "object" &&
-        !(patronOpts.length > 0 && patronSet.has(pid)),
+    const demigodLike =
+      tierNorm === "demigod" ||
+      tierNorm === "god" ||
+      tierNorm === "sorcerer_demigod" ||
+      tierNorm === "sorcerer_god";
+    const pantheonSigId = demigodLike ? pantheonSignaturePurviewId() : "";
+    purviewEntries = Object.entries(bundle.purviews || {}).filter(([pid, p]) => {
+      if (pid.startsWith("_") || !p || typeof p !== "object") return false;
+      if (patronOpts.length > 0 && patronSet.has(pid)) return false;
+      if (demigodLike && pantheonSigId && pid === pantheonSigId) return false;
+      if (demigodLike && !demigodTierPurviewChipSelectable(pid)) return false;
+      return true;
+    });
+    purviewEntries.sort((a, b) =>
+      purviewChipSortLabel(a[0], a[1]).localeCompare(purviewChipSortLabel(b[0], b[1]), undefined, { sensitivity: "base" }),
     );
   }
   for (const [pid, p] of purviewEntries) {
@@ -5176,7 +5282,25 @@ function renderPurviews(root) {
   }
   const innateBelowChips = document.createElement("div");
   innateBelowChips.className = "purview-innate-below-chips";
-  if (purviewInnateDetailFocusId && detailSelectionSet.has(purviewInnateDetailFocusId)) {
+  /** Demigod / God (deity and Sorcerer bands): list innate write-ups for every selected Purview, not only the last chip toggled. */
+  const accumulateInnatePreviews =
+    tierNorm === "demigod" ||
+    tierNorm === "god" ||
+    tierNorm === "sorcerer_demigod" ||
+    tierNorm === "sorcerer_god";
+  if (accumulateInnatePreviews) {
+    const ordered = [...detailSelectionSet].filter(Boolean).sort();
+    for (const pid of ordered) {
+      const sec = document.createElement("section");
+      sec.className = "purview-innate-accum-section";
+      const h = document.createElement("h3");
+      h.className = "purview-innate-accum-heading";
+      h.textContent = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId) || purviewLabel(pid);
+      sec.appendChild(h);
+      appendPurviewInnateDetails(sec, pid);
+      innateBelowChips.appendChild(sec);
+    }
+  } else if (purviewInnateDetailFocusId && detailSelectionSet.has(purviewInnateDetailFocusId)) {
     appendPurviewInnateDetails(innateBelowChips, purviewInnateDetailFocusId);
   }
   if (singlePatronPurviewTier) {
@@ -5192,7 +5316,7 @@ function renderPurviews(root) {
         "Turn <strong>one</strong> chip on. That is the patron Purview whose <strong>standard innate</strong> you use (Pandora’s Box / Hero). It is <strong>not</strong> chosen with the Awareness dropdown—use the next panel only if you deliberately replace that model with MotM’s <strong>Awareness Innate</strong> (and commit).";
     } else {
       pIntro.innerHTML =
-        "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list (same value as Patron Purview 1 on Paths). Innate write-ups preview below the chip row when a chip is on.";
+        "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list. Innate write-ups preview below the chip row when a chip is on.";
     }
     patronInnatePanel.appendChild(pIntro);
     patronInnatePanel.appendChild(chips);
@@ -5592,7 +5716,7 @@ function renderBoons(root) {
         "See Pandora’s Box (Revised) for this Purview’s standard Innate Power (Hero where PB cross-references it).";
       const innP = document.createElement("p");
       innP.className = "help boon-purview-innate-callout";
-      innP.appendChild(document.createTextNode("Innate (granted with this Purview — not a Boon below): "));
+      innP.appendChild(document.createTextNode("Purview innate (not a Boon): "));
       if (innateName) {
         const sn = document.createElement("strong");
         sn.textContent = innateName;
@@ -5634,11 +5758,11 @@ function renderBoons(root) {
     const trackedNote =
       tracked.length > 0
         ? ` Purviews currently in scope for this wizard: <strong>${tracked.map((id) => purviewDisplayNameForPantheon(id, bundle, character.pantheonId)).join(", ")}</strong>.`
-        : " <strong>No Purviews in scope yet</strong> — at Hero/Titanic set your patron innate on <strong>Paths</strong> (and confirm your pantheon Signature); at Demigod+ add Purviews on the Purviews step.";
+        : " <strong>No Purviews in scope yet</strong> — at Hero/Titanic set your patron innate on the <strong>Purviews</strong> step (and confirm your pantheon Signature); at Demigod+ use patron slots and chips on <strong>Purviews</strong>.";
     empty.innerHTML =
       "No qualifying Boons yet — confirm <strong>tier</strong> (e.g. some Boons need Demigod or God tier) and Purviews in scope. (Legend and printed Boon prerequisites from the books are not enforced in this wizard; both change in play — confirm at the table.)" +
       trackedNote +
-      " If this list omits a Purview you expect, open <strong>Paths</strong> / <strong>Purviews</strong> so patron slots and sheet picks sync, then return here.";
+      " If this list omits a Purview you expect, open <strong>Purviews</strong> (and <strong>Paths</strong> for pantheon/parent) so patron slots and sheet picks sync, then return here.";
     wrap.appendChild(empty);
   }
 
@@ -7037,6 +7161,32 @@ function pruneStaleKnackIds() {
   }
 }
 
+/**
+ * Origin / Mortal-band Finishing “two extra Knacks” are stored in `finishing.finishingKnackIds`.
+ * Hero+ tiers omit the Finishing step, so `ensureFinishingShape` would clear that list; Calling only
+ * highlights `knackIds`. Merge bonus ids into `knackIds`, then prune (deity, Titan, Sorcerer, Titanic).
+ */
+function mergeFinishingBonusKnacksIntoMainKnackList() {
+  if (wizardIncludesFinishingTouchesStep(character.tier)) return;
+  character.finishing ||= {};
+  const raw = character.finishing.finishingKnackIds;
+  const bonus = Array.isArray(raw)
+    ? [...new Set(raw.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")))]
+    : [];
+  if (!bonus.length) return;
+  const cur = character.knackIds || [];
+  const next = [...cur];
+  for (const kid of bonus) {
+    if (next.includes(kid)) continue;
+    const k = bundle?.knacks?.[kid];
+    if (!k || typeof k !== "object") continue;
+    next.push(kid);
+  }
+  character.knackIds = next;
+  character.finishing.finishingKnackIds = [];
+  pruneStaleKnackIds();
+}
+
 /** After replacing `character` (import) or on first load: clamp, hydrate paths/purviews, prune invalid ids. */
 function normalizeCharacterStateAfterLoad() {
   healDragonHeirLineageFromState();
@@ -7085,6 +7235,7 @@ function normalizeCharacterStateAfterLoad() {
     ensureCallingSlotsForHero();
     if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
   } else character.callingSlots = null;
+  mergeFinishingBonusKnacksIntoMainKnackList();
   ensureFinishingShape();
   ensureSheetAppendicesShape();
   ensureSorceryProfileShape();
@@ -7147,7 +7298,7 @@ function persistPathsPhrasesFromDom() {
   }
 }
 
-/** Paths step: phrases, pantheon, divine parent, patron Purview slots → `character` + merged `purviewIds`. */
+/** Paths step: phrases, pantheon, divine parent → `character`; patron Purview dropdowns persist on the Purviews step. */
 function persistPathsStepFromDom() {
   persistPathsPhrasesFromDom();
   if (isDragonHeirChargen(character)) {
@@ -7163,6 +7314,14 @@ function persistPathsStepFromDom() {
   character.parentDeityId = document.getElementById("p-deity")?.value || "";
   syncAwarenessWithPantheon();
   ensurePatronPurviewSlots();
+  syncPurviewIdsFromPatronSlots();
+  syncCallingToParentDeity();
+}
+
+/** Purviews step (and any DOM that mounts `p-patron-pv-*`): read patron slot selects into state and merge `purviewIds`. */
+function persistPatronPurviewSlotsFromDom() {
+  if (!tierHasPurviewStep(character.tier)) return;
+  ensurePatronPurviewSlots();
   const lim = patronPurviewSlotLimitForCharacter();
   for (let i = 0; i < PATRON_PURVIEW_SLOT_COUNT; i += 1) {
     const sel = document.getElementById(`p-patron-pv-${i}`);
@@ -7170,7 +7329,6 @@ function persistPathsStepFromDom() {
     else if (i >= lim) character.patronPurviewSlots[i] = "";
   }
   syncPurviewIdsFromPatronSlots();
-  syncCallingToParentDeity();
 }
 
 function persistSkillSpecialtiesFromForm() {
@@ -7396,12 +7554,15 @@ function persistFromForm() {
     tp.condition = document.getElementById("f-titan-condition")?.value ?? "";
     tp.suppressEpicenterNotes = document.getElementById("f-titan-suppress")?.value ?? "";
   }
-  if (step === "purviews" && isMythosPantheonSelected()) {
-    ensureMythosInnatePowerShape();
-    const m = character.mythosInnatePower;
-    if (!m.awarenessLocked) {
-      const selEl = document.getElementById("f-mythos-innate-purview");
-      if (selEl) m.awarenessPurviewId = selEl.value || "";
+  if (step === "purviews") {
+    persistPatronPurviewSlotsFromDom();
+    if (isMythosPantheonSelected()) {
+      ensureMythosInnatePowerShape();
+      const m = character.mythosInnatePower;
+      if (!m.awarenessLocked) {
+        const selEl = document.getElementById("f-mythos-innate-purview");
+        if (selEl) m.awarenessPurviewId = selEl.value || "";
+      }
     }
   }
 }
@@ -7502,16 +7663,17 @@ function render() {
   renderNav();
   const steps = stepDefsForTier(character.tier);
   const step = steps[stepIndex] || "welcome";
-  if (isDragonHeirChargen(character) && DRAGON_HEIR_POST_CONCEPT_STEPS.includes(step)) {
+  if (isDragonHeirChargen(character) && dragonHeirPostConceptStepList(character).includes(step)) {
     ensureDragonShape(character, bundle);
-    character.dragon.stepIndex = DRAGON_HEIR_POST_CONCEPT_STEPS.indexOf(step);
+    const dSteps = dragonHeirPostConceptStepList(character);
+    character.dragon.stepIndex = Math.max(0, dSteps.indexOf(step));
   }
   if (step === "calling" || step === "finishing") pruneStaleKnackIds();
   if (step === "welcome") {
     renderWelcome(contentRoot);
   } else if (step === "concept") {
     renderConcept(contentRoot);
-  } else if (isDragonHeirChargen(character) && DRAGON_HEIR_SUBMODULE_STEPS.includes(step) && step !== "skills") {
+  } else if (isDragonHeirChargen(character) && dragonHeirPostConceptStepList(character).includes(step) && step !== "skills") {
     renderDragonHeirStepInRoot({
       root: contentRoot,
       character,
@@ -7619,6 +7781,11 @@ function render() {
         next.disabled = true;
         next.title = finBlock;
       }
+    }
+    const reviewSpec = reviewAdvanceSpecialtyBlockIfApplicable(step);
+    if (reviewSpec) {
+      next.disabled = true;
+      next.title = reviewSpec;
     }
     actions.appendChild(next);
   }

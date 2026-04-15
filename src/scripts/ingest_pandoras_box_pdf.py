@@ -19,6 +19,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+
+from scion_books_dir import find_pandoras_box_revised_pdf
+
 DEFAULT_OUT = SRC / "data" / "_extracted" / "pandoras_box.txt"
 DEFAULT_PDF_WSL = Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
 
@@ -30,14 +36,18 @@ def main() -> int:
         type=Path,
         nargs="?",
         default=None,
-        help=f"Path to PDF (default: {DEFAULT_PDF_WSL} if present)",
+        help="Path to PDF (default: SCION_BOOKS_DIR / ./books / ../books / desktop WSL path)",
     )
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="Output text file")
+    parser.add_argument("--books-dir", type=Path, default=None, help="Directory containing licensed PDF copies")
     args = parser.parse_args()
     pdf: Path | None = args.pdf
     out: Path = args.out
+    books = Path(args.books_dir) if args.books_dir else None
     if pdf is None or not str(pdf).strip():
-        pdf = DEFAULT_PDF_WSL if DEFAULT_PDF_WSL.is_file() else None
+        pdf = find_pandoras_box_revised_pdf(books)
+        if pdf is None and DEFAULT_PDF_WSL.is_file():
+            pdf = DEFAULT_PDF_WSL
     if pdf is None or not pdf.is_file():
         print("Pass the path to SCION_Pandoras_Box_(Revised_Download).pdf or place it at:", file=sys.stderr)
         print(f"  {DEFAULT_PDF_WSL}", file=sys.stderr)

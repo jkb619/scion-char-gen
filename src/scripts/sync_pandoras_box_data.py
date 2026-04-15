@@ -9,10 +9,15 @@ Requires:
   pip install pypdf
 
 Default PDF path (WSL): /mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf
+Also checks ``./books``, ``../books``, and ``SCION_BOOKS_DIR`` (see ``scion_books_dir.py``).
 
 Usage (repo root):
-  python3 scripts/sync_pandoras_box_data.py
-  python3 scripts/sync_pandoras_box_data.py /path/to/SCION_Pandoras_Box_(Revised_Download).pdf
+  python3 src/scripts/sync_pandoras_box_data.py
+  python3 src/scripts/sync_pandoras_box_data.py /path/to/SCION_Pandoras_Box_(Revised_Download).pdf
+  python3 src/scripts/sync_pandoras_box_data.py --books-dir ./books
+
+Prefer the full pipeline (ingest + ladder + optional mechanics + catalog padding + regenerate):
+  python3 src/scripts/sync_boon_catalog_from_local_books.py
 
 Steps:
   1) scripts/ingest_pandoras_box_pdf.py  → data/_extracted/pandoras_box.txt
@@ -35,6 +40,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+
+from scion_books_dir import find_pandoras_box_revised_pdf
 
 
 def run(cmd: list[str]) -> None:
@@ -47,10 +57,18 @@ def run(cmd: list[str]) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Ingest PB PDF, merge ladder names, regenerate boons.json")
     ap.add_argument("pdf", nargs="?", default=None, help="Path to Pandora's Box Revised PDF")
+    ap.add_argument(
+        "--books-dir",
+        type=Path,
+        default=None,
+        help="Directory to search for licensed PDFs (also set SCION_BOOKS_DIR or use ./books)",
+    )
     args = ap.parse_args()
+    books = Path(args.books_dir) if args.books_dir else None
+    pdf = Path(args.pdf) if args.pdf else find_pandoras_box_revised_pdf(books)
     ingest = [sys.executable, str(SRC / "scripts" / "ingest_pandoras_box_pdf.py")]
-    if args.pdf:
-        ingest.append(args.pdf)
+    if pdf and str(pdf).strip():
+        ingest.append(str(pdf))
     run(ingest)
     run([sys.executable, str(SRC / "scripts" / "extract_pb_boon_ladders.py"), "--write-purviews"])
     run([sys.executable, str(SRC / "scripts" / "generate_boons_catalog.py")])

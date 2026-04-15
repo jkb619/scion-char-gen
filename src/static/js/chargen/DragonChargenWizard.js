@@ -284,6 +284,9 @@ function rebalanceDragonCallingSlotDotsOverFive(d) {
 
 const PATH_KEYS = ["origin", "role", "flight"];
 
+/** Keep in sync with `DRAGON_INHERITANCE_MAX` in app.js and `data/dragonTier.json`. */
+const DRAGON_INHERITANCE_MAX = 10;
+
 /**
  * Post-concept Dragon Heir steps (tab ids match the unified main wizard nav).
  * Paths body: app `renderPaths` (Flight + phrases). Skills+: `renderDragonHeirStepInRoot` (Skills via `renderSkills` in app).
@@ -293,6 +296,19 @@ export const DRAGON_HEIR_POST_CONCEPT_STEPS = ["paths", "skills", "attributes", 
 /** Steps rendered inside `renderDragonHeirStepInRoot` (everything after Paths). */
 export const DRAGON_HEIR_SUBMODULE_STEPS = ["skills", "attributes", "calling", "magic", "birthrights", "finishing", "review"];
 const STEPS = DRAGON_HEIR_POST_CONCEPT_STEPS;
+
+/**
+ * Hatchling (Inheritance 1) uses the Finishing tab (Dragon p. 112); Asset+ omits it — same spine as Hero+ without Origin Finishing.
+ * @param {Record<string, unknown>} character
+ * @returns {string[]}
+ */
+export function dragonHeirPostConceptStepList(character) {
+  const lineage = String(character?.chargenLineage ?? "").trim().toLowerCase();
+  if (lineage !== "dragonheir" && lineage !== "dragon_heir") return [...DRAGON_HEIR_POST_CONCEPT_STEPS];
+  const inh = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character?.dragon?.inheritance) || 1)));
+  if (inh <= 1) return [...DRAGON_HEIR_POST_CONCEPT_STEPS];
+  return DRAGON_HEIR_POST_CONCEPT_STEPS.filter((s) => s !== "finishing");
+}
 
 /**
  * Calling ids that have at least one Dragon Heir Calling Knack row (`bundle.dragonCallingKnacks`).
@@ -315,9 +331,6 @@ function dragonHeirCallingIdsWithKnackCatalog(bundle) {
   }
   return out;
 }
-
-/** Keep in sync with `DRAGON_INHERITANCE_MAX` in app.js and `data/dragonTier.json`. */
-const DRAGON_INHERITANCE_MAX = 10;
 
 /**
  * Cumulative wizard budgets from `dragonTier.json` (milestone +Spell / +Draconic Knack paraphrases).
@@ -499,6 +512,12 @@ export function ensureDragonShape(character, bundle) {
     .filter((p) => p.id);
   if (d.inheritance == null || Number.isNaN(Number(d.inheritance))) d.inheritance = 1;
   d.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
+  if (d.inheritance > 1) {
+    d.finishingSkillBonus = {};
+    d.finishingAttrBaseline = null;
+    d.finishingCallingKnackIds = [];
+    d.finishingBirthrightPicks = [];
+  }
   const inhCaps = dragonInheritanceWizardCaps(bundle, d.inheritance);
   if (!Array.isArray(d.advancementSpells)) d.advancementSpells = [];
   while (d.advancementSpells.length < inhCaps.advancementSpellSlots) {
@@ -538,7 +557,8 @@ export function ensureDragonShape(character, bundle) {
     d.dragonWizardVersion = 2;
   }
   if (!Number.isFinite(Number(d.stepIndex)) || d.stepIndex < 0) d.stepIndex = 0;
-  if (d.stepIndex >= STEPS.length) d.stepIndex = STEPS.length - 1;
+  const navSteps = dragonHeirPostConceptStepList(character);
+  if (d.stepIndex >= navSteps.length) d.stepIndex = navSteps.length - 1;
   /** Wizard no longer gates on this (same tab behavior as Deity Mortal); normalize so exports stay consistent. */
   d.pastConcept = d.pastConcept === true || String(d.pastConcept ?? "").trim().toLowerCase() === "true";
   const dck = bundle?.dragonCallingKnacks;
@@ -2161,6 +2181,7 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     return null;
   }
   if (step === "finishing") {
+    if (d.inheritance > 1) return null;
     applyDragonPathMathToSkillDots(d, bundle);
     const specFin = dragonSkillsMissingSpecialtyFinishingMessage(d, bundle);
     if (specFin) return specFin;
@@ -2205,7 +2226,8 @@ export function renderDragonHeirStepInRoot(ctx) {
   const { root, character, bundle, render, step, scrollStepIntoView } = ctx;
   ensureDragonShape(character, bundle);
   const d = character.dragon;
-  const si = STEPS.indexOf(step);
+  const navStepsForSi = dragonHeirPostConceptStepList(character);
+  const si = navStepsForSi.indexOf(step);
   if (si >= 0) d.stepIndex = si;
   root.innerHTML = "";
 
@@ -3506,7 +3528,8 @@ export function persistDragonFromDom(character, bundle, explicitStep) {
   if (mainFl && mainFl.value) {
     d.flightId = mainFl.value;
   }
-  const step = explicitStep ?? (STEPS[d.stepIndex] || "paths");
+  const stepList = dragonHeirPostConceptStepList(character);
+  const step = explicitStep ?? (stepList[d.stepIndex] || "paths");
   if (step === "paths") {
     const po = document.getElementById("d-p-origin") ?? document.getElementById("p-origin");
     const pr = document.getElementById("d-p-role") ?? document.getElementById("p-role");

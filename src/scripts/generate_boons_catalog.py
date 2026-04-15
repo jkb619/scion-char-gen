@@ -1,26 +1,34 @@
 #!/usr/bin/env python3
 """
-Regenerate data/boons.json: twelve Boon catalog entries per Purview in purviews.json.
+Regenerate the merged ``boons`` table: one JSON object per choosable Boon id ``{purview}_dot_NN``.
 
-Each catalog position is a separate Boon entry (selectable in the wizard) with tier/Legend gates.
-Official proper names and mechanics remain in Pandora’s Box / tier PDFs — confirm at table.
+Only **substantive** rows are emitted (no ``{Purview} • Boon N`` placeholders): a row is included when
+the Purview supplies a printed title in ``boonLadderNames`` / ``boonLadderNameByDot``, or
+``boonPbMechanics.json`` (+ patch) carries description/mechanicals for that id, or the row is listed in
+``_CURATED_BOONS``. Prerequisites chain only across emitted positions. ``dot`` stores the printed ladder
+index for sorting/tier defaults, not a separate in-game rating on the Boon.
 
 Run from repo root:
-  python3 scripts/generate_boons_catalog.py
+  python3 src/scripts/generate_boons_catalog.py
 """
 
 from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-PURVIEWS_PATH = SRC / "data" / "purviews.json"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+from app.services.data_tables import primary_write_path
+
+PURVIEWS_PATH = primary_write_path("purviews")
 PB_MECH_SNIPPETS_PATH = SRC / "data" / "boonPbMechanics.json"
 PB_MECH_PATCH_PATH = SRC / "data" / "boonPbMechanicsPatch.json"
-OUT_PATH = SRC / "data" / "boons.json"
+OUT_PATH = primary_write_path("boons")
 
 
 def _apply_supplement_signature_ladders(boons: dict[str, object]) -> None:
@@ -102,6 +110,43 @@ def _apply_supplement_signature_ladders(boons: dict[str, object]) -> None:
 _SKIP_TWELVE_RUNG_PURVIEWS = frozenset({"wyrd"})
 
 _SHEET_MECH_KEYS = ("cost", "duration", "subject", "range", "action", "clash")
+
+
+def _generic_boon_chip_title(disp: str, n: int) -> str:
+    return f"{disp} • Boon {n}"
+
+
+def _resolve_catalog_boon_title(
+    pid: str, n: int, row: dict, disp: str, pb_overrides: dict[str, dict]
+) -> str:
+    """Prefer optional ``name`` on PB snippets, then ``boonLadderNameByDot`` / ``boonLadderNames``; else generic chip pattern."""
+    bid = f"{pid}_dot_{n:02d}"
+    ov = pb_overrides.get(bid)
+    if isinstance(ov, dict):
+        nm = ov.get("name")
+        if isinstance(nm, str) and nm.strip():
+            return nm.strip()
+    by_dot = row.get("boonLadderNameByDot")
+    if isinstance(by_dot, dict):
+        alt = by_dot.get(str(n)) or by_dot.get(f"{n:02d}")
+        if isinstance(alt, str) and alt.strip():
+            return alt.strip()
+    ladder = row.get("boonLadderNames")
+    if isinstance(ladder, list) and len(ladder) >= n:
+        cand = str(ladder[n - 1] or "").strip()
+        if cand:
+            return cand
+    return _generic_boon_chip_title(disp, n)
+
+
+def _should_emit_catalog_dot(
+    pid: str, n: int, row: dict, disp: str, pb_overrides: dict[str, dict]
+) -> bool:
+    bid = f"{pid}_dot_{n:02d}"
+    if bid in _CURATED_BOONS:
+        return True
+    title = _resolve_catalog_boon_title(pid, n, row, disp, pb_overrides)
+    return title != _generic_boon_chip_title(disp, n)
 
 
 def _split_mechanicals_line_dict(mech: str) -> dict[str, str]:
@@ -287,12 +332,14 @@ def main() -> None:
     meta = {
         "note": (
             "Primary rules text: SCION_Pandoras_Box_(Revised_Download).pdf. "
-            "Large catalog: twelve Boon entries per Purview in purviews.json (`_dot_01` … `_dot_12`); "
-            "each is one choosable id for UI/export. Supplement or tier books only where PB points to them. "
+            "Each Purview may define up to twelve ladder positions (`_dot_01` … `_dot_12`); only positions with a printed title in "
+            "``boonLadderNames`` / ``boonLadderNameByDot``, PB mechanics snippets, or ``_CURATED_BOONS`` are emitted — no ``{Purview} • Boon N`` placeholders. "
+            "Supplement or tier books only where PB points to them. "
             "Optional data/boonPbMechanics.json (scripts/extract_pb_boon_mechanics.py) and data/boonPbMechanicsPatch.json "
             "merge Cost/Duration/Subject/Range/Action lines for the Review sheet parser. "
             "Each entry also stores purviewName plus cost/duration/subject/range/action/clash (parsed from mechanicalEffects) for audits. "
-            "Regenerate with: python3 scripts/generate_boons_catalog.py"
+            "Full PB re-ingest + ladders + this file: python3 src/scripts/sync_boon_catalog_from_local_books.py "
+            "(or python3 src/scripts/sync_pandoras_box_data.py). Regenerate only: python3 src/scripts/generate_boons_catalog.py"
         ),
         "eligibility": {
             "purview": "Required Purview id; character must hold this Purview.",
@@ -304,7 +351,7 @@ def main() -> None:
             "action": "Parsed Action line.",
             "clash": "Parsed Clash line (empty when none).",
             "description": "Flavor / summary text for the Boon.",
-            "dot": "Catalog position 1–12 for sort order and default legendMin when legendMin omitted.",
+            "dot": "Printed ladder index (1–12) for sort order and default legendMin when legendMin omitted — not a separate rating on the Boon card.",
             "tierMin": "Minimum tier: hero | demigod | god (positions 1–4 / 5–8 / 9–12 by default).",
             "tierMax": "Optional maximum tier rank.",
             "legendMin": "Minimum Legend (defaults to dot if omitted).",
@@ -342,9 +389,13 @@ def main() -> None:
             continue
         row = pur[pid] if isinstance(pur.get(pid), dict) else {}
         disp = str(row.get("name") or pid)
+        emit_positions = [
+            n
+            for n in range(1, 13)
+            if _should_emit_catalog_dot(pid, n, row, disp, pb_overrides)
+        ]
         prev_id: str | None = None
-        max_n = 2 if pid == "arcaneCalculus" else 12
-        for n in range(1, max_n + 1):
+        for n in emit_positions:
             bid = f"{pid}_dot_{n:02d}"
             if n <= 4:
                 tier_min = "hero"
@@ -357,18 +408,7 @@ def main() -> None:
                 tier_min = "god"
                 legend_min = n
 
-            name_str = f"{disp} • Boon {n}"
-            by_dot = row.get("boonLadderNameByDot") if isinstance(row, dict) else None
-            if isinstance(by_dot, dict):
-                alt = by_dot.get(str(n)) or by_dot.get(f"{n:02d}")
-                if isinstance(alt, str) and alt.strip():
-                    name_str = alt.strip()
-            if name_str == f"{disp} • Boon {n}" and isinstance(row, dict):
-                ladder = row.get("boonLadderNames")
-                if isinstance(ladder, list) and len(ladder) >= n:
-                    cand = str(ladder[n - 1] or "").strip()
-                    if cand:
-                        name_str = cand
+            name_str = _resolve_catalog_boon_title(pid, n, row, disp, pb_overrides)
 
             src = str(row.get("source") or "SCION_Pandoras_Box_(Revised_Download).pdf")
             entry: dict[str, object] = {
@@ -383,7 +423,7 @@ def main() -> None:
                 "mechanicalEffects": "",
                 "source": src,
             }
-            uses_ladder_name = name_str != f"{disp} • Boon {n}"
+            uses_ladder_name = name_str != _generic_boon_chip_title(disp, n)
             pb_snip = pb_overrides.get(bid)
             if isinstance(pb_snip, dict):
                 pd = pb_snip.get("description")
@@ -402,13 +442,11 @@ def main() -> None:
                     f"under the {disp} Purview for this title."
                 )
             else:
+                # Should not happen when `_should_emit_catalog_dot` matches this builder; keep a neutral PDF pointer.
                 entry["description"] = (
-                    f"Standard {disp} Purview catalog Boon (printed ladder position {n}). "
-                    "This id is for wizard picks and export; use the cited book at the table for full wording, Imbue, and tags."
+                    f"{disp} Purview Boon (printed ladder rung {n}). Confirm costs and tags in SCION_Pandoras_Box_(Revised_Download).pdf."
                 )
-                entry["mechanicalEffects"] = (
-                    f"See {src} — this Purview’s Boon ladder, position {n} — for exact cost, duration, range, and mechanics."
-                )
+                entry["mechanicalEffects"] = f"See {src} — {disp} Purview, rung {n}."
             curated = _CURATED_BOONS.get(bid)
             if curated:
                 entry.update(curated)

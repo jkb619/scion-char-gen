@@ -11,15 +11,26 @@ Manual review: some titles differ from purviews.json (apostrophes, “Of” casi
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
+import sys
 import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-PUR = SRC / "data" / "purviews.json"
-PDF = Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from app.services.data_tables import primary_write_path
+from scion_books_dir import find_pandoras_box_revised_pdf
+
+PUR = primary_write_path("purviews")
+DEFAULT_PDF_WSL = Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
 OUT = SRC / "data" / "boonPbMechanics.json"
 
 
@@ -91,11 +102,19 @@ def find_block(full: str, title: str) -> str | None:
 
 
 def main() -> None:
-    if not PDF.is_file():
-        print(f"Missing PDF: {PDF}")
-        return
+    ap = argparse.ArgumentParser(description="Extract Cost/Duration/… lines from Pandora’s Box into boonPbMechanics.json")
+    ap.add_argument("--pdf", type=Path, default=None, help="Path to Pandora’s Box Revised PDF")
+    ap.add_argument("--books-dir", type=Path, default=None, help="Directory containing licensed PDF copies")
+    args = ap.parse_args()
+    books = Path(args.books_dir) if args.books_dir else None
+    pdf = Path(args.pdf) if args.pdf else find_pandoras_box_revised_pdf(books)
+    if pdf is None and DEFAULT_PDF_WSL.is_file():
+        pdf = DEFAULT_PDF_WSL
+    if pdf is None or not pdf.is_file():
+        print("Missing Pandora’s Box PDF. Set --pdf, --books-dir, SCION_BOOKS_DIR, or place the file under ./books", file=sys.stderr)
+        raise SystemExit(1)
     pur = json.loads(PUR.read_text(encoding="utf-8"))
-    full = pdf_text(PDF)
+    full = pdf_text(pdf)
     out: dict[str, dict[str, str]] = {"_meta": {"note": "PB Revised Boon Cost/Duration lines + short effect blurbs for sheet parser; regenerate with scripts/extract_pb_boon_mechanics.py"}}
     for pid, row in pur.items():
         if str(pid).startswith("_") or not isinstance(row, dict):

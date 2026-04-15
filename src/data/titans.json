@@ -1,7 +1,7 @@
 {
   "_meta": {
     "title": "Titan patrons (Scion: Titanomachy)",
-    "note": "Titan write-ups and patron lists follow Scion: Titanomachy (capital-T Titans in the Titanomachy). Titans Rising expands tier rules and extra Knacks (see knacksTitansRising.json). Patron Purviews and Callings here drive the same wizard fields as divine parents (Origin p. 94+; Titans Rising ch. 1 Titanic Rules).",
+    "note": "Titan write-ups and patron lists follow Scion: Titanomachy (capital-T Titans in the Titanomachy). Titans Rising expands tier rules and extra Knacks (see data/tables/knacks/30_*.json). Patron Purviews and Callings here drive the same wizard fields as divine parents (Origin p. 94+; Titans Rising ch. 1 Titanic Rules).",
     "sourcePdf": "Scion_-_Titanomachy_(Final_Download).pdf",
     "structure": "titansByPantheon maps pantheon ids (keys of pantheons.json) to arrays of { id, name, callings[], purviews[], source }."
   },

@@ -1,7 +1,7 @@
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { boonPrimaryPurview } from "./eligibility.js";
 
-/** English ordinal for Boon position on a Purview (1–12). */
+/** English ordinal for printed ladder rung (1–12) when no title is available (last-resort label only). */
 function ordinalEn(n) {
   const i = Math.floor(Number(n));
   if (!Number.isFinite(i) || i < 1) return String(n);
@@ -47,8 +47,8 @@ function honestBoonRungChipLabel(purviewId, dot, bundle, pantheonId) {
 
 /**
  * Display label for a Boon chip / sheet row: prefer `purviews.json` ladder (`boonLadderNames` / `boonLadderNameByDot`),
- * then a proper `boons.json` `name`, then any remaining catalog `name` (including “Purview • Boon n” stubs), then
- * “Nth Boon on … Purview”, then the raw boon id.
+ * then a non-placeholder `boons.json` `name`, then any remaining catalog `name`, then
+ * “Nth Boon on … Purview” (last resort), then the raw boon id.
  * @param {Record<string, unknown>} b — one entry from bundle.boons
  * @param {{ purviews?: Record<string, Record<string, unknown>>; pantheons?: Record<string, Record<string, unknown>> }} bundle
  * @param {string} [pantheonId] — passed through for Purview display labels (e.g. pantheon Specialty names)

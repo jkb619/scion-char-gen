@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import DATA_DIR
+from app.services.data_tables import load_merged_table, table_fragment_dir
 
 
 def _stamp_patron_asset_skills_from_pantheon(pantheons: dict[str, Any]) -> None:
@@ -78,13 +79,7 @@ def allowed_names() -> frozenset[str]:
 def load_table(name: str) -> dict[str, Any]:
     if name not in allowed_names():
         raise KeyError(name)
-    path = DATA_DIR / f"{name}.json"
-    if not path.exists():
-        raise FileNotFoundError(path)
-    data = _read_json(path)
-    if not isinstance(data, dict):
-        raise TypeError(f"{name}.json must be a JSON object at the top level")
-    return data
+    return load_merged_table(name)
 
 
 def load_bundle() -> dict[str, Any]:
@@ -244,6 +239,11 @@ def save_table(name: str, data: dict[str, Any]) -> None:
         raise KeyError(name)
     if not isinstance(data, dict):
         raise TypeError("payload must be a JSON object")
+    if table_fragment_dir(name).is_dir() and any(table_fragment_dir(name).glob("*.json")):
+        raise NotImplementedError(
+            f"Table {name!r} is loaded from data/tables/{name}/*.json fragments; "
+            f"use a file editor or extend save_table to write the appropriate fragment."
+        )
     path = DATA_DIR / f"{name}.json"
     if name in ("birthrights", "tags", "equipment"):
         meta = data.get("_meta")

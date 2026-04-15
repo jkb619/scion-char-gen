@@ -1,12 +1,12 @@
 {
   "_meta": {
     "title": "Scion Player's Guide: Saints & Monsters",
-    "role": "Supplement hooks — Saints (divine-adjacent paths), Titanic Scions, Denizens, and related chargen. Titanic Calling Knacks (Adversary, Destroyer, Monster, Primeval, Tyrant) are merged into knacks from knacksSaintsMonsters.json at bundle load.",
+    "role": "Supplement hooks — Saints (divine-adjacent paths), Titanic Scions, Denizens, and related chargen. Titanic Calling Knacks (Adversary, Destroyer, Monster, Primeval, Tyrant) are merged into knacks from ``data/tables/knacks/20_*.json`` at bundle load.",
     "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
     "extractedText": "data/_extracted/saints_monsters.txt (generated; gitignored)"
   },
-  "titanicKnacksCallout": "Titanic Calling Knacks from Chapter Four (pp. 91–97) appear in Knacks when your Calling is Adversary, Destroyer, Monster, Primeval, or Tyrant (sm_* ids). Titans Rising adds further Titanic and pantheon-flavored Knacks merged as tr_* (see data/knacksTitansRising.json).",
-  "saintsCallout": "Saint chargen, Guides, Relics, and Marvel/Boon limits are PDF-first; extend data/boons.json or dedicated tables when you transcribe rules from the Saints chapters.",
+  "titanicKnacksCallout": "Titanic Calling Knacks from Chapter Four (pp. 91–97) appear in Knacks when your Calling is Adversary, Destroyer, Monster, Primeval, or Tyrant (sm_* ids). Titans Rising adds further Titanic and pantheon-flavored Knacks merged as tr_* (see data/tables/knacks/30_*.json).",
+  "saintsCallout": "Saint chargen, Guides, Relics, and Marvel/Boon limits are PDF-first; extend data/tables/boons/ fragments or dedicated tables when you transcribe rules from the Saints chapters.",
   "denizenPurviewIds": [
     "denizenEarthFriend",
     "denizenIllusions",
@@ -16,7 +16,7 @@
     "denizenWaterFriend",
     "denizenWindFriend"
   ],
-  "sorcererDataNote": "Magic Purview and sample Magic Boons merge from purviewsDenizens.json / boonsSaintsMonsters.json at bundle load. Sorcerer wizard fields live in character.sorceryProfile (export JSON).",
+  "sorcererDataNote": "Magic Purview and sample Magic Boons merge from ``data/tables/purviews/15_*.json`` and ``data/tables/boons/20_*.json`` at bundle load. Sorcerer wizard fields live in character.sorceryProfile (export JSON).",
   "sorcererWorkingsCatalog": [
     {
       "id": "binding",

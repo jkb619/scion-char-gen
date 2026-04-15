@@ -2,12 +2,12 @@
 """Generate Saints & Monsters supplemental JSON tables (run from repo root).
 
 Outputs:
-  data/purviewsDenizens.json — Denizen Purviews + Magic (merged into purviews at bundle load)
-  data/boonsSaintsMonsters.json — sample Magic + placeholder Denizen Boon rows (merged into boons)
-  data/epicenters.json — Titanic Epicenter summaries keyed by core Purview id
-  data/knacksSaintsMonsters.json — Titanic sm_* knacks + Outsider + Shepherd (replaces prior generator)
+  data/tables/purviews/15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json
+  data/tables/boons/20_Scion_Players_Guide_Saints_Monsters.json
+  data/epicenters.json
+  data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json
 
-  python3 scripts/integrate_saints_monsters_tables.py
+  python3 src/scripts/integrate_saints_monsters_tables.py
 """
 
 from __future__ import annotations
@@ -16,8 +16,13 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "src"
-SRC = "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+SRC_DIR = ROOT / "src"
+DATA_DIR = SRC_DIR / "data"
+TABLES = DATA_DIR / "tables"
+SAINTS_SOURCE_PDF = "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+KNACKS_SM_PATH = TABLES / "knacks" / "20_Scion_Players_Guide_Saints_Monsters.json"
+PURV_SM_PATH = TABLES / "purviews" / "15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json"
+BOONS_SM_PATH = TABLES / "boons" / "20_Scion_Players_Guide_Saints_Monsters.json"
 
 
 def knack(kid, name, calling, tier_min, kind, desc, mech=None):
@@ -29,14 +34,14 @@ def knack(kid, name, calling, tier_min, kind, desc, mech=None):
         "knackKind": kind,
         "description": desc.strip(),
         "mechanicalEffects": (mech or desc).strip()[:1200],
-        "source": f"{SRC} — Saints & Monsters (Calling Knacks)",
+        "source": f"{SAINTS_SOURCE_PDF} — Saints & Monsters (Calling Knacks)",
     }
 
 
 def main() -> int:
     # --- Titanic knacks (same as prior build_knacks_saints_monsters - abbreviated import via exec?)
     # Inline full list from existing file if present, else regenerate minimal
-    prev = SRC / "data" / "knacksSaintsMonsters.json"
+    prev = KNACKS_SM_PATH
     titanic: dict = {}
     if prev.is_file():
         raw = json.loads(prev.read_text(encoding="utf-8"))
@@ -44,9 +49,9 @@ def main() -> int:
             if k == "_meta":
                 titanic["_meta"] = {
                     "title": "Saints & Monsters — Titanic + optional Callings Knacks",
-                    "role": "Merged into bundle.knacks by app/services/game_data.py",
-                    "sourcePdf": SRC,
-                    "regenerate": "python3 scripts/integrate_saints_monsters_tables.py",
+                    "role": "Merged into bundle.knacks from data/tables/knacks/*.json",
+                    "sourcePdf": SAINTS_SOURCE_PDF,
+                    "regenerate": "python3 src/scripts/integrate_saints_monsters_tables.py",
                 }
                 continue
             if isinstance(v, dict) and k.startswith("sm_"):
@@ -96,22 +101,21 @@ def main() -> int:
     for kid, name, desc in sh_i:
         titanic[kid] = knack(kid, name, "shepherd", "hero", "immortal", desc)
 
-    (SRC / "data" / "knacksSaintsMonsters.json").write_text(
-        json.dumps(titanic, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    KNACKS_SM_PATH.parent.mkdir(parents=True, exist_ok=True)
+    KNACKS_SM_PATH.write_text(json.dumps(titanic, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     purviews = {
         "_meta": {
             "title": "Denizen & Magic Purviews (Saints & Monsters)",
             "mergedInto": "purviews",
-            "sourcePdf": SRC,
+            "sourcePdf": SAINTS_SOURCE_PDF,
         },
         "magic": {
             "id": "magic",
             "name": "Magic",
             "description": "Occult mastery that taps power external to a wielder’s nature—how Sorcerers and some Gods work miracles (not the same as “all divine miracles are magical”).",
             "mechanicalEffects": "Innate: sense Sorcerers; after witnessing another’s Marvel/Boon in scene, reduce your Legend cost to emulate that effect with Magic by 1 (min 1). Heroes with Magic access one Working; Demigods two; Gods three; Techniques as Heroic Knacks. Scions/Gods gain Magic only via Relics/Guides (PDF).",
-            "source": f"{SRC} — Ch. 3 Sorcerers (Purview: Magic)",
+            "source": f"{SAINTS_SOURCE_PDF} — Ch. 3 Sorcerers (Purview: Magic)",
             "denizenOrSorcery": True,
         },
         "denizenEarthFriend": {
@@ -119,7 +123,7 @@ def main() -> int:
             "name": "Earth Friend (Denizen)",
             "description": "Kinship with stone, soil, and buried things.",
             "mechanicalEffects": "Innate: see through earth/stone/concrete to Short range without light. Boons: Animate Earth, Commanding the Solid Earth (see PDF pp. 45–46).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenIllusions": {
@@ -127,7 +131,7 @@ def main() -> int:
             "name": "Illusions (Denizen)",
             "description": "Pierce deception; weave convincing illusions.",
             "mechanicalEffects": "Innate: see through illusions/disguises; trivial lies detected in your presence; +2 Enhancement vs deliberate lies. Boons: Disguise, Impersonation (PDF p. 46).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenLair": {
@@ -135,7 +139,7 @@ def main() -> int:
             "name": "Lair (Denizen)",
             "description": "Your legend merges with a place you haunt or protect.",
             "mechanicalEffects": "Innate: awareness of intrusion/changes; fetch/store portable items 1/scene; travel to Lair in ~1 hour; Otherworld access may cost Legend. Boons: Homeward Shortcut, Encroaching Den, Sanctum and Refuge (PDF pp. 46–47).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenObdurance": {
@@ -143,7 +147,7 @@ def main() -> int:
             "name": "Obdurance (Denizen)",
             "description": "Oaths and guardianships made as physical law.",
             "mechanicalEffects": "Innate: sworn oaths (Legend count) resist betrayal; bypass obstacles by taking Wounds. Boons: Bar the Way, Booming Voice of Conviction, Icon of Resolve (PDF pp. 47–48).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenTransformation": {
@@ -151,7 +155,7 @@ def main() -> int:
             "name": "Transformation (Denizen)",
             "description": "Refuse a single shape—skins, beasts, and stranger masks.",
             "mechanicalEffects": "Innate: change form (simple action in Action play); pick benefits per imbue (identity, object, movement, armor, natural weapons). Boons: Counterfeit Visage, Parade of Skins, Shapes of Might (PDF pp. 48–49).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenWaterFriend": {
@@ -159,7 +163,7 @@ def main() -> int:
             "name": "Water Friend (Denizen)",
             "description": "Command water and move as liquid lightning.",
             "mechanicalEffects": "Innate: Speed Scale 1 in water; fight underwater freely; aquatic animals +1 Attitude. Boons: Watery Hospitality, Water Mastery (PDF p. 49).",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
         "denizenWindFriend": {
@@ -167,20 +171,19 @@ def main() -> int:
             "name": "Wind Friend (Denizen)",
             "description": "Winds obey; breath survives poison and fall.",
             "mechanicalEffects": "Innate: breathe any air; immune to mundane smoke/toxic gas (non-supernatural); see through fog; winds slow falls. Marvels per PDF p. 49.",
-            "source": f"{SRC} — Denizen Purviews",
+            "source": f"{SAINTS_SOURCE_PDF} — Denizen Purviews",
             "denizenPurview": True,
         },
     }
-    (SRC / "data" / "purviewsDenizens.json").write_text(
-        json.dumps(purviews, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    PURV_SM_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PURV_SM_PATH.write_text(json.dumps(purviews, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     boons = {
         "_meta": {
             "title": "Saints & Monsters — Magic & Denizen Boon hooks",
             "mergedInto": "boons",
             "note": "Transcribe full Boon ladders from the PDF into this file over time; Magic and Denizen Purview entries here are starting anchors.",
-            "sourcePdf": SRC,
+            "sourcePdf": SAINTS_SOURCE_PDF,
         },
         "magic_assumption_godform": {
             "id": "magic_assumption_godform",
@@ -192,7 +195,7 @@ def main() -> int:
             "requiresBoonIds": [],
             "description": "Imbue 1 Legend — for the scene gain Enhancement 3 on Sorcery rolls for spells tied to any other Purview you have.",
             "mechanicalEffects": "Cost: Imbue 1 Legend. Duration: One scene. Subject: Self.",
-            "source": SRC,
+            "source": SAINTS_SOURCE_PDF,
         },
         "magic_bend_fate": {
             "id": "magic_bend_fate",
@@ -204,7 +207,7 @@ def main() -> int:
             "requiresBoonIds": ["magic_assumption_godform"],
             "description": "Spend 1+ Legend to subtly alter an ongoing ritual, curse, or magical effect you know — one brief phrase alteration; cost 1 Legend per Tier of the effect.",
             "mechanicalEffects": "Spend 1+ Legend. Range: Close. See S&M p. 79.",
-            "source": SRC,
+            "source": SAINTS_SOURCE_PDF,
         },
         "magic_thrice_great": {
             "id": "magic_thrice_great",
@@ -216,7 +219,7 @@ def main() -> int:
             "requiresBoonIds": ["magic_bend_fate"],
             "description": "Imbue 2 Legend — during extended rituals, each Milestone completed allows a Feat of Scale without spending Legend on mystical-knowledge rolls.",
             "mechanicalEffects": "Imbue 2 Legend. Reflexive. Until ritual completes.",
-            "source": SRC,
+            "source": SAINTS_SOURCE_PDF,
         },
         "denizen_earth_animate_placeholder": {
             "id": "denizen_earth_animate_placeholder",
@@ -228,14 +231,13 @@ def main() -> int:
             "requiresBoonIds": [],
             "description": "Imbue or spend Legend to animate earth as a mindless construct (professional) under your control — full stats in S&M pp. 45–46.",
             "mechanicalEffects": "Placeholder Boon row for chargen UI — confirm costs and construct tags with PDF.",
-            "source": SRC,
+            "source": SAINTS_SOURCE_PDF,
         },
     }
-    (SRC / "data" / "boonsSaintsMonsters.json").write_text(
-        json.dumps(boons, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    BOONS_SM_PATH.parent.mkdir(parents=True, exist_ok=True)
+    BOONS_SM_PATH.write_text(json.dumps(boons, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    # Epicenters: key = purview id in data/purviews.json
+    # Epicenters: key = purview id in merged purviews table
     epic_summaries = {
         "artistry": "Performances draw emotional investment; viewers resist with Integrity+Resolve vs your Legend or gain positive Attitude. Investigators of your secrets gain +2 Enhancement.",
         "beasts": "Start of Intrigue/Action: local animals appear; +1 Enhancement if you accept aid. Harder to hide supernatural nature (+Difficulty = Legend).",
@@ -269,7 +271,7 @@ def main() -> int:
     epicenters = {
         "_meta": {
             "title": "Titanic Epicenters",
-            "sourcePdf": SRC,
+            "sourcePdf": SAINTS_SOURCE_PDF,
             "note": "Titanic Scions use Epicenter text instead of normal Innate for universal Purviews (S&M pp. 97–100). Imbue 1 Legend to suppress all Epicenter effects until reclaimed.",
         }
     }
@@ -278,16 +280,16 @@ def main() -> int:
             "purviewId": pid,
             "summary": summary,
             "collateralNote": "Many entries reference the Collateral Pool (S&M p. 90); if not using Collateral, use the Tension/Momentum alternates in the PDF.",
-            "source": f"{SRC} — Maelstroms' Hearts: Epicenters",
+            "source": f"{SAINTS_SOURCE_PDF} — Maelstroms' Hearts: Epicenters",
         }
-    (SRC / "data" / "epicenters.json").write_text(
+    (SRC_DIR / "data" / "epicenters.json").write_text(
         json.dumps(epicenters, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
     n = len([k for k in titanic if k != "_meta"])
-    print("Wrote knacksSaintsMonsters.json", n, "knacks")
-    print("Wrote purviewsDenizens.json", len(purviews) - 1, "purviews")
-    print("Wrote boonsSaintsMonsters.json", len(boons) - 1, "boons")
+    print("Wrote", KNACKS_SM_PATH.relative_to(ROOT), n, "knacks")
+    print("Wrote", PURV_SM_PATH.relative_to(ROOT), len(purviews) - 1, "purviews")
+    print("Wrote", BOONS_SM_PATH.relative_to(ROOT), len(boons) - 1, "boons")
     print("Wrote epicenters.json", len(epicenters) - 1, "entries")
     return 0
 

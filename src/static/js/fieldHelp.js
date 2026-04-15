@@ -113,7 +113,7 @@ export const HELP = {
     source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Masks of the Mythos / Deeds (confirm wording at table).",
   },
   "patron-purviews": {
-    example: "Hero+: pick patron Purviews only from that parent’s list (slot count from tier data, default four); each Purview once — other slots’ picks are omitted from each pulldown.",
+    example: "Demigod+ (deity line): patron Purview slots on the Purviews step — only from that parent’s list (slot count from tier data, default four); each Purview once — other slots’ picks are omitted from each pulldown.",
     source: `${cite("origin", "Appendix 2 — patron Purviews per deity (reference)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
   },
 
@@ -218,7 +218,7 @@ export const HELP = {
     source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}; ${cite("demigod", "Knacks", "149–150")}.`,
   },
   "purview-select": {
-    example: "At Hero: one innate Purview from the parent list (Paths or chips) plus the pantheon Signature Purview from pantheons.json; Demigod+ can add more Purviews (e.g. Relics).",
+    example: "At Hero/Titanic: one innate Purview from the parent list (chips on this step) plus the pantheon Signature Purview from pantheons.json; Demigod+ uses patron slots above the chips and can add more Purviews (e.g. Relics).",
     source: `${cite("origin", "Appendix 2 (Purviews listed per deity — reference)", "170–177")}; ${cite("hero", "Purviews, Boons, Marvels", "200+")}.`,
   },
   "birthrights-step": {
@@ -226,7 +226,7 @@ export const HELP = {
     source: `${cite("hero", "Birthrights (Character Generation)", "186+")}; ${cite("hero", "Finishing Touches — Knacks vs Birthrights", "201+")}; Pandora’s Box (Revised) Birthright chapters.`,
   },
   "boon-select": {
-    example: "Boons appear only for Purviews you track: merged patron slots (Paths) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Hero, Titanic, and Heroic Sorcerer cap initial wizard picks at two; any other tier that has a Boons step in tier.json (Demigod, God, divine-band Sorcerer, …) lists all eligible Boons without that cap. Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
+    example: "Boons appear only for Purviews you track: merged patron slots (Demigod+ on Purviews) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Hero, Titanic, and Heroic Sorcerer cap initial wizard picks at two; any other tier that has a Boons step in tier.json (Demigod, God, divine-band Sorcerer, …) lists all eligible Boons without that cap. Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
     source: `${cite("hero", "Purviews & Boons", "200+")}; ${cite("demigod", "Advanced Boons", "")}; ${cite("god", "God-tier Boons", "")}.`,
   },
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Extract plain text from a local Mysteries of the World (Scion Companion) PDF.
+Extract plain text from Scion: Dragon core PDF for grep / Knack verification.
 
 Usage:
-  python scripts/ingest_mysteries_of_the_world_pdf.py /path/to/Mysteries_of_the_World.pdf
-  python scripts/ingest_mysteries_of_the_world_pdf.py --out data/_extracted/mysteries_of_the_world.txt
+  pip install pypdf
+  python3 src/scripts/ingest_scion_dragon_pdf.py --books-dir ./books
 """
 
 from __future__ import annotations
@@ -20,22 +20,20 @@ _SCRIPTS = Path(__file__).resolve().parent
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
-from scion_books_dir import find_mysteries_companion_pdf
+from scion_books_dir import find_scion_dragon_core_pdf
 
-DEFAULT_OUT = SRC / "data" / "_extracted" / "mysteries_of_the_world.txt"
-DEFAULT_PDF_WSL = Path(
-    "/mnt/c/Users/John/Desktop/Scion/books/Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf"
-)
+DEFAULT_OUT = SRC / "data" / "_extracted" / "scion_dragon.txt"
+DEFAULT_PDF_WSL = Path("/mnt/c/Users/John/Desktop/Scion/books/Scion_Dragon_(Final_Download).pdf")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Extract text from Mysteries of the World PDF")
+    parser = argparse.ArgumentParser(description="Extract text from Scion: Dragon PDF")
     parser.add_argument(
         "pdf",
         type=Path,
         nargs="?",
         default=None,
-        help="Path to the PDF (default: SCION_BOOKS_DIR / ./books / ../books / desktop WSL path)",
+        help="Path to PDF (default: discover via SCION_BOOKS_DIR / ./books / …)",
     )
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="Output text file")
     parser.add_argument("--books-dir", type=Path, default=None, help="Directory containing licensed PDF copies")
@@ -44,12 +42,15 @@ def main() -> int:
     out: Path = args.out
     books = Path(args.books_dir) if args.books_dir else None
     if pdf is None or not str(pdf).strip():
-        pdf = find_mysteries_companion_pdf(books)
+        pdf = find_scion_dragon_core_pdf(books)
         if pdf is None and DEFAULT_PDF_WSL.is_file():
             pdf = DEFAULT_PDF_WSL
     if pdf is None or not pdf.is_file():
-        print("Pass the path to Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf or place it at:", file=sys.stderr)
-        print(f"  {DEFAULT_PDF_WSL}", file=sys.stderr)
+        print(
+            "Pass the path to Scion_Dragon_(Final_Download).pdf or place it under books/.",
+            file=sys.stderr,
+        )
+        print(f"  Tried: {DEFAULT_PDF_WSL}", file=sys.stderr)
         return 1
 
     try:
@@ -70,7 +71,6 @@ def main() -> int:
 
     raw = "".join(parts)
     raw = re.sub(r"\n{4,}", "\n\n\n", raw)
-
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(raw, encoding="utf-8")
     print(f"Wrote {len(raw):,} characters to {out}")

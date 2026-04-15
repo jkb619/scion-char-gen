@@ -10,13 +10,18 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+from app.services.data_tables import primary_write_path
+
 DATA = SRC / "data"
 BR_PATH = DATA / "birthrights.json"
-PV_PATH = DATA / "purviews.json"
+PV_PATH = primary_write_path("purviews")
 PB_PDF = Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
 GOD_PDF = Path("/mnt/c/Users/John/Desktop/Scion/books/Scion_God_Second_Edition_(Final_Download).pdf")
 

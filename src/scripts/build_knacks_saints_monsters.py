@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Emit data/knacksSaintsMonsters.json from Saints & Monsters Titanic Knacks (Ch. 4).
+"""Emit ``src/data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json`` (Titanic Knacks, Ch. 4).
 
 Transcribed from Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf text
 (data/_extracted/saints_monsters.txt). Re-run after re-extracting the PDF.
 
-  python3 scripts/build_knacks_saints_monsters.py
+  python3 src/scripts/build_knacks_saints_monsters.py
 """
 
 from __future__ import annotations
@@ -13,10 +13,10 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "src"
-OUT = SRC / "data" / "knacksSaintsMonsters.json"
+SRC_DIR = ROOT / "src"
+OUT = SRC_DIR / "data" / "tables" / "knacks" / "20_Scion_Players_Guide_Saints_Monsters.json"
 
-SRC = (
+SM_SOURCE = (
     "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — "
     "Titanic Knacks (Chapter Four: Titanic Scions, pp. 91–97)"
 )
@@ -39,7 +39,7 @@ def knack(
         "knackKind": knack_kind,
         "description": description.strip(),
         "mechanicalEffects": (mechanical_effects or description).strip()[:1200],
-        "source": SRC,
+        "source": SM_SOURCE,
     }
 
 
@@ -370,7 +370,7 @@ def main() -> int:
     out_obj: dict = {
         "_meta": {
             "title": "Saints & Monsters — Titanic Knacks",
-            "role": "Merged into bundle.knacks by the server (see app/services/game_data.py).",
+            "role": "Merged into bundle.knacks from data/tables/knacks/*.json (see app/services/data_tables.py).",
             "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
             "chapters": "Chapter Four — Titanic Scions (Knacks pp. 91–97).",
             "regenerate": "python3 scripts/build_knacks_saints_monsters.py",

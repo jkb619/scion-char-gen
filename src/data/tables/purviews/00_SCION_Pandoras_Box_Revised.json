@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Condensed index of Purview names for UI selection. **Primary** full Boon / Innate / Marvel text: SCION_Pandoras_Box_(Revised_Download).pdf; tier books only where PB points there. Optional: `purviewInnateName` / `purviewInnateSummary` surface innate blurbs (they are not Boon picks). Optional `boonLadderNames`: string array of length 12 — printed Boon titles for positions 1–12 (`{purview}_dot_01` … `_dot_12` in the catalog); use \"\" for positions not transcribed yet. The wizard and sheet use these for chip titles when set. Optional `boonLadderNameByDot`: object map `\"1\"`…`\"12\"` to a name if you prefer sparse entries."
+    "note": "Condensed index of Purview names for UI selection. **Primary** full Boon / Innate / Marvel text: SCION_Pandoras_Box_(Revised_Download).pdf; tier books only where PB points there. Optional: `purviewInnateName` / `purviewInnateSummary` surface innate blurbs (they are not Boon picks). Optional `boonLadderNames`: string array of length 12 — printed Boon titles for ladder positions 1–12; each non-empty rung becomes one choosable `{purview}_dot_NN` in the merged boons table (empty string = no row). The wizard prefers these titles for chips. Optional `boonLadderNameByDot`: object map `\"1\"`…`\"12\"` to a name if you prefer sparse entries. Sparse signature Boons may also set `name` on rows in `boonPbMechanicsPatch.json` when the ladder row is blank."
   },
   "artistry": {
     "id": "artistry",
@@ -83,7 +83,6 @@
       "",
       ""
     ],
-    "purviewInnateName": "Creeping Death",
     "purviewInnateSummary": "You sense death’s touch—recent deaths, corpses, and restless dead nearby register clearly; you can read a body’s obvious cause of death. (Full mechanics and limits: Scion: Hero / Pandora’s Box — Death Purview innate.)",
     "mechanicalEffects": "Purview Boons per Pandora’s Box.",
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf"
@@ -220,12 +219,21 @@
     "name": "Wyrd",
     "description": "The Æsir Hero **Signature** Specialty—binding, orlæg, and what was woven before you drew breath (Scion: Hero). Wyrd has its own Boon entries in this app; it is not the universal fate Purview other Scions take from the same chapter.",
     "purviewInnateSummary": "Use Scion: Hero for the Wyrd Innate (Æsir Signature).",
-    "mechanicalEffects": "Wyrd Boons: Cast the Runes, Runic Charm, Spin the Thread (Hero); resolve details with your Storyguide.",
+    "mechanicalEffects": "Wyrd Boons: Cast the Runes, Spin the Thread (Scion: Hero); resolve details with your Storyguide.",
     "source": "SCION_Scion_Hero_(Final_Download).pdf",
     "boonLadderNames": [
       "Cast the Runes",
-      "Runic Charm",
-      "Spin the Thread"
+      "Spin the Thread",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
     ]
   },
   "health": {
@@ -492,7 +500,7 @@
       "Enter the Shadow",
       "Kinship With Night",
       "Nightmare Manifest",
-      "Night's Caress",
+      "Night'S Caress",
       "Reveal the Inner Darkness",
       "Shadow Minion",
       "Shadow Spies",
@@ -717,7 +725,7 @@
     "boonLadderNames": [
       "Ancestral Guidance",
       "Guardian’s Vigil",
-      "Sacred Compact",
+      "",
       "",
       "",
       "",
@@ -783,7 +791,7 @@
     "boonLadderNames": [
       "Roll of Lineage",
       "Shared Banquet",
-      "Guest’s Oath",
+      "",
       "",
       "",
       "",
@@ -805,7 +813,7 @@
     "boonLadderNames": [
       "A Dolorous Day",
       "As Was Foreseen",
-      "Daykeeper’s Verdict",
+      "",
       "",
       "",
       "",
@@ -936,8 +944,8 @@
     "source": "SCION_Pandoras_Box_(Revised_Download).pdf — Pantheon Signature Purviews chapter",
     "boonLadderNames": [
       "Become Manifest",
-      "Mandala’s Keening",
-      "Refuge in the Image",
+      "",
+      "",
       "",
       "",
       "",
@@ -959,7 +967,7 @@
     "boonLadderNames": [
       "Form Follows Spirit",
       "Imbue Idol",
-      "Healer’s Claim",
+      "",
       "",
       "",
       "",

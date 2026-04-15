@@ -18,13 +18,18 @@ Confirm patron Callings / Purviews at the table against your PDFs before play.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+from app.services.data_tables import primary_write_path
+
 PANTHEONS_PATH = SRC / "data" / "pantheons.json"
-PURVIEWS_PATH = SRC / "data" / "purviews.json"
+PURVIEWS_PATH = primary_write_path("purviews")
 VIRTUES_PATH = SRC / "data" / "virtues.json"
 
 PB = "SCION_Pandoras_Box_(Revised_Download).pdf"
