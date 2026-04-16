@@ -647,6 +647,9 @@ function defaultCharacter() {
       extraSkillDots: 5,
       extraAttributeDots: 1,
       knackOrBirthright: "knacks",
+      /** Mortal Sorcerer (S&M p. 87): `two_techniques` | `four_paraphernalia` | `one_technique_two_paraphernalia` */
+      sorcererMortalFinishingPackage: "four_paraphernalia",
+      sorcererMortalExtraTechniquesNotes: "",
       skillBaseline: null,
       attrBaseline: null,
       finishingKnackIds: [],
@@ -741,6 +744,15 @@ function ensureSorceryProfileShape() {
   const cap = sorcererWorkingPickCap(character.tier);
   if (character.sorceryProfile.workingIds.length > cap) {
     character.sorceryProfile.workingIds = character.sorceryProfile.workingIds.slice(0, cap);
+  }
+  const tSorc = normalizedTierId(character.tier);
+  if (tSorc === "sorcerer") {
+    character.sorceryProfile.primaryPowerSource = "";
+    character.sorceryProfile.powerSource = "";
+    character.sorceryProfile.invocation = "";
+    character.sorceryProfile.patronage = "";
+    character.sorceryProfile.prohibition = "";
+    character.sorceryProfile.talisman = "";
   }
 }
 
@@ -2739,6 +2751,35 @@ function ensureFinishingShape() {
   if (!Array.isArray(f.birthrightPicks)) f.birthrightPicks = [];
   if (f.fatebindingEditorIndex == null || Number.isNaN(Number(f.fatebindingEditorIndex))) f.fatebindingEditorIndex = 0;
   else f.fatebindingEditorIndex = Math.max(0, Math.round(Number(f.fatebindingEditorIndex)));
+
+  const tFin = normalizedTierId(character.tier);
+  if (tFin === "sorcerer") {
+    const validPkg = new Set(["two_techniques", "four_paraphernalia", "one_technique_two_paraphernalia"]);
+    let pkg = String(f.sorcererMortalFinishingPackage || "").trim();
+    if (!validPkg.has(pkg)) {
+      if (f.knackOrBirthright === "knacks" && (f.finishingKnackIds || []).length >= 2) {
+        pkg = "two_techniques";
+        f.sorcererMortalFinishingPackage = pkg;
+        const names = (f.finishingKnackIds || []).map((id) => bundle?.knacks?.[id]?.name || id).join("; ");
+        const prev = String(f.sorcererMortalExtraTechniquesNotes || "").trim();
+        f.sorcererMortalExtraTechniquesNotes = [
+          prev,
+          names
+            ? `Imported save used two extra Finishing Knacks (${names}). Per Saints & Monsters p. 87, Mortal Sorcerers take two additional Techniques here — replace this note with your Technique descriptions.`
+            : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+      } else {
+        f.sorcererMortalFinishingPackage = "four_paraphernalia";
+      }
+    } else {
+      f.sorcererMortalFinishingPackage = pkg;
+    }
+    if (typeof f.sorcererMortalExtraTechniquesNotes !== "string") f.sorcererMortalExtraTechniquesNotes = "";
+    f.finishingKnackIds = [];
+    f.knackOrBirthright = "birthrights";
+  }
 }
 
 /** Snapshot for “finishing” budget: call when leaving Skills (Path + dot totals). */
@@ -3068,7 +3109,19 @@ function finishingStepLeaveBlockedReason() {
   }
 
   if (!heroLikeFinishing) {
-    if (character.finishing.knackOrBirthright === "knacks") {
+    if (tierFin === "sorcerer") {
+      if (!mortalSorcererFinishingPackageValid()) {
+        const pkg = String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+        const used = finishingBirthrightPointsUsed();
+        if (pkg === "two_techniques") {
+          return "Mortal Sorcerer (Saints & Monsters p. 87): describe both additional Techniques in the Finishing text area — this package does not use Paraphernalia points.";
+        }
+        if (pkg === "one_technique_two_paraphernalia") {
+          return `Mortal Sorcerer (Saints & Monsters p. 87): spend exactly two Paraphernalia points (${used} / 2) and describe your one additional Technique in the text area.`;
+        }
+        return `Mortal Sorcerer (Saints & Monsters p. 87): spend exactly four Paraphernalia points on Finishing picks (${used} / 4), or pick a different Step Seven package.`;
+      }
+    } else if (character.finishing.knackOrBirthright === "knacks") {
       const fin = [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean);
       if (fin.length !== 2) {
         return "Pick exactly two extra Finishing Knacks, or switch to Four Birthright points (Origin p. 99).";
@@ -3195,16 +3248,59 @@ function maxBirthrightPointsBudget() {
   return 4;
 }
 
+/**
+ * Point cap for `finishing.birthrightPicks` (Finishing-step embedded catalog and trim).
+ * Mortal Sorcerer: Saints & Monsters p. 87 — 0, 2, or 4 Paraphernalia dots by package; other tiers use `maxBirthrightPointsBudget`.
+ */
+function finishingParaphernaliaPointsCap() {
+  const t = normalizedTierId(character.tier);
+  if (t !== "sorcerer") return maxBirthrightPointsBudget();
+  const pkg = String(character.finishing?.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+  if (pkg === "two_techniques") return 0;
+  if (pkg === "one_technique_two_paraphernalia") return 2;
+  return 4;
+}
+
 /** Drop picks from the end until points ≤ tier cap (e.g. after lowering Hero from 11→7). */
 function trimBirthrightPicksToBudget() {
   ensureFinishingShape();
-  const cap = maxBirthrightPointsBudget();
+  const cap = finishingParaphernaliaPointsCap();
   const arr = character.finishing.birthrightPicks;
   while (arr.length > 0) {
     const used = arr.reduce((s, id) => s + birthrightPointCost(id), 0);
     if (used <= cap) break;
     arr.pop();
   }
+}
+
+/** Mortal Sorcerer Finishing (S&M p. 87): package + spends/notes satisfied. */
+function mortalSorcererFinishingPackageValid() {
+  if (normalizedTierId(character.tier) !== "sorcerer") return true;
+  ensureFinishingShape();
+  const pkg = String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+  const notes = String(character.finishing.sorcererMortalExtraTechniquesNotes || "").trim();
+  const used = finishingBirthrightPointsUsed();
+  if (pkg === "two_techniques") return notes.length >= 8 && used === 0;
+  if (pkg === "four_paraphernalia") return used === 4;
+  if (pkg === "one_technique_two_paraphernalia") return used === 2 && notes.length >= 8;
+  return false;
+}
+
+/** Invalid highlight on Finishing “Knacks vs Birthrights” / Mortal Sorcerer package panel. */
+function finishingKnackOrBirthrightPanelGateInvalid() {
+  const tierFin = normalizedTierId(character.tier);
+  if (tierFin === "hero" || tierFin === "titanic" || tierFin === "sorcerer_hero") return false;
+  if (tierFin === "sorcerer") return !mortalSorcererFinishingPackageValid();
+  if (character.finishing.knackOrBirthright === "knacks") {
+    const fin = [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean);
+    if (fin.length !== 2) return true;
+    for (const kid of fin) {
+      const k = bundle.knacks?.[kid];
+      if (!k || !knackFinishingPickIsValidHeld(k, character, bundle)) return true;
+    }
+    return false;
+  }
+  return finishingBirthrightPointsUsed() !== 4;
 }
 
 /** Remove Boon ids that no longer exist in the loaded bundle (e.g. after regenerating boons.json). */
@@ -3246,7 +3342,7 @@ function toggleFinishingKnack(kid) {
 function addFinishingBirthright(bid) {
   ensureFinishingShape();
   const cost = birthrightPointCost(bid);
-  if (finishingBirthrightPointsUsed() + cost <= maxBirthrightPointsBudget()) {
+  if (finishingBirthrightPointsUsed() + cost <= finishingParaphernaliaPointsCap()) {
     character.finishing.birthrightPicks = [...character.finishing.birthrightPicks, bid];
   }
 }
@@ -5527,7 +5623,7 @@ function renderWorkings(root) {
   intro.className = "help";
   intro.innerHTML =
     cap <= 1
-      ? "<strong>Mortal-band Sorcerer (Legend 0):</strong> choose <strong>one</strong> Working; you know its <strong>Inherent Technique</strong> (Saints & Monsters pp. 65–66). The five categories are <strong>Divination</strong>, <strong>Binding</strong>, <strong>Shapechanging</strong>, <strong>Summoning</strong>, and <strong>Wonderment</strong> (p. 66)."
+      ? "<strong>Mortal-band Sorcerer (Legend 0):</strong> choose <strong>one</strong> Working; you know its <strong>Inherent Technique</strong> (Saints & Monsters pp. 65–66, 86 — <strong>Divination</strong> is the most common first Working, but any Working is allowed). The five categories are <strong>Divination</strong>, <strong>Binding</strong>, <strong>Shapechanging</strong>, <strong>Summoning</strong>, and <strong>Wonderment</strong> (p. 66)."
       : `<strong>Heroic+ band:</strong> select up to <strong>${cap}</strong> Workings on the chips (two at Heroic tier once you are at Legend 1; each Working has an inherent Technique plus one more Technique you know at creation; pp. 65–66, 86). If you turn on more than the cap allows, the oldest pick drops.`;
   wrap.appendChild(intro);
   const chips = document.createElement("div");
@@ -5564,35 +5660,47 @@ function renderSorcerer(root) {
   ensureSorceryProfileShape();
   ensureFinishingShape();
   const sp = character.sorceryProfile;
+  const tSorc = normalizedTierId(character.tier);
+  const mortalBand = tSorc === "sorcerer";
 
   const detail = document.createElement("div");
-  const primOpts = [
-    ["", "— (Mortal band / undecided)"],
-    ["invocation", "Invocation"],
-    ["patronage", "Patronage"],
-    ["prohibition", "Prohibition"],
-    ["talisman", "Talisman"],
-  ];
-  const primHtml = primOpts.map(([v, lab]) => `<option value="${v}">${lab}</option>`).join("");
-  detail.innerHTML = `
+  if (mortalBand) {
+    detail.innerHTML = `
+    <p class="help">Mortal-tier Sorcerers have <strong>no Legend 1</strong> yet and do <strong>not</strong> use the four Sources of Power (Invocation, Patronage, Prohibition, Talisman) from pp. 64–65 at creation — the book ties that choice to <strong>Heroic</strong> Sorcerer chargen (p. 85). Record one <strong>Motif</strong> below (p. 87).</p>
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-primary">Primary source (Heroic+)</label><select id="f-sorc-primary">${primHtml}</select></div>
-    <div class="field"><label for="f-sorc-source">Sources of Power (freeform)</label><textarea id="f-sorc-source" rows="3"></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="One Working and its Inherent Technique at creation (p. 86). Up to two extra Techniques only if bought on Finishing (p. 87). Charms once you know a Working (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
+  } else {
+    const primOpts = [
+      ["", "— (undecided)"],
+      ["invocation", "Invocation"],
+      ["patronage", "Patronage"],
+      ["prohibition", "Prohibition"],
+      ["talisman", "Talisman"],
+    ];
+    const primHtml = primOpts.map(([v, lab]) => `<option value="${v}">${lab}</option>`).join("");
+    detail.innerHTML = `
+    <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
+    <div class="field"><label for="f-sorc-primary">Primary source of power (Legend 1+)</label><select id="f-sorc-primary">${primHtml}</select></div>
+    <div class="field"><label for="f-sorc-source">Sources of Power (freeform notes)</label><textarea id="f-sorc-source" rows="3"></textarea></div>
     <div class="field"><label for="f-sorc-invocation">Invocation (costs, hubris, disguise)</label><textarea id="f-sorc-invocation" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-patronage">Patronage (Fatebinding, compels)</label><textarea id="f-sorc-patronage" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-prohibition">Prohibition (Sorcerous Prohibition condition)</label><textarea id="f-sorc-prohibition" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-talisman">Talisman (Relic bond, Legend pool)</label><textarea id="f-sorc-talisman" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Inherent + chosen Techniques per Working; charms at the table (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Inherent + one extra Technique per Working at Heroic creation; charms (p. 65)."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
-  root.appendChild(panel("Sorcerer profile (Motif & sources)", detail));
+  }
+  root.appendChild(panel(mortalBand ? "Sorcerer profile (Mortal tier)" : "Sorcerer profile (Motif & Sources of Power)", detail));
 
   document.getElementById("f-sorc-motif").value = sp.motif || "";
-  document.getElementById("f-sorc-primary").value = sp.primaryPowerSource || "";
-  document.getElementById("f-sorc-source").value = sp.powerSource || "";
-  document.getElementById("f-sorc-invocation").value = sp.invocation || "";
-  document.getElementById("f-sorc-patronage").value = sp.patronage || "";
-  document.getElementById("f-sorc-prohibition").value = sp.prohibition || "";
-  document.getElementById("f-sorc-talisman").value = sp.talisman || "";
+  if (!mortalBand) {
+    document.getElementById("f-sorc-primary").value = sp.primaryPowerSource || "";
+    document.getElementById("f-sorc-source").value = sp.powerSource || "";
+    document.getElementById("f-sorc-invocation").value = sp.invocation || "";
+    document.getElementById("f-sorc-patronage").value = sp.patronage || "";
+    document.getElementById("f-sorc-prohibition").value = sp.prohibition || "";
+    document.getElementById("f-sorc-talisman").value = sp.talisman || "";
+  }
   document.getElementById("f-sorc-techniques").value = sp.techniquesNotes || "";
   document.getElementById("f-sorc-notes").value = sp.notes || "";
 
@@ -5606,7 +5714,13 @@ function renderSorcerer(root) {
   magH.textContent = "Magic Purview";
   mp.appendChild(magH);
   const magicPv = bundle.purviews?.magic;
-  if (magicPv && typeof magicPv === "object") {
+  if (mortalBand) {
+    const magM = document.createElement("p");
+    magM.className = "help";
+    magM.innerHTML =
+      "The structured <strong>Magic</strong> Purview Boon ladder is for <strong>Heroic</strong> Sorcerers and up (Saints & Monsters ch. 3). At Mortal tier you play <strong>Workings</strong>, Marvels, and your single Inherent Technique until your chronicle reaches Legend 1.";
+    mp.appendChild(magM);
+  } else if (magicPv && typeof magicPv === "object") {
     const magP = document.createElement("p");
     magP.className = "help";
     const desc = typeof magicPv.description === "string" ? magicPv.description.trim() : "";
@@ -5626,13 +5740,18 @@ function renderSorcerer(root) {
   const magicOn = (character.purviewIds || []).includes("magic");
   const magSt = document.createElement("p");
   magSt.className = "help";
-  magSt.innerHTML = hasPvStep
-    ? magicOn
-      ? "<strong>Magic</strong> is toggled <strong>on</strong> on your Purviews list. Use the <strong>Purviews</strong> tab to adjust Purviews and Boons."
-      : "<strong>Magic</strong> is not selected yet — open the <strong>Purviews</strong> tab and turn the <strong>Magic</strong> chip on (Heroic band and up; S&amp;M ch. 3)."
-    : "This tier has no Purviews step in the wizard — the full <strong>Magic</strong> Purview track applies when you advance to a tier that includes Purviews (e.g. Heroic Sorcerer).";
+  if (mortalBand) {
+    magSt.textContent =
+      "This tier has no Purviews tab — when you advance to Heroic Sorcerer, add the Magic Purview and Boons there.";
+  } else {
+    magSt.innerHTML = hasPvStep
+      ? magicOn
+        ? "<strong>Magic</strong> is toggled <strong>on</strong> on your Purviews list. Use the <strong>Purviews</strong> tab to adjust Purviews and Boons."
+        : "<strong>Magic</strong> is not selected yet — open the <strong>Purviews</strong> tab and turn the <strong>Magic</strong> chip on (Heroic band and up; S&amp;M ch. 3)."
+      : "This tier has no Purviews step in the wizard — the full <strong>Magic</strong> Purview track applies when you advance to a tier that includes Purviews (e.g. Heroic Sorcerer).";
+  }
   mp.appendChild(magSt);
-  if (hasPvStep) {
+  if (hasPvStep && !mortalBand) {
     const toPv = document.createElement("button");
     toPv.type = "button";
     toPv.className = "btn secondary";
@@ -5651,7 +5770,6 @@ function renderSorcerer(root) {
   mp.appendChild(parH);
   const parP = document.createElement("p");
   parP.className = "help";
-  const tSorc = normalizedTierId(character.tier);
   if (tSorc === "sorcerer_hero") {
     const used = finishingBirthrightPointsUsed();
     const capBr = maxBirthrightPointsBudget();
@@ -5661,12 +5779,13 @@ function renderSorcerer(root) {
       "Divine-band Sorcerers use the Birthrights tab with this tier’s dot budget (confirm Paraphernalia vs general Birthrights grants with Saints & Monsters and your Storyguide).";
   } else if (tSorc === "sorcerer") {
     parP.innerHTML =
-      "Mortal-band Sorcerers do not receive the seven-dot Paraphernalia pool yet (p. 86). Optional gear at Finishing uses the same <strong>four Birthright points</strong> or <strong>two extra Knacks</strong> choice as Origin when your table uses those finishing packages.";
+      "Mortal Sorcerers do not get the Heroic <strong>seven</strong>-dot Paraphernalia pool (p. 86). On <strong>Finishing Touches</strong> (p. 87) you may take <strong>four</strong> Paraphernalia points, <strong>one Technique plus two</strong> Paraphernalia points, or <strong>two Techniques</strong> — use the <strong>Finishing</strong> tab.";
   } else {
     parP.textContent = "Paraphernalia rules apply on Sorcerer tiers that include a Birthrights step in the wizard.";
   }
   mp.appendChild(parP);
-  if (stepDefsForTier(character.tier).includes("birthrights")) {
+  const stepList = stepDefsForTier(character.tier);
+  if (stepList.includes("birthrights")) {
     const toBr = document.createElement("button");
     toBr.type = "button";
     toBr.className = "btn secondary";
@@ -5678,6 +5797,19 @@ function renderSorcerer(root) {
       scrollWizardStepIntoView();
     });
     mp.appendChild(toBr);
+  }
+  if (mortalBand && stepList.includes("finishing")) {
+    const toFin = document.createElement("button");
+    toFin.type = "button";
+    toFin.className = "btn secondary";
+    toFin.textContent = "Open Finishing tab (Step Seven)";
+    toFin.addEventListener("click", () => {
+      persistFromForm();
+      navigateWizardToStepId("finishing");
+      render();
+      scrollWizardStepIntoView();
+    });
+    mp.appendChild(toFin);
   }
 
   root.appendChild(mp);
@@ -6041,7 +6173,7 @@ function renderFinishing(root) {
   if (isOriginPlayTier(character.tier)) {
     intro.innerHTML =
       tierFin === "sorcerer"
-        ? "<strong>Saints & Monsters ch. 3 — Finishing:</strong> spend <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> as for Origin characters, then either <em>two extra Knacks</em> or <em>four Birthright points</em> toward optional Paraphernalia (confirm finishing packages with the PDF)."
+        ? "<strong>Saints & Monsters p. 87 — Finishing Touches (Mortal Sorcerer):</strong> five extra Skill dots and one extra Attribute dot (same as other Mortal-tier humans), then choose <em>one</em> of: <strong>two additional Techniques</strong> (describe them — not Calling Knacks), <strong>four Paraphernalia points</strong> on templates below, or <strong>one Technique plus two Paraphernalia points</strong>. You also receive one <strong>Motif</strong> (record on the Sorcerer tab). No Source of Power yet (pp. 64–65, 85, 87)."
         : "<strong>Origin p. 99 — Finishing Touches:</strong> spend your <em>extra Skill dots</em> and <em>extra Attribute dot(s)</em> on the sheet here, then take either <em>two extra Knacks</em> or <em>four Birthright points</em> (Birthright templates — see <cite>Scion: Hero</cite> p. 201 for post-Visitation detail). Budgets below are table limits; place dots and picks in the sections that follow.";
   } else if (heroLikeFinishing) {
     if (tierFin === "sorcerer_hero") {
@@ -6064,6 +6196,17 @@ function renderFinishing(root) {
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
     <div class="field"><label>Extra attribute dot(s) (budget)</label><input type="number" id="fin-attr" min="0" max="10" /></div>
     <p class="help" id="fin-focus-hero-note">Extra Knacks from Origin Finishing stay in your save; this step does not offer them again. Birthrights at Hero/Titanic (seven points) are on the <strong>Birthrights</strong> step.</p>`;
+  } else if (tierFin === "sorcerer") {
+    budget.innerHTML = `
+    <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
+    <div class="field"><label>Extra attribute dot(s) (budget)</label><input type="number" id="fin-attr" min="0" max="10" /></div>
+    <div class="field"><label>Step Seven package (S&amp;M p. 87)</label>
+      <select id="fin-sorc-mort-pkg">
+        <option value="two_techniques">Two additional Techniques</option>
+        <option value="four_paraphernalia">Four Paraphernalia points</option>
+        <option value="one_technique_two_paraphernalia">One Technique + two Paraphernalia points</option>
+      </select>
+    </div>`;
   } else {
     budget.innerHTML = `
     <div class="field"><label>Extra skill dots (budget)</label><input type="number" id="fin-skill" min="0" max="20" /></div>
@@ -6164,7 +6307,9 @@ function renderFinishing(root) {
   const atHelp = document.createElement("p");
   atHelp.className = "help";
   atHelp.textContent =
-    "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded).";
+    tierFin === "sorcerer"
+      ? "Saints & Monsters p. 87: one extra Attribute dot at Mortal Sorcerer creation (same as other human-tier characters). Spend it on an Attribute — not banked or traded."
+      : "Origin p. 98: one extra Attribute dot at character creation for each player character. It must be spent on an Attribute (not banked or traded).";
   atPanel.appendChild(atHelp);
   const finAttrBase = buildCharacterAttrsPre();
   const finAttrFinal = applyFavoredApproach(finAttrBase);
@@ -6212,14 +6357,38 @@ function renderFinishing(root) {
 
   /* Hero / Titanic / Heroic Sorcerer: Origin Finishing already offered extra Knacks or four Birthright points — do not repeat that UI here. */
   if (!heroLikeFinishing) {
-    const knBrInvalid =
-      character.finishing.knackOrBirthright === "knacks"
-        ? [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean).length !== 2
-        : finishingBirthrightPointsUsed() !== 4;
+    const sorcMort = tierFin === "sorcerer";
+    const pkgS = sorcMort ? String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim() : "";
+    const knBrInvalid = finishingKnackOrBirthrightPanelGateInvalid();
     const knBr = document.createElement("section");
     knBr.id = "fin-knack-br-panel";
     knBr.className = "panel finishing-place-panel" + (knBrInvalid ? " panel-gate-invalid" : "");
-    if (character.finishing.knackOrBirthright === "knacks") {
+    if (sorcMort && (pkgS === "two_techniques" || pkgS === "one_technique_two_paraphernalia")) {
+      const title = pkgS === "two_techniques" ? "Two additional Techniques (Step Seven)" : "One additional Technique + two Paraphernalia points";
+      const h2m = document.createElement("h2");
+      h2m.textContent = title;
+      knBr.appendChild(h2m);
+      const hel = document.createElement("p");
+      hel.className = "help";
+      hel.innerHTML =
+        pkgS === "two_techniques"
+          ? "Saints & Monsters p. 87: describe <strong>two</strong> additional Sorcerer <strong>Techniques</strong> (not Calling Knacks). Leave Paraphernalia picks empty for this package."
+          : "Saints & Monsters p. 87: describe your <strong>one</strong> additional Technique, then spend exactly <strong>two</strong> Paraphernalia points in the catalog below.";
+      knBr.appendChild(hel);
+      const ta = document.createElement("textarea");
+      ta.id = "fin-sorc-mort-tech-notes";
+      ta.rows = pkgS === "two_techniques" ? 6 : 4;
+      ta.className = "finishing-sorcerer-mortal-tech-notes";
+      ta.setAttribute("aria-label", "Mortal Sorcerer extra Techniques from Step Seven");
+      ta.value = character.finishing.sorcererMortalExtraTechniquesNotes || "";
+      ta.addEventListener("input", () => {
+        ensureFinishingShape();
+        character.finishing.sorcererMortalExtraTechniquesNotes = ta.value;
+        refreshFinishingWizardGateUiFromDom();
+      });
+      knBr.appendChild(ta);
+    }
+    if (!sorcMort && character.finishing.knackOrBirthright === "knacks") {
       knBr.innerHTML = `<h2>Extra Knacks (pick up to 2)</h2>`;
       const callingKnackSet = new Set(character.knackIds || []);
       const finUniq = [...new Set(character.finishing.finishingKnackIds || [])];
@@ -6315,13 +6484,25 @@ function renderFinishing(root) {
         knBr.appendChild(kchips);
       }
     } else {
-      const cap = maxBirthrightPointsBudget();
-      knBr.innerHTML = `<h2>Birthrights (up to ${cap} points)</h2><p class='help'>Add templates or examples below; each pick costs its listed points (data). Remove picks to free points. The same catalog entry may be picked more than once if your budget allows. These picks count toward your tier Birthrights budget (same list as the Birthrights step).</p>`;
+      const finBirthCap = finishingParaphernaliaPointsCap();
+      if (!(sorcMort && finBirthCap <= 0)) {
+      const cap = finBirthCap;
+      const brSub = document.createElement("div");
+      brSub.className = "finishing-paraphernalia-birthrights-subpanel";
+      const h2br = document.createElement("h2");
+      h2br.textContent = sorcMort ? `Paraphernalia templates (${cap} point${cap === 1 ? "" : "s"})` : `Birthrights (up to ${cap} points)`;
+      brSub.appendChild(h2br);
+      const hp = document.createElement("p");
+      hp.className = "help";
+      hp.innerHTML = sorcMort
+        ? "Saints & Monsters p. 87: spend your Paraphernalia allowance on Birthright templates (Relics, Creatures, Followers, Guides, etc.). Same catalog as other lines — each row shows its point cost."
+        : "Add templates or examples below; each pick costs its listed points (data). Remove picks to free points. The same catalog entry may be picked more than once if your budget allows. These picks count toward your tier Birthrights budget (same list as the Birthrights step).";
+      brSub.appendChild(hp);
       const used = finishingBirthrightPointsUsed();
       const pts = document.createElement("p");
       pts.className = "help";
       pts.textContent = `Points used: ${used} / ${cap}`;
-      knBr.appendChild(pts);
+      brSub.appendChild(pts);
       const finBar = document.createElement("div");
       finBar.className = "picker-toolbar";
       const finBrSearch = document.createElement("input");
@@ -6331,7 +6512,7 @@ function renderFinishing(root) {
       finBrSearch.autocomplete = "off";
       finBrSearch.setAttribute("aria-label", "Filter finishing birthrights");
       finBar.appendChild(finBrSearch);
-      knBr.appendChild(finBar);
+      brSub.appendChild(finBar);
       const finScroll = document.createElement("div");
       finScroll.className = "picker-scroll";
       const finTbl = document.createElement("table");
@@ -6347,7 +6528,6 @@ function renderFinishing(root) {
       finThead.appendChild(finHr);
       finTbl.appendChild(finThead);
       const finBody = document.createElement("tbody");
-      const capBr = maxBirthrightPointsBudget();
       const usedBr = finishingBirthrightPointsUsed();
       const finEntries = Object.entries(bundle.birthrights)
         .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id))
@@ -6376,14 +6556,14 @@ function renderFinishing(root) {
         btn.type = "button";
         btn.className = "btn secondary";
         btn.textContent = "Add";
-        btn.disabled = usedBr + cost > capBr;
+        btn.disabled = usedBr + cost > cap;
         applyGameDataHint(btn, br);
         const addHintFin = btn.disabled
           ? `Not enough points left for this cost (${cost}). Remove picks below to free budget—you can add the same template again once it fits.`
           : "Adds another pick of this template if you want several of the same Birthright (each costs its points).";
         btn.title = btn.title ? `${btn.title}\n\n${addHintFin}` : addHintFin;
         btn.addEventListener("click", () => {
-          if (finishingBirthrightPointsUsed() + cost > capBr) return;
+          if (finishingBirthrightPointsUsed() + cost > cap) return;
           addFinishingBirthright(bid);
           render();
         });
@@ -6405,7 +6585,7 @@ function renderFinishing(root) {
         null,
       ]);
       finScroll.appendChild(finTbl);
-      knBr.appendChild(finScroll);
+      brSub.appendChild(finScroll);
       const list = document.createElement("ul");
       list.className = "finishing-birthright-picks";
       (character.finishing.birthrightPicks || []).forEach((bid, idx) => {
@@ -6427,7 +6607,9 @@ function renderFinishing(root) {
         li.appendChild(rm);
         list.appendChild(li);
       });
-      knBr.appendChild(list);
+      brSub.appendChild(list);
+      knBr.appendChild(brSub);
+      }
     }
     wrap.appendChild(knBr);
   }
@@ -6584,6 +6766,19 @@ function renderFinishing(root) {
   document.getElementById("fin-attr").value = String(character.finishing.extraAttributeDots);
   const finFocusEl = document.getElementById("fin-focus");
   if (finFocusEl) finFocusEl.value = character.finishing.knackOrBirthright;
+  const pkgMortEl = document.getElementById("fin-sorc-mort-pkg");
+  if (pkgMortEl) {
+    pkgMortEl.value = character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia";
+    pkgMortEl.addEventListener("change", (e) => {
+      ensureFinishingShape();
+      const v = e.target.value;
+      if (v === "two_techniques" || v === "four_paraphernalia" || v === "one_technique_two_paraphernalia") {
+        character.finishing.sorcererMortalFinishingPackage = v;
+        trimBirthrightPicksToBudget();
+        render();
+      }
+    });
+  }
   const sheetNotesEl = document.getElementById("fin-sheet-notes");
   if (sheetNotesEl) sheetNotesEl.value = character.sheetNotesExtra || "";
 
@@ -7665,6 +7860,18 @@ function refreshFinishingWizardGateUiFromDom() {
     character.finishing.knackOrBirthright =
       finFocusEl.value === "birthrights" || finFocusEl.value === "knacks" ? finFocusEl.value : "knacks";
   }
+  const pkgMortRf = document.getElementById("fin-sorc-mort-pkg");
+  if (pkgMortRf && normalizedTierId(character.tier) === "sorcerer") {
+    const v = pkgMortRf.value;
+    if (v === "two_techniques" || v === "four_paraphernalia" || v === "one_technique_two_paraphernalia") {
+      character.finishing.sorcererMortalFinishingPackage = v;
+      trimBirthrightPicksToBudget();
+    }
+  }
+  const techNotesRf = document.getElementById("fin-sorc-mort-tech-notes");
+  if (techNotesRf && normalizedTierId(character.tier) === "sorcerer") {
+    character.finishing.sorcererMortalExtraTechniquesNotes = techNotesRf.value ?? "";
+  }
   ensureFinishingBaselines();
 
   const host = document.getElementById("wizard-step-host");
@@ -7711,11 +7918,7 @@ function refreshFinishingWizardGateUiFromDom() {
     const tierRf = normalizedTierId(character.tier);
     const heroLf = tierRf === "hero" || tierRf === "titanic" || tierRf === "sorcerer_hero";
     if (!heroLf) {
-      const knBad =
-        character.finishing.knackOrBirthright === "knacks"
-          ? [...new Set(character.finishing.finishingKnackIds || [])].filter(Boolean).length !== 2
-          : finishingBirthrightPointsUsed() !== 4;
-      knBrPanel.classList.toggle("panel-gate-invalid", knBad);
+      knBrPanel.classList.toggle("panel-gate-invalid", finishingKnackOrBirthrightPanelGateInvalid());
     }
   }
 
@@ -7814,7 +8017,20 @@ function persistFromForm() {
       normalizedTierId(character.tier) === "titanic" ||
       normalizedTierId(character.tier) === "sorcerer_hero"
         ? "knacks"
-        : document.getElementById("fin-focus")?.value || "knacks";
+        : normalizedTierId(character.tier) === "sorcerer"
+          ? "birthrights"
+          : document.getElementById("fin-focus")?.value || "knacks";
+    const pkgElFin = document.getElementById("fin-sorc-mort-pkg");
+    if (pkgElFin && normalizedTierId(character.tier) === "sorcerer") {
+      const v = pkgElFin.value;
+      if (v === "two_techniques" || v === "four_paraphernalia" || v === "one_technique_two_paraphernalia") {
+        character.finishing.sorcererMortalFinishingPackage = v;
+      }
+    }
+    const fnFin = document.getElementById("fin-sorc-mort-tech-notes");
+    if (fnFin && normalizedTierId(character.tier) === "sorcerer") {
+      character.finishing.sorcererMortalExtraTechniquesNotes = fnFin.value ?? "";
+    }
     persistFatebindingEditorRowFromDom(character, "fin-fb");
     character.sheetNotesExtra = document.getElementById("fin-sheet-notes")?.value ?? "";
   }
@@ -7825,15 +8041,17 @@ function persistFromForm() {
     ensureSorceryProfileShape();
     const sp = character.sorceryProfile;
     sp.motif = document.getElementById("f-sorc-motif")?.value ?? "";
-    const pr = document.getElementById("f-sorc-primary")?.value ?? "";
-    sp.primaryPowerSource = pr === "invocation" || pr === "patronage" || pr === "prohibition" || pr === "talisman" ? pr : "";
-    sp.powerSource = document.getElementById("f-sorc-source")?.value ?? "";
-    sp.invocation = document.getElementById("f-sorc-invocation")?.value ?? "";
-    sp.patronage = document.getElementById("f-sorc-patronage")?.value ?? "";
-    sp.prohibition = document.getElementById("f-sorc-prohibition")?.value ?? "";
-    sp.talisman = document.getElementById("f-sorc-talisman")?.value ?? "";
     sp.techniquesNotes = document.getElementById("f-sorc-techniques")?.value ?? "";
     sp.notes = document.getElementById("f-sorc-notes")?.value ?? "";
+    if (normalizedTierId(character.tier) !== "sorcerer") {
+      const pr = document.getElementById("f-sorc-primary")?.value ?? "";
+      sp.primaryPowerSource = pr === "invocation" || pr === "patronage" || pr === "prohibition" || pr === "talisman" ? pr : "";
+      sp.powerSource = document.getElementById("f-sorc-source")?.value ?? "";
+      sp.invocation = document.getElementById("f-sorc-invocation")?.value ?? "";
+      sp.patronage = document.getElementById("f-sorc-patronage")?.value ?? "";
+      sp.prohibition = document.getElementById("f-sorc-prohibition")?.value ?? "";
+      sp.talisman = document.getElementById("f-sorc-talisman")?.value ?? "";
+    }
   }
   if (step === "titanicExtras") {
     ensureTitanicProfileShape();

@@ -50,7 +50,7 @@
     "name": "Sorcerer (Mortal band)",
     "alsoKnownAs": "Mortal-tier Sorcerer (Legend 0)",
     "description": "Ordinary humans who learn sorcery through study, spirits, pacts, or stolen wonders—before the full Heroic band of power.",
-    "mechanicalEffects": "Saints & Monsters Ch. 3 — Mortal Sorcerer chargen: same Concept, Paths, Skills, and Attributes spine as Origin (pp. 83–84); one Working plus its inherent Technique at Legend 0 (p. 65); Motif and Sources of Power; optional Paraphernalia via Finishing if your table uses the same finishing packages as Origin.",
+    "mechanicalEffects": "Saints & Monsters Ch. 3 — Mortal Sorcerer chargen: same Concept, Paths, Skills, and Attributes spine as Origin (pp. 83–84); one Working plus its inherent Technique only at creation (pp. 65–66, 86); one Motif (p. 87). No Source of Power or Legend 1 Invocation/Patronage/Prohibition/Talisman rules until Heroic tier (pp. 64–65, 85, 87). Finishing Touches (p. 87): five extra Skill dots, one extra Attribute dot, then two extra Techniques, or four Paraphernalia points, or one Technique plus two Paraphernalia points.",
     "typicalLegendRange": "0",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "finishing", "review"],
     "patronPurviewSlotCount": 0,
