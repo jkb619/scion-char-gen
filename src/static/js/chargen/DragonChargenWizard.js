@@ -582,6 +582,56 @@ export function defaultDragonState() {
   };
 }
 
+/** Older JSON used Dragon book archetype names in knack ids; catalog now uses `callings.json` Calling slugs (same as `callingSlots[].id`). */
+const LEGACY_HEIR_CALLING_KNACK_ID_PREFIXES = [
+  ["dragon_heir_collector_", "dragon_heir_creator_"],
+  ["dragon_heir_ruler_", "dragon_heir_leader_"],
+  ["dragon_heir_mystic_", "dragon_heir_sage_"],
+  ["dragon_heir_nomad_", "dragon_heir_liminal_"],
+  ["dragon_heir_predator_", "dragon_heir_hunter_"],
+  ["dragon_heir_watcher_", "dragon_heir_trickster_"],
+];
+
+/**
+ * @param {string} kid
+ * @returns {string}
+ */
+function migrateLegacyDragonCallingKnackId(kid) {
+  const s = String(kid ?? "").trim();
+  if (!s) return s;
+  for (const [oldP, newP] of LEGACY_HEIR_CALLING_KNACK_ID_PREFIXES) {
+    if (s.startsWith(oldP)) {
+      let rest = s.slice(oldP.length);
+      if (oldP === "dragon_heir_mystic_" && rest.startsWith("sage_")) rest = rest.slice("sage_".length);
+      return newP + rest;
+    }
+  }
+  return s;
+}
+
+/** @param {DragonState} d */
+function migrateLegacyDragonCallingKnackCatalogIds(d) {
+  if (!d || typeof d !== "object") return;
+  if (Array.isArray(d.callingKnackIds)) {
+    d.callingKnackIds = d.callingKnackIds
+      .map((x) => migrateLegacyDragonCallingKnackId(String(x || "").trim()))
+      .filter(Boolean);
+  }
+  if (Array.isArray(d.finishingCallingKnackIds)) {
+    d.finishingCallingKnackIds = d.finishingCallingKnackIds
+      .map((x) => migrateLegacyDragonCallingKnackId(String(x || "").trim()))
+      .filter(Boolean);
+  }
+  if (d.knackSlotById && typeof d.knackSlotById === "object") {
+    const next = {};
+    for (const k of Object.keys(d.knackSlotById)) {
+      const nk = migrateLegacyDragonCallingKnackId(k);
+      if (nk) next[nk] = d.knackSlotById[k];
+    }
+    d.knackSlotById = next;
+  }
+}
+
 /**
  * @param {DragonState} d
  * @param {Record<string, unknown>} bundle
@@ -632,6 +682,7 @@ export function ensureDragonShape(character, bundle) {
   }
   if (!d.knackSlotById || typeof d.knackSlotById !== "object") d.knackSlotById = {};
   if (!Array.isArray(d.callingKnackIds)) d.callingKnackIds = [];
+  migrateLegacyDragonCallingKnackCatalogIds(d);
   if (!Array.isArray(d.draconicKnackIds)) d.draconicKnackIds = [];
   if (!Array.isArray(d.knownMagics)) d.knownMagics = ["", "", ""];
   while (d.knownMagics.length < 3) d.knownMagics.push("");

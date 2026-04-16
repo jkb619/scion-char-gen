@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "note": "Heir Calling Knack catalog from Scion: Dragon (Calling Knacks chapter, pp. 139–146; index pp. 6616–7866). Heirs use this unified list — not Pandora’s Box / deity-titan `knacks.json`. Paraphrased summaries only; confirm costs and tags in the PDF at play.",
+    "note": "Heir Calling Knack catalog from Scion: Dragon (Calling Knacks chapter, pp. 139–146; index pp. 6616–7866). Heirs use this unified list — not Pandora’s Box / deity-titan `knacks.json`. Paraphrased summaries only; confirm costs and tags in the PDF at play. Knack `id` keys use the same Calling slug as `callings.json` / `callingSlots[].id` (e.g. `dragon_heir_creator_*` for the Dragon book’s Collector archetype) so JSON validators can match Knacks to Callings without a separate crosswalk.",
     "callingIdCrosswalk": {
       "collector": "creator",
       "destroyer": "destroyer",
@@ -14,10 +14,10 @@
       "primeval": "primeval",
       "watcher": "trickster"
     },
-    "callingIdCrosswalkNote": "Dragon names the eleven archetypes differently than this app’s `callings.json` labels; each knack’s `callings` array stores the bundle Calling id used for three-row matching in chargen."
+    "callingIdCrosswalkNote": "Dragon book archetype names differ from Storypath Calling labels; the catalog’s knack `id` prefix matches the Storypath id in each row’s `callings` array (see `callingIdCrosswalk` for book↔app names)."
   },
-  "dragon_heir_collector_bottomless_stash": {
-    "id": "dragon_heir_collector_bottomless_stash",
+  "dragon_heir_creator_bottomless_stash": {
+    "id": "dragon_heir_creator_bottomless_stash",
     "name": "Bottomless Stash",
     "callings": [
       "creator"
@@ -28,8 +28,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_discerning_collector": {
-    "id": "dragon_heir_collector_discerning_collector",
+  "dragon_heir_creator_discerning_collector": {
+    "id": "dragon_heir_creator_discerning_collector",
     "name": "Discerning Collector",
     "callings": [
       "creator"
@@ -40,8 +40,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_infinite_pockets": {
-    "id": "dragon_heir_collector_infinite_pockets",
+  "dragon_heir_creator_infinite_pockets": {
+    "id": "dragon_heir_creator_infinite_pockets",
     "name": "Infinite Pockets",
     "callings": [
       "creator"
@@ -52,8 +52,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_obsessive_tally": {
-    "id": "dragon_heir_collector_obsessive_tally",
+  "dragon_heir_creator_obsessive_tally": {
+    "id": "dragon_heir_creator_obsessive_tally",
     "name": "Obsessive Tally",
     "callings": [
       "creator"
@@ -64,8 +64,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_one_for_the_collection": {
-    "id": "dragon_heir_collector_one_for_the_collection",
+  "dragon_heir_creator_one_for_the_collection": {
+    "id": "dragon_heir_creator_one_for_the_collection",
     "name": "One for the Collection",
     "callings": [
       "creator"
@@ -76,8 +76,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_scent_of_treasure": {
-    "id": "dragon_heir_collector_scent_of_treasure",
+  "dragon_heir_creator_scent_of_treasure": {
+    "id": "dragon_heir_creator_scent_of_treasure",
     "name": "Scent of Treasure",
     "callings": [
       "creator"
@@ -88,8 +88,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Collector (p. 139)"
   },
-  "dragon_heir_collector_wireless_alarm": {
-    "id": "dragon_heir_collector_wireless_alarm",
+  "dragon_heir_creator_wireless_alarm": {
+    "id": "dragon_heir_creator_wireless_alarm",
     "name": "Wireless Alarm",
     "callings": [
       "creator"
@@ -436,8 +436,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Judge (pp. 142–143)"
   },
-  "dragon_heir_ruler_invulnerable_master": {
-    "id": "dragon_heir_ruler_invulnerable_master",
+  "dragon_heir_leader_invulnerable_master": {
+    "id": "dragon_heir_leader_invulnerable_master",
     "name": "Invulnerable Master",
     "callings": [
       "leader"
@@ -448,8 +448,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_invoke_anger": {
-    "id": "dragon_heir_ruler_invoke_anger",
+  "dragon_heir_leader_invoke_anger": {
+    "id": "dragon_heir_leader_invoke_anger",
     "name": "Invoke Anger",
     "callings": [
       "leader"
@@ -460,8 +460,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_irrepressible_charisma": {
-    "id": "dragon_heir_ruler_irrepressible_charisma",
+  "dragon_heir_leader_irrepressible_charisma": {
+    "id": "dragon_heir_leader_irrepressible_charisma",
     "name": "Irrepressible Charisma",
     "callings": [
       "leader"
@@ -472,8 +472,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_loyal_servant": {
-    "id": "dragon_heir_ruler_loyal_servant",
+  "dragon_heir_leader_loyal_servant": {
+    "id": "dragon_heir_leader_loyal_servant",
     "name": "Loyal Servant",
     "callings": [
       "leader"
@@ -484,8 +484,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_pack_alpha": {
-    "id": "dragon_heir_ruler_pack_alpha",
+  "dragon_heir_leader_pack_alpha": {
+    "id": "dragon_heir_leader_pack_alpha",
     "name": "Pack Alpha",
     "callings": [
       "leader"
@@ -496,8 +496,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_perfect_poise": {
-    "id": "dragon_heir_ruler_perfect_poise",
+  "dragon_heir_leader_perfect_poise": {
+    "id": "dragon_heir_leader_perfect_poise",
     "name": "Perfect Poise",
     "callings": [
       "leader"
@@ -508,8 +508,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_ruler_fearless_presence": {
-    "id": "dragon_heir_ruler_fearless_presence",
+  "dragon_heir_leader_fearless_presence": {
+    "id": "dragon_heir_leader_fearless_presence",
     "name": "Fearless Presence",
     "callings": [
       "leader"
@@ -520,8 +520,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Ruler (p. 143)"
   },
-  "dragon_heir_mystic_joyous_revelation": {
-    "id": "dragon_heir_mystic_joyous_revelation",
+  "dragon_heir_sage_joyous_revelation": {
+    "id": "dragon_heir_sage_joyous_revelation",
     "name": "Joyous Revelation",
     "callings": [
       "sage"
@@ -532,8 +532,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_mystic_linked_to_the_past": {
-    "id": "dragon_heir_mystic_linked_to_the_past",
+  "dragon_heir_sage_linked_to_the_past": {
+    "id": "dragon_heir_sage_linked_to_the_past",
     "name": "Linked to the Past",
     "callings": [
       "sage"
@@ -544,8 +544,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_mystic_omniglot_translation": {
-    "id": "dragon_heir_mystic_omniglot_translation",
+  "dragon_heir_sage_omniglot_translation": {
+    "id": "dragon_heir_sage_omniglot_translation",
     "name": "Omniglot Translation",
     "callings": [
       "sage"
@@ -556,8 +556,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_mystic_presence_of_magic": {
-    "id": "dragon_heir_mystic_presence_of_magic",
+  "dragon_heir_sage_presence_of_magic": {
+    "id": "dragon_heir_sage_presence_of_magic",
     "name": "Presence of Magic",
     "callings": [
       "sage"
@@ -568,8 +568,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_mystic_sage_counsel": {
-    "id": "dragon_heir_mystic_sage_counsel",
+  "dragon_heir_sage_counsel": {
+    "id": "dragon_heir_sage_counsel",
     "name": "Sage Counsel",
     "callings": [
       "sage"
@@ -580,8 +580,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_mystic_immortal_mastermind": {
-    "id": "dragon_heir_mystic_immortal_mastermind",
+  "dragon_heir_sage_immortal_mastermind": {
+    "id": "dragon_heir_sage_immortal_mastermind",
     "name": "Immortal Mastermind",
     "callings": [
       "sage"
@@ -592,8 +592,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Mystic (pp. 143–144)"
   },
-  "dragon_heir_nomad_ever_moving": {
-    "id": "dragon_heir_nomad_ever_moving",
+  "dragon_heir_liminal_ever_moving": {
+    "id": "dragon_heir_liminal_ever_moving",
     "name": "Ever Moving",
     "callings": [
       "liminal"
@@ -604,8 +604,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_friends_anywhere": {
-    "id": "dragon_heir_nomad_friends_anywhere",
+  "dragon_heir_liminal_friends_anywhere": {
+    "id": "dragon_heir_liminal_friends_anywhere",
     "name": "Friends Anywhere",
     "callings": [
       "liminal"
@@ -616,8 +616,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_internal_compass": {
-    "id": "dragon_heir_nomad_internal_compass",
+  "dragon_heir_liminal_internal_compass": {
+    "id": "dragon_heir_liminal_internal_compass",
     "name": "Internal Compass",
     "callings": [
       "liminal"
@@ -628,8 +628,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_the_long_road_to_anywhere": {
-    "id": "dragon_heir_nomad_the_long_road_to_anywhere",
+  "dragon_heir_liminal_the_long_road_to_anywhere": {
+    "id": "dragon_heir_liminal_the_long_road_to_anywhere",
     "name": "The Long Road to Anywhere",
     "callings": [
       "liminal"
@@ -640,8 +640,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_cross_the_distance": {
-    "id": "dragon_heir_nomad_cross_the_distance",
+  "dragon_heir_liminal_cross_the_distance": {
+    "id": "dragon_heir_liminal_cross_the_distance",
     "name": "Cross the Distance",
     "callings": [
       "liminal"
@@ -652,8 +652,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_traveling_companions": {
-    "id": "dragon_heir_nomad_traveling_companions",
+  "dragon_heir_liminal_traveling_companions": {
+    "id": "dragon_heir_liminal_traveling_companions",
     "name": "Traveling Companions",
     "callings": [
       "liminal"
@@ -664,8 +664,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_nomad_unfettered": {
-    "id": "dragon_heir_nomad_unfettered",
+  "dragon_heir_liminal_unfettered": {
+    "id": "dragon_heir_liminal_unfettered",
     "name": "Unfettered",
     "callings": [
       "liminal"
@@ -676,8 +676,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Nomad (p. 144)"
   },
-  "dragon_heir_predator_apex_predator": {
-    "id": "dragon_heir_predator_apex_predator",
+  "dragon_heir_hunter_apex_predator": {
+    "id": "dragon_heir_hunter_apex_predator",
     "name": "Apex Predator",
     "callings": [
       "hunter"
@@ -688,8 +688,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_blood_in_the_water": {
-    "id": "dragon_heir_predator_blood_in_the_water",
+  "dragon_heir_hunter_blood_in_the_water": {
+    "id": "dragon_heir_hunter_blood_in_the_water",
     "name": "Blood in the Water",
     "callings": [
       "hunter"
@@ -700,8 +700,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_implacable_killer": {
-    "id": "dragon_heir_predator_implacable_killer",
+  "dragon_heir_hunter_implacable_killer": {
+    "id": "dragon_heir_hunter_implacable_killer",
     "name": "Implacable Killer",
     "callings": [
       "hunter"
@@ -712,8 +712,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_most_dangerous_prey": {
-    "id": "dragon_heir_predator_most_dangerous_prey",
+  "dragon_heir_hunter_most_dangerous_prey": {
+    "id": "dragon_heir_hunter_most_dangerous_prey",
     "name": "Most Dangerous Prey",
     "callings": [
       "hunter"
@@ -724,8 +724,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_quenched_with_blood": {
-    "id": "dragon_heir_predator_quenched_with_blood",
+  "dragon_heir_hunter_quenched_with_blood": {
+    "id": "dragon_heir_hunter_quenched_with_blood",
     "name": "Quenched with Blood",
     "callings": [
       "hunter"
@@ -736,8 +736,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_perfect_camouflage": {
-    "id": "dragon_heir_predator_perfect_camouflage",
+  "dragon_heir_hunter_perfect_camouflage": {
+    "id": "dragon_heir_hunter_perfect_camouflage",
     "name": "Perfect Camouflage",
     "callings": [
       "hunter"
@@ -748,8 +748,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Predator (p. 144)"
   },
-  "dragon_heir_predator_send_the_pack": {
-    "id": "dragon_heir_predator_send_the_pack",
+  "dragon_heir_hunter_send_the_pack": {
+    "id": "dragon_heir_hunter_send_the_pack",
     "name": "Send the Pack",
     "callings": [
       "hunter"
@@ -844,8 +844,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Primeval (p. 145)"
   },
-  "dragon_heir_watcher_complete_privacy": {
-    "id": "dragon_heir_watcher_complete_privacy",
+  "dragon_heir_trickster_complete_privacy": {
+    "id": "dragon_heir_trickster_complete_privacy",
     "name": "Complete Privacy",
     "callings": [
       "trickster"
@@ -856,8 +856,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_eyes_in_the_blinds": {
-    "id": "dragon_heir_watcher_eyes_in_the_blinds",
+  "dragon_heir_trickster_eyes_in_the_blinds": {
+    "id": "dragon_heir_trickster_eyes_in_the_blinds",
     "name": "Eyes in the Blinds",
     "callings": [
       "trickster"
@@ -868,8 +868,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_flawless_observer": {
-    "id": "dragon_heir_watcher_flawless_observer",
+  "dragon_heir_trickster_flawless_observer": {
+    "id": "dragon_heir_trickster_flawless_observer",
     "name": "Flawless Observer",
     "callings": [
       "trickster"
@@ -880,8 +880,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_indisputable_analysis": {
-    "id": "dragon_heir_watcher_indisputable_analysis",
+  "dragon_heir_trickster_indisputable_analysis": {
+    "id": "dragon_heir_trickster_indisputable_analysis",
     "name": "Indisputable Analysis",
     "callings": [
       "trickster"
@@ -892,8 +892,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_keen_eyed_watcher": {
-    "id": "dragon_heir_watcher_keen_eyed_watcher",
+  "dragon_heir_trickster_keen_eyed_watcher": {
+    "id": "dragon_heir_trickster_keen_eyed_watcher",
     "name": "Keen-Eyed Watcher",
     "callings": [
       "trickster"
@@ -904,8 +904,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_surveyors_watchful_eye": {
-    "id": "dragon_heir_watcher_surveyors_watchful_eye",
+  "dragon_heir_trickster_surveyors_watchful_eye": {
+    "id": "dragon_heir_trickster_surveyors_watchful_eye",
     "name": "Surveyor's Watchful Eye",
     "callings": [
       "trickster"
@@ -916,8 +916,8 @@
     "mechanicalEffects": "See Scion: Dragon Calling Knacks chapter for costs, Momentum, and tags at the table.",
     "source": "Scion_Dragon_(Final_Download).pdf, Calling Knacks — Watcher (pp. 145–146)"
   },
-  "dragon_heir_watcher_unobtrusive_visitor": {
-    "id": "dragon_heir_watcher_unobtrusive_visitor",
+  "dragon_heir_trickster_unobtrusive_visitor": {
+    "id": "dragon_heir_trickster_unobtrusive_visitor",
     "name": "Unobtrusive Visitor",
     "callings": [
       "trickster"
