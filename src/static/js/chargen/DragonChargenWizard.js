@@ -138,6 +138,95 @@ function dragonSkillsMissingSpecialtyFinishingMessage(d, bundle) {
   return `${miss.length} Skills are at 3 or more dots without a Specialty — add free chargen Specialties before leaving Finishing (Origin pp. 59–60, 97).`;
 }
 
+/**
+ * Hatchling Finishing only: sync Specialty fields already wrote into `d.skillSpecialties`; refresh gate chrome and Next
+ * without a full `render()` (same idea as `refreshFinishingWizardGateUiFromDom` in app.js for Deity).
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ */
+export function refreshDragonFinishingWizardGateUiFromDom(character, bundle) {
+  if (!isDragonHeirChargen(character)) return;
+  if (!document.getElementById("d-fin-focus")) return;
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
+  if (!d || d.inheritance > 1) return;
+  applyDragonPathMathToSkillDots(d, bundle);
+  const host = document.getElementById("wizard-step-host");
+  if (!host) return;
+
+  const missingSpec = dragonSkillIdsMissingChargenSpecialties(d, bundle);
+  const missingSet = new Set(missingSpec);
+  const placedSk = dragonFinishingBonusTotal(d);
+  const overSk = placedSk > 5;
+  const placedAt = dragonFinishingAttrDotsPlaced(d, bundle);
+  const remAt = dragonFinishingAttrDotsRemaining(d, bundle);
+  const overAt = placedAt > 1;
+  const remSk = Math.max(0, 5 - placedSk);
+
+  const sumEl = host.querySelector(".finishing-budget-summary");
+  if (sumEl) {
+    sumEl.textContent = `Skill finishing: ${placedSk} / 5 dots placed (${remSk} remaining). Attribute finishing: ${placedAt} / 1 dot(s) placed (${remAt} remaining).`;
+  }
+
+  const skPanel = host.querySelector(".finishing-skills-table")?.closest(".finishing-place-panel");
+  if (skPanel) {
+    skPanel.classList.toggle("panel-gate-invalid", overSk || missingSpec.length > 0);
+  }
+
+  const atPanel = host.querySelector(".attributes-arenas-grid")?.closest(".finishing-place-panel");
+  if (atPanel) {
+    atPanel.classList.toggle("panel-gate-invalid", overAt);
+  }
+
+  let gateBox = host.querySelector(".skills-gate-errors");
+  if (missingSpec.length === 0) {
+    gateBox?.remove();
+  } else {
+    if (!gateBox) {
+      gateBox = document.createElement("div");
+      gateBox.className = "skills-gate-errors";
+      gateBox.setAttribute("role", "alert");
+      const gt = document.createElement("p");
+      gt.className = "skills-gate-errors-title";
+      gt.textContent = "Fix the following before leaving Finishing:";
+      gateBox.appendChild(gt);
+      const ul = document.createElement("ul");
+      gateBox.appendChild(ul);
+      skPanel?.insertAdjacentElement("beforebegin", gateBox);
+    }
+    let ul = gateBox.querySelector("ul");
+    if (!ul) {
+      ul = document.createElement("ul");
+      gateBox.appendChild(ul);
+    }
+    ul.innerHTML = "";
+    for (const sid of missingSpec) {
+      const li = document.createElement("li");
+      li.textContent = `${bundle.skills?.[sid]?.name || sid} is at 3 or more dots — enter a Specialty in the Skills table below.`;
+      ul.appendChild(li);
+    }
+  }
+
+  for (const inp of host.querySelectorAll('input[id^="d-skill-specialty-"]')) {
+    const tr = inp.closest("tr");
+    if (!tr || !tr.classList.contains("skill-rating-row")) continue;
+    const sid = String(inp.id || "").replace(/^d-skill-specialty-/, "");
+    tr.classList.toggle("skill-rating-row--gate-invalid", missingSet.has(sid));
+  }
+
+  const nextBtn = host.querySelector(".step-actions .btn.primary");
+  if (nextBtn && nextBtn.textContent.trim() === "Next") {
+    const finBlock = dragonHeirStepLeaveBlockedReason(character, bundle, "finishing");
+    if (finBlock) {
+      nextBtn.disabled = true;
+      nextBtn.title = finBlock;
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.removeAttribute("title");
+    }
+  }
+}
+
 function dragonMaxAttrRatingForArena(attrId, attrs, d) {
   const arena = arenaForAttribute(attrId);
   if (!arena) return 5;
@@ -577,6 +666,11 @@ export function ensureDragonShape(character, bundle) {
         Array.isArray(mag?.spells) && mag.spells.some((s) => s && String(s.id ?? "").trim() === sid);
       if (!ok) row.spellId = "";
     }
+    const bonusMid = String(d.bonusSpell?.magicId || "").trim();
+    const bonusSp = String(d.bonusSpell?.spellId || "").trim();
+    if (bonusMid && bonusSp && row.magicId === bonusMid && String(row.spellId || "").trim() === bonusSp) {
+      row.spellId = "";
+    }
   }
   if (d.draconicKnackIds.length > inhCaps.draconicKnackLimit) {
     d.draconicKnackIds = d.draconicKnackIds.slice(0, inhCaps.draconicKnackLimit);
@@ -760,7 +854,7 @@ function dragonBumpPathSkillRedistribution(d, bundle, sid, delta) {
 
 /**
  * Same layout as main wizard `appendSkillRatingNameCell`.
- * @param {{ skillsTableSpecialty?: boolean; specialtyReadOnly?: boolean }} [opts] If true, same compact specialty cell as Skills + Finishing in main wizard.
+ * @param {{ skillsTableSpecialty?: boolean; specialtyReadOnly?: boolean; refreshDragonFinishingGate?: () => void }} [opts] If true, same compact specialty cell as Skills + Finishing in main wizard. `refreshDragonFinishingGate`: Hatchling Finishing — update gate/Next without full render (specialty input).
  */
 function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d, opts) {
   const skillsTable = opts?.skillsTableSpecialty === true;
@@ -813,8 +907,18 @@ function appendDragonSkillRatingNameCell(tr, sid, skillMeta, val, d, opts) {
         if (t) d.skillSpecialties[sid] = specIn.value;
         else delete d.skillSpecialties[sid];
       };
-      specIn.addEventListener("input", syncSpec);
-      specIn.addEventListener("change", syncSpec);
+      const onSpecFieldEdit = () => {
+        syncSpec();
+        opts?.refreshDragonFinishingGate?.();
+      };
+      specIn.addEventListener("input", onSpecFieldEdit);
+      specIn.addEventListener("change", onSpecFieldEdit);
+      specIn.addEventListener("blur", onSpecFieldEdit);
+      specIn.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        onSpecFieldEdit();
+      });
     }
     nameRow.appendChild(specWrap);
   }
@@ -3077,6 +3181,13 @@ export function renderDragonHeirStepInRoot(ctx) {
       const ps = String(d.spellsByMagicId[km] || "").trim();
       if (ps) primarySpellIdsChosen.add(ps);
     }
+    /** Milestone spell picks on the same Magic as the bonus row — bonus must be a different spell (Dragon chargen). */
+    const milestoneSpellIdsOnBonusMagic = new Set();
+    for (const row of d.advancementSpells || []) {
+      if (String(row?.magicId || "").trim() !== bonusMid) continue;
+      const tid = String(row?.spellId || "").trim();
+      if (tid) milestoneSpellIdsOnBonusMagic.add(tid);
+    }
     let bonusSpellId = String(d.bonusSpell?.spellId || "").trim();
     if (bonusSpellId && primarySpellIdsChosen.has(bonusSpellId)) {
       d.bonusSpell.spellId = "";
@@ -3086,15 +3197,17 @@ export function renderDragonHeirStepInRoot(ctx) {
       const spellList = Array.isArray(bMag.spells) ? bMag.spells : [];
       for (const sp of spellList) {
         if (!sp?.id) continue;
-        if (primarySpellIdsChosen.has(sp.id) && sp.id !== bonusSpellId) continue;
-        const on = bonusSpellId === sp.id;
+        const spLine = String(sp.id).trim();
+        if (primarySpellIdsChosen.has(spLine) && spLine !== bonusSpellId) continue;
+        if (milestoneSpellIdsOnBonusMagic.has(spLine) && spLine !== bonusSpellId) continue;
+        const on = bonusSpellId === spLine;
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "chip" + (on ? " on" : "");
         chip.textContent = sp.name || sp.id;
         applyGameDataHint(chip, dragonSpellChipHintEntity(sp, bMag));
         chip.addEventListener("click", () => {
-          d.bonusSpell.spellId = on ? "" : sp.id;
+          d.bonusSpell.spellId = on ? "" : spLine;
           render();
         });
         bonusSpellRow.appendChild(chip);
@@ -3104,7 +3217,7 @@ export function renderDragonHeirStepInRoot(ctx) {
         const emptyHint = document.createElement("p");
         emptyHint.className = "help";
         emptyHint.textContent =
-          "Every spell listed for this Magic is already your primary Spell for it — pick a different Magic for your bonus, or change a primary Spell above.";
+          "Every spell listed for this Magic is already taken as a primary, milestone, or other reserved pick — pick a different Magic for your bonus or change picks above.";
         bonusSpellRow.appendChild(emptyHint);
       }
     }
@@ -3177,12 +3290,17 @@ export function renderDragonHeirStepInRoot(ctx) {
         }
         if (pickMid && bMagM && typeof bMagM === "object") {
           const spellList = Array.isArray(bMagM.spells) ? bMagM.spells : [];
+          const bonusMagicForMilestone = String(d.bonusSpell?.magicId || "").trim();
+          const bonusSpellForMilestone = String(d.bonusSpell?.spellId || "").trim();
           for (const sp of spellList) {
             if (!sp?.id) continue;
             const spid = String(sp.id).trim();
             if (!spid) continue;
             if (spid === primaryForMagic) continue;
             if (takenAdv.has(spid)) continue;
+            if (bonusMagicForMilestone && bonusSpellForMilestone && pickMid === bonusMagicForMilestone && spid === bonusSpellForMilestone) {
+              continue;
+            }
             const onS = curSp === spid;
             const chip = document.createElement("button");
             chip.type = "button";
@@ -3309,7 +3427,10 @@ export function renderDragonHeirStepInRoot(ctx) {
         const tr = document.createElement("tr");
         tr.className =
           "skill-rating-row" + (missingSpec.includes(sid) ? " skill-rating-row--gate-invalid" : "");
-        appendDragonSkillRatingNameCell(tr, sid, s, val, d, { skillsTableSpecialty: true });
+        appendDragonSkillRatingNameCell(tr, sid, s, val, d, {
+          skillsTableSpecialty: true,
+          refreshDragonFinishingGate: () => refreshDragonFinishingWizardGateUiFromDom(character, bundle),
+        });
         appendDragonFinishingSkillDotsCell(tr, sid, s, val, d, bundle, character, pathOnly, render);
         skBody.appendChild(tr);
       }
