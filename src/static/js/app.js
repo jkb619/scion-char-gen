@@ -358,6 +358,19 @@ function legendDotMaxForTier(tierId) {
   return LEGEND_DOT_MAX[t] ?? 1;
 }
 
+/**
+ * Typical minimum Legend to **be** that tier (core progression); advisory only — this app does not gate tier on Legend.
+ * @param {string} [tierId]
+ */
+function legendBookMinForTier(tierId) {
+  const t = normalizedTierId(tierId);
+  if (t === "mortal" || t === "sorcerer") return 0;
+  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 1;
+  if (t === "demigod" || t === "sorcerer_demigod") return 4;
+  if (t === "god" || t === "sorcerer_god") return 8;
+  return 0;
+}
+
 function clampLegendRating(value, tierId) {
   const max = legendDotMaxForTier(tierId);
   const n = Math.round(Number(value));
@@ -422,28 +435,69 @@ function syncAwarenessWithPantheon() {
 }
 
 /**
- * Mythos Awareness: 1..tier-max filled dots. Click dot i to set to i; click again on the rightmost filled dot to lower by one (minimum 1).
+ * Legend: fixed {@link LEGEND_SHEET_DOT_COUNT} dots (community sheet / pool columns); rating is 0..tier cap.
+ * Click dot i to set toward i (capped at tier max); click again on the active cap to lower by one (minimum 0).
+ * @param {number} value
+ * @param {string} tierId
+ * @param {boolean} interactive
+ */
+function buildLegendDotTrack(value, tierId, interactive) {
+  const cap = legendDotMaxForTier(tierId);
+  const trackDots = LEGEND_SHEET_DOT_COUNT;
+  const v = clampLegendRating(value, tierId);
+  const wrap = document.createElement("span");
+  wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
+  wrap.setAttribute("role", interactive ? "radiogroup" : "img");
+  wrap.setAttribute("aria-label", `Legend ${v} of ${cap} (${trackDots} dots)`);
+  for (let i = 1; i <= trackDots; i += 1) {
+    const d = document.createElement("span");
+    const beyond = i > cap;
+    d.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
+    d.setAttribute("aria-hidden", "true");
+    if (interactive) {
+      d.tabIndex = beyond ? -1 : 0;
+      d.addEventListener("click", () => {
+        const maxT = legendDotMaxForTier(character.tier);
+        const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
+        const target = Math.min(i, maxT);
+        if (cur === target) character.legendRating = Math.max(0, target - 1);
+        else character.legendRating = target;
+        syncLegendToTier();
+        render();
+      });
+    }
+    wrap.appendChild(d);
+  }
+  return wrap;
+}
+
+/**
+ * Mythos Awareness: fixed {@link LEGEND_SHEET_DOT_COUNT} dots; rating is 1..tier cap (same as Legend track length on the sheet).
  * @param {number} value
  * @param {string} tierId
  * @param {boolean} interactive
  */
 function buildAwarenessDotTrack(value, tierId, interactive) {
-  const max = awarenessDotMaxForTier(tierId);
+  const cap = awarenessDotMaxForTier(tierId);
+  const trackDots = LEGEND_SHEET_DOT_COUNT;
   const v = clampAwarenessRating(value, tierId);
   const wrap = document.createElement("span");
-  wrap.className = "legend-dot-track legend-dot-track-dense";
+  wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
   wrap.setAttribute("role", interactive ? "radiogroup" : "img");
-  wrap.setAttribute("aria-label", `Awareness ${v} of ${max}`);
-  for (let i = 1; i <= max; i += 1) {
+  wrap.setAttribute("aria-label", `Awareness ${v} of ${cap} (${trackDots} dots)`);
+  for (let i = 1; i <= trackDots; i += 1) {
     const d = document.createElement("span");
-    d.className = "legend-dot" + (i <= v ? " on" : "");
+    const beyond = i > cap;
+    d.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
     d.setAttribute("aria-hidden", "true");
     if (interactive) {
-      d.tabIndex = 0;
+      d.tabIndex = beyond ? -1 : 0;
       d.addEventListener("click", () => {
+        const maxA = awarenessDotMaxForTier(character.tier);
         const cur = clampAwarenessRating(character.awarenessRating ?? 1, character.tier);
-        if (cur === i) character.awarenessRating = Math.max(1, i - 1);
-        else character.awarenessRating = i;
+        const target = Math.min(i, maxA);
+        if (cur === target) character.awarenessRating = Math.max(1, target - 1);
+        else character.awarenessRating = target;
         syncAwarenessWithPantheon();
         render();
       });
@@ -3355,10 +3409,10 @@ function updateHeaderTierDisplay() {
     return;
   }
   el.title =
-    "New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation. Set Legend on the Review character sheet (Legend row).";
+    "New characters start at Origin (Mortal). Use Review → Advance to next tier after Visitation. Use the Legend row here to match your table; typical book floors are Mortal 0+, Hero 1+, Demigod 4+, God 8+ (not enforced in this tool).";
   if (isMythosPantheonSelected()) {
     el.title +=
-      " Mythos Scions track Awareness (1–10): click a dot to set, or the rightmost filled dot again to lower by one (minimum 1).";
+      " Mythos Scions also set Awareness below: click a dot to set rating, or the rightmost filled dot again to lower by one (minimum 1).";
   }
   const t = bundle.tier[character.tier];
   const tierLine = document.createElement("div");
@@ -3369,6 +3423,23 @@ function updateHeaderTierDisplay() {
   if (tn === "titanic") tierSlab = "Hero (Titanic Scion)";
   tierLine.textContent = `${linePrefix}-${tierSlab}`;
   el.appendChild(tierLine);
+
+  const legRow = document.createElement("div");
+  legRow.className = "header-legend-row";
+  const legLab = document.createElement("span");
+  legLab.className = "header-legend-label";
+  legLab.textContent = "Legend";
+  legRow.appendChild(legLab);
+  legRow.appendChild(buildLegendDotTrack(character.legendRating ?? 0, character.tier, true));
+  const legReq = document.createElement("span");
+  legReq.className = "header-legend-req";
+  const legMin = legendBookMinForTier(character.tier);
+  legReq.textContent = legMin === 0 ? "0+ this tier" : `${legMin}+ this tier`;
+  legReq.title =
+    "Typical minimum Legend to qualify as this tier in the core line: Mortal 0+, Hero 1+, Demigod 4+, God 8+. Your Storyguide may vary; this app does not block tier changes based on Legend.";
+  legRow.appendChild(legReq);
+  el.appendChild(legRow);
+
   if (isMythosPantheonSelected()) {
     const awRow = document.createElement("div");
     awRow.className = "header-legend-row";

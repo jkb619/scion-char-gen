@@ -133,7 +133,7 @@ body > * {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
-  max-width: min(22rem, 100%);
+  max-width: min(34rem, 100%);
   text-align: left;
   line-height: 1.25;
 }
@@ -146,6 +146,7 @@ body > * {
 
 .header-legend-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
 }
@@ -154,6 +155,14 @@ body > * {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--muted);
+}
+
+.header-legend-req {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0.92;
 }
 
 .legend-dot-track {
@@ -191,6 +200,15 @@ body > * {
 
 .legend-dot[tabindex="0"] {
   cursor: pointer;
+}
+
+/* Wizard header: 15-dot row aligned with sheet pool columns; dots past tier cap stay visible but muted. */
+.header-tier-display .legend-dot-track--header-sheet {
+  max-width: none;
+}
+
+.legend-dot.legend-dot--beyond-tier-cap {
+  opacity: 0.45;
 }
 
 select,
