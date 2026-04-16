@@ -1,6 +1,9 @@
 /** Legend row on Review sheets: fixed dot + pool checkbox columns (community four-pager style). Legend *rating* is not filled on the bubbles (pencil at table); pool-spent checkboxes still track play. */
 export const LEGEND_SHEET_DOT_COUNT = 15;
 
+/** Dragon Heir Inheritance pool row: one column per point up to milestone cap (Scion: Dragon — Inheritance costs, pp. 150–151). */
+export const DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT = 10;
+
 /**
  * @param {unknown} h
  * @returns {h is {
@@ -104,6 +107,64 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
     } else {
       inp.checked = !!hooks.getAwarenessPoolSpentAt(idx);
       inp.addEventListener("change", () => hooks.setAwarenessPoolSpentAt(idx, inp.checked));
+    }
+    lab.appendChild(inp);
+    col.appendChild(lab);
+    track.appendChild(col);
+  }
+  cell.appendChild(track);
+}
+
+/**
+ * Dragon Heir: Inheritance pool (imbued/spent at table). Heirs do not use a Legend rating or Legend pool (Dragon p. 114).
+ * @param {HTMLElement} cell
+ * @param {number} poolMax — current Inheritance milestone (1–10); columns past this are muted/disabled.
+ * @param {{
+ *   sheetHooks: object | null | undefined;
+ * }} ctx
+ */
+export function appendInheritancePoolDotsWithPools(cell, poolMax, ctx) {
+  const c = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
+  const cap = Math.max(1, Math.min(c, Math.round(Number(poolMax) || 1)));
+  const { sheetHooks } = ctx;
+  const hooks =
+    sheetHooks &&
+    typeof sheetHooks.getInheritancePoolSpentAt === "function" &&
+    typeof sheetHooks.setInheritancePoolSpentAt === "function"
+      ? sheetHooks
+      : null;
+
+  const track = document.createElement("div");
+  track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
+  for (let i = 1; i <= c; i += 1) {
+    const col = document.createElement("div");
+    col.className = "cs-mcg-legend-pool-col";
+    const beyond = i > cap;
+    if (beyond) col.style.opacity = "0.45";
+    const dot = document.createElement("span");
+    dot.className = "cs-dot";
+    dot.setAttribute("aria-hidden", "true");
+    if (hooks && typeof hooks.onInheritancePoolDotClick === "function" && !beyond) {
+      dot.tabIndex = 0;
+      dot.style.cursor = "pointer";
+      dot.addEventListener("click", (e) => {
+        e.preventDefault();
+        hooks.onInheritancePoolDotClick(i);
+      });
+    }
+    col.appendChild(dot);
+    const idx = i - 1;
+    const lab = document.createElement("label");
+    lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
+    lab.setAttribute("aria-label", `Inheritance pool from dot ${i} spent`);
+    const inp = document.createElement("input");
+    inp.type = "checkbox";
+    inp.className = "cs-mcg-pool-check-input";
+    if (!hooks || beyond) {
+      inp.disabled = true;
+    } else {
+      inp.checked = !!hooks.getInheritancePoolSpentAt(idx);
+      inp.addEventListener("change", () => hooks.setInheritancePoolSpentAt(idx, inp.checked));
     }
     lab.appendChild(inp);
     col.appendChild(lab);

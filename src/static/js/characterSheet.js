@@ -174,7 +174,10 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
  *   getAwarenessPoolSpentAt: (idx: number) => boolean;
  *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
  *   onLegendDotClick?: (dotIndex1Based: number) => void;
- * } | null | undefined} [sheetHooks] — Review only: pool checkboxes; optional Legend dot clicks
+ *   getInheritancePoolSpentAt?: (idx: number) => boolean;
+ *   setInheritancePoolSpentAt?: (idx: number, v: boolean) => void;
+ *   onInheritancePoolDotClick?: (dotIndex1Based: number) => void;
+ * } | null | undefined} [sheetHooks] — Review: Deity Legend/Awareness pools; Dragon Heir Inheritance pool
  */
 export function buildCharacterSheet(data, bundle, sheetHooks) {
   const skills = bundle?.skills || {};

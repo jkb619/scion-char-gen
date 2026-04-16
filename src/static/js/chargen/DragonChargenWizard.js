@@ -537,6 +537,10 @@ export function defaultDragonState() {
     finishingCallingKnackIds: [],
     finishingBirthrightPicks: [],
     inheritance: 1,
+    /** At-table pool (0..inheritance milestone); Dragon Magic / Knacks / Birthrights (Dragon pp. 150–151). */
+    inheritancePoolRating: 0,
+    /** One checkbox per sheet column (see `DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT`). */
+    inheritancePoolDotSpentSlots: [],
     deedName: "",
     remembranceTrackCenter: true,
     /** Legacy field; wizard treats Dragon like Deity Mortal (all tabs usable anytime). Kept for JSON import. */
@@ -632,6 +636,17 @@ export function ensureDragonShape(character, bundle) {
     .filter((p) => p.id);
   if (d.inheritance == null || Number.isNaN(Number(d.inheritance))) d.inheritance = 1;
   d.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
+  const inhPoolMax = d.inheritance;
+  let inhPr = Math.round(Number(d.inheritancePoolRating));
+  if (d.inheritancePoolRating == null || Number.isNaN(inhPr)) inhPr = 0;
+  d.inheritancePoolRating = Math.max(0, Math.min(inhPoolMax, inhPr));
+  const INH_POOL_SLOT_N = 10;
+  if (!Array.isArray(d.inheritancePoolDotSpentSlots)) d.inheritancePoolDotSpentSlots = [];
+  {
+    const next = Array(INH_POOL_SLOT_N).fill(false);
+    for (let i = 0; i < INH_POOL_SLOT_N; i++) next[i] = !!d.inheritancePoolDotSpentSlots[i];
+    d.inheritancePoolDotSpentSlots = next;
+  }
   if (d.inheritance > 1) {
     d.finishingSkillBonus = {};
     d.finishingAttrBaseline = null;
@@ -1220,7 +1235,8 @@ function appendDragonFinishingSheetAppendix(wrap, character, bundle, render) {
     idPrefix: "d-fin-fb",
     render,
     prepareState: () => ensureDragonSheetFatebindingsShape(character),
-    trackHint: "Dragon Heir: Fatebindings print on the Heir review sheet (Fatebinding section).",
+    trackHint:
+      "Dragon Heir: Fatebindings print on the Heir sheet. Heirs have no Legend—ties are not Legend-driven; use Inheritance and your table’s Dragon rules (Scion: Dragon p. 114; see also pp. 112–113).",
   });
   wrap.appendChild(fatebindingsPanel);
 
@@ -1799,7 +1815,8 @@ function applyFavoredApproachDragonPlain(attrs, favoredApproach) {
  * @param {Record<string, number>} attrs
  * @param {string} favoredApproach
  */
-function dragonMaxPreFavoredUnderLegendCap(attrId, attrs, favoredApproach) {
+/** Max pre-favored dot for one attribute without breaking favored-approach +5 post-favored cap (Origin-style math; not Legend). */
+function dragonMaxPreFavoredUnderApproachCap(attrId, attrs, favoredApproach) {
   for (let v = 5; v >= 1; v -= 1) {
     const trial = { ...attrs, [attrId]: v };
     const fin = applyFavoredApproachDragonPlain(trial, favoredApproach);
@@ -1835,8 +1852,8 @@ function maxDragonAttrFinishing(attrId, d, bundle) {
     .reduce((s, oid) => s + Math.max(0, (attrs[oid] ?? 1) - (b[oid] ?? 1)), 0);
   const budget = 1;
   const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
-  const fromLegend = dragonMaxPreFavoredUnderLegendCap(attrId, attrs, d.favoredApproach);
-  return Math.min(5, fromBudget, fromLegend);
+  const fromApproachCap = dragonMaxPreFavoredUnderApproachCap(attrId, attrs, d.favoredApproach);
+  return Math.min(5, fromBudget, fromApproachCap);
 }
 
 /**
@@ -1871,6 +1888,7 @@ function dragonFinishingAttrDotsRemaining(d, bundle) {
 
 function dragonKnackShell(character) {
   const d = character.dragon;
+  const inh = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
   return {
     tier: "hero",
     callingSlots: (d.callingSlots || []).map((s) => ({
@@ -1885,7 +1903,8 @@ function dragonKnackShell(character) {
     purviewIds: [],
     patronPurviewSlots: ["", "", "", ""],
     mythosInnatePower: { style: "standard", awarenessPurviewId: "", awarenessLocked: false },
-    legendRating: 1,
+    /** Heirs have no Legend; shared knack gate uses `legendMin` as Inheritance milestone proxy only. */
+    legendRating: inh,
     pathRank: { primary: "origin", secondary: "role", tertiary: "society" },
   };
 }
@@ -3659,7 +3678,36 @@ export function renderDragonHeirStepInRoot(ctx) {
     toolbar.appendChild(btnThisSheetPdf);
     wrap.appendChild(toolbar);
 
-    const sheet = buildCharacterSheet(exportData, bundle);
+    const sheetHooks = {
+      getLegendPoolSpentAt: () => false,
+      setLegendPoolSpentAt: () => {},
+      getAwarenessPoolSpentAt: () => false,
+      setAwarenessPoolSpentAt: () => {},
+      getInheritancePoolSpentAt: (idx) => {
+        ensureDragonShape(character, bundle);
+        return !!(character.dragon.inheritancePoolDotSpentSlots && character.dragon.inheritancePoolDotSpentSlots[idx]);
+      },
+      setInheritancePoolSpentAt: (idx, v) => {
+        ensureDragonShape(character, bundle);
+        const slots = character.dragon.inheritancePoolDotSpentSlots;
+        if (idx >= 0 && idx < slots.length) {
+          character.dragon.inheritancePoolDotSpentSlots[idx] = !!v;
+          render();
+        }
+      },
+      onInheritancePoolDotClick: (i) => {
+        ensureDragonShape(character, bundle);
+        const maxA = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character.dragon.inheritance) || 1)));
+        let cur = Math.round(Number(character.dragon.inheritancePoolRating) || 0);
+        if (Number.isNaN(cur)) cur = 0;
+        cur = Math.max(0, Math.min(maxA, cur));
+        if (cur === i) character.dragon.inheritancePoolRating = Math.max(0, i - 1);
+        else character.dragon.inheritancePoolRating = Math.min(i, maxA);
+        ensureDragonShape(character, bundle);
+        render();
+      },
+    };
+    const sheet = buildCharacterSheet(exportData, bundle, sheetHooks);
     sheet.classList.add("review-sheet-panel");
     sheet.hidden = dragonReviewViewMode !== "sheet";
     wrap.appendChild(sheet);

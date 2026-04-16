@@ -3,7 +3,7 @@
  * (`cs-mcg-*` structure) with Dragon data; palette comes from `.character-sheet--dragon-heir` CSS.
  */
 
-import { appendLegendAwarenessDotsWithPools } from "./characterSheetLegendPools.js";
+import { appendInheritancePoolDotsWithPools } from "./characterSheetLegendPools.js";
 import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
 import { applyGameDataHint } from "./fieldHelp.js";
 import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
@@ -480,29 +480,22 @@ export function fillDragonFourPageLayout(el, api) {
   const trackStack = document.createElement("div");
   trackStack.className = "cs-mcg-track-stack";
 
-  const legBlock = document.createElement("div");
-  legBlock.className = "cs-mcg-legend-with-pool";
-  const legL = document.createElement("span");
-  legL.className = "cs-mcg-track-label";
-  legL.textContent = "Legend";
-  const legDotsCell = document.createElement("div");
-  legDotsCell.className = "cs-mcg-legend-dots-cell";
-  const lv =
-    data.legendRating != null && data.legendRating !== "" && !Number.isNaN(Number(data.legendRating))
-      ? Number(data.legendRating)
-      : 0;
-  appendLegendAwarenessDotsWithPools(legDotsCell, lv, 1, "Legend", legendPoolCtx);
-  legBlock.appendChild(legL);
-  legBlock.appendChild(legDotsCell);
-  trackStack.appendChild(legBlock);
+  const inhBlock = document.createElement("div");
+  inhBlock.className = "cs-mcg-legend-with-pool";
+  const inhL = document.createElement("span");
+  inhL.className = "cs-mcg-track-label";
+  inhL.textContent = "Inheritance";
+  const inhDotsCell = document.createElement("div");
+  inhDotsCell.className = "cs-mcg-legend-dots-cell";
+  const poolMax = Math.max(1, Math.min(10, Math.round(Number(d.inheritance) || 1)));
+  appendInheritancePoolDotsWithPools(inhDotsCell, poolMax, legendPoolCtx);
+  inhBlock.appendChild(inhL);
+  inhBlock.appendChild(inhDotsCell);
+  trackStack.appendChild(inhBlock);
 
   rightCol.appendChild(trackStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
-  const remTxt =
-    d.remembranceTrackCenter === false
-      ? "Track: custom (center off in wizard)"
-      : "Track: centered (default)";
-  rightCol.appendChild(mcgLinedField("Remembrance", remTxt));
+  rightCol.appendChild(mcgLinedField("Remembrance", ""));
 
   const diceGrid = document.createElement("div");
   diceGrid.className = "cs-mcg-dice-track-grid";

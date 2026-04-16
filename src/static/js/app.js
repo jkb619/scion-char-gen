@@ -5,7 +5,7 @@ import {
   originDefenseFromFinalAttrs,
   originMovementPoolDice,
 } from "./characterSheet.js";
-import { LEGEND_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
+import { LEGEND_SHEET_DOT_COUNT, DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
 import {
   knackEligible,
   knackEligibleForCallingStep,
@@ -502,6 +502,58 @@ function buildAwarenessDotTrack(value, tierId, interactive) {
       });
     }
     wrap.appendChild(d);
+  }
+  return wrap;
+}
+
+function dragonInheritancePoolMaxFromCharacter() {
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
+  return Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
+}
+
+function clampDragonInheritancePoolRating(value) {
+  const maxT = dragonInheritancePoolMaxFromCharacter();
+  const n = Math.round(Number(value));
+  const x = Number.isNaN(n) ? 0 : n;
+  return Math.max(0, Math.min(maxT, x));
+}
+
+/**
+ * Dragon Heir: Inheritance pool dots in the wizard header (Heirs have no Legend pool; Dragon p. 114).
+ * @param {number} value
+ * @param {boolean} interactive
+ */
+function buildInheritancePoolDotTrack(value, interactive) {
+  const poolMax = dragonInheritancePoolMaxFromCharacter();
+  const trackDots = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
+  const v = clampDragonInheritancePoolRating(value);
+  const wrap = document.createElement("span");
+  wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
+  wrap.setAttribute("role", interactive ? "radiogroup" : "img");
+  wrap.setAttribute(
+    "aria-label",
+    `Inheritance pool ${v} of ${poolMax} (${trackDots}-dot track; Dragon Heir has no Legend rating)`,
+  );
+  for (let i = 1; i <= trackDots; i += 1) {
+    const dot = document.createElement("span");
+    const beyond = i > poolMax;
+    dot.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
+    dot.setAttribute("aria-hidden", "true");
+    if (interactive) {
+      dot.tabIndex = beyond ? -1 : 0;
+      dot.addEventListener("click", () => {
+        ensureDragonShape(character, bundle);
+        const maxA = dragonInheritancePoolMaxFromCharacter();
+        const cur = clampDragonInheritancePoolRating(character.dragon?.inheritancePoolRating ?? 0);
+        const target = Math.min(i, maxA);
+        if (cur === target) character.dragon.inheritancePoolRating = Math.max(0, target - 1);
+        else character.dragon.inheritancePoolRating = target;
+        ensureDragonShape(character, bundle);
+        render();
+      });
+    }
+    wrap.appendChild(dot);
   }
   return wrap;
 }
@@ -3407,7 +3459,7 @@ function updateHeaderTierDisplay() {
     const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
     const m = bundle.dragonTier?.inheritanceTrack?.[String(inhN)];
     el.title =
-      "Heir Inheritance (1–10; True Dragon at 10) governs Heir powers. Use the Legend row to match your table for this Scion tier. Chargen follows the shared Origin spine, then the same wizard tabs as Origin Mortal with Dragon-specific steps after Concept (Scion: Dragon pp. 110–119).";
+      "Dragon Heirs have no Legend rating at any Inheritance—Knacks, Spells, Twists of Fate, and other powers draw from the Inheritance trait and pool, not Legend (Scion: Dragon p. 114; mechanics pp. 112–113, 117–121, 150–151). The row below tracks your Inheritance pool at the table. Chargen follows the Origin spine with Dragon steps after Concept (pp. 110–119).";
     if (isMythosPantheonSelected()) {
       el.title +=
         " Mythos Scions also set Awareness below: click a dot to set rating, or the rightmost filled dot again to lower by one (minimum 1).";
@@ -3419,21 +3471,21 @@ function updateHeaderTierDisplay() {
     tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Flights tab)`;
     el.appendChild(tierLine);
 
-    const legRow = document.createElement("div");
-    legRow.className = "header-legend-row";
-    const legLab = document.createElement("span");
-    legLab.className = "header-legend-label";
-    legLab.textContent = "Legend";
-    legRow.appendChild(legLab);
-    legRow.appendChild(buildLegendDotTrack(character.legendRating ?? 0, character.tier, true));
-    const legReq = document.createElement("span");
-    legReq.className = "header-legend-req";
-    const legMin = legendBookMinForTier(character.tier);
-    legReq.textContent = legMin === 0 ? "0+ this tier" : `${legMin}+ this tier`;
-    legReq.title =
-      "Typical minimum Legend to qualify as this tier in the core line: Mortal 0+, Hero 1+, Demigod 4+, God 8+. Your Storyguide may vary; this app does not block tier changes based on Legend.";
-    legRow.appendChild(legReq);
-    el.appendChild(legRow);
+    const inhRow = document.createElement("div");
+    inhRow.className = "header-legend-row";
+    const inhLab = document.createElement("span");
+    inhLab.className = "header-legend-label";
+    inhLab.textContent = "Inheritance";
+    inhRow.appendChild(inhLab);
+    inhRow.appendChild(buildInheritancePoolDotTrack(character.dragon?.inheritancePoolRating ?? 0, true));
+    const inhHint = document.createElement("span");
+    inhHint.className = "header-legend-req";
+    const pm = dragonInheritancePoolMaxFromCharacter();
+    inhHint.textContent = `Pool 0–${pm} (milestone ${inhN})`;
+    inhHint.title =
+      "Heirs do not gain, spend, or recover Legend, and Heir fatebinding is not tied to Legend (Dragon p. 114). Inheritance fuels Dragon Magic, Knacks, Birthrights, and related play (pp. 112–113, 117–121, 150–151). Spells often imbue Inheritance until reclaimed or the effect ends. Play aid only—confirm with your Storyguide.";
+    inhRow.appendChild(inhHint);
+    el.appendChild(inhRow);
 
     if (isMythosPantheonSelected()) {
       const awRow = document.createElement("div");
@@ -6513,38 +6565,68 @@ function renderReview(root) {
   toolbar.appendChild(btnThisSheetPdf);
   wrap.appendChild(toolbar);
 
-  const sheetHooks = {
-    getLegendPoolSpentAt: (idx) => {
-      ensureLegendAwarenessPoolSlotArrays();
-      return !!(character.legendPoolDotSpentSlots && character.legendPoolDotSpentSlots[idx]);
-    },
-    setLegendPoolSpentAt: (idx, v) => {
-      ensureLegendAwarenessPoolSlotArrays();
-      if (idx >= 0 && idx < character.legendPoolDotSpentSlots.length) {
-        character.legendPoolDotSpentSlots[idx] = !!v;
-        render();
+  const sheetHooks = isDragonHeirChargen(character)
+    ? {
+        getLegendPoolSpentAt: () => false,
+        setLegendPoolSpentAt: () => {},
+        getAwarenessPoolSpentAt: () => false,
+        setAwarenessPoolSpentAt: () => {},
+        getInheritancePoolSpentAt: (idx) => {
+          ensureDragonShape(character, bundle);
+          return !!(character.dragon.inheritancePoolDotSpentSlots && character.dragon.inheritancePoolDotSpentSlots[idx]);
+        },
+        setInheritancePoolSpentAt: (idx, v) => {
+          ensureDragonShape(character, bundle);
+          const slots = character.dragon.inheritancePoolDotSpentSlots;
+          if (idx >= 0 && idx < slots.length) {
+            character.dragon.inheritancePoolDotSpentSlots[idx] = !!v;
+            render();
+          }
+        },
+        onInheritancePoolDotClick: (i) => {
+          ensureDragonShape(character, bundle);
+          const maxA = dragonInheritancePoolMaxFromCharacter();
+          let cur = Math.round(Number(character.dragon.inheritancePoolRating) || 0);
+          if (Number.isNaN(cur)) cur = 0;
+          cur = Math.max(0, Math.min(maxA, cur));
+          if (cur === i) character.dragon.inheritancePoolRating = Math.max(0, i - 1);
+          else character.dragon.inheritancePoolRating = Math.min(i, maxA);
+          ensureDragonShape(character, bundle);
+          render();
+        },
       }
-    },
-    onLegendDotClick: (i) => {
-      const maxT = LEGEND_SHEET_DOT_COUNT;
-      const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
-      if (cur === i) character.legendRating = Math.max(0, i - 1);
-      else character.legendRating = Math.min(i, maxT);
-      syncLegendToTier();
-      render();
-    },
-    getAwarenessPoolSpentAt: (idx) => {
-      ensureLegendAwarenessPoolSlotArrays();
-      return !!(character.awarenessPoolDotSpentSlots && character.awarenessPoolDotSpentSlots[idx]);
-    },
-    setAwarenessPoolSpentAt: (idx, v) => {
-      ensureLegendAwarenessPoolSlotArrays();
-      if (idx >= 0 && idx < character.awarenessPoolDotSpentSlots.length) {
-        character.awarenessPoolDotSpentSlots[idx] = !!v;
-        render();
-      }
-    },
-  };
+    : {
+        getLegendPoolSpentAt: (idx) => {
+          ensureLegendAwarenessPoolSlotArrays();
+          return !!(character.legendPoolDotSpentSlots && character.legendPoolDotSpentSlots[idx]);
+        },
+        setLegendPoolSpentAt: (idx, v) => {
+          ensureLegendAwarenessPoolSlotArrays();
+          if (idx >= 0 && idx < character.legendPoolDotSpentSlots.length) {
+            character.legendPoolDotSpentSlots[idx] = !!v;
+            render();
+          }
+        },
+        onLegendDotClick: (i) => {
+          const maxT = LEGEND_SHEET_DOT_COUNT;
+          const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
+          if (cur === i) character.legendRating = Math.max(0, i - 1);
+          else character.legendRating = Math.min(i, maxT);
+          syncLegendToTier();
+          render();
+        },
+        getAwarenessPoolSpentAt: (idx) => {
+          ensureLegendAwarenessPoolSlotArrays();
+          return !!(character.awarenessPoolDotSpentSlots && character.awarenessPoolDotSpentSlots[idx]);
+        },
+        setAwarenessPoolSpentAt: (idx, v) => {
+          ensureLegendAwarenessPoolSlotArrays();
+          if (idx >= 0 && idx < character.awarenessPoolDotSpentSlots.length) {
+            character.awarenessPoolDotSpentSlots[idx] = !!v;
+            render();
+          }
+        },
+      };
   const sheet = buildCharacterSheet(exportObj, bundle, sheetHooks);
   sheet.classList.add("review-sheet-panel");
   sheet.hidden = reviewViewMode !== "sheet";
@@ -6614,20 +6696,6 @@ function buildExportObject() {
       concept: character.concept,
       deeds: character.deeds,
       notes: character.notes ?? "",
-      legendRating: character.legendRating ?? 0,
-      legendDotMax: LEGEND_SHEET_DOT_COUNT,
-      legendPoolDotSpentSlots: padPoolSlotArray(
-        character.legendPoolDotSpentSlots || [],
-        Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
-      ),
-      awarenessRating: clampAwarenessRating(character.awarenessRating ?? 1),
-      awarenessDotMax: isMythosPantheonSelected() ? awarenessDotMaxForTier(character.tier) : 1,
-      awarenessPoolDotSpentSlots: padPoolSlotArray(
-        character.awarenessPoolDotSpentSlots || [],
-        isMythosPantheonSelected()
-          ? Math.max(LEGEND_SHEET_DOT_COUNT, awarenessDotMaxForTier(character.tier))
-          : 1,
-      ),
       ...snap,
     };
   }
@@ -6998,7 +7066,18 @@ function importCharacterFromExportPayload(data) {
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [];
 
-  const legendRating = Math.max(0, Math.min(LEGEND_SHEET_DOT_COUNT, Math.round(Number(data.legendRating) || 0)));
+  let lineageEarly = canonChargenLineageFromRaw(data.chargenLineage);
+  if (lineageEarly !== "dragonHeir") {
+    if (dragonPayloadImpliesHeir(data.dragon)) lineageEarly = "dragonHeir";
+    else {
+      const tlEarly = String(data.trackTierLabel ?? "").toLowerCase();
+      if (tlEarly.includes("dragon") && tlEarly.includes("heir") && data.dragon && typeof data.dragon === "object") {
+        lineageEarly = "dragonHeir";
+      }
+    }
+  }
+  const legendRatingRaw = Math.max(0, Math.min(LEGEND_SHEET_DOT_COUNT, Math.round(Number(data.legendRating) || 0)));
+  const legendRating = lineageEarly === "dragonHeir" ? 0 : legendRatingRaw;
 
   let awarenessRating = 1;
   if (pantheonId === "mythos") {
@@ -7051,7 +7130,10 @@ function importCharacterFromExportPayload(data) {
     parentDeityId,
     patronKind,
     purviewIds,
-    legendRating,
+    legendRating:
+      lineageEarly === "dragonHeir" && data.dragon && typeof data.dragon === "object"
+        ? Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(/** @type {any} */ (data.dragon).inheritance) || 1)))
+        : legendRating,
     awarenessRating,
     callingDots,
     callingSlots: callingSlots || undefined,
@@ -7128,15 +7210,7 @@ function importCharacterFromExportPayload(data) {
     if (src.awarenessLocked === true) mythosInnatePower.awarenessLocked = true;
   }
 
-  let lineageSrc = data.chargenLineage;
-  if (canonChargenLineageFromRaw(lineageSrc) !== "dragonHeir") {
-    if (dragonPayloadImpliesHeir(data.dragon)) lineageSrc = "dragonHeir";
-    else {
-      const tl = String(data.trackTierLabel ?? "").toLowerCase();
-      if (tl.includes("dragon") && tl.includes("heir") && data.dragon && typeof data.dragon === "object") lineageSrc = "dragonHeir";
-    }
-  }
-  const chargenLineage = canonChargenLineageFromRaw(lineageSrc);
+  const chargenLineage = lineageEarly;
 
   const legNImp = Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(tier));
   let legendPoolDotSpentSlots = padPoolSlotArray([], legNImp);
@@ -7205,11 +7279,20 @@ function importCharacterFromExportPayload(data) {
     ...(chargenLineage === "dragonHeir" && data.dragon && typeof data.dragon === "object"
       ? {
           dragon: (() => {
+            /** @type {any} */
+            let merged;
             try {
-              return JSON.parse(JSON.stringify(data.dragon));
+              merged = JSON.parse(JSON.stringify(data.dragon));
             } catch {
-              return { ...data.dragon };
+              merged = { ...data.dragon };
             }
+            if (data.inheritancePoolRating != null && !Number.isNaN(Number(data.inheritancePoolRating))) {
+              merged.inheritancePoolRating = Math.round(Number(data.inheritancePoolRating));
+            }
+            if (Array.isArray(data.inheritancePoolDotSpentSlots)) {
+              merged.inheritancePoolDotSpentSlots = data.inheritancePoolDotSpentSlots.map((x) => !!x);
+            }
+            return merged;
           })(),
         }
       : {}),
