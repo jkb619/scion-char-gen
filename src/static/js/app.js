@@ -371,8 +371,9 @@ function legendBookMinForTier(tierId) {
   return 0;
 }
 
-function clampLegendRating(value, tierId) {
-  const max = legendDotMaxForTier(tierId);
+/** Clamp stored Legend to the sheet track (15); not tier-gated — chronicles may run higher Legend at any tier. */
+function clampLegendRating(value, _tierId) {
+  const max = LEGEND_SHEET_DOT_COUNT;
   const n = Math.round(Number(value));
   const x = Number.isNaN(n) ? 0 : n;
   return Math.max(0, Math.min(max, x));
@@ -442,26 +443,23 @@ function syncAwarenessWithPantheon() {
  * @param {boolean} interactive
  */
 function buildLegendDotTrack(value, tierId, interactive) {
-  const cap = legendDotMaxForTier(tierId);
   const trackDots = LEGEND_SHEET_DOT_COUNT;
   const v = clampLegendRating(value, tierId);
   const wrap = document.createElement("span");
   wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
   wrap.setAttribute("role", interactive ? "radiogroup" : "img");
-  wrap.setAttribute("aria-label", `Legend ${v} of ${cap} (${trackDots} dots)`);
+  wrap.setAttribute("aria-label", `Legend ${v} of ${trackDots}`);
   for (let i = 1; i <= trackDots; i += 1) {
     const d = document.createElement("span");
-    const beyond = i > cap;
-    d.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
+    d.className = "legend-dot" + (i <= v ? " on" : "");
     d.setAttribute("aria-hidden", "true");
     if (interactive) {
-      d.tabIndex = beyond ? -1 : 0;
+      d.tabIndex = 0;
       d.addEventListener("click", () => {
-        const maxT = legendDotMaxForTier(character.tier);
+        const maxT = LEGEND_SHEET_DOT_COUNT;
         const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
-        const target = Math.min(i, maxT);
-        if (cur === target) character.legendRating = Math.max(0, target - 1);
-        else character.legendRating = target;
+        if (cur === i) character.legendRating = Math.max(0, i - 1);
+        else character.legendRating = Math.min(i, maxT);
         syncLegendToTier();
         render();
       });
@@ -6534,7 +6532,7 @@ function renderReview(root) {
       }
     },
     onLegendDotClick: (i) => {
-      const maxT = legendDotMaxForTier(character.tier);
+      const maxT = LEGEND_SHEET_DOT_COUNT;
       const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
       if (cur === i) character.legendRating = Math.max(0, i - 1);
       else character.legendRating = Math.min(i, maxT);
@@ -6623,7 +6621,7 @@ function buildExportObject() {
       deeds: character.deeds,
       notes: character.notes ?? "",
       legendRating: character.legendRating ?? 0,
-      legendDotMax: legendDotMaxForTier(character.tier),
+      legendDotMax: LEGEND_SHEET_DOT_COUNT,
       legendPoolDotSpentSlots: padPoolSlotArray(
         character.legendPoolDotSpentSlots || [],
         Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
@@ -6680,7 +6678,7 @@ function buildExportObject() {
     tierName: tierMeta?.name || character.tier,
     tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
     legendRating: character.legendRating ?? 0,
-    legendDotMax: legendDotMaxForTier(character.tier),
+    legendDotMax: LEGEND_SHEET_DOT_COUNT,
     legendPoolDotSpentSlots: padPoolSlotArray(
       character.legendPoolDotSpentSlots || [],
       Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
@@ -7006,7 +7004,7 @@ function importCharacterFromExportPayload(data) {
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [];
 
-  const legendRating = Math.max(0, Math.round(Number(data.legendRating) || 0));
+  const legendRating = Math.max(0, Math.min(LEGEND_SHEET_DOT_COUNT, Math.round(Number(data.legendRating) || 0)));
 
   let awarenessRating = 1;
   if (pantheonId === "mythos") {

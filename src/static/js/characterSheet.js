@@ -185,27 +185,11 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     el.dataset.sheetLayout = "dragon4";
     const skillName = (id) => skills[id]?.name || id;
     const attrName = (id) => attrs[id]?.name || id;
-    const tid = data.tierId ?? data.tier;
-    const tierKey = String(tid ?? "mortal").trim().toLowerCase();
-    const tierKeyNorm = tierKey === "origin" ? "mortal" : tierKey;
     const ldmRaw = data.legendDotMax;
     const legendMax =
       ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
-        ? Math.max(1, Math.round(Number(ldmRaw)))
-        : (() => {
-            const m = {
-              mortal: 1,
-              hero: 4,
-              demigod: 8,
-              god: 12,
-              sorcerer: 1,
-              sorcerer_hero: 4,
-              sorcerer_demigod: 8,
-              sorcerer_god: 12,
-              titanic: 4,
-            };
-            return m[tierKeyNorm] ?? 1;
-          })();
+        ? Math.max(1, Math.min(20, Math.round(Number(ldmRaw))))
+        : LEGEND_SHEET_DOT_COUNT;
     fillDragonFourPageLayout(el, {
       data,
       bundle,
@@ -226,21 +210,8 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   const ldmRaw = data.legendDotMax;
   const legendMax =
     ldmRaw != null && ldmRaw !== "" && !Number.isNaN(Number(ldmRaw))
-      ? Math.max(1, Math.round(Number(ldmRaw)))
-      : (() => {
-          const m = {
-            mortal: 1,
-            hero: 4,
-            demigod: 8,
-            god: 12,
-            sorcerer: 1,
-            sorcerer_hero: 4,
-            sorcerer_demigod: 8,
-            sorcerer_god: 12,
-            titanic: 4,
-          };
-          return m[tierKeyNorm] ?? 1;
-        })();
+      ? Math.max(1, Math.min(20, Math.round(Number(ldmRaw))))
+      : LEGEND_SHEET_DOT_COUNT;
 
   const skillName = (id) => skills[id]?.name || id;
   const attrName = (id) => attrs[id]?.name || id;
