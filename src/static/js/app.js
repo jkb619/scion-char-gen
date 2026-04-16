@@ -311,7 +311,8 @@ function healDragonHeirLineageFromState() {
 }
 
 /**
- * How many Workings a Sorcerer may know at chargen for this tier (S&M p. 65: one at Legend 0; +1 at Legend 1, 5, 9).
+ * How many Workings a Sorcerer may know at chargen for this tier (S&M p. 65: one at Legend 0; +1 at Legend 1, 5, 9;
+ * Heroic band: two Workings at Legend 1 with one extra Technique each beyond the inherent, p. 86).
  * @param {string} [tierId]
  */
 function sorcererWorkingPickCap(tierId) {
@@ -3284,6 +3285,15 @@ function navigateDragonHeirToMainWizardStep(stepId) {
   if (i >= 0) stepIndex = i;
 }
 
+/** Move the main Scion wizard to a tab id present in `stepDefsForTier` (e.g. `purviews`, `birthrights`). */
+function navigateWizardToStepId(stepId) {
+  const id = String(stepId || "").trim();
+  if (!id) return;
+  const steps = stepDefsForTier(character.tier);
+  const i = steps.indexOf(id);
+  if (i >= 0) stepIndex = i;
+}
+
 /** Purviews / Boons / patron Purview UI follow `tier.json` wizardSteps (Hero+, not Origin Mortal). */
 function tierHasPurviewStep(tierId) {
   return stepDefsForTier(tierId).includes("purviews");
@@ -5207,7 +5217,7 @@ function renderPurviews(root) {
     const smP = document.createElement("p");
     smP.className = "help sorcerer-purviews-magic-note";
     smP.innerHTML =
-      "Saints & Monsters ch. 3: Sorcerers do not use Visitation or a divine parent’s patron Purview list. Marvels come from <strong>Workings</strong>; at Heroic band and up, add the <strong>Magic</strong> Purview and its Boons for the same kind of structured powers Scions buy as Purview effects (see that chapter’s <strong>Purview: Magic</strong>). Sources of Power and Paraphernalia (earlier steps) gate how you fuel spells—not pantheon Society Skills.";
+      "Saints & Monsters ch. 3: Sorcerers do not use Visitation or a divine parent’s patron Purview list. Marvels come from <strong>Workings</strong>; at Heroic band and up, add the <strong>Magic</strong> Purview and its Boons for the same kind of structured powers Scions buy as Purview effects (see that chapter’s <strong>Purview: Magic</strong>). Sources of Power gate how you fuel spells; <strong>Paraphernalia</strong> uses the <strong>Birthrights</strong> tab on Heroic Sorcerer—not pantheon Society Skills.";
     wrap.appendChild(smP);
   }
   if (singlePatronPurviewTier && character.pantheonId) {
@@ -5339,6 +5349,9 @@ function renderPurviews(root) {
         : "";
     help.innerHTML =
       `${pathLine}<strong>Standard universal Purviews</strong> appear as chips below. Your pantheon’s <strong>Signature Purview</strong> stays automatic (not a chip); see innate summaries below. No other pantheon’s Specialty Purviews; no <strong>Denizen</strong> Purviews unless your table adds them via Birthright or another grant. Sorcerers: <strong>Magic</strong> stays available. See <em>Scion: Demigod</em> and <em>Mythic Shards</em>.`;
+  } else if (tierNorm === "sorcerer_hero") {
+    help.innerHTML =
+      "<strong>Heroic Sorcerer:</strong> only the <strong>Magic</strong> Purview appears as a chip here (Saints & Monsters ch. 3, p. 86). Turn it on, then choose Magic Boons on the <strong>Boons</strong> tab. If your chronicle grants other Purviews, track them outside this wizard or when your tier changes. <strong>Paraphernalia</strong> is the seven-dot Birthrights pool on this same step.";
   } else if (patronOpts.length > 0 && lim > 0) {
     help.innerHTML = `Use the <strong>Patron Purviews (parent)</strong> panel above for up to <strong>${lim}</strong> picks from your parent’s list only. Below, add <em>other</em> Purviews you track (e.g. from Relics or other Birthrights). Full Boon and Purview write-ups: <em>Pandora’s Box (Revised)</em> first; tier books where PB references them.`;
   } else {
@@ -5365,8 +5378,10 @@ function renderPurviews(root) {
       tierNorm === "sorcerer_demigod" ||
       tierNorm === "sorcerer_god";
     const pantheonSigId = demigodLike ? pantheonSignaturePurviewId() : "";
+    const sorcererHeroMagicOnly = tierNorm === "sorcerer_hero";
     purviewEntries = Object.entries(bundle.purviews || {}).filter(([pid, p]) => {
       if (pid.startsWith("_") || !p || typeof p !== "object") return false;
+      if (sorcererHeroMagicOnly && pid !== "magic") return false;
       if (patronOpts.length > 0 && patronSet.has(pid)) return false;
       if (demigodLike && pantheonSigId && pid === pantheonSigId) return false;
       if (demigodLike && !demigodTierPurviewChipSelectable(pid)) return false;
@@ -5480,11 +5495,27 @@ function sorcererWorkingsCatalogRows() {
   }
   return [
     { id: "binding", name: "Binding", summary: "Curses, bindings, and hostile conditions (S&M from p. 66)." },
-    { id: "divining", name: "Divining", summary: "Omens, investigation, and hidden knowledge (S&M from p. 68)." },
+    { id: "divining", name: "Divination", summary: "Omens, investigation, and hidden knowledge (S&M from p. 68)." },
     { id: "summoning", name: "Summoning", summary: "Spirits and entities — calls, bargains, and banishments (S&M from p. 63 onward)." },
     { id: "wonderment", name: "Wonderment", summary: "Illusions and unreal creations (S&M from p. 64 onward)." },
     { id: "shapechanging", name: "Shapechanging", summary: "Forms and transformations (S&M from p. 66 onward)." },
   ];
+}
+
+function toggleSorcererWorkingSelection(workingId) {
+  const id = String(workingId || "").trim();
+  if (!id) return;
+  ensureSorceryProfileShape();
+  const cap = sorcererWorkingPickCap(character.tier);
+  const cur = (character.sorceryProfile.workingIds || []).filter((x) => typeof x === "string" && x.trim());
+  const wasOn = cur.includes(id);
+  let next = cur.filter((x) => x !== id);
+  if (!wasOn) {
+    next.push(id);
+    while (next.length > cap) next = next.slice(1);
+  }
+  character.sorceryProfile.workingIds = next;
+  render();
 }
 
 function renderWorkings(root) {
@@ -5492,44 +5523,46 @@ function renderWorkings(root) {
   const cap = sorcererWorkingPickCap(character.tier);
   const rows = sorcererWorkingsCatalogRows();
   const wrap = document.createElement("div");
-  const grid = document.createElement("div");
-  grid.className = "grid-2";
+  const intro = document.createElement("p");
+  intro.className = "help";
+  intro.innerHTML =
+    cap <= 1
+      ? "<strong>Mortal-band Sorcerer (Legend 0):</strong> choose <strong>one</strong> Working; you know its <strong>Inherent Technique</strong> (Saints & Monsters pp. 65–66). The five categories are <strong>Divination</strong>, <strong>Binding</strong>, <strong>Shapechanging</strong>, <strong>Summoning</strong>, and <strong>Wonderment</strong> (p. 66)."
+      : `<strong>Heroic+ band:</strong> select up to <strong>${cap}</strong> Workings on the chips (two at Heroic tier once you are at Legend 1; each Working has an inherent Technique plus one more Technique you know at creation; pp. 65–66, 86). If you turn on more than the cap allows, the oldest pick drops.`;
+  wrap.appendChild(intro);
+  const chips = document.createElement("div");
+  chips.className = "chips workings-chips";
   const sel = new Set(character.sorceryProfile.workingIds || []);
   for (const row of rows) {
     const id = row.id;
-    const box = document.createElement("div");
-    box.className = "field workings-pick-block";
-    const lab = document.createElement("label");
-    lab.htmlFor = `f-working-${id}`;
-    lab.innerHTML = `<strong>${row.name}</strong> <span class="mono">(${id})</span>`;
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.id = `f-working-${id}`;
-    cb.value = id;
-    cb.checked = sel.has(id);
-    cb.addEventListener("change", () => {
-      ensureSorceryProfileShape();
-      let next = [...(character.sorceryProfile.workingIds || [])].filter((x) => x !== id);
-      if (cb.checked) next.push(id);
-      const cap2 = sorcererWorkingPickCap(character.tier);
-      while (next.length > cap2) next = next.slice(1);
-      character.sorceryProfile.workingIds = next;
-      render();
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip workings-chip" + (sel.has(id) ? " on" : "");
+    chip.textContent = row.name;
+    const sum = (row.summary || "").trim();
+    chip.title = sum ? `${row.name} — ${sum}` : row.name;
+    chip.addEventListener("click", () => toggleSorcererWorkingSelection(id));
+    applyGameDataHint(chip, {
+      name: row.name,
+      description: sum,
+      mechanicalEffects: "",
+      source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Workings",
     });
-    const sm = document.createElement("p");
-    sm.className = "help mono";
-    sm.textContent = (row.summary || "").trim() || "—";
-    box.appendChild(lab);
-    box.appendChild(cb);
-    box.appendChild(sm);
-    grid.appendChild(box);
+    chips.appendChild(chip);
   }
-  wrap.appendChild(grid);
+  wrap.appendChild(chips);
+  const rowsById = new Map(rows.map((r) => [r.id, r]));
+  const picked = (character.sorceryProfile.workingIds || []).map((w) => rowsById.get(w)?.name || w);
+  const foot = document.createElement("p");
+  foot.className = "help";
+  foot.innerHTML = `<strong>Selected:</strong> ${picked.length ? picked.join(", ") : "—"} <span class="mono">(${picked.length} / ${cap})</span>`;
+  wrap.appendChild(foot);
   root.appendChild(panel("Workings", wrap));
 }
 
 function renderSorcerer(root) {
   ensureSorceryProfileShape();
+  ensureFinishingShape();
   const sp = character.sorceryProfile;
 
   const detail = document.createElement("div");
@@ -5563,10 +5596,91 @@ function renderSorcerer(root) {
   document.getElementById("f-sorc-techniques").value = sp.techniquesNotes || "";
   document.getElementById("f-sorc-notes").value = sp.notes || "";
 
-  const link = document.createElement("div");
-  link.className = "panel";
-  link.innerHTML = "<h2>Magic Purview and Paraphernalia</h2>";
-  root.appendChild(link);
+  const mp = document.createElement("section");
+  mp.className = "panel sorcerer-magic-paraphernalia-panel";
+  const mph = document.createElement("h2");
+  mph.textContent = "Magic Purview and Paraphernalia";
+  mp.appendChild(mph);
+
+  const magH = document.createElement("h3");
+  magH.textContent = "Magic Purview";
+  mp.appendChild(magH);
+  const magicPv = bundle.purviews?.magic;
+  if (magicPv && typeof magicPv === "object") {
+    const magP = document.createElement("p");
+    magP.className = "help";
+    const desc = typeof magicPv.description === "string" ? magicPv.description.trim() : "";
+    magP.textContent = desc || "Structured Sorcerer powers use the Magic Purview and its Boons (Saints & Monsters ch. 3).";
+    mp.appendChild(magP);
+    const innateBox = document.createElement("div");
+    innateBox.className = "sorcerer-magic-innate-preview";
+    appendPurviewInnateDetails(innateBox, "magic");
+    mp.appendChild(innateBox);
+  } else {
+    const miss = document.createElement("p");
+    miss.className = "warn";
+    miss.textContent = "Magic Purview data is missing from the bundle — confirm purviews tables are merged in data/meta.json.";
+    mp.appendChild(miss);
+  }
+  const hasPvStep = tierHasPurviewStep(character.tier);
+  const magicOn = (character.purviewIds || []).includes("magic");
+  const magSt = document.createElement("p");
+  magSt.className = "help";
+  magSt.innerHTML = hasPvStep
+    ? magicOn
+      ? "<strong>Magic</strong> is toggled <strong>on</strong> on your Purviews list. Use the <strong>Purviews</strong> tab to adjust Purviews and Boons."
+      : "<strong>Magic</strong> is not selected yet — open the <strong>Purviews</strong> tab and turn the <strong>Magic</strong> chip on (Heroic band and up; S&amp;M ch. 3)."
+    : "This tier has no Purviews step in the wizard — the full <strong>Magic</strong> Purview track applies when you advance to a tier that includes Purviews (e.g. Heroic Sorcerer).";
+  mp.appendChild(magSt);
+  if (hasPvStep) {
+    const toPv = document.createElement("button");
+    toPv.type = "button";
+    toPv.className = "btn secondary";
+    toPv.textContent = "Open Purviews tab";
+    toPv.addEventListener("click", () => {
+      persistFromForm();
+      navigateWizardToStepId("purviews");
+      render();
+      scrollWizardStepIntoView();
+    });
+    mp.appendChild(toPv);
+  }
+
+  const parH = document.createElement("h3");
+  parH.textContent = "Paraphernalia";
+  mp.appendChild(parH);
+  const parP = document.createElement("p");
+  parP.className = "help";
+  const tSorc = normalizedTierId(character.tier);
+  if (tSorc === "sorcerer_hero") {
+    const used = finishingBirthrightPointsUsed();
+    const capBr = maxBirthrightPointsBudget();
+    parP.innerHTML = `Heroic-tier Sorcerers receive <strong>seven dots</strong> of Paraphernalia at creation (Saints & Monsters p. 86). Spend them on the <strong>Birthrights</strong> tab like other Hero-band characters — Relics, Creatures, Followers, Guides, and custom designs your table approves (examples in <em>Scion: Hero</em>). Extra dots later use the experience table on p. 87. <strong>Points used:</strong> ${used} / ${capBr}.`;
+  } else if (tSorc === "sorcerer_demigod" || tSorc === "sorcerer_god") {
+    parP.textContent =
+      "Divine-band Sorcerers use the Birthrights tab with this tier’s dot budget (confirm Paraphernalia vs general Birthrights grants with Saints & Monsters and your Storyguide).";
+  } else if (tSorc === "sorcerer") {
+    parP.innerHTML =
+      "Mortal-band Sorcerers do not receive the seven-dot Paraphernalia pool yet (p. 86). Optional gear at Finishing uses the same <strong>four Birthright points</strong> or <strong>two extra Knacks</strong> choice as Origin when your table uses those finishing packages.";
+  } else {
+    parP.textContent = "Paraphernalia rules apply on Sorcerer tiers that include a Birthrights step in the wizard.";
+  }
+  mp.appendChild(parP);
+  if (stepDefsForTier(character.tier).includes("birthrights")) {
+    const toBr = document.createElement("button");
+    toBr.type = "button";
+    toBr.className = "btn secondary";
+    toBr.textContent = "Open Birthrights tab";
+    toBr.addEventListener("click", () => {
+      persistFromForm();
+      navigateWizardToStepId("birthrights");
+      render();
+      scrollWizardStepIntoView();
+    });
+    mp.appendChild(toBr);
+  }
+
+  root.appendChild(mp);
 }
 
 function renderTitanicExtras(root) {
@@ -5600,6 +5714,19 @@ function renderBirthrights(root) {
   const cap = maxBirthrightPointsBudget();
   const used = finishingBirthrightPointsUsed();
   const wrap = document.createElement("div");
+  if (normalizedTierId(character.tier) === "sorcerer_hero") {
+    const parap = document.createElement("section");
+    parap.className = "panel sorcerer-paraphernalia-callout";
+    const ph = document.createElement("h2");
+    ph.textContent = "Paraphernalia (Heroic Sorcerer)";
+    parap.appendChild(ph);
+    const pp = document.createElement("p");
+    pp.className = "help";
+    pp.innerHTML =
+      "Heroic-tier Sorcerers gain <strong>seven dots</strong> to distribute among Paraphernalia at creation (Saints & Monsters p. 86). Use the catalog below like other Hero-band characters — pick Relics, Creatures, Followers, Guides, or designs your table approves (examples in <em>Scion: Hero</em>). Buying more with experience uses the table on p. 87.";
+    parap.appendChild(pp);
+    wrap.appendChild(parap);
+  }
   const meta = bundle.birthrights?._meta || {};
 
   if (meta.introduction) {
@@ -7693,13 +7820,6 @@ function persistFromForm() {
   }
   if (step === "workings") {
     ensureSorceryProfileShape();
-    const cap = sorcererWorkingPickCap(character.tier);
-    const chosen = [];
-    for (const row of sorcererWorkingsCatalogRows()) {
-      const id = row.id;
-      if (document.getElementById(`f-working-${id}`)?.checked) chosen.push(id);
-    }
-    character.sorceryProfile.workingIds = chosen.slice(0, cap);
   }
   if (step === "sorcerer") {
     ensureSorceryProfileShape();
