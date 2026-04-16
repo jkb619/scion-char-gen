@@ -348,6 +348,37 @@ function dragonInheritanceWizardCaps(bundle, inh) {
 }
 
 /**
+ * After advancing Inheritance on Review, jump the main wizard to the first tab that gains wizard-tracked unlocks
+ * (extra Draconic Knack slots → Calling; extra milestone spell rows → Magic). Order follows `dragonHeirPostConceptStepList`.
+ * @param {Record<string, unknown>} bundle
+ * @param {Record<string, unknown>} character
+ * @param {number} prevInh
+ * @param {number} nextInh
+ * @returns {string}
+ */
+export function firstDragonHeirStepAfterInheritanceAdvance(bundle, character, prevInh, nextInh) {
+  const prevC = dragonInheritanceWizardCaps(bundle, prevInh);
+  const nextC = dragonInheritanceWizardCaps(bundle, nextInh);
+  const dKn = nextC.draconicKnackLimit - prevC.draconicKnackLimit;
+  const dSpell = nextC.advancementSpellSlots - prevC.advancementSpellSlots;
+  const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(nextInh) || 1)));
+  const charProbe = {
+    ...character,
+    dragon: { ...(character.dragon && typeof character.dragon === "object" ? character.dragon : {}), inheritance: inhN },
+  };
+  const steps = dragonHeirPostConceptStepList(charProbe);
+  for (const sid of steps) {
+    if (sid === "calling" && dKn > 0) return "calling";
+    if (sid === "magic" && dSpell > 0) return "magic";
+  }
+  if (dKn === 0 && dSpell === 0) {
+    const ri = steps.indexOf("review");
+    if (ri >= 0) return "review";
+  }
+  return steps[0] || "paths";
+}
+
+/**
  * Dragon Heir birthright picker: `chargenLines` includes `dragonHeir` (merged from `birthrightsDragon.json`).
  * Generic “(blank template)” rows from the core library are omitted here like the deity/titan wizard.
  * @param {Record<string, unknown>} bundle
@@ -1922,7 +1953,7 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render, path
   rule.id = "d-flight-skill-rule";
   const reqFlight = flightRequiredSkills(bundle, d.flightId);
   if (!String(d.flightId || "").trim()) {
-    rule.textContent = "Choose a Flight on the Paths step first; Path Skills depend on it.";
+    rule.textContent = "Choose a Flight on the Flights step first; Path Skills depend on it.";
   } else if (reqFlight.length) {
     const names = reqFlight.map((id) => bundle.skills[id]?.name || id).join(", ");
     rule.textContent = `Those Flight skills (${names}) are added automatically; pick one other Skill for this Path (Dragon p. 112).`;
@@ -1986,7 +2017,7 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render, path
       if (snip.truncated) h.title = snip.full;
     } else {
       h.textContent = `Skills for ${pathTitle} path`;
-      h.title = "Describe this Path on the Paths step; the phrase is shown here to guide Skill choices.";
+      h.title = "Describe this Path on the Flights step; the phrase is shown here to guide Skill choices.";
     }
     box.appendChild(h);
 
@@ -2079,7 +2110,7 @@ function appendDragonPathSkillsAssignmentSection(parent, d, bundle, render, path
  */
 function dragonPathSkillsAssignmentIncompleteMessage(d, bundle) {
   if (!String(d.flightId || "").trim()) {
-    return "Choose a Flight on the Paths step.";
+    return "Choose a Flight on the Flights step.";
   }
   for (const pk of PATH_KEYS) {
     if ((d.pathSkills[pk] || []).length !== 3) {
@@ -2219,17 +2250,86 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
 }
 
 /**
+ * Dragon Heir Flights tab: Flight catalog + three Path phrases. Used by `renderDragonHeirStepInRoot` when `step === "paths"`
+ * (the main wizard routes Dragon Heir here instead of `app.js` `renderPaths`) and by `renderDragonHeirPathsOnly` in app.
+ * @param {HTMLElement} root
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ * @param {() => void} render
+ */
+export function appendDragonHeirFlightsPathStep(root, character, bundle, render) {
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
+  const wrap = document.createElement("div");
+  const help = document.createElement("p");
+  help.className = "help";
+  help.textContent =
+    "Choose Flight and write your three Path phrases here. Path Skills, Path priority, and Skill dots are on the Skills tab — same separation as Deity Mortal (Origin).";
+  wrap.appendChild(help);
+  const mount = document.createElement("div");
+  mount.id = "p-dragon-flight-mount";
+  mount.className = "field paths-dragon-flight-field";
+  mount.innerHTML =
+    '<label for="p-dragon-flight">Flight (Dragon Heir)</label><select id="p-dragon-flight"><option value="">—</option></select>';
+  wrap.appendChild(mount);
+  const grid = document.createElement("div");
+  grid.className = "paths-step-grid";
+  grid.innerHTML = `
+    <div class="paths-phrases-row">
+      <div class="field"><label for="p-origin">Origin Path phrase</label><textarea id="p-origin"></textarea></div>
+      <div class="field"><label for="p-role">Role Path phrase</label><textarea id="p-role"></textarea></div>
+      <div class="field"><label for="p-soc">Flight Path phrase</label><textarea id="p-soc"></textarea></div>
+    </div>`;
+  wrap.appendChild(grid);
+  root.appendChild(panel("Flights", wrap));
+  const fs = wrap.querySelector("#p-dragon-flight");
+  if (fs) {
+    fs.innerHTML = `<option value="">—</option>`;
+    for (const [fid, meta] of Object.entries(bundle.dragonFlights || {})) {
+      if (String(fid).startsWith("_") || !meta || typeof meta !== "object") continue;
+      const o = document.createElement("option");
+      o.value = fid;
+      o.textContent = meta.name || fid;
+      applyGameDataHint(o, meta);
+      fs.appendChild(o);
+    }
+  }
+  if (fs) {
+    fs.value = String(d?.flightId || "").trim();
+    applyHint(fs, "p-dragon-flight");
+    fs.addEventListener("change", () => {
+      persistDragonFromDom(character, bundle, "paths");
+      render();
+    });
+  }
+  syncDragonFlightPathRequiredSkills(d, bundle);
+  const po = wrap.querySelector("#p-origin");
+  const pr = wrap.querySelector("#p-role");
+  const psoc = wrap.querySelector("#p-soc");
+  if (po) po.value = String(character.paths?.origin ?? "");
+  if (pr) pr.value = String(character.paths?.role ?? "");
+  if (psoc) psoc.value = String(d?.paths?.flight ?? character.paths?.society ?? "");
+  applyHint(po, "p-origin");
+  applyHint(pr, "p-role");
+  applyHint(psoc, "p-flight-path");
+}
+
+/**
  * Renders one Dragon Heir post-concept step into `root` (unified main wizard; no separate nav/actions).
- * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; step: string; scrollStepIntoView?: () => void }} ctx
+ * @param {{ root: HTMLElement; character: Record<string, unknown>; bundle: Record<string, unknown>; render: () => void; step: string; scrollStepIntoView?: () => void; navigateToDragonHeirStep?: (stepId: string) => void }} ctx
  */
 export function renderDragonHeirStepInRoot(ctx) {
-  const { root, character, bundle, render, step, scrollStepIntoView } = ctx;
+  const { root, character, bundle, render, step, scrollStepIntoView, navigateToDragonHeirStep } = ctx;
   ensureDragonShape(character, bundle);
   const d = character.dragon;
   const navStepsForSi = dragonHeirPostConceptStepList(character);
   const si = navStepsForSi.indexOf(step);
   if (si >= 0) d.stepIndex = si;
   root.innerHTML = "";
+
+  if (step === "paths") {
+    appendDragonHeirFlightsPathStep(root, character, bundle, render);
+  }
 
   if (step === "skills") {
     applyDragonPathMathToSkillDots(d, bundle);
@@ -2256,7 +2356,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     const intro = document.createElement("p");
     intro.className = "help";
     intro.textContent =
-      "Set Path priority (primary / secondary / tertiary), three Skills per Path, and review derived dot totals here. Path phrases stay on the Paths step. When overlap would exceed 5 dots in a Skill, use the redistribution controls below (Origin p. 97).";
+      "Set Path priority (primary / secondary / tertiary), three Skills per Path, and review derived dot totals here. Path phrases stay on the Flights step. When overlap would exceed 5 dots in a Skill, use the redistribution controls below (Origin p. 97).";
     wrap.appendChild(intro);
     if (skLocked) {
       const lock = document.createElement("p");
@@ -2337,7 +2437,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       const done = document.createElement("p");
       done.className = "help";
       done.textContent =
-        "No Path overlap to fix. Skill ratings above reflect your Path picks; use Back to change Flight or Path phrases on the Paths step.";
+        "No Path overlap to fix. Skill ratings above reflect your Path picks; use Back to change Flight or Path phrases on the Flights step.";
       wrap.appendChild(done);
     }
     root.appendChild(panel("Skills", wrap));
@@ -2823,7 +2923,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     const sigPanel = document.createElement("div");
     sigPanel.className = "panel";
     sigPanel.innerHTML =
-      "<h2>Signature Flight Magic</h2><p class=\"help\">Locked from your Flight; change it on the Paths step if needed.</p>";
+      "<h2>Signature Flight Magic</h2><p class=\"help\">Locked from your Flight; change it on the Flights step if needed.</p>";
     const sigChips = document.createElement("div");
     sigChips.className = "chips";
     const midSig = d.knownMagics[0];
@@ -2841,7 +2941,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     } else {
       const pending = document.createElement("span");
       pending.className = "help";
-      pending.textContent = "Pick a Flight on Paths to set your signature Magic.";
+      pending.textContent = "Pick a Flight on the Flights step to set your signature Magic.";
       sigChips.appendChild(pending);
     }
     sigPanel.appendChild(sigChips);
@@ -3475,6 +3575,8 @@ export function renderDragonHeirStepInRoot(ctx) {
       if (!window.confirm(msg)) return;
       d.inheritance = nextInh;
       ensureDragonShape(character, bundle);
+      const landOn = firstDragonHeirStepAfterInheritanceAdvance(bundle, character, inhCur, nextInh);
+      navigateToDragonHeirStep?.(landOn);
       render();
       scrollStepIntoView?.();
     });

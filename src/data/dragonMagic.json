@@ -4,7 +4,8 @@
     "source": "Scion_Dragon_(Final_Download).pdf \u2014 Dragon Magic & Signature Magic",
     "spellStatLines": "Explicit fields + mechanicalEffects tag block for boonTrackedMechanicalFields.",
     "legacyIds": "Chargen-only spell ids from earlier app builds are appended where needed (e.g. burnImpurity, twistOutcome) so old exports still resolve.",
-    "companion": "Scion: Dragon Companion adds further Signature options (e.g. Oracular Fury); not yet merged into this table."
+    "companion": "Scion: Dragon Companion adds further Signature options (e.g. Oracular Fury); not yet merged into this table.",
+    "britanniasDragons": "248670-Scion_Britannias_Dragons.pdf adds Landscape Dragon Magic (Ch. 3, pp. 33–35); it does not add new Heir Flight lines (Ch. 4 wyverns are creature templates, not Flights)."
   },
   "animalControl": {
     "id": "animalControl",
@@ -721,6 +722,75 @@
       }
     ],
     "source": "Scion_Dragon_(Final_Download).pdf"
+  },
+  "landscape": {
+    "id": "landscape",
+    "name": "Landscape",
+    "description": "Meld with territory: sense wide areas, become terrain, command the land\u2019s people (Britannia\u2019s Dragons).",
+    "spells": [
+      {
+        "id": "bonesOfTheLand",
+        "name": "Bones of the Land",
+        "summary": "In draconic form, become a terrain feature (Size Scale Inheritance/2 or your draconic Size); optional violent pairing via Land-Shaking Might.",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Self (terrain form; see book)",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Indefinite\nSubject: Self (terrain form; see book)\nAction: Simple"
+      },
+      {
+        "id": "dracusLoci",
+        "name": "Dracus Loci",
+        "summary": "While meditating or sleeping, sense large-scale events within (Inheritance)\u00d75 miles; focus unwarded locations as if present.",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Self / region (see book)",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Self / region (see book)\nAction: Simple"
+      },
+      {
+        "id": "domainMastery",
+        "name": "Domain Mastery",
+        "summary": "While Dracus Loci is active: cast eligible Dragon Spells on targets in the surveyed area at range; telepathy to Pawns or Bonded inside range.",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Targets in Dracus Loci area (see book)",
+        "prerequisite": "Dracus Loci",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nDuration: Indefinite\nSubject: Targets in Dracus Loci area (see book)\nAction: Simple"
+      },
+      {
+        "id": "landShakingMight",
+        "name": "Land-Shaking Might",
+        "summary": "Activate with Bones of the Land: disruptive emergence (buildings, landslides, floods); SG adjudicates\u2014no direct character damage from the shift alone.",
+        "action": "Simple",
+        "cost": "Spend 1 Inheritance",
+        "subject": "Environment (see book)",
+        "prerequisite": "Bones of the Land",
+        "mechanicalEffects": "Cost: Spend 1 Inheritance\nSubject: Environment (see book)\nAction: Simple"
+      },
+      {
+        "id": "myPeople",
+        "name": "My People",
+        "summary": "Leadership Scale 1 on social rolls vs residents within (Inheritance)\u00d75 miles of your Lair; extends to Dracus Loci area after one hour\u2019s use (rest of day).",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Self (influence over locals; see book)",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Self (influence over locals; see book)\nAction: Simple"
+      },
+      {
+        "id": "sleepOfAges",
+        "name": "Sleep of Ages",
+        "summary": "Body dissolves into earth until you end the spell; gain Hibernation Lair benefits (Dragon p. 135).",
+        "action": "Simple",
+        "cost": "Imbue 1 Inheritance",
+        "duration": "Indefinite",
+        "subject": "Self",
+        "mechanicalEffects": "Cost: Imbue 1 Inheritance\nDuration: Indefinite\nSubject: Self\nAction: Simple"
+      }
+    ],
+    "source": "248670-Scion_Britannias_Dragons.pdf \u2014 Ch. 3 New Dragon Magic: Landscape (pp. 33\u201335)"
   },
   "transformation": {
     "id": "transformation",

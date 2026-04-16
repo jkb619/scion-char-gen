@@ -1,7 +1,8 @@
 {
   "_meta": {
     "note": "Flight Path lists two required Skills; the player picks a third Path Skill (Dragon p. 112). Remembrance axis labels from Flight Remembrances (p. 120). `signatureMagicId` matches the Ch. 2 Signature Dragon Magic summary (Dragon pp. 41–93): Pandemonium (Draq), Refinement (Joka), Avarice (Lindwurms), Blessings (Lóng → `dragonBlessings` in `dragonMagic.json`), Teleportation (Naga), Purification (Serpent).",
-    "source": "Scion_Dragon_(Final_Download).pdf, Chapter 2 Flight Path blocks (pp. 42, 53, 63, 73, 84, 93) and Remembrances (p. 120)"
+    "source": "Scion_Dragon_(Final_Download).pdf, Chapter 2 Flight Path blocks (pp. 42, 53, 63, 73, 84, 93) and Remembrances (p. 120)",
+    "britanniasDragonsNote": "Britannia\u2019s Dragons does not print new Heir Flight stat blocks. Its \u201cWyverns\u201d chapter is creature/minion material. Supplement Dragon Magic (Landscape) lives in dragonMagic.json."
   },
   "draq": {
     "id": "draq",

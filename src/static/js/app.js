@@ -59,6 +59,7 @@ import {
   dragonHeirAttributesCoreLayoutLocked,
   buildDragonReviewSnapshot,
   captureDragonFinishingAttrBaseline,
+  appendDragonHeirFlightsPathStep,
 } from "./chargen/DragonChargenWizard.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
@@ -3220,6 +3221,15 @@ function stepDefsForTier(tierId) {
   return steps;
 }
 
+/** Move the unified wizard to a Dragon Heir tab id (`paths`, `calling`, `magic`, …). */
+function navigateDragonHeirToMainWizardStep(stepId) {
+  const id = String(stepId || "").trim();
+  if (!id) return;
+  const steps = stepDefsForTier(character.tier);
+  const i = steps.indexOf(id);
+  if (i >= 0) stepIndex = i;
+}
+
 /** Purviews / Boons / patron Purview UI follow `tier.json` wizardSteps (Hero+, not Origin Mortal). */
 function tierHasPurviewStep(tierId) {
   return stepDefsForTier(tierId).includes("purviews");
@@ -3402,7 +3412,7 @@ function updateHeaderTierDisplay() {
     tierLine.className = "header-tier-line";
     const fl = bundle.dragonFlights[d.flightId];
     const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inhN}`;
-    tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Paths)`;
+    tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Flights tab)`;
     el.appendChild(tierLine);
     return;
   }
@@ -3465,7 +3475,10 @@ function renderNav() {
   steps.forEach((id, idx) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.textContent = id.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+    btn.textContent =
+      id === "paths" && isDragonHeirChargen(character)
+        ? "Flights"
+        : id.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
     if (idx === stepIndex) btn.classList.add("active");
     if (idx < stepIndex) btn.classList.add("done");
     btn.addEventListener("click", () => {
@@ -3754,60 +3767,9 @@ function renderConcept(root) {
   );
 }
 
-/** Dragon Heir Paths: Flight + three phrases only (no pantheon / patron / virtues / Society-skill copy on this step). */
+/** Dragon Heir Paths: Flight + three phrases (delegates to Dragon wizard module; main flow uses `renderDragonHeirStepInRoot` for `paths`). */
 function renderDragonHeirPathsOnly(root) {
-  ensureDragonShape(character, bundle);
-  const wrap = document.createElement("div");
-  const help = document.createElement("p");
-  help.className = "help";
-  help.textContent =
-    "Choose Flight and write your three Path phrases here. Path Skills, Path priority, and Skill dots are on the Skills tab — same separation as Deity Mortal (Origin).";
-  wrap.appendChild(help);
-  const mount = document.createElement("div");
-  mount.id = "p-dragon-flight-mount";
-  mount.className = "field paths-dragon-flight-field";
-  mount.innerHTML =
-    '<label for="p-dragon-flight">Flight (Dragon Heir)</label><select id="p-dragon-flight"><option value="">—</option></select>';
-  wrap.appendChild(mount);
-  const grid = document.createElement("div");
-  grid.className = "paths-step-grid";
-  grid.innerHTML = `
-    <div class="paths-phrases-row">
-      <div class="field"><label for="p-origin">Origin Path phrase</label><textarea id="p-origin"></textarea></div>
-      <div class="field"><label for="p-role">Role Path phrase</label><textarea id="p-role"></textarea></div>
-      <div class="field"><label for="p-soc">Flight Path phrase</label><textarea id="p-soc"></textarea></div>
-    </div>`;
-  wrap.appendChild(grid);
-  root.appendChild(panel("Paths", wrap));
-  const fs = document.getElementById("p-dragon-flight");
-  if (fs && fs.options.length <= 1) {
-    for (const [fid, meta] of Object.entries(bundle.dragonFlights || {})) {
-      if (String(fid).startsWith("_") || !meta || typeof meta !== "object") continue;
-      const o = document.createElement("option");
-      o.value = fid;
-      o.textContent = meta.name || fid;
-      applyGameDataHint(o, meta);
-      fs.appendChild(o);
-    }
-  }
-  if (fs) {
-    fs.value = character.dragon?.flightId || "";
-    applyHint(fs, "p-dragon-flight");
-    fs.addEventListener("change", () => {
-      persistDragonFromDom(character, bundle, "paths");
-      render();
-    });
-  }
-  syncDragonFlightPathRequiredSkills(character.dragon, bundle);
-  const po = document.getElementById("p-origin");
-  const pr = document.getElementById("p-role");
-  const psoc = document.getElementById("p-soc");
-  if (po) po.value = character.paths.origin || "";
-  if (pr) pr.value = character.paths.role || "";
-  if (psoc) psoc.value = String(character.dragon?.paths?.flight ?? character.paths.society ?? "");
-  applyHint(po, "p-origin");
-  applyHint(pr, "p-role");
-  applyHint(psoc, "p-flight-path");
+  appendDragonHeirFlightsPathStep(root, character, bundle, render);
 }
 
 function renderPaths(root) {
@@ -4069,6 +4031,7 @@ function renderSkills(root) {
       render,
       step: "skills",
       scrollStepIntoView: scrollWizardStepIntoView,
+      navigateToDragonHeirStep: navigateDragonHeirToMainWizardStep,
     });
     return;
   }
@@ -7775,6 +7738,7 @@ function render() {
       render,
       step,
       scrollStepIntoView: scrollWizardStepIntoView,
+      navigateToDragonHeirStep: navigateDragonHeirToMainWizardStep,
     });
   } else if (step === "paths") {
     renderPaths(contentRoot);

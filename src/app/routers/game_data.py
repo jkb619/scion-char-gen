@@ -13,7 +13,13 @@ router = APIRouter(prefix="/api", tags=["game-data"])
 
 @router.get("/manifest")
 def manifest() -> dict[str, Any]:
-    out: dict[str, Any] = {"tables": sorted(game_data_service.allowed_names())}
+    books_dir = DATA_DIR / "books"
+    book_files = (
+        sorted(p.name for p in books_dir.glob("*.json") if p.is_file() and not p.name.startswith("_"))
+        if books_dir.is_dir()
+        else []
+    )
+    out: dict[str, Any] = {"tables": sorted(game_data_service.allowed_names()), "bookBundles": book_files}
     meta_path = DATA_DIR / "meta.json"
     if meta_path.is_file():
         meta = json.loads(meta_path.read_text(encoding="utf-8"))

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import DATA_DIR
+from app.services.book_bundles import merge_book_directory_into_bundle
 from app.services.data_tables import load_merged_table, table_fragment_dir
 
 
@@ -274,6 +275,7 @@ def load_bundle() -> dict[str, Any]:
             cr = meta_full.get("canonicalRules")
             if isinstance(cr, dict):
                 bundle["canonicalRules"] = cr
+    merge_book_directory_into_bundle(bundle, DATA_DIR)
     return bundle
 
 
