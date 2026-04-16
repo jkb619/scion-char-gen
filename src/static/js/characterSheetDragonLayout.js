@@ -3,7 +3,10 @@
  * (`cs-mcg-*` structure) with Dragon data; palette comes from `.character-sheet--dragon-heir` CSS.
  */
 
-import { appendInheritancePoolDotsWithPools } from "./characterSheetLegendPools.js";
+import {
+  appendInheritancePoolDotsWithPools,
+  DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT,
+} from "./characterSheetLegendPools.js";
 import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
 import { applyGameDataHint } from "./fieldHelp.js";
 import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
@@ -487,8 +490,7 @@ export function fillDragonFourPageLayout(el, api) {
   inhL.textContent = "Inheritance";
   const inhDotsCell = document.createElement("div");
   inhDotsCell.className = "cs-mcg-legend-dots-cell";
-  const poolMax = Math.max(1, Math.min(10, Math.round(Number(d.inheritance) || 1)));
-  appendInheritancePoolDotsWithPools(inhDotsCell, poolMax, legendPoolCtx);
+  appendInheritancePoolDotsWithPools(inhDotsCell, DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT, legendPoolCtx);
   inhBlock.appendChild(inhL);
   inhBlock.appendChild(inhDotsCell);
   trackStack.appendChild(inhBlock);

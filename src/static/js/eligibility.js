@@ -1,6 +1,6 @@
 /**
  * Knack / Boon eligibility for chargen UI (data-driven gates in JSON + character state).
- * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number> }} CharacterLike
+ * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number>; dragonHeirCallingKnackShell?: boolean }} CharacterLike
  */
 
 const TIER_RANK = {
@@ -515,7 +515,8 @@ export function syncHeroKnackSlotAssignments(character, bundle) {
 }
 
 /**
- * Max Knack “slots” from Calling rating: Origin / Mortal / Sorcerer = 1; Hero with `callingSlots` = sum of row dots (cap 5); other Hero+ = `callingDots` (1–5).
+ * Max Knack “slots” from Calling rating: Origin / Mortal / Sorcerer = 1; Hero with `callingSlots` = sum of row dots (cap 5 for core Scion Hero); other Hero+ = `callingDots` (1–5).
+ * Dragon Heir (`dragonHeirCallingKnackShell`) can exceed five total Calling dots across three rows (Scion: Dragon); use the same upper bound as post–Hero-band rows (15) so slot totals match `sumHeroCallingSlotDots`.
  */
 export function callingKnackSlotCap(character) {
   const t = String(character?.tier ?? "mortal").trim().toLowerCase();
@@ -523,7 +524,8 @@ export function callingKnackSlotCap(character) {
   if (norm === "mortal" || norm === "sorcerer") return 1;
   const sumSlots = sumHeroCallingSlotDots(character);
   if (sumSlots != null && sumSlots > 0) {
-    const cap = isPostHeroBandCallingTierId(norm) ? 15 : 5;
+    const dragonHeirShell = character?.dragonHeirCallingKnackShell === true;
+    const cap = isPostHeroBandCallingTierId(norm) || dragonHeirShell ? 15 : 5;
     return Math.max(1, Math.min(cap, sumSlots));
   }
   const d = Math.round(Number(character?.callingDots) || 1);

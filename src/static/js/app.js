@@ -5,7 +5,10 @@ import {
   originDefenseFromFinalAttrs,
   originMovementPoolDice,
 } from "./characterSheet.js";
-import { LEGEND_SHEET_DOT_COUNT, DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
+import {
+  LEGEND_SHEET_DOT_COUNT,
+  DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT,
+} from "./characterSheetLegendPools.js";
 import {
   knackEligible,
   knackEligibleForCallingStep,
@@ -512,8 +515,9 @@ function dragonInheritancePoolMaxFromCharacter() {
   return Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
 }
 
+/** Current pool on the 10-dot track (0 when all points are imbued/spent; not capped to Inheritance milestone). */
 function clampDragonInheritancePoolRating(value) {
-  const maxT = dragonInheritancePoolMaxFromCharacter();
+  const maxT = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
   const n = Math.round(Number(value));
   const x = Number.isNaN(n) ? 0 : n;
   return Math.max(0, Math.min(maxT, x));
@@ -525,28 +529,26 @@ function clampDragonInheritancePoolRating(value) {
  * @param {boolean} interactive
  */
 function buildInheritancePoolDotTrack(value, interactive) {
-  const poolMax = dragonInheritancePoolMaxFromCharacter();
   const trackDots = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
+  const inhN = dragonInheritancePoolMaxFromCharacter();
   const v = clampDragonInheritancePoolRating(value);
   const wrap = document.createElement("span");
   wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
   wrap.setAttribute("role", interactive ? "radiogroup" : "img");
   wrap.setAttribute(
     "aria-label",
-    `Inheritance pool ${v} of ${poolMax} (${trackDots}-dot track; Dragon Heir has no Legend rating)`,
+    `Inheritance pool ${v} on ${trackDots}-dot track (milestone ${inhN}; can be 0 when imbued/spent; Dragon Heir has no Legend rating)`,
   );
   for (let i = 1; i <= trackDots; i += 1) {
     const dot = document.createElement("span");
-    const beyond = i > poolMax;
-    dot.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
+    dot.className = "legend-dot" + (i <= v ? " on" : "");
     dot.setAttribute("aria-hidden", "true");
     if (interactive) {
-      dot.tabIndex = beyond ? -1 : 0;
+      dot.tabIndex = 0;
       dot.addEventListener("click", () => {
         ensureDragonShape(character, bundle);
-        const maxA = dragonInheritancePoolMaxFromCharacter();
         const cur = clampDragonInheritancePoolRating(character.dragon?.inheritancePoolRating ?? 0);
-        const target = Math.min(i, maxA);
+        const target = Math.min(i, trackDots);
         if (cur === target) character.dragon.inheritancePoolRating = Math.max(0, target - 1);
         else character.dragon.inheritancePoolRating = target;
         ensureDragonShape(character, bundle);
@@ -3480,8 +3482,7 @@ function updateHeaderTierDisplay() {
     inhRow.appendChild(buildInheritancePoolDotTrack(character.dragon?.inheritancePoolRating ?? 0, true));
     const inhHint = document.createElement("span");
     inhHint.className = "header-legend-req";
-    const pm = dragonInheritancePoolMaxFromCharacter();
-    inhHint.textContent = `Pool 0–${pm} (milestone ${inhN})`;
+    inhHint.textContent = `Pool 0–10 (milestone ${inhN}; can be 0)`;
     inhHint.title =
       "Heirs do not gain, spend, or recover Legend, and Heir fatebinding is not tied to Legend (Dragon p. 114). Inheritance fuels Dragon Magic, Knacks, Birthrights, and related play (pp. 112–113, 117–121, 150–151). Spells often imbue Inheritance until reclaimed or the effect ends. Play aid only—confirm with your Storyguide.";
     inhRow.appendChild(inhHint);
@@ -6585,12 +6586,12 @@ function renderReview(root) {
         },
         onInheritancePoolDotClick: (i) => {
           ensureDragonShape(character, bundle);
-          const maxA = dragonInheritancePoolMaxFromCharacter();
+          const cap = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
           let cur = Math.round(Number(character.dragon.inheritancePoolRating) || 0);
           if (Number.isNaN(cur)) cur = 0;
-          cur = Math.max(0, Math.min(maxA, cur));
+          cur = Math.max(0, Math.min(cap, cur));
           if (cur === i) character.dragon.inheritancePoolRating = Math.max(0, i - 1);
-          else character.dragon.inheritancePoolRating = Math.min(i, maxA);
+          else character.dragon.inheritancePoolRating = Math.min(i, cap);
           ensureDragonShape(character, bundle);
           render();
         },

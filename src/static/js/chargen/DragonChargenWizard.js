@@ -32,6 +32,7 @@ import {
   isChargenWizardHiddenBirthrightRow,
   isChargenWizardHiddenEquipmentRow,
 } from "../chargenWizardCatalogFilters.js";
+import { DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT } from "../characterSheetLegendPools.js";
 
 /** Fatebinding list + editor index (shared with main wizard `character.finishing`). */
 function ensureDragonSheetFatebindingsShape(character) {
@@ -360,10 +361,12 @@ function dragonRenderFinalAttrDotRow(
 
 /**
  * Trim Calling dots (minimum 1 per row) until total ≤ budget.
- * Budget scales with Inheritance (+1 Calling at Asset, Agent, Cabalist, Vizier, Mastermind; Scion: Dragon pp. 9489–9520).
+ * Budget follows `dragonCallingDotsRequired` (Scion: Dragon p.121: five dots at Inheritance 1; +1 at 2, 4, 6, 8;
+ * Mastermind (9) also grants +1 Calling dot per trait text pp. 118–119). Cap must match that budget — not a fixed 5.
  */
 function rebalanceDragonCallingSlotsToBudget(d, budget) {
-  const cap = Math.max(5, Math.round(Number(budget) || 5));
+  const raw = Math.round(Number(budget) || 5);
+  const cap = Number.isFinite(raw) ? Math.max(3, Math.min(15, raw)) : 5;
   const s = d.callingSlots;
   if (!Array.isArray(s) || s.length !== 3) return;
   for (let guard = 0; guard < 24; guard += 1) {
@@ -426,14 +429,15 @@ function dragonHeirCallingIdsWithKnackCatalog(bundle) {
 }
 
 /**
- * Total Calling dots required at this Inheritance (Hatchling 5; +1 at Asset, Agent, Cabalist, Vizier, Mastermind).
+ * Total Calling dots to assign across the three Callings (minimum one each, five per Calling max; Scion: Dragon p.121).
+ * Inheritance 1: five dots. p.121: +1 at Inheritances 2, 4, 6, 8. Mastermind (9) also grants +1 Calling dot (pp. 118–119 trait text).
  * @param {Record<string, unknown>} bundle
  * @param {number} inh
  */
-function dragonCallingDotsRequired(bundle, inh) {
+export function dragonCallingDotsRequired(bundle, inh) {
   void bundle;
   const n = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inh) || 1)));
-  /** Inheritance indices that grant +1 Calling dot (Scion: Dragon p. 9489+ trait list). */
+  /** Milestones that grant +1 Calling dot (p.121; 9 = Mastermind trait line). */
   const callingPlusOne = new Set([2, 4, 6, 8, 9]);
   let total = 5;
   for (let i = 2; i <= n; i += 1) {
@@ -666,10 +670,9 @@ export function ensureDragonShape(character, bundle) {
   if (d.inheritance == null || Number.isNaN(Number(d.inheritance))) d.inheritance = 1;
   d.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
   rebalanceDragonCallingSlotsToBudget(d, dragonCallingDotsRequired(bundle, d.inheritance));
-  const inhPoolMax = d.inheritance;
   let inhPr = Math.round(Number(d.inheritancePoolRating));
   if (d.inheritancePoolRating == null || Number.isNaN(inhPr)) inhPr = 0;
-  d.inheritancePoolRating = Math.max(0, Math.min(inhPoolMax, inhPr));
+  d.inheritancePoolRating = Math.max(0, Math.min(DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT, inhPr));
   const INH_POOL_SLOT_N = 10;
   if (!Array.isArray(d.inheritancePoolDotSpentSlots)) d.inheritancePoolDotSpentSlots = [];
   {
@@ -1919,8 +1922,16 @@ function dragonFinishingAttrDotsRemaining(d, bundle) {
 function dragonKnackShell(character) {
   const d = character.dragon;
   const inh = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
+  const pathRank = { primary: "origin", secondary: "origin", tertiary: "origin" };
+  const prSrc = d?.pathRank && typeof d.pathRank === "object" ? d.pathRank : {};
+  for (const rk of ["primary", "secondary", "tertiary"]) {
+    const v = String(prSrc[rk] ?? "").trim();
+    pathRank[rk] = PATH_KEYS.includes(v) ? v : "origin";
+  }
   return {
     tier: "hero",
+    /** Lets `callingKnackSlotCap` exceed core Hero’s five total Calling dots (Dragon Heir Asset+). */
+    dragonHeirCallingKnackShell: true,
     callingSlots: (d.callingSlots || []).map((s) => ({
       id: String(s?.id ?? "").trim(),
       dots: Math.max(1, Math.min(5, Math.round(Number(s?.dots) || 1))),
@@ -1935,7 +1946,7 @@ function dragonKnackShell(character) {
     mythosInnatePower: { style: "standard", awarenessPurviewId: "", awarenessLocked: false },
     /** Heirs have no Legend; shared knack gate uses `legendMin` as Inheritance milestone proxy only. */
     legendRating: inh,
-    pathRank: { primary: "origin", secondary: "role", tertiary: "society" },
+    pathRank,
   };
 }
 
@@ -2780,10 +2791,18 @@ export function renderDragonHeirStepInRoot(ctx) {
   if (step === "calling") {
     const callingBudget = dragonCallingDotsRequired(bundle, d.inheritance);
     rebalanceDragonCallingSlotsToBudget(d, callingBudget);
+    /** Per-row max dots use a snapshot so earlier rows in this loop don’t distort later rows’ `othersSum`. */
+    const snapDots = d.callingSlots.map((s) =>
+      Math.max(1, Math.min(5, Math.round(Number(s?.dots) || 1))),
+    );
     const wrap = document.createElement("div");
     wrap.innerHTML = "";
     const slotBox = document.createElement("div");
     slotBox.className = "grid-2";
+    const rulesHelp = document.createElement("p");
+    rulesHelp.className = "help";
+    rulesHelp.textContent = `Scion: Dragon p.121: Inheritance 1 has five Calling dots across three Callings (at least one each, five per Calling max). +1 total dot at Inheritances 2, 4, 6, and 8; Mastermind (9) also grants +1 Calling dot (pp. 118–119). Assign exactly ${callingBudget} dots here.`;
+    wrap.appendChild(rulesHelp);
     for (let rowIdx = 0; rowIdx < 3; rowIdx += 1) {
       const slot = d.callingSlots[rowIdx];
       const fieldH = document.createElement("div");
@@ -2833,9 +2852,9 @@ export function renderDragonHeirStepInRoot(ctx) {
       const dotsWrapH = document.createElement("div");
       dotsWrapH.className = "dots calling-inline-dots";
       dotsWrapH.setAttribute("role", "radiogroup");
-      const othersSum = d.callingSlots.reduce((a, s, j) => (j !== rowIdx ? a + s.dots : a), 0);
+      const othersSum = snapDots.reduce((a, dots, j) => (j !== rowIdx ? a + dots : a), 0);
       const maxForRow = Math.min(5, Math.max(1, callingBudget - othersSum));
-      const cdh = Math.max(1, Math.min(maxForRow, slot.dots));
+      const cdh = Math.max(1, Math.min(maxForRow, snapDots[rowIdx]));
       d.callingSlots[rowIdx].dots = cdh;
       dotsWrapH.setAttribute(
         "aria-label",
@@ -3762,12 +3781,12 @@ export function renderDragonHeirStepInRoot(ctx) {
       },
       onInheritancePoolDotClick: (i) => {
         ensureDragonShape(character, bundle);
-        const maxA = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(character.dragon.inheritance) || 1)));
+        const cap = DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT;
         let cur = Math.round(Number(character.dragon.inheritancePoolRating) || 0);
         if (Number.isNaN(cur)) cur = 0;
-        cur = Math.max(0, Math.min(maxA, cur));
+        cur = Math.max(0, Math.min(cap, cur));
         if (cur === i) character.dragon.inheritancePoolRating = Math.max(0, i - 1);
-        else character.dragon.inheritancePoolRating = Math.min(i, maxA);
+        else character.dragon.inheritancePoolRating = Math.min(i, cap);
         ensureDragonShape(character, bundle);
         render();
       },

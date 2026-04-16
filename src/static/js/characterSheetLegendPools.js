@@ -117,8 +117,9 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
 
 /**
  * Dragon Heir: Inheritance pool (imbued/spent at table). Heirs do not use a Legend rating or Legend pool (Dragon p. 114).
+ * Pass `poolMax === DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT` so the full row is usable; current pool can be 0 when all points are imbued or spent.
  * @param {HTMLElement} cell
- * @param {number} poolMax — current Inheritance milestone (1–10); columns past this are muted/disabled.
+ * @param {number} poolMax — use {@link DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT} for an unclamped 10-column track.
  * @param {{
  *   sheetHooks: object | null | undefined;
  * }} ctx
