@@ -27,6 +27,13 @@ function normalizedTierIdEligibility(tierId) {
   return raw;
 }
 
+const SORCERER_LINE_TIER_IDS = new Set(["sorcerer", "sorcerer_hero", "sorcerer_demigod", "sorcerer_god"]);
+
+/** Saints & Monsters Sorcerer track: no Scion Callings or Knacks (chargen pp. 83–87). */
+export function isSorcererLineTierId(tierId) {
+  return SORCERER_LINE_TIER_IDS.has(normalizedTierIdEligibility(tierId));
+}
+
 /** Demigod- and God-band tiers: deity line (Hero→Demigod→God), Titan line (Titanic→Demigod→God), Sorcerer divine band. */
 export function isPostHeroBandCallingTierId(tierId) {
   const t = normalizedTierIdEligibility(tierId);
@@ -64,19 +71,19 @@ export function maxWizardBoonPicksForTier(tierId, bundle) {
  */
 export function immortalKnackCostsTwoCallingSlots(tierId) {
   const t = normalizedTierIdEligibility(tierId);
-  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
+  return t === "hero" || t === "titanic";
 }
 
 const HERO_STYLE_CALLING_SLOT_ROW_COUNT = 3;
 
 /**
- * Hero / Titanic / Heroic Sorcerer: always three Calling rows.
- * Demigod and God (deity or Titan welcome line) and Sorcerer divine-band tiers: keep the same three
- * `callingSlots` when carried forward from Hero/Titanic so Calling / Knacks / export stay aligned.
+ * Hero / Titanic: always three Calling rows.
+ * Demigod and God (deity or Titan welcome line): keep the same three `callingSlots` when carried
+ * forward from Hero/Titanic so Calling / Knacks / export stay aligned. Sorcerer tiers never use this.
  */
 export function heroUsesCallingSlotRows(character) {
   const t = normalizedTierIdEligibility(character?.tier);
-  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return true;
+  if (t === "hero" || t === "titanic") return true;
   const slots = character?.callingSlots;
   if (Array.isArray(slots) && slots.length === HERO_STYLE_CALLING_SLOT_ROW_COUNT && isPostHeroBandCallingTierId(t)) {
     return true;
@@ -658,6 +665,7 @@ export function knackEligibleForCallingStep(k, character, bundle) {
  */
 export function knackEligible(k, character, _bundle) {
   if (!k || typeof k !== "object") return false;
+  if (isSorcererLineTierId(character?.tier)) return false;
 
   const callingsAny = k.callingsAny === true || k.calling === "any";
   const list = Array.isArray(k.callings) ? k.callings : k.calling ? [k.calling] : null;

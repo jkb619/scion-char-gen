@@ -7,7 +7,7 @@
 import { appendLegendAwarenessDotsWithPools } from "./characterSheetLegendPools.js";
 import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
 import { mergedPurviewIdsForSheet } from "./purviewDisplayName.js";
-import { boonPrimaryPurview } from "./eligibility.js";
+import { boonPrimaryPurview, isSorcererLineTierId } from "./eligibility.js";
 import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
@@ -52,6 +52,7 @@ export function fillMcgFourPageLayout(el, api) {
   const charName = String(data.characterName ?? "").trim();
   const mythosSheet = String(data.pantheonId || "").trim() === "mythos";
   const legendPoolCtx = { sheetHooks, legendDotTrackReadOnly, awarenessDotTrackReadOnly };
+  const isSorcererLineSheet = isSorcererLineTierId(String(data.tier ?? data.tierId ?? ""));
 
   function mcgSheetTick() {
     const tick = document.createElement("span");
@@ -378,26 +379,28 @@ export function fillMcgFourPageLayout(el, api) {
   };
   /** @type {{ label: string; dots: number }[]} */
   const callingSheetRows = [];
-  if (Array.isArray(data.callingSlots) && data.callingSlots.length) {
-    for (const slot of data.callingSlots) {
-      if (!slot || typeof slot !== "object") continue;
-      const cid = String(slot.id || "").trim();
-      if (!cid) continue;
-      callingSheetRows.push({
-        label: bundle?.callings?.[cid]?.name || cid,
-        dots: Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1))),
-      });
-    }
-  } else {
-    const cid = typeof data.callingId === "string" ? data.callingId.trim() : "";
-    const label = cid
-      ? bundle?.callings?.[cid]?.name || cid
-      : String(data.calling ?? "").trim();
-    if (label) {
-      callingSheetRows.push({
-        label,
-        dots: Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))),
-      });
+  if (!isSorcererLineSheet) {
+    if (Array.isArray(data.callingSlots) && data.callingSlots.length) {
+      for (const slot of data.callingSlots) {
+        if (!slot || typeof slot !== "object") continue;
+        const cid = String(slot.id || "").trim();
+        if (!cid) continue;
+        callingSheetRows.push({
+          label: bundle?.callings?.[cid]?.name || cid,
+          dots: Math.max(1, Math.min(5, Math.round(Number(slot.dots) || 1))),
+        });
+      }
+    } else {
+      const cid = typeof data.callingId === "string" ? data.callingId.trim() : "";
+      const label = cid
+        ? bundle?.callings?.[cid]?.name || cid
+        : String(data.calling ?? "").trim();
+      if (label) {
+        callingSheetRows.push({
+          label,
+          dots: Math.max(1, Math.min(5, Math.round(Number(data.callingDots) || 1))),
+        });
+      }
     }
   }
   if (callingSheetRows.length) {

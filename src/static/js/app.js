@@ -31,6 +31,7 @@ import {
   mythosCallingTwinId,
   mythosPatronCallingIdForChooser,
   callingIdInWizardLibraryChooser,
+  isSorcererLineTierId,
 } from "./eligibility.js";
 import { boonDisplayLabel } from "./boonLabels.js";
 import { birthrightTagIds, birthrightTagLabels } from "./birthrightTags.js";
@@ -279,12 +280,22 @@ function normalizedTierId(tierId) {
   return lower;
 }
 
-/** Saints & Monsters Sorcerer line — ids in `data/tier.json`. */
-const SORCERER_TIER_IDS = new Set(["sorcerer", "sorcerer_hero", "sorcerer_demigod", "sorcerer_god"]);
-
 /** @param {string} [tierId] */
 function isSorcererLineTier(tierId) {
-  return SORCERER_TIER_IDS.has(normalizedTierId(tierId));
+  return isSorcererLineTierId(tierId);
+}
+
+/** Sorcerers use Workings / Techniques / Paraphernalia only — strip any legacy Calling / Knack state. */
+function stripSorcererLineCallingAndKnacks() {
+  if (!isSorcererLineTier(character.tier)) return;
+  character.callingId = "";
+  character.callingSlots = null;
+  character.callingDots = 1;
+  character.knackIds = [];
+  character.knackSlotById = {};
+  if (character.finishing && Array.isArray(character.finishing.finishingKnackIds)) {
+    character.finishing.finishingKnackIds = [];
+  }
 }
 
 /** Heuristic: export / embedded `dragon` blob is clearly Heir state (not an empty stub). */
@@ -676,6 +687,7 @@ function defaultCharacter() {
       talisman: "",
       /** @type {string[]} */
       workingIds: [],
+      inherentTechniqueNotes: "",
       techniquesNotes: "",
       notes: "",
     },
@@ -714,6 +726,7 @@ function defaultSorceryProfile() {
     prohibition: "",
     talisman: "",
     workingIds: [],
+    inherentTechniqueNotes: "",
     techniquesNotes: "",
     notes: "",
   };
@@ -1574,7 +1587,7 @@ function applyWelcomeTrackChangeNoConfirm(encoded) {
     delete character.dragon;
     character.patronKind = "deity";
     const raw = String(payload || "").trim().toLowerCase();
-    character.tier = SORCERER_TIER_IDS.has(raw) ? raw : "sorcerer";
+    character.tier = isSorcererLineTierId(raw) ? raw : "sorcerer";
     return;
   }
   character.chargenLineage = "scion";
@@ -1714,10 +1727,7 @@ function visitationLocksPrimaryCallingChoice() {
   return log.some((e) => {
     const from = normalizedTierId(e?.fromTier);
     const to = normalizedTierId(e?.toTier);
-    return (
-      (from === "mortal" && (to === "hero" || to === "titanic")) ||
-      (String(e?.fromTier || "").trim() === "sorcerer" && String(e?.toTier || "").trim() === "sorcerer_hero")
-    );
+    return from === "mortal" && (to === "hero" || to === "titanic");
   });
 }
 
@@ -1727,7 +1737,7 @@ function syncCallingAggregatesFromHeroSlots() {
   character.callingId = String(slots[0]?.id || "").trim();
   const sum = slots.reduce((a, s) => a + Math.max(1, Math.min(5, Math.round(Number(s?.dots) || 1))), 0);
   const t = normalizedTierId(character.tier);
-  const maxAgg = t === "hero" || t === "titanic" || t === "sorcerer_hero" ? 5 : 15;
+  const maxAgg = t === "hero" || t === "titanic" ? 5 : 15;
   character.callingDots = Math.max(1, Math.min(maxAgg, sum));
 }
 
@@ -1780,7 +1790,7 @@ function ensureCallingSlotsForHero() {
     };
   }
   const t = normalizedTierId(character.tier);
-  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") {
+  if (t === "hero" || t === "titanic") {
     rebalanceHeroCallingSlotDotsOverFive();
   }
   syncCallingAggregatesFromHeroSlots();
@@ -3440,12 +3450,6 @@ function clearPurviewsAndBoonsIfInapplicableTier() {
 function firstNewWizardStepIndex(oldTierId, newTierId) {
   const oldN = normalizedTierId(oldTierId);
   const newN = normalizedTierId(newTierId);
-  /** Sorcerer Mortal band → Heroic band: set three Calling rows before Paraphernalia / Purviews. */
-  if (oldN === "sorcerer" && newN === "sorcerer_hero") {
-    const steps = stepDefsForTier(newTierId);
-    const ci = steps.indexOf("calling");
-    if (ci >= 0) return ci;
-  }
   /** Visitation: pick Callings & dots before new Hero-only steps (Purviews, …). */
   if (oldN === "mortal" && (newN === "hero" || newN === "titanic")) {
     const steps = stepDefsForTier(newTierId);
@@ -3521,9 +3525,6 @@ function applyTierAdvancementFromBundle() {
   character.tier = next;
   const nextN = normalizedTierId(next);
   if (normalizedTierId(cur) === "mortal" && (nextN === "hero" || nextN === "titanic")) {
-    initHeroCallingSlotsAfterVisitation();
-  }
-  if (String(cur).trim() === "sorcerer" && nextN === "sorcerer_hero") {
     initHeroCallingSlotsAfterVisitation();
   }
   if (nextN === "hero" || nextN === "titanic") restrictHeroPurviewsToPatronList();
@@ -5668,7 +5669,8 @@ function renderSorcerer(root) {
     detail.innerHTML = `
     <p class="help">Mortal-tier Sorcerers have <strong>no Legend 1</strong> yet and do <strong>not</strong> use the four Sources of Power (Invocation, Patronage, Prohibition, Talisman) from pp. 64–65 at creation — the book ties that choice to <strong>Heroic</strong> Sorcerer chargen (p. 85). Record one <strong>Motif</strong> below (p. 87).</p>
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="One Working and its Inherent Technique at creation (p. 86). Up to two extra Techniques only if bought on Finishing (p. 87). Charms once you know a Working (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-inherent">Inherent Technique(s)</label><textarea id="f-sorc-inherent" rows="3" placeholder="List the Inherent Technique for your Working (each Working grants one; pp. 65–66, 86)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Other techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Extra Techniques from Finishing (p. 87), Charms, and other table notes (p. 65)."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
   } else {
     const primOpts = [
@@ -5681,18 +5683,20 @@ function renderSorcerer(root) {
     const primHtml = primOpts.map(([v, lab]) => `<option value="${v}">${lab}</option>`).join("");
     detail.innerHTML = `
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
+    <div class="field"><label for="f-sorc-inherent">Inherent Technique(s)</label><textarea id="f-sorc-inherent" rows="3" placeholder="One inherent per Working at chargen — list each (pp. 65–66, 86)."></textarea></div>
     <div class="field"><label for="f-sorc-primary">Primary source of power (Legend 1+)</label><select id="f-sorc-primary">${primHtml}</select></div>
     <div class="field"><label for="f-sorc-source">Sources of Power (freeform notes)</label><textarea id="f-sorc-source" rows="3"></textarea></div>
     <div class="field"><label for="f-sorc-invocation">Invocation (costs, hubris, disguise)</label><textarea id="f-sorc-invocation" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-patronage">Patronage (Fatebinding, compels)</label><textarea id="f-sorc-patronage" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-prohibition">Prohibition (Sorcerous Prohibition condition)</label><textarea id="f-sorc-prohibition" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-talisman">Talisman (Relic bond, Legend pool)</label><textarea id="f-sorc-talisman" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-techniques">Techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Inherent + one extra Technique per Working at Heroic creation; charms (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Other techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="One extra Technique per Working at Heroic creation beyond each inherent; charms and table notes (pp. 65–66, 86)."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
   }
   root.appendChild(panel(mortalBand ? "Sorcerer profile (Mortal tier)" : "Sorcerer profile (Motif & Sources of Power)", detail));
 
   document.getElementById("f-sorc-motif").value = sp.motif || "";
+  document.getElementById("f-sorc-inherent").value = sp.inherentTechniqueNotes || "";
   if (!mortalBand) {
     document.getElementById("f-sorc-primary").value = sp.primaryPowerSource || "";
     document.getElementById("f-sorc-source").value = sp.powerSource || "";
@@ -7121,36 +7125,42 @@ function buildExportObject() {
     ),
     favoredApproach: character.favoredApproach,
     arenaPriority: character.arenaRank,
-    ...(function callingFieldsForExport() {
-      const flatId = String(character.callingId || "").trim();
-      /** @type {Record<string, unknown>} */
-      const out = {};
-      if (flatId) {
-        out.calling = bundle.callings[flatId]?.name || "";
-        out.callingId = flatId;
-        out.callingDots = isOriginPlayTier(character.tier)
-          ? 1
-          : Math.max(1, Math.min(5, Math.round(Number(character.callingDots) || 1)));
-      }
-      if (heroUsesCallingSlots() && Array.isArray(character.callingSlots)) {
-        const slots = character.callingSlots.map((s) => {
-          const id = String(s?.id || "").trim();
-          if (!id) return null;
-          return {
-            id,
-            dots: Math.max(1, Math.min(5, Math.round(Number(s.dots) || 1))),
-          };
-        });
-        if (slots.some((x) => x != null)) out.callingSlots = slots;
-        out.knackSlotById = {
-          ...(character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {}),
-        };
-      }
-      return out;
-    })(),
-    knackIds: [...character.knackIds],
-    knacks: character.knackIds.map((id) => bundle.knacks[id]?.name || id),
-    finishingKnacks: (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
+    ...(isSorcererLineTier(character.tier)
+      ? {}
+      : (function callingFieldsForExport() {
+          const flatId = String(character.callingId || "").trim();
+          /** @type {Record<string, unknown>} */
+          const out = {};
+          if (flatId) {
+            out.calling = bundle.callings[flatId]?.name || "";
+            out.callingId = flatId;
+            out.callingDots = isOriginPlayTier(character.tier)
+              ? 1
+              : Math.max(1, Math.min(5, Math.round(Number(character.callingDots) || 1)));
+          }
+          if (heroUsesCallingSlots() && Array.isArray(character.callingSlots)) {
+            const slots = character.callingSlots.map((s) => {
+              const id = String(s?.id || "").trim();
+              if (!id) return null;
+              return {
+                id,
+                dots: Math.max(1, Math.min(5, Math.round(Number(s.dots) || 1))),
+              };
+            });
+            if (slots.some((x) => x != null)) out.callingSlots = slots;
+            out.knackSlotById = {
+              ...(character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {}),
+            };
+          }
+          return out;
+        })()),
+    knackIds: isSorcererLineTier(character.tier) ? [] : [...character.knackIds],
+    knacks: isSorcererLineTier(character.tier)
+      ? []
+      : character.knackIds.map((id) => bundle.knacks[id]?.name || id),
+    finishingKnacks: isSorcererLineTier(character.tier)
+      ? []
+      : (character.finishing.finishingKnackIds || []).map((id) => bundle.knacks[id]?.name || id),
     purviews: mergedPurviewIdsForSheet({
       purviews: character.purviewIds,
       patronPurviewSlots: character.patronPurviewSlots,
@@ -7388,6 +7398,10 @@ function importCharacterFromExportPayload(data) {
   let knackIds = Array.isArray(data.knackIds)
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [];
+  if (isSorcererLineTierId(tier)) {
+    callingId = "";
+    knackIds = [];
+  }
 
   let lineageEarly = canonChargenLineageFromRaw(data.chargenLineage);
   if (lineageEarly !== "dragonHeir") {
@@ -7428,7 +7442,7 @@ function importCharacterFromExportPayload(data) {
   let callingSlots = null;
   const tierNormImp = normalizedTierId(tier);
   if (
-    (tierNormImp === "hero" || tierNormImp === "titanic" || tierNormImp === "sorcerer_hero") &&
+    (tierNormImp === "hero" || tierNormImp === "titanic") &&
     Array.isArray(data.callingSlots) &&
     data.callingSlots.length > 0
   ) {
@@ -7625,6 +7639,12 @@ function importCharacterFromExportPayload(data) {
 /** Drop Knack picks that fail Calling / tier / pantheon gates (e.g. Immortal knacks after returning to Origin). */
 function pruneStaleKnackIds() {
   if (!bundle?.knacks) return;
+  if (isSorcererLineTier(character.tier)) {
+    character.knackIds = [];
+    character.knackSlotById = {};
+    if (character.finishing?.finishingKnackIds) character.finishing.finishingKnackIds = [];
+    return;
+  }
   character.knackIds = (character.knackIds || []).filter((id) => {
     const k = bundle.knacks[id];
     return !!(k && knackEligible(k, character, bundle));
@@ -7650,6 +7670,7 @@ function pruneStaleKnackIds() {
  * empty; any merge survivor that fails assignment stays in `finishingKnackIds` until rows absorb them.
  */
 function mergeFinishingBonusKnacksIntoMainKnackList() {
+  if (isSorcererLineTier(character.tier)) return;
   if (wizardIncludesFinishingTouchesStep(character.tier)) return;
   if (!bundle?.knacks) return;
   character.finishing ||= {};
@@ -8041,6 +8062,7 @@ function persistFromForm() {
     ensureSorceryProfileShape();
     const sp = character.sorceryProfile;
     sp.motif = document.getElementById("f-sorc-motif")?.value ?? "";
+    sp.inherentTechniqueNotes = document.getElementById("f-sorc-inherent")?.value ?? "";
     sp.techniquesNotes = document.getElementById("f-sorc-techniques")?.value ?? "";
     sp.notes = document.getElementById("f-sorc-notes")?.value ?? "";
     if (normalizedTierId(character.tier) !== "sorcerer") {
@@ -8148,6 +8170,7 @@ function render() {
 
   syncLegendToTier();
   syncAwarenessWithPantheon();
+  stripSorcererLineCallingAndKnacks();
   ensureSheetAppendicesShape();
   if (character.virtueSpectrum == null || Number.isNaN(Number(character.virtueSpectrum))) character.virtueSpectrum = 0;
   if (isOriginPlayTier(character.tier)) {

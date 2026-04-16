@@ -52,7 +52,7 @@
     "description": "Ordinary humans who learn sorcery through study, spirits, pacts, or stolen wonders—before the full Heroic band of power.",
     "mechanicalEffects": "Saints & Monsters Ch. 3 — Mortal Sorcerer chargen: same Concept, Paths, Skills, and Attributes spine as Origin (pp. 83–84); one Working plus its inherent Technique only at creation (pp. 65–66, 86); one Motif (p. 87). No Source of Power or Legend 1 Invocation/Patronage/Prohibition/Talisman rules until Heroic tier (pp. 64–65, 85, 87). Finishing Touches (p. 87): five extra Skill dots, one extra Attribute dot, then two extra Techniques, or four Paraphernalia points, or one Technique plus two Paraphernalia points.",
     "typicalLegendRange": "0",
-    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "finishing", "review"],
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "workings", "sorcerer", "finishing", "review"],
     "patronPurviewSlotCount": 0,
     "purviewsChargenNote": "Mortal-band Sorcerers: record Magic Purview / Marvel limits in notes or advance to Heroic Sorcerer when your table agrees; patron Purview slots stay unused unless you blend chronicles.",
     "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3 (Sorcerer character creation)"
@@ -64,7 +64,7 @@
     "description": "Sorcerers whose deeds and Legend match street-level myth—two Workings at Legend 1, seven dots of Paraphernalia (Birthrights), and the full Magic Purview track in play.",
     "mechanicalEffects": "Saints & Monsters Ch. 3: Heroic band — two Workings with one Technique each plus inherent (p. 65); choose a primary Source of Power among Invocation, Patronage, Prohibition, and Talisman (pp. 63–64); seven dots of Paraphernalia like Hero Birthrights (chargen summary p. 84); Paths and Skills follow the same priorities as Origin.",
     "typicalLegendRange": "1–4",
-    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
     "patronPurviewSlotCount": 0,
     "purviewsChargenNote": "Heroic Sorcerers: add the Magic Purview (and any others your table allows) on the Purviews step; Boons from merged Saints & Monsters / Denizen data. No divine-parent patron Purview slots unless your chronicle uses them.",
     "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3"
@@ -76,7 +76,7 @@
     "description": "Sorcerers operating at apocalyptic or world-scale rituals—third Working toward the fivefold ladder, Legend milestones like Demigod play.",
     "mechanicalEffects": "Saints & Monsters: third Working at Legend 5 (p. 65); expand Paraphernalia and Marvel limits with your Storyguide (compare Demigod Birthright budgets in core books).",
     "typicalLegendRange": "5–8",
-    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
     "patronPurviewSlotCount": 0,
     "purviewsChargenNote": "Track Purviews and Boons as extended play; confirm Marvel caps with Saints & Monsters and Demigod references at the table.",
     "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3; Scion_Demigod_Second_Edition_(Final_Download).pdf (scale reference)"
@@ -88,7 +88,7 @@
     "description": "The rare sorcerous actors who master a fourth Working and contend with gods on their own terms—PDF-first for Marvels and limitations.",
     "mechanicalEffects": "Saints & Monsters: fourth Working at Legend 9, toward knowing four of the five Workings (p. 65). God-band limits, Talisman bonds, and Marvel scope are PDF-first — align with Scion: God when your chronicle uses both.",
     "typicalLegendRange": "8–10+",
-    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
+    "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "workings", "sorcerer", "purviews", "birthrights", "boons", "review"],
     "patronPurviewSlotCount": 0,
     "purviewsChargenNote": "God-band Sorcerers: full Purview/Boon tracking; confirm innate Marvel rules in Saints & Monsters with Scion: God at the table.",
     "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3; Scion_God_Second_Edition_(Final_Download).pdf (scale reference)"

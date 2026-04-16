@@ -1,5 +1,5 @@
 import { boonDisplayLabel } from "./boonLabels.js";
-import { boonIsPurviewInnateAutomaticGrant } from "./eligibility.js";
+import { boonIsPurviewInnateAutomaticGrant, isSorcererLineTierId } from "./eligibility.js";
 import { purviewInnateBlocks } from "./purviewInnate.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { applyGameDataHint } from "./fieldHelp.js";
@@ -258,6 +258,7 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   function buildKnackSheetRows() {
     const out =
       /** @type {{ knackId: string; title: string; description: string; mechanicalEffects: string; source: string }[]} */ ([]);
+    if (isSorcererLineTierId(String(data.tier ?? data.tierId ?? ""))) return out;
     const addIds = (ids, suffix) => {
       const pant = String(data.pantheonId ?? "").trim();
       for (const id of ids || []) {
@@ -378,6 +379,12 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
   const smBlock = [];
   if (sp && typeof sp === "object") {
     if (String(sp.motif || "").trim()) smBlock.push(`Sorcerer motif: ${String(sp.motif).trim()}`);
+    const wids = Array.isArray(sp.workingIds) ? sp.workingIds.filter((x) => typeof x === "string" && x.trim()) : [];
+    if (wids.length) smBlock.push(`Workings (ids): ${wids.join(", ")}`);
+    if (String(sp.inherentTechniqueNotes || "").trim())
+      smBlock.push(`Inherent technique(s): ${String(sp.inherentTechniqueNotes).trim()}`);
+    if (String(sp.techniquesNotes || "").trim())
+      smBlock.push(`Other techniques / charms: ${String(sp.techniquesNotes).trim()}`);
     if (String(sp.powerSource || "").trim()) smBlock.push(`Sources of power: ${String(sp.powerSource).trim()}`);
     if (String(sp.invocation || "").trim()) smBlock.push(`Invocation: ${String(sp.invocation).trim()}`);
     if (String(sp.patronage || "").trim()) smBlock.push(`Patronage: ${String(sp.patronage).trim()}`);
