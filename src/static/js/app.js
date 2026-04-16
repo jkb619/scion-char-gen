@@ -3407,13 +3407,44 @@ function updateHeaderTierDisplay() {
     const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
     const m = bundle.dragonTier?.inheritanceTrack?.[String(inhN)];
     el.title =
-      "Heirs use Inheritance (1–10; True Dragon at 10) instead of Legend for this line. Chargen follows the shared Origin spine, then the same wizard tabs as Origin Mortal with Dragon-specific steps after Concept (Scion: Dragon pp. 110–119).";
+      "Heir Inheritance (1–10; True Dragon at 10) governs Heir powers. Use the Legend row to match your table for this Scion tier. Chargen follows the shared Origin spine, then the same wizard tabs as Origin Mortal with Dragon-specific steps after Concept (Scion: Dragon pp. 110–119).";
+    if (isMythosPantheonSelected()) {
+      el.title +=
+        " Mythos Scions also set Awareness below: click a dot to set rating, or the rightmost filled dot again to lower by one (minimum 1).";
+    }
     const tierLine = document.createElement("div");
     tierLine.className = "header-tier-line";
     const fl = bundle.dragonFlights[d.flightId];
     const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inhN}`;
     tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Flights tab)`;
     el.appendChild(tierLine);
+
+    const legRow = document.createElement("div");
+    legRow.className = "header-legend-row";
+    const legLab = document.createElement("span");
+    legLab.className = "header-legend-label";
+    legLab.textContent = "Legend";
+    legRow.appendChild(legLab);
+    legRow.appendChild(buildLegendDotTrack(character.legendRating ?? 0, character.tier, true));
+    const legReq = document.createElement("span");
+    legReq.className = "header-legend-req";
+    const legMin = legendBookMinForTier(character.tier);
+    legReq.textContent = legMin === 0 ? "0+ this tier" : `${legMin}+ this tier`;
+    legReq.title =
+      "Typical minimum Legend to qualify as this tier in the core line: Mortal 0+, Hero 1+, Demigod 4+, God 8+. Your Storyguide may vary; this app does not block tier changes based on Legend.";
+    legRow.appendChild(legReq);
+    el.appendChild(legRow);
+
+    if (isMythosPantheonSelected()) {
+      const awRow = document.createElement("div");
+      awRow.className = "header-legend-row";
+      const awLab = document.createElement("span");
+      awLab.className = "header-legend-label";
+      awLab.textContent = "Awareness";
+      awRow.appendChild(awLab);
+      awRow.appendChild(buildAwarenessDotTrack(character.awarenessRating ?? 1, character.tier, true));
+      el.appendChild(awRow);
+    }
     return;
   }
   el.title =

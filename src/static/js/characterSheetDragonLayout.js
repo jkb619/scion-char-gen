@@ -43,9 +43,6 @@ const ARENAS = {
 };
 const APPROACH_FOR_ATTR = { might: "Power", dexterity: "Finesse", stamina: "Resilience" };
 
-/** Heir Inheritance milestones (Scion: Dragon pp. 117–119); keep aligned with `data/dragonTier.json` and `DRAGON_INHERITANCE_MAX` in app.js / DragonChargenWizard.js. */
-const DRAGON_INHERITANCE_STAGE_COUNT = 10;
-
 /**
  * @param {HTMLElement} el
  * @param {{
@@ -480,41 +477,8 @@ export function fillDragonFourPageLayout(el, api) {
 
   const rightCol = document.createElement("div");
   rightCol.className = "cs-mcg-p1-right";
-  const inhStack = document.createElement("div");
-  inhStack.className = "cs-mcg-track-stack";
-  const inhBlock = document.createElement("div");
-  inhBlock.className = "cs-mcg-legend-with-pool";
-  const inhL = document.createElement("span");
-  inhL.className = "cs-mcg-track-label";
-  inhL.textContent = "Inheritance";
-  const inhDotsCell = document.createElement("div");
-  inhDotsCell.className = "cs-mcg-legend-dots-cell";
-  const inhFill = Math.min(
-    DRAGON_INHERITANCE_STAGE_COUNT,
-    Math.max(0, Math.round(Number(data.inheritance) || 0)),
-  );
-  const inhTrack = document.createElement("div");
-  inhTrack.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
-  for (let i = 1; i <= DRAGON_INHERITANCE_STAGE_COUNT; i += 1) {
-    const col = document.createElement("div");
-    col.className = "cs-mcg-legend-pool-col";
-    const dot = document.createElement("span");
-    dot.className = "cs-dot" + (i <= inhFill ? " on" : "");
-    dot.setAttribute("aria-hidden", "true");
-    col.appendChild(dot);
-    const lab = document.createElement("label");
-    lab.className = "cs-mcg-pool-check cs-mcg-pool-check--under-dot";
-    const inp = document.createElement("input");
-    inp.type = "checkbox";
-    inp.className = "cs-mcg-pool-check-input";
-    lab.appendChild(inp);
-    col.appendChild(lab);
-    inhTrack.appendChild(col);
-  }
-  inhDotsCell.appendChild(inhTrack);
-  inhBlock.appendChild(inhL);
-  inhBlock.appendChild(inhDotsCell);
-  inhStack.appendChild(inhBlock);
+  const trackStack = document.createElement("div");
+  trackStack.className = "cs-mcg-track-stack";
 
   const legBlock = document.createElement("div");
   legBlock.className = "cs-mcg-legend-with-pool";
@@ -530,9 +494,9 @@ export function fillDragonFourPageLayout(el, api) {
   appendLegendAwarenessDotsWithPools(legDotsCell, lv, 1, "Legend", legendPoolCtx);
   legBlock.appendChild(legL);
   legBlock.appendChild(legDotsCell);
-  inhStack.appendChild(legBlock);
+  trackStack.appendChild(legBlock);
 
-  rightCol.appendChild(inhStack);
+  rightCol.appendChild(trackStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
   const remTxt =
     d.remembranceTrackCenter === false
