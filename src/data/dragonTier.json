@@ -2,7 +2,7 @@
   "_meta": {
     "note": "Inheritance 1–9 Heir / Lesser Wyrm milestones and Inheritance 10 True Dragon (Apotheosis) paraphrased from Scion: Dragon (pp. 117–119). Starting at 10 is uncommon—confirm with your Storyguide.",
     "source": "Scion_Dragon_(Final_Download).pdf, Inheritance & Character Advancement (pp. 117–119)",
-    "wizardCaps": "`wizardDraconicKnackLimit` / `wizardAdvancementSpellSlots` are cumulative caps the character wizard uses after advancing on Review (paraphrased +1 Spell / +1 Draconic Knack entries in each row’s summary). Confirm exact counts with your PDF and Storyguide."
+    "wizardCaps": "`wizardAdvancementSpellSlots` counts milestone spell rows in the wizard (paraphrased +1 Spell per dot in the trait list). Slotted Draconic Knacks follow the book cap Inheritance+1 (Dragon p. 111; trait table pp. 9489–9520). Total Calling dots follow the same trait table (+1 at Asset, Agent, Cabalist, Vizier, Mastermind). Confirm at your PDF."
   },
   "inheritanceTrack": {
     "1": { "id": "1", "name": "Hatchling", "band": "Heir", "summary": "Starting Inheritance; narrow but notable power; Scent the Divine; starter Spells and Knacks per chargen (p. 118).", "wizardDraconicKnackLimit": 2, "wizardAdvancementSpellSlots": 0 },

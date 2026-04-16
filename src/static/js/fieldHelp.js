@@ -79,7 +79,7 @@ export const HELP = {
   "d-deed-name": {
     example: "“Seal the broken gate before the eclipse”; a punchy title for the Draconic deed line on the Heir sheet.",
     source:
-      "Scion_Dragon_(Final_Download).pdf — Heir Deeds (p. 110) and Finishing / sheet notes (p. 112); compare Origin Deed procedure in Scion: Origin (Revised) pp. 94–95.",
+      "Scion_Dragon_(Final_Download).pdf — Heir Deeds (p. 110); new Deed Name each Inheritance dot (pp. 9489, 120). Hatchling: set at Finishing (p. 112). Inheritance 2+: use Calling or Review field in this wizard.",
   },
 
   "p-origin": {

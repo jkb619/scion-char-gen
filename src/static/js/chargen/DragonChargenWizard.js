@@ -358,14 +358,18 @@ function dragonRenderFinalAttrDotRow(
   return row;
 }
 
-/** Same cap logic as Hero `rebalanceHeroCallingSlotDotsOverFive` (app.js): trim from row 3→1 until sum ≤ 5. */
-function rebalanceDragonCallingSlotDotsOverFive(d) {
+/**
+ * Trim Calling dots (minimum 1 per row) until total ≤ budget.
+ * Budget scales with Inheritance (+1 Calling at Asset, Agent, Cabalist, Vizier, Mastermind; Scion: Dragon pp. 9489–9520).
+ */
+function rebalanceDragonCallingSlotsToBudget(d, budget) {
+  const cap = Math.max(5, Math.round(Number(budget) || 5));
   const s = d.callingSlots;
   if (!Array.isArray(s) || s.length !== 3) return;
-  for (let guard = 0; guard < 12; guard += 1) {
+  for (let guard = 0; guard < 24; guard += 1) {
     const sum = s[0].dots + s[1].dots + s[2].dots;
-    if (sum <= 5) break;
-    for (let idx = 2; idx >= 0 && s[0].dots + s[1].dots + s[2].dots > 5; idx -= 1) {
+    if (sum <= cap) break;
+    for (let idx = 2; idx >= 0 && s[0].dots + s[1].dots + s[2].dots > cap; idx -= 1) {
       if (s[idx].dots > 1) s[idx].dots -= 1;
     }
   }
@@ -422,16 +426,41 @@ function dragonHeirCallingIdsWithKnackCatalog(bundle) {
 }
 
 /**
- * Cumulative wizard budgets from `dragonTier.json` (milestone +Spell / +Draconic Knack paraphrases).
+ * Total Calling dots required at this Inheritance (Hatchling 5; +1 at Asset, Agent, Cabalist, Vizier, Mastermind).
+ * @param {Record<string, unknown>} bundle
+ * @param {number} inh
+ */
+function dragonCallingDotsRequired(bundle, inh) {
+  void bundle;
+  const n = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inh) || 1)));
+  /** Inheritance indices that grant +1 Calling dot (Scion: Dragon p. 9489+ trait list). */
+  const callingPlusOne = new Set([2, 4, 6, 8, 9]);
+  let total = 5;
+  for (let i = 2; i <= n; i += 1) {
+    if (callingPlusOne.has(i)) total += 1;
+  }
+  return total;
+}
+
+/**
+ * Slotted Draconic Knacks = Inheritance + 1 (max 10; chargen p. 111; trait table p. 9489).
+ * @param {number} inh
+ */
+function dragonDraconicKnackSlotCap(inh) {
+  const n = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inh) || 1)));
+  return Math.min(10, n + 1);
+}
+
+/**
+ * Cumulative wizard budgets: milestone spell rows from `dragonTier.json`; Draconic cap from book formula.
  * @param {Record<string, unknown>} bundle
  * @param {number} inh
  */
 function dragonInheritanceWizardCaps(bundle, inh) {
   const n = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inh) || 1)));
   const row = bundle?.dragonTier?.inheritanceTrack?.[String(n)];
-  const knRaw = row?.wizardDraconicKnackLimit;
   const spRaw = row?.wizardAdvancementSpellSlots;
-  const draconicKnackLimit = Number.isFinite(Number(knRaw)) ? Math.max(1, Math.round(Number(knRaw))) : 2;
+  const draconicKnackLimit = dragonDraconicKnackSlotCap(n);
   const advancementSpellSlots = Number.isFinite(Number(spRaw)) ? Math.max(0, Math.round(Number(spRaw))) : 0;
   return { draconicKnackLimit, advancementSpellSlots };
 }
@@ -636,6 +665,7 @@ export function ensureDragonShape(character, bundle) {
     .filter((p) => p.id);
   if (d.inheritance == null || Number.isNaN(Number(d.inheritance))) d.inheritance = 1;
   d.inheritance = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
+  rebalanceDragonCallingSlotsToBudget(d, dragonCallingDotsRequired(bundle, d.inheritance));
   const inhPoolMax = d.inheritance;
   let inhPr = Math.round(Number(d.inheritancePoolRating));
   if (d.inheritancePoolRating == null || Number.isNaN(inhPr)) inhPr = 0;
@@ -2283,10 +2313,11 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     return null;
   }
   if (step === "calling") {
+    const callingNeed = dragonCallingDotsRequired(bundle, d.inheritance);
     const sum = d.callingSlots.reduce((s, x) => s + x.dots, 0);
     const ids = d.callingSlots.map((s) => s.id).filter(Boolean);
-    if (sum !== 5 || ids.length !== 3 || new Set(ids).size !== 3) {
-      return "Assign exactly five Calling dots across three different Callings (minimum one dot each).";
+    if (sum !== callingNeed || ids.length !== 3 || new Set(ids).size !== 3) {
+      return `Assign exactly ${callingNeed} Calling dots across three different Callings (minimum one dot each) at Inheritance ${d.inheritance} (Scion: Dragon pp. 9489–9520).`;
     }
     const cap = sum;
     const used = knackIdsCallingSlotsUsed(d.callingKnackIds, bundle);
@@ -2295,7 +2326,10 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     }
     const dkCap = dragonInheritanceWizardCaps(bundle, d.inheritance).draconicKnackLimit;
     if (d.draconicKnackIds.length !== dkCap) {
-      return `Select exactly ${dkCap} Draconic Knack(s) for your current Inheritance (Dragon pp. 117–119).`;
+      return `Select exactly ${dkCap} slotted Draconic Knack(s) for Inheritance ${d.inheritance} (Inheritance + 1; Scion: Dragon p. 111, trait table p. 9489).`;
+    }
+    if (d.inheritance >= 2 && !String(d.deedName ?? "").trim()) {
+      return "Enter your new Draconic deed name (each Inheritance dot grants a new Deed Name; Scion: Dragon pp. 9489, 120). Use the field on Review or below if shown.";
     }
     return null;
   }
@@ -2333,6 +2367,12 @@ export function dragonHeirStepLeaveBlockedReason(character, bundle, step) {
     const used = dragonBirthrightsDotsPlaced(d.birthrightPicks);
     if (used !== 7) {
       return "Birthrights must total exactly seven dots.";
+    }
+    return null;
+  }
+  if (step === "review") {
+    if (d.inheritance >= 2 && !String(d.deedName ?? "").trim()) {
+      return "Enter your Draconic deed name (each Inheritance dot grants a new one; Scion: Dragon pp. 9489, 120).";
     }
     return null;
   }
@@ -2738,7 +2778,8 @@ export function renderDragonHeirStepInRoot(ctx) {
   }
 
   if (step === "calling") {
-    rebalanceDragonCallingSlotDotsOverFive(d);
+    const callingBudget = dragonCallingDotsRequired(bundle, d.inheritance);
+    rebalanceDragonCallingSlotsToBudget(d, callingBudget);
     const wrap = document.createElement("div");
     wrap.innerHTML = "";
     const slotBox = document.createElement("div");
@@ -2785,7 +2826,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       sel.value = curId && rowEntries.some(([cid]) => cid === curId) ? curId : "";
       sel.addEventListener("change", () => {
         d.callingSlots[rowIdx].id = sel.value || "";
-        rebalanceDragonCallingSlotDotsOverFive(d);
+        rebalanceDragonCallingSlotsToBudget(d, callingBudget);
         render();
       });
       rowH.appendChild(sel);
@@ -2793,12 +2834,12 @@ export function renderDragonHeirStepInRoot(ctx) {
       dotsWrapH.className = "dots calling-inline-dots";
       dotsWrapH.setAttribute("role", "radiogroup");
       const othersSum = d.callingSlots.reduce((a, s, j) => (j !== rowIdx ? a + s.dots : a), 0);
-      const maxForRow = Math.min(5, Math.max(1, 5 - othersSum));
+      const maxForRow = Math.min(5, Math.max(1, callingBudget - othersSum));
       const cdh = Math.max(1, Math.min(maxForRow, slot.dots));
       d.callingSlots[rowIdx].dots = cdh;
       dotsWrapH.setAttribute(
         "aria-label",
-        `Calling ${rowIdx + 1} rating ${cdh} of 5 (five dots shared across three Callings)`,
+        `Calling ${rowIdx + 1} rating ${cdh} of 5 (${callingBudget} dots shared across three Callings)`,
       );
       for (let dotN = 1; dotN <= 5; dotN += 1) {
         const b = document.createElement("button");
@@ -2815,7 +2856,7 @@ export function renderDragonHeirStepInRoot(ctx) {
         if (canPick) {
           b.addEventListener("click", () => {
             d.callingSlots[rowIdx].dots = dotN;
-            rebalanceDragonCallingSlotDotsOverFive(d);
+            rebalanceDragonCallingSlotsToBudget(d, callingBudget);
             render();
           });
         }
@@ -2829,9 +2870,33 @@ export function renderDragonHeirStepInRoot(ctx) {
     wrap.appendChild(slotBox);
     const sum = d.callingSlots.reduce((s, x) => s + x.dots, 0);
     const sumP = document.createElement("p");
-    sumP.className = sum === 5 ? "help" : "warn";
-    sumP.textContent = `Calling dots total: ${sum} (must be exactly 5)`;
+    sumP.className = sum === callingBudget ? "help" : "warn";
+    sumP.textContent = `Calling dots total: ${sum} (must be exactly ${callingBudget} at Inheritance ${d.inheritance})`;
     wrap.appendChild(sumP);
+
+    if (d.inheritance >= 2) {
+      const deedQuick = document.createElement("div");
+      deedQuick.className = "field dragon-calling-deed-field";
+      const deedQLab = document.createElement("label");
+      deedQLab.htmlFor = "d-calling-deed-name";
+      deedQLab.textContent = "Draconic deed name (required at Inheritance 2+)";
+      deedQuick.appendChild(deedQLab);
+      const deedQHelp = document.createElement("p");
+      deedQHelp.className = "help";
+      deedQHelp.textContent =
+        "Each new Inheritance dot grants a new Deed Name (Scion: Dragon pp. 9489, 120). Finishing is hidden after Hatchling—set or update it here.";
+      deedQuick.appendChild(deedQHelp);
+      const deedQta = document.createElement("textarea");
+      deedQta.id = "d-calling-deed-name";
+      deedQta.rows = 2;
+      deedQta.value = d.deedName || "";
+      deedQta.addEventListener("input", () => {
+        d.deedName = deedQta.value;
+      });
+      deedQuick.appendChild(deedQta);
+      applyHint(deedQta, "d-deed-name");
+      wrap.appendChild(deedQuick);
+    }
 
     const shell = dragonKnackShell(character);
     syncHeroKnackSlotAssignments(shell, bundle);
@@ -3725,6 +3790,30 @@ export function renderDragonHeirStepInRoot(ctx) {
     const nextTrackRow = nextInh != null ? bundle?.dragonTier?.inheritanceTrack?.[String(nextInh)] : null;
     const statusLine = `Inheritance ${inhCur}: ${inhTrackRow?.name || "—"}${inhTrackRow?.band ? ` (${inhTrackRow.band})` : ""}`;
 
+    if (d.inheritance >= 2) {
+      const deedRevBox = document.createElement("div");
+      deedRevBox.className = "field dragon-review-deed-field";
+      const deedRevLab = document.createElement("label");
+      deedRevLab.htmlFor = "d-review-deed-name";
+      deedRevLab.textContent = "Draconic deed name (required)";
+      deedRevBox.appendChild(deedRevLab);
+      const deedRevHelp = document.createElement("p");
+      deedRevHelp.className = "help";
+      deedRevHelp.textContent =
+        "Each Inheritance increase grants a new Deed Name (Scion: Dragon pp. 9489, 120). Required while at Inheritance 2+.";
+      deedRevBox.appendChild(deedRevHelp);
+      const deedRevTa = document.createElement("textarea");
+      deedRevTa.id = "d-review-deed-name";
+      deedRevTa.rows = 2;
+      deedRevTa.value = d.deedName || "";
+      deedRevTa.addEventListener("input", () => {
+        d.deedName = deedRevTa.value;
+      });
+      deedRevBox.appendChild(deedRevTa);
+      applyHint(deedRevTa, "d-deed-name");
+      wrap.appendChild(deedRevBox);
+    }
+
     const inhAdvRow = document.createElement("div");
     inhAdvRow.className = "review-advance-row";
     const btnInhAdv = document.createElement("button");
@@ -3740,6 +3829,7 @@ export function renderDragonHeirStepInRoot(ctx) {
     }
     btnInhAdv.addEventListener("click", () => {
       if (nextInh == null) return;
+      persistDragonFromDom(character, bundle, "review");
       const fromN = inhTrackRow?.name || String(inhCur);
       const toN = nextTrackRow?.name || String(nextInh);
       const curCaps = dragonInheritanceWizardCaps(bundle, inhCur);
@@ -3831,6 +3921,14 @@ export function persistDragonFromDom(character, bundle, explicitStep) {
     }
     const fav = document.getElementById("d-favored")?.value;
     if (fav && APPROACH_ATTRS[fav]) d.favoredApproach = fav;
+  }
+  if (step === "calling") {
+    const deedCalling = document.getElementById("d-calling-deed-name");
+    if (deedCalling) d.deedName = deedCalling.value;
+  }
+  if (step === "review") {
+    const deedRev = document.getElementById("d-review-deed-name");
+    if (deedRev) d.deedName = deedRev.value;
   }
   if (step === "finishing") {
     const ff = document.getElementById("d-fin-focus")?.value;
