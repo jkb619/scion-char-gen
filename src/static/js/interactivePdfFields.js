@@ -11,6 +11,7 @@ import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purvi
 import { dragonSpellPdfEffectLine } from "./dragonSpellUi.js";
 import { applyFatebindingsToInteractivePdfFields } from "./fatebindingsSheet.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
+import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 
 const SKILL_ROW_IDS = [
   "academics",
@@ -155,7 +156,11 @@ export function buildScionInteractivePdfFields(data, bundle) {
     for (const id of ids || []) {
       const k = bundle.knacks?.[id];
       const base = k?.name || id;
-      knackNames.push(suffix ? `${base} (${suffix})` : base);
+      if (k && typeof k === "object") {
+        knackNames.push(`${base} (${knackSheetGroupLabel(k, bundle, pantheonId)})`);
+      } else {
+        knackNames.push(suffix ? `${base} (${suffix})` : base);
+      }
     }
   };
   if (Array.isArray(data.knackIds) && data.knackIds.length) addKnackIds(data.knackIds, "");
@@ -309,16 +314,26 @@ export function buildDragonInteractivePdfFields(data, bundle) {
   }
 
   const knackNames = [];
+  const dragonPantheon = String(data.pantheonId ?? "").trim();
   const pushKn = (arr) => {
     for (const id of arr || []) {
       const kid = String(id || "").trim();
       if (!kid) continue;
-      knackNames.push(
+      const k =
+        bundle.dragonCallingKnacks?.[kid] ||
+        bundle.knacks?.[kid] ||
+        bundle.dragonKnacks?.[kid] ||
+        null;
+      const base =
         bundle.dragonCallingKnacks?.[kid]?.name ||
-          bundle.knacks?.[kid]?.name ||
-          bundle.dragonKnacks?.[kid]?.name ||
-          kid,
-      );
+        bundle.knacks?.[kid]?.name ||
+        bundle.dragonKnacks?.[kid]?.name ||
+        kid;
+      if (k && typeof k === "object") {
+        knackNames.push(`${base} (${knackSheetGroupLabel(k, bundle, dragonPantheon)})`);
+      } else {
+        knackNames.push(base);
+      }
     }
   };
   pushKn(d.callingKnackIds);

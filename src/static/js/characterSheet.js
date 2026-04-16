@@ -7,6 +7,8 @@ import { LEGEND_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 import { sheetFinalAttrsAfterFavored, sheetFinalSkillDots } from "./sheetExportAttrs.js";
+import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
+import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 
 /** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). Bubbles stay empty for at-table Legend rating. */
 function sheetLegendDotTrackReadOnly(_filledRatingIgnored, max) {
@@ -283,16 +285,22 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     const out =
       /** @type {{ knackId: string; title: string; description: string; mechanicalEffects: string; source: string }[]} */ ([]);
     const addIds = (ids, suffix) => {
+      const pant = String(data.pantheonId ?? "").trim();
       for (const id of ids || []) {
         const k = bundle?.knacks?.[id];
         const base = k?.name || id;
-        const title = suffix ? `${base} (${suffix})` : base;
+        const title =
+          k && typeof k === "object"
+            ? `${base} (${knackSheetGroupLabel(k, bundle, pant)})`
+            : suffix
+              ? `${base} (${suffix})`
+              : base;
         out.push({
           knackId: String(id),
           title,
           description: (k?.description || "").trim(),
           mechanicalEffects: (k?.mechanicalEffects || "").trim(),
-          source: (k?.source || "").trim(),
+          source: formatGameDataSourceForDisplay((k?.source || "").trim()),
         });
       }
     };
@@ -317,7 +325,7 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
       out.push({
         title: b ? boonDisplayLabel(b, bundle, data.pantheonId) : bid,
         description: (b?.description || "").trim(),
-        source: (b?.source || "").trim(),
+        source: formatGameDataSourceForDisplay((b?.source || "").trim()),
       });
     }
     return out;
@@ -345,7 +353,7 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
       out.push({
         title: eq.name || eid,
         description: desc,
-        source: (eq.source || "").trim(),
+        source: formatGameDataSourceForDisplay((eq.source || "").trim()),
       });
     }
     return out;

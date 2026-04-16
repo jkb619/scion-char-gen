@@ -11,6 +11,7 @@ import { boonPrimaryPurview } from "./eligibility.js";
 import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
+import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 
 /**
  * @param {HTMLElement} el — root `.character-sheet`
@@ -552,7 +553,8 @@ export function fillMcgFourPageLayout(el, api) {
     const td2 = document.createElement("td");
     if (r) {
       td1.textContent = r.title;
-      td2.textContent = r.description || r.source || "";
+      td2.textContent =
+        r.description || (r.source ? formatGameDataSourceForDisplay(String(r.source).trim()) : "") || "";
     }
     tr.appendChild(td1);
     tr.appendChild(td2);
@@ -687,7 +689,12 @@ export function fillMcgFourPageLayout(el, api) {
       const lines = document.createElement("div");
       lines.className = "cs-mcg-purview-lines";
       lines.appendChild(mcgLinedField("Name", nameFor(pid)));
-      lines.appendChild(mcgLinedField("Source", (bundle.purviews?.[pid]?.source || "").trim().slice(0, 120)));
+      lines.appendChild(
+        mcgLinedField(
+          "Source",
+          formatGameDataSourceForDisplay(String(bundle.purviews?.[pid]?.source || "").trim()).slice(0, 160),
+        ),
+      );
       const blocks = purviewInnateBlocks(bundle, pid, { mythosPantheon: mythosSheet, titanicTier: titanicSheet });
       const innateLines = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
       lines.appendChild(mcgLinedFieldInnatePower(innateLines));

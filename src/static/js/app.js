@@ -61,6 +61,7 @@ import {
   captureDragonFinishingAttrBaseline,
 } from "./chargen/DragonChargenWizard.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
+import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 import { appendSkillRatingsTableThead, skillIdsSplitForSkillsTables } from "./skillTableColumns.js";
 
 /** Lazy-loaded so optional data-editor modules cannot block the main wizard graph (or `init`). */
@@ -3618,10 +3619,11 @@ function renderWelcome(root) {
   tierPick.appendChild(trHelp);
   body.appendChild(tierPick);
   const intro = document.createElement("div");
+  const srcWelcome = formatGameDataSourceForDisplay(String(t?.source || ""));
   intro.innerHTML = `<p class="help">${t?.description || ""}</p>
     <p class="help"><strong>Typical Legend:</strong> ${t?.typicalLegendRange || "—"}</p>
     <p class="help mono">${t?.mechanicalEffects || ""}</p>
-    <p class="help"><em>${t?.source || ""}</em></p>`;
+    <p class="help"><em>${srcWelcome.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</em></p>`;
   body.appendChild(intro);
   root.appendChild(panel("Welcome", body));
 }
@@ -5116,7 +5118,7 @@ function renderPurviews(root) {
         name: disp,
         description: (pv?.description || "").trim(),
         mechanicalEffects: (pv?.mechanicalEffects || "").trim(),
-        source: (pv?.source || "").trim(),
+        source: formatGameDataSourceForDisplay(String(pv?.source || "").trim()),
       };
       applyGameDataHint(sigVal, hintEntity);
     } else {
@@ -6728,7 +6730,7 @@ function buildExportObject() {
           tagNames,
           description: eq.description || "",
           mechanicalEffects: eq.mechanicalEffects || "",
-          source: eq.source || "",
+          source: formatGameDataSourceForDisplay(String(eq.source || "").trim()),
         };
       })
       .filter(Boolean),

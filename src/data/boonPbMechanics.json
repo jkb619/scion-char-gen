@@ -1143,11 +1143,11 @@
     "mechanicalEffects": "Cost: None\nDuration: Scene\nSubject: Self\nAction: Simple\nClash: Presence + Legend vs. Resolve + Legend"
   },
   "atuaMana_dot_01": {
-    "description": "Pono is synonymous with righteousness and balance, and an Atua Scion may empower others through this sense of balance. This Boon activates when a Scion resolves the Vir­ tuous Condition and confers the following benefits for the rest of the scene: The Collateral Pool loses up to three dice. This effect only occurs once per scene. The character may choose another character with whom they have a Bond and \"share\"…",
+    "description": "Through righteous actions, you may gain mana, and recognize it within others. Once per session, whenever you successfully complete a Deed, or when you perform a scene-long action that falls within the conceptual scope of the Fertility or War Purviews, you may choose to either regain one point of Legend or add four Momentum to the pool. Completion of a Failure Deed, even a successful completion, does not award these benefits.",
     "mechanicalEffects": "Cost: Free\nDuration: Instant\nSubject: Self\nAction: Reflexive"
   },
   "atuaMana_dot_02": {
-    "description": "Pono is synonymous with righteousness and balance, and an Atua Scion may empower others through this sense of balance. This Boon activates when a Scion resolves the Vir­ tuous Condition and confers the following benefits for the rest of the scene: The Collateral Pool loses up to three dice. This effect only occurs once per scene. The character may choose another character with whom they have a Bond and \"share\"…",
+    "description": "Pono is synonymous with righteousness and balance, and an Atua Scion may empower others through this sense of balance. This Boon activates when a Scion resolves the Virtuous Condition and confers the following benefits for the rest of the scene: The Collateral Pool loses up to three dice. This effect only occurs once per scene. The character may choose another character with whom they have a Bond and \"share\"…",
     "mechanicalEffects": "Cost: Special\nDuration: Indefinite or One scene\nSubject: Self or one vehicle\nAction: Simple"
   },
   "atuaMana_dot_03": {

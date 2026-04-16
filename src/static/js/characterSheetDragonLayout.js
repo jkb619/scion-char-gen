@@ -9,6 +9,8 @@ import { applyGameDataHint } from "./fieldHelp.js";
 import { appendDragonSpellBoonStylePlate } from "./dragonSpellUi.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
+import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
@@ -262,18 +264,21 @@ export function fillDragonFourPageLayout(el, api) {
     push(d.callingKnackIds);
     push(d.draconicKnackIds);
     push(d.finishingCallingKnackIds);
+    const pant = String(data.pantheonId ?? "").trim();
     for (const id of ids) {
       const k =
         bundle?.dragonCallingKnacks?.[id] ||
         bundle?.knacks?.[id] ||
         bundle?.dragonKnacks?.[id] ||
         /** @type {Record<string, unknown>} */ ({});
+      const nm = knackLabel(id);
+      const group = knackSheetGroupLabel(k, bundle, pant);
       out.push({
         knackId: id,
-        title: knackLabel(id),
+        title: nm ? `${nm} (${group})` : "",
         description: String(k?.description ?? "").trim(),
         mechanicalEffects: String(k?.mechanicalEffects ?? "").trim(),
-        source: String(k?.source ?? "").trim(),
+        source: formatGameDataSourceForDisplay(String(k?.source ?? "").trim()),
       });
     }
     return out;

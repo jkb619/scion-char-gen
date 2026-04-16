@@ -3,6 +3,8 @@
  * (Scion: Origin Revised, Hero, Demigod, God — 2nd edition).
  */
 
+import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
+
 export const BOOK = {
   origin: "Scion: Origin (Revised)",
   hero: "Scion: Hero (2nd ed.)",
@@ -295,7 +297,7 @@ export function applyGameDataHint(el, entity, opts) {
   const name = (entity.name || "").trim();
   const desc = (entity.description || "").trim();
   const mech = (entity.mechanicalEffects || "").trim();
-  const src = (entity.source || "").trim();
+  const src = formatGameDataSourceForDisplay((entity.source || "").trim());
   const chunks = [];
   if (prefix) chunks.push(prefix);
   if (name) chunks.push(name);
