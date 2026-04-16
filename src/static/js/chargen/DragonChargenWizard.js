@@ -572,7 +572,9 @@ export function ensureDragonShape(character, bundle) {
     }
     if (row.magicId && row.spellId) {
       const mag = bundle?.dragonMagic?.[row.magicId];
-      const ok = Array.isArray(mag?.spells) && mag.spells.some((s) => s && s.id === row.spellId);
+      const sid = String(row.spellId).trim();
+      const ok =
+        Array.isArray(mag?.spells) && mag.spells.some((s) => s && String(s.id ?? "").trim() === sid);
       if (!ok) row.spellId = "";
     }
   }
@@ -3119,31 +3121,36 @@ export function renderDragonHeirStepInRoot(ctx) {
       mh2.className = "help";
       mh2.innerHTML = `Your current Inheritance grants <strong>${inhCap.advancementSpellSlots}</strong> extra spell pick(s) (choose Magic from your three known, then a Spell — Dragon pp. 117–119).`;
       mileWrap.appendChild(mh2);
-      const knownM = d.knownMagics.filter(Boolean);
+      const knownM = d.knownMagics.filter(Boolean).map((x) => String(x ?? "").trim()).filter(Boolean);
       for (let i = 0; i < d.advancementSpells.length; i += 1) {
-        const row = d.advancementSpells[i];
         const sub = document.createElement("div");
         sub.className = "field dragon-wizard-spell-block";
         const lab = document.createElement("label");
         lab.textContent = `Milestone spell ${i + 1}`;
         const magicRow = document.createElement("div");
         magicRow.className = "chips";
-        for (const mid of knownM) {
+        for (const midRaw of knownM) {
+          const mid = String(midRaw ?? "").trim();
+          if (!mid) continue;
           const m = bundle.dragonMagic?.[mid];
           if (!m || typeof m !== "object") continue;
-          const onM = String(row.magicId || "").trim() === mid;
+          const rowNow = () => d.advancementSpells[i];
+          const onM = String(rowNow()?.magicId || "").trim() === mid;
           const b = document.createElement("button");
           b.type = "button";
           b.className = "chip" + (onM ? " on" : "");
           b.textContent = m.name || mid;
           applyGameDataHint(b, m);
           b.addEventListener("click", () => {
-            if (onM) {
-              row.magicId = "";
-              row.spellId = "";
+            const r = d.advancementSpells[i];
+            if (!r) return;
+            const selected = String(r.magicId || "").trim() === mid;
+            if (selected) {
+              r.magicId = "";
+              r.spellId = "";
             } else {
-              row.magicId = mid;
-              row.spellId = "";
+              r.magicId = mid;
+              r.spellId = "";
             }
             render();
           });
@@ -3155,9 +3162,10 @@ export function renderDragonHeirStepInRoot(ctx) {
         spellLab.textContent = "Spell";
         const spellRow = document.createElement("div");
         spellRow.className = "chips";
-        const pickMid = String(row.magicId || "").trim();
+        const rowForSpellUi = d.advancementSpells[i];
+        const pickMid = String(rowForSpellUi?.magicId || "").trim();
         const bMagM = pickMid ? bundle.dragonMagic?.[pickMid] : null;
-        const curSp = String(row.spellId || "").trim();
+        const curSp = String(rowForSpellUi?.spellId || "").trim();
         const primaryForMagic = String(d.spellsByMagicId[pickMid] || "").trim();
         const takenAdv = new Set();
         for (let j = 0; j < d.advancementSpells.length; j += 1) {
@@ -3171,16 +3179,21 @@ export function renderDragonHeirStepInRoot(ctx) {
           const spellList = Array.isArray(bMagM.spells) ? bMagM.spells : [];
           for (const sp of spellList) {
             if (!sp?.id) continue;
-            if (sp.id === primaryForMagic) continue;
-            if (takenAdv.has(sp.id)) continue;
-            const onS = curSp === sp.id;
+            const spid = String(sp.id).trim();
+            if (!spid) continue;
+            if (spid === primaryForMagic) continue;
+            if (takenAdv.has(spid)) continue;
+            const onS = curSp === spid;
             const chip = document.createElement("button");
             chip.type = "button";
             chip.className = "chip" + (onS ? " on" : "");
             chip.textContent = sp.name || sp.id;
             applyGameDataHint(chip, dragonSpellChipHintEntity(sp, bMagM));
             chip.addEventListener("click", () => {
-              row.spellId = onS ? "" : sp.id;
+              const r = d.advancementSpells[i];
+              if (!r) return;
+              const cur = String(r.spellId || "").trim();
+              r.spellId = cur === spid ? "" : spid;
               render();
             });
             spellRow.appendChild(chip);
