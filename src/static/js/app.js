@@ -1767,7 +1767,7 @@ function appendSorceryTechniqueChipsInto(host, mode) {
   const ref = document.createElement("p");
   ref.className = "help";
   ref.innerHTML =
-    "Techniques are listed in <cite>Saints & Monsters</cite> ch. 3 (pp. 65–78). Each Working grants one <strong>Inherent Technique</strong> automatically; additional Techniques use the Step Seven budget on Finishing (Mortal) or one per Working at Heroic+ (p. 86).";
+    "Techniques are listed in <cite>Saints & Monsters</cite> ch. 3 (pp. 65–78). Each Working grants one <strong>Inherent Technique</strong> automatically. <strong>Mortal</strong> characters spend Step Seven Technique picks on <strong>Finishing</strong> and may use the same chip row on the <strong>Sorcerer</strong> tab once that package is chosen (p. 87). <strong>Heroic+</strong> Sorcerers pick one additional Technique per Working here (p. 86).";
   sec.appendChild(ref);
 
   const rows = sorcererWorkingsCatalogRows();
@@ -1804,13 +1804,19 @@ function appendSorceryTechniqueChipsInto(host, mode) {
       const inhRow = document.createElement("div");
       inhRow.className = "chips sorc-technique-row";
       const chip = document.createElement("span");
-      chip.className = "chip on sorc-technique-chip sorc-technique-chip--inherent";
+      chip.className = "chip sorc-technique-chip sorc-technique-chip--inherent";
       chip.textContent = String(inh.name);
       chip.setAttribute("tabindex", "0");
       applyGameDataHint(chip, {
         name: `${inh.name} (Inherent)`,
-        description: `Granted automatically with the ${wname} Working — not purchased and not chosen from a separate list (Saints & Monsters p. 66).`,
-        mechanicalEffects: `Printed fields (Skill Roll, Cost, Duration, Subject, Range, etc.) appear in the Workings chapter on PDF p. ${inh.pdfPage ?? "?"}.`,
+        description:
+          typeof inh.hintDescription === "string" && inh.hintDescription.trim()
+            ? `${inh.hintDescription.trim()}\n\nGranted automatically with the ${wname} Working — not a purchased pick (Saints & Monsters p. 66).`
+            : `Granted automatically with the ${wname} Working — not purchased and not chosen from a separate list (Saints & Monsters p. 66).`,
+        mechanicalEffects:
+          typeof inh.hintMechanics === "string" && inh.hintMechanics.trim()
+            ? inh.hintMechanics.trim()
+            : `Printed fields (Skill Roll, Cost, Duration, Subject, Range, etc.) appear in the Workings chapter on PDF p. ${inh.pdfPage ?? "?"}.`,
         source: srcLine,
       });
       inhRow.appendChild(chip);
@@ -1826,7 +1832,7 @@ function appendSorceryTechniqueChipsInto(host, mode) {
     if (mode === "hero_profile") {
       interactiveAdditional = true;
       maxAddHere = 1;
-    } else if (mode === "mortal_finishing") {
+    } else if (mode === "mortal_finishing" || mode === "mortal_profile") {
       const cap = sorceryAdditionalTechniqueBudgetTotal();
       interactiveAdditional = cap > 0 && wid === wids[0];
       maxAddHere = cap;
@@ -1836,7 +1842,9 @@ function appendSorceryTechniqueChipsInto(host, mode) {
     addLab.className = "help sorc-technique-subhead";
     if (mode === "mortal_profile") {
       addLab.textContent =
-        "Additional Techniques (same Working — reference only here; Mortals buy picks on Step Seven: Finishing, p. 87)";
+        budgetAll > 0
+          ? `Additional Techniques (click to pick up to ${budgetAll} — Step Seven package, same Working; also available on Finishing, S&M p. 87)`
+          : "Additional Techniques (same Working — choose a Step Seven package that includes Techniques on Finishing to enable picks here, p. 87)";
     } else if (mode === "hero_profile") {
       addLab.textContent = "Additional Technique at chargen (pick one from this Working)";
     } else {
@@ -1849,15 +1857,22 @@ function appendSorceryTechniqueChipsInto(host, mode) {
     for (const t of def.additional) {
       if (!t || typeof t !== "object" || !t.id || !t.name) continue;
       const pagePart = t.pdfPage != null ? String(t.pdfPage) : "?";
+      const hasHintDesc = typeof t.hintDescription === "string" && t.hintDescription.trim();
+      const hasHintMech = typeof t.hintMechanics === "string" && t.hintMechanics.trim();
+      const chargenBlurb =
+        mode === "mortal_profile"
+          ? budgetAll > 0
+            ? `Listed under ${wname}. Mortal Step Seven Technique budget (S&M p. 87).`
+            : `Listed under ${wname}. Mortal tier: enable picks by choosing a Finishing package with Technique slots (S&M p. 87).`
+          : mode === "hero_profile"
+            ? `Additional Technique under ${wname}: one per Working at chargen (S&M p. 86).`
+            : `Additional Technique under ${wname} for your current Finishing package.`;
       const hintEntity = {
         name: t.name,
-        description:
-          mode === "mortal_profile"
-            ? `Listed under ${wname} in the Workings chapter. At Mortal tier, extra Techniques are not chosen on this tab — use Finishing when your Step Seven package includes one or two Techniques (S&M p. 87).`
-            : mode === "hero_profile"
-              ? `Additional Technique under ${wname}. Choose one per Working at chargen (S&M p. 86).`
-              : `Additional Technique under ${wname} for your current Finishing package.`,
-        mechanicalEffects: `Stat block (Skill Roll, Cost, Duration, Subject, Range): Saints & Monsters PDF p. ${pagePart}.`,
+        description: hasHintDesc ? `${t.hintDescription.trim()}\n\n${chargenBlurb}` : chargenBlurb,
+        mechanicalEffects: hasHintMech
+          ? t.hintMechanics.trim()
+          : `Stat block (Skill Roll, Cost, Duration, Subject, Range): Saints & Monsters PDF p. ${pagePart}.`,
         source: srcLine,
       };
       if (interactiveAdditional) {
@@ -1867,8 +1882,8 @@ function appendSorceryTechniqueChipsInto(host, mode) {
         btn.className = "chip sorc-technique-chip" + (on ? " on" : "");
         btn.textContent = String(t.name);
         applyGameDataHint(btn, hintEntity);
-        const atCapAll = pickedIds.length >= budgetAll;
-        const atCapW = picksThisW >= maxAddHere;
+        const atCapAll = budgetAll > 0 && pickedIds.length >= budgetAll;
+        const atCapW = maxAddHere > 0 && picksThisW >= maxAddHere;
         btn.disabled = !on && (atCapAll || atCapW);
         if (btn.disabled && !on) {
           const why =
@@ -5985,7 +6000,7 @@ function renderWorkings(root) {
     const post = document.createElement("p");
     post.className = "help";
     post.innerHTML =
-      "Next, on the <strong>Sorcerer</strong> tab, your Working’s <strong>Inherent Technique</strong> appears as a fixed chip (from <em>Saints & Monsters</em> pp. 65–78). Extra Techniques from Step Seven use chip picks on <strong>Finishing</strong> when you choose that package (p. 87).";
+      "Next, on the <strong>Sorcerer</strong> tab, your Working’s <strong>Inherent Technique</strong> appears as a fixed chip (from <em>Saints & Monsters</em> pp. 65–78). After you choose a Step Seven package that includes Techniques on <strong>Finishing</strong>, use the same chip picks on <strong>Finishing</strong> or the <strong>Sorcerer</strong> tab (p. 87).";
     wrap.appendChild(post);
   }
   root.appendChild(panel("Workings", wrap));
@@ -6003,7 +6018,7 @@ function renderSorcerer(root) {
     detail.innerHTML = `
     <p class="help">Mortal-tier Sorcerers have <strong>no Legend 1</strong> yet and do <strong>not</strong> use the four Sources of Power (Invocation, Patronage, Prohibition, Talisman) from pp. 64–65 at creation — the book ties that choice to <strong>Heroic</strong> Sorcerer chargen (p. 85). Record one <strong>Motif</strong> below (p. 87).</p>
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-techniques">Charms and other notes</label><textarea id="f-sorc-techniques" rows="3" placeholder="Charms and freeform notes (Saints & Monsters pp. 65–66). Purchased extra Techniques use chips on Finishing when you pick that Step Seven package (p. 87)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Charms and other notes</label><textarea id="f-sorc-techniques" rows="3" placeholder="Charms and freeform notes (Saints & Monsters pp. 65–66). When Step Seven includes Techniques, pick them on this tab or Finishing (p. 87)."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
   } else {
     const primOpts = [

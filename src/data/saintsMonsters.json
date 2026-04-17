@@ -20,14 +20,56 @@
   "sorcererTechniquesByWorking": {
     "binding": {
       "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 66–69",
-      "inherent": { "id": "binding_spite", "name": "Spite", "pdfPage": 67 },
+      "inherent": {
+        "id": "binding_spite",
+        "name": "Spite",
+        "pdfPage": 67,
+        "hintDescription": "Malice at a glance — imposes misfortune or injury on one target through words or a glare (Saints & Monsters Binding).",
+        "hintMechanics": "Skill roll yes; scene; one subject; Short range; pay 1 Momentum or 1 Legend depending on branch (see book). Injury track: spend 1 Momentum and roll Sorcery as the attack to start; further Spite on that same target this scene is free. Stunts: forced eye contact (limits actions), Injuries (Aggravated at higher successes), knock prone, or spend Legend for a Howl vs everyone in the target’s range band. Misfortune track: spend 1 Legend to impose half your successes as Difficulty on all of the target’s rolls for the scene (max 5), or 1 Momentum to impose full successes on one roll they choose this scene (max 5)."
+      },
       "additional": [
-        { "id": "binding_curse", "name": "Curse", "pdfPage": 67 },
-        { "id": "binding_draw_out", "name": "Draw Out", "pdfPage": 67 },
-        { "id": "binding_envessel", "name": "Envessel", "pdfPage": 68 },
-        { "id": "binding_spirit_wrestling", "name": "Spirit-Wrestling", "pdfPage": 68 },
-        { "id": "binding_forbiddance", "name": "Forbiddance", "pdfPage": 68 },
-        { "id": "binding_subversion", "name": "Subversion", "pdfPage": 68 }
+        {
+          "id": "binding_curse",
+          "name": "Curse",
+          "pdfPage": 67,
+          "hintDescription": "Places a named harmful Condition on a target for the Working’s curse-and-hex toolkit.",
+          "hintMechanics": "Sorcery roll; imbue 1 Legend; scene; Short range. You must define the curse before rolling; the SG sets difficulty from how heavy the effect is. Purely narrative Conditions use the guidance in Origin (around p. 64); when a Condition is expressed as added Difficulty, the penalty equals half your rolled successes. The book also describes a ritual to hang a curse on an object with a simple trigger until removed (costs 1 Legend there)."
+        },
+        {
+          "id": "binding_draw_out",
+          "name": "Draw Out",
+          "pdfPage": 67,
+          "hintDescription": "The “love spell” mortals talk about — it does not create affection; it compels the victim to come to you while they waste away until they arrive.",
+          "hintMechanics": "Sorcery roll; imbue 1 Legend; indefinite; one character; Long range. Until the target reaches you they gain Wasting (no food or sleep) and rising Difficulty on all actions (+1 after a day, +2 after three days, +4 after a week, then daily Injuries until resolved). Cannot target anyone of a higher tier. Equal-tier targets may roll Resilience + Resolve each day against difficulty equal to your original spell successes to break free."
+        },
+        {
+          "id": "binding_envessel",
+          "name": "Envessel",
+          "pdfPage": 68,
+          "hintDescription": "Binds a spirit into an object — common paired play with Summoning for bottled ghosts and bound helpers.",
+          "hintMechanics": "No roll, no cost, scene, one spirit at Short range if the spirit is already Taken Out. Active spirits resist with Sorcery vs. difficulty equal to their remaining Health, spending 1 Momentum per attempt. While trapped you may interrogate them once per session, or release them to perform one service (they often resent this; you may optionally take a Nemesis Fatebinding right after the service)."
+        },
+        {
+          "id": "binding_spirit_wrestling",
+          "name": "Spirit-Wrestling",
+          "pdfPage": 68,
+          "hintDescription": "Drives a spirit from your presence for the session through a stylized contest (riddles, dance, literal wrestling, etc.).",
+          "hintMechanics": "Imbue 1 Legend; arc duration; one spirit; Short range. Roll complexity varies: contest is a complex action using a skill the spirit picks, with about 1–4 Milestones keyed to spirit Archetype rank (±2 Milestones if the spirit is one tier above/below you, minimum 1). You must finish the contest: win and it leaves; lose and you cannot use this Technique on that spirit again this arc; interruption lets you recast but resets progress or counts as a loss depending on who was ahead."
+        },
+        {
+          "id": "binding_forbiddance",
+          "name": "Forbiddance",
+          "pdfPage": 68,
+          "hintDescription": "Like a geas — forbids one consciously controllable action (e.g. “do not move”), not impossible physiology (“do not breathe”).",
+          "hintMechanics": "Sorcery roll; 1 Momentum; scene; one character; Short range. On success applies the Forbidden Condition for the scene or until you end it, blocking the named action."
+        },
+        {
+          "id": "binding_subversion",
+          "name": "Subversion",
+          "pdfPage": 68,
+          "hintDescription": "Bends how a Storyguide character feels about you — not mind control, but a shift in Attitude in your favor or fear.",
+          "hintMechanics": "Sorcery roll; 1 Legend; scene; one character; Short range. Name the Attitude level you want (0–5, positive or negative); difficulty equals how far that is from their current Attitude. Cannot target anyone two or more tiers above you."
+        }
       ]
     },
     "divining": {

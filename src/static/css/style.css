@@ -251,6 +251,12 @@ textarea.has-doc-hint:focus-visible {
   outline-offset: 2px;
 }
 
+/* Sorcerer Workings: inherent is granted (not a toggle); keep visible but distinct from selected additional picks. */
+.chip.sorc-technique-chip--inherent {
+  border-color: rgba(201, 162, 77, 0.75);
+  color: #f5ebd4;
+}
+
 /* Sorcerer Workings: inherent + reference-only Technique chips use help cursor (not primary actions). */
 .chip.sorc-technique-chip--inherent.has-doc-hint,
 .chip.sorc-technique-chip--reference.has-doc-hint {
@@ -261,6 +267,11 @@ textarea.has-doc-hint:focus-visible {
   border-style: dashed;
   opacity: 0.95;
   color: var(--muted);
+}
+
+/* Additional Technique toggles: primary control (tooltip still on hover). */
+.sorc-technique-row--additional button.sorc-technique-chip:not(:disabled) {
+  cursor: pointer;
 }
 
 .dot-row.has-doc-hint {
