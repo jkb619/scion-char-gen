@@ -251,6 +251,18 @@ textarea.has-doc-hint:focus-visible {
   outline-offset: 2px;
 }
 
+/* Sorcerer Workings: inherent + reference-only Technique chips use help cursor (not primary actions). */
+.chip.sorc-technique-chip--inherent.has-doc-hint,
+.chip.sorc-technique-chip--reference.has-doc-hint {
+  cursor: help;
+}
+
+.chip.sorc-technique-chip--reference {
+  border-style: dashed;
+  opacity: 0.95;
+  color: var(--muted);
+}
+
 .dot-row.has-doc-hint {
   cursor: help;
 }

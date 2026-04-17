@@ -687,6 +687,8 @@ function defaultCharacter() {
       talisman: "",
       /** @type {string[]} */
       workingIds: [],
+      /** @type {string[]} — additional Technique ids from `saintsMonsters.sorcererTechniquesByWorking` (not inherent). */
+      additionalTechniqueIds: [],
       inherentTechniqueNotes: "",
       techniquesNotes: "",
       notes: "",
@@ -726,6 +728,7 @@ function defaultSorceryProfile() {
     prohibition: "",
     talisman: "",
     workingIds: [],
+    additionalTechniqueIds: [],
     inherentTechniqueNotes: "",
     techniquesNotes: "",
     notes: "",
@@ -758,6 +761,13 @@ function ensureSorceryProfileShape() {
   if (character.sorceryProfile.workingIds.length > cap) {
     character.sorceryProfile.workingIds = character.sorceryProfile.workingIds.slice(0, cap);
   }
+  if (!Array.isArray(character.sorceryProfile.additionalTechniqueIds)) character.sorceryProfile.additionalTechniqueIds = [];
+  else {
+    character.sorceryProfile.additionalTechniqueIds = [
+      ...new Set(character.sorceryProfile.additionalTechniqueIds.filter((x) => typeof x === "string" && x.trim())),
+    ];
+  }
+  pruneSorceryAdditionalTechniques();
   const tSorc = normalizedTierId(character.tier);
   if (tSorc === "sorcerer") {
     character.sorceryProfile.primaryPowerSource = "";
@@ -1625,6 +1635,280 @@ function masksMotMBundle() {
 function saintsMonstersBundle() {
   const m = bundle?.saintsMonsters;
   return m && typeof m === "object" ? m : null;
+}
+
+/** @returns {Record<string, unknown> | null} */
+function sorcererTechniquesByWorkingTable() {
+  const t = saintsMonstersBundle()?.sorcererTechniquesByWorking;
+  return t && typeof t === "object" ? t : null;
+}
+
+/** @param {string} workingId */
+function sorceryWorkingTechniqueDef(workingId) {
+  const tbl = sorcererTechniquesByWorkingTable();
+  const wid = String(workingId || "").trim();
+  if (!tbl || !wid) return null;
+  const def = tbl[wid];
+  return def && typeof def === "object" ? def : null;
+}
+
+/** Which Working owns this Technique id (inherent or additional), or "". */
+function techniqueWorkingOwner(techniqueId) {
+  const tid = String(techniqueId || "").trim();
+  if (!tid) return "";
+  const tbl = sorcererTechniquesByWorkingTable();
+  if (!tbl) return "";
+  for (const wid of Object.keys(tbl)) {
+    const def = tbl[wid];
+    if (!def || typeof def !== "object") continue;
+    if (def.inherent && typeof def.inherent === "object" && def.inherent.id === tid) return wid;
+    const add = Array.isArray(def.additional) ? def.additional : [];
+    if (add.some((x) => x && x.id === tid)) return wid;
+  }
+  return "";
+}
+
+/** Total additional Technique picks allowed at chargen for the current tier + Mortal Finishing package. */
+function sorceryAdditionalTechniqueBudgetTotal() {
+  const t = normalizedTierId(character.tier);
+  if (t === "sorcerer") {
+    const pkg = String(character.finishing?.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+    if (pkg === "two_techniques") return 2;
+    if (pkg === "one_technique_two_paraphernalia") return 1;
+    return 0;
+  }
+  if (t === "sorcerer_hero" || t === "sorcerer_demigod" || t === "sorcerer_god") {
+    const w = (character.sorceryProfile?.workingIds || []).filter((x) => typeof x === "string" && x.trim());
+    return Math.min(sorcererWorkingPickCap(character.tier), w.length) || 0;
+  }
+  return 0;
+}
+
+/** Drop invalid / over-budget additional Technique ids (Saints & Monsters Workings chapter). */
+function pruneSorceryAdditionalTechniques() {
+  if (!character.sorceryProfile) return;
+  const tbl = sorcererTechniquesByWorkingTable();
+  let ids = [...new Set((character.sorceryProfile.additionalTechniqueIds || []).filter((x) => typeof x === "string" && x.trim()))];
+  if (!tbl) {
+    character.sorceryProfile.additionalTechniqueIds = [];
+    return;
+  }
+  const wset = new Set((character.sorceryProfile.workingIds || []).filter((x) => typeof x === "string" && x.trim()));
+  ids = ids.filter((tid) => {
+    const ow = techniqueWorkingOwner(tid);
+    if (!ow || !wset.has(ow)) return false;
+    const def = sorceryWorkingTechniqueDef(ow);
+    return Array.isArray(def?.additional) && def.additional.some((x) => x && x.id === tid);
+  });
+  const budget = sorceryAdditionalTechniqueBudgetTotal();
+  if (ids.length > budget) ids = ids.slice(0, budget);
+  const tierN = normalizedTierId(character.tier);
+  if (tierN === "sorcerer") {
+    const firstW = (character.sorceryProfile.workingIds || []).find((x) => typeof x === "string" && x.trim());
+    if (firstW) ids = ids.filter((tid) => techniqueWorkingOwner(tid) === firstW);
+  }
+  character.sorceryProfile.additionalTechniqueIds = ids;
+}
+
+function toggleSorceryAdditionalTechnique(techniqueId) {
+  ensureSorceryProfileShape();
+  const tid = String(techniqueId || "").trim();
+  if (!tid) return;
+  const ownerW = techniqueWorkingOwner(tid);
+  if (!ownerW) return;
+  const wids = (character.sorceryProfile.workingIds || []).filter((x) => typeof x === "string" && x.trim());
+  if (!wids.includes(ownerW)) return;
+  const def = sorceryWorkingTechniqueDef(ownerW);
+  const extraOk = Array.isArray(def?.additional) && def.additional.some((x) => x && x.id === tid);
+  if (!extraOk) return;
+  let ids = [...(character.sorceryProfile.additionalTechniqueIds || [])];
+  const idx = ids.indexOf(tid);
+  const tierN = normalizedTierId(character.tier);
+  const budget = sorceryAdditionalTechniqueBudgetTotal();
+  if (idx >= 0) {
+    ids.splice(idx, 1);
+  } else {
+    if (tierN === "sorcerer") {
+      if (ownerW !== wids[0]) return;
+    } else {
+      ids = ids.filter((x) => techniqueWorkingOwner(x) !== ownerW);
+    }
+    if (ids.length >= budget) return;
+    ids.push(tid);
+  }
+  character.sorceryProfile.additionalTechniqueIds = ids;
+  pruneSorceryAdditionalTechniques();
+  render();
+}
+
+/**
+ * @param {"mortal_profile"|"hero_profile"|"mortal_finishing"} mode
+ * @param {HTMLElement} host
+ */
+function appendSorceryTechniqueChipsInto(host, mode) {
+  ensureSorceryProfileShape();
+  pruneSorceryAdditionalTechniques();
+  const tbl = sorcererTechniquesByWorkingTable();
+  if (!tbl) {
+    const p = document.createElement("p");
+    p.className = "warn";
+    p.textContent = "Technique tables are missing from saintsMonsters.json — confirm the game bundle includes Saints & Monsters data.";
+    host.appendChild(p);
+    return;
+  }
+  const wids = (character.sorceryProfile.workingIds || []).filter((x) => typeof x === "string" && x.trim());
+  if (!wids.length) return;
+
+  const sec = document.createElement("section");
+  sec.className = "panel sorcerer-techniques-panel";
+  const h2 = document.createElement("h2");
+  h2.textContent = "Workings & Techniques";
+  sec.appendChild(h2);
+  const ref = document.createElement("p");
+  ref.className = "help";
+  ref.innerHTML =
+    "Techniques are listed in <cite>Saints & Monsters</cite> ch. 3 (pp. 65–78). Each Working grants one <strong>Inherent Technique</strong> automatically; additional Techniques use the Step Seven budget on Finishing (Mortal) or one per Working at Heroic+ (p. 86).";
+  sec.appendChild(ref);
+
+  const rows = sorcererWorkingsCatalogRows();
+  const rowsById = new Map(rows.map((r) => [r.id, r]));
+  const pickedIds = character.sorceryProfile.additionalTechniqueIds || [];
+  const pickedSet = new Set(pickedIds);
+  const budgetAll = sorceryAdditionalTechniqueBudgetTotal();
+
+  for (const wid of wids) {
+    const def = sorceryWorkingTechniqueDef(wid);
+    if (!def) continue;
+    const wname = rowsById.get(wid)?.name || wid;
+    const wh = document.createElement("h3");
+    wh.textContent = wname;
+    sec.appendChild(wh);
+    const src = typeof def.source === "string" && def.source.trim() ? def.source.trim() : "";
+    if (src) {
+      const sp = document.createElement("p");
+      sp.className = "help mono";
+      sp.textContent = src;
+      sec.appendChild(sp);
+    }
+
+    const inh = def.inherent && typeof def.inherent === "object" ? def.inherent : null;
+    const smPdf = "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf";
+    const srcLine = typeof def.source === "string" && def.source.trim() ? def.source.trim() : `${smPdf} — Workings ch. 3`;
+    if (inh?.name) {
+      const inhWrap = document.createElement("div");
+      inhWrap.className = "sorc-technique-block";
+      const inhLab = document.createElement("div");
+      inhLab.className = "help sorc-technique-subhead";
+      inhLab.textContent = "Inherent Technique (automatic)";
+      inhWrap.appendChild(inhLab);
+      const inhRow = document.createElement("div");
+      inhRow.className = "chips sorc-technique-row";
+      const chip = document.createElement("span");
+      chip.className = "chip on sorc-technique-chip sorc-technique-chip--inherent";
+      chip.textContent = String(inh.name);
+      chip.setAttribute("tabindex", "0");
+      applyGameDataHint(chip, {
+        name: `${inh.name} (Inherent)`,
+        description: `Granted automatically with the ${wname} Working — not purchased and not chosen from a separate list (Saints & Monsters p. 66).`,
+        mechanicalEffects: `Printed fields (Skill Roll, Cost, Duration, Subject, Range, etc.) appear in the Workings chapter on PDF p. ${inh.pdfPage ?? "?"}.`,
+        source: srcLine,
+      });
+      inhRow.appendChild(chip);
+      inhWrap.appendChild(inhRow);
+      sec.appendChild(inhWrap);
+    }
+
+    const hasAdditional = Array.isArray(def.additional) && def.additional.length > 0;
+    if (!hasAdditional) continue;
+
+    let interactiveAdditional = false;
+    let maxAddHere = 0;
+    if (mode === "hero_profile") {
+      interactiveAdditional = true;
+      maxAddHere = 1;
+    } else if (mode === "mortal_finishing") {
+      const cap = sorceryAdditionalTechniqueBudgetTotal();
+      interactiveAdditional = cap > 0 && wid === wids[0];
+      maxAddHere = cap;
+    }
+
+    const addLab = document.createElement("div");
+    addLab.className = "help sorc-technique-subhead";
+    if (mode === "mortal_profile") {
+      addLab.textContent =
+        "Additional Techniques (same Working — reference only here; Mortals buy picks on Step Seven: Finishing, p. 87)";
+    } else if (mode === "hero_profile") {
+      addLab.textContent = "Additional Technique at chargen (pick one from this Working)";
+    } else {
+      addLab.textContent = "Additional Techniques for this Step Seven package (same Working)";
+    }
+    sec.appendChild(addLab);
+    const addRow = document.createElement("div");
+    addRow.className = "chips sorc-technique-row sorc-technique-row--additional";
+    const picksThisW = pickedIds.filter((id) => techniqueWorkingOwner(id) === wid).length;
+    for (const t of def.additional) {
+      if (!t || typeof t !== "object" || !t.id || !t.name) continue;
+      const pagePart = t.pdfPage != null ? String(t.pdfPage) : "?";
+      const hintEntity = {
+        name: t.name,
+        description:
+          mode === "mortal_profile"
+            ? `Listed under ${wname} in the Workings chapter. At Mortal tier, extra Techniques are not chosen on this tab — use Finishing when your Step Seven package includes one or two Techniques (S&M p. 87).`
+            : mode === "hero_profile"
+              ? `Additional Technique under ${wname}. Choose one per Working at chargen (S&M p. 86).`
+              : `Additional Technique under ${wname} for your current Finishing package.`,
+        mechanicalEffects: `Stat block (Skill Roll, Cost, Duration, Subject, Range): Saints & Monsters PDF p. ${pagePart}.`,
+        source: srcLine,
+      };
+      if (interactiveAdditional) {
+        const on = pickedSet.has(t.id);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip sorc-technique-chip" + (on ? " on" : "");
+        btn.textContent = String(t.name);
+        applyGameDataHint(btn, hintEntity);
+        const atCapAll = pickedIds.length >= budgetAll;
+        const atCapW = picksThisW >= maxAddHere;
+        btn.disabled = !on && (atCapAll || atCapW);
+        if (btn.disabled && !on) {
+          const why =
+            atCapAll && atCapW
+              ? "Budget full for all Workings and for this Working."
+              : atCapAll
+                ? "Overall Technique budget for this step is full."
+                : "This Working already has its pick.";
+          btn.title = btn.title ? `${btn.title}\n\n${why}` : why;
+        }
+        btn.addEventListener("click", () => toggleSorceryAdditionalTechnique(t.id));
+        addRow.appendChild(btn);
+      } else {
+        const ref = document.createElement("span");
+        ref.className = "chip sorc-technique-chip sorc-technique-chip--reference";
+        ref.textContent = String(t.name);
+        ref.setAttribute("tabindex", "0");
+        applyGameDataHint(ref, hintEntity);
+        addRow.appendChild(ref);
+      }
+    }
+    sec.appendChild(addRow);
+  }
+
+  host.appendChild(sec);
+}
+
+/** @returns {string | null} */
+function sorceryLineHeroAdditionalTechniquesBlockedReason() {
+  const t = normalizedTierId(character.tier);
+  if (t !== "sorcerer_hero" && t !== "sorcerer_demigod" && t !== "sorcerer_god") return null;
+  ensureSorceryProfileShape();
+  pruneSorceryAdditionalTechniques();
+  const budget = sorceryAdditionalTechniqueBudgetTotal();
+  const n = (character.sorceryProfile.additionalTechniqueIds || []).length;
+  if (budget <= 0) return null;
+  if (n < budget) {
+    return `Sorcerer (Saints & Monsters pp. 65–66, 86): pick one additional Technique per Working on this tab (${n} / ${budget}).`;
+  }
+  return null;
 }
 
 /** Titanic Calling ids that have `sm_*` Knacks merged from the Saints & Monsters knacks fragment (S&M Ch. 4). */
@@ -3082,6 +3366,25 @@ function reviewAdvanceSpecialtyBlockIfApplicable(fromStep) {
   return skillsNeedSpecialtyChargenBlockReason("before continuing to Review");
 }
 
+/** @returns {string | null} */
+function mortalSorcererPurchasedTechniquesBlockedReason() {
+  if (normalizedTierId(character.tier) !== "sorcerer") return null;
+  ensureFinishingShape();
+  ensureSorceryProfileShape();
+  pruneSorceryAdditionalTechniques();
+  const pkg = String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+  const need = pkg === "two_techniques" ? 2 : pkg === "one_technique_two_paraphernalia" ? 1 : 0;
+  const wids = (character.sorceryProfile.workingIds || []).filter(Boolean);
+  if (need > 0 && wids.length === 0) {
+    return "Choose one Working on the Workings step, then pick your purchased Techniques from that Working’s chip list (Saints & Monsters pp. 65–66, 86–87).";
+  }
+  const n = (character.sorceryProfile.additionalTechniqueIds || []).length;
+  if (need !== n) {
+    return `Mortal Sorcerer (Saints & Monsters p. 87): this Step Seven package requires exactly ${need} extra Technique(s) from your Working’s list (${n} selected).`;
+  }
+  return null;
+}
+
 /**
  * @returns {string | null} Blocker text if Finishing cannot advance to Review (skill/attribute finishing spends,
  * specialties, optional Knacks vs Birthrights when that UI is shown — Origin pp. 98–99; Hero+ tiers omit Finishing Knacks/Birthrights here when `heroLikeFinishing`).
@@ -3120,14 +3423,16 @@ function finishingStepLeaveBlockedReason() {
 
   if (!heroLikeFinishing) {
     if (tierFin === "sorcerer") {
+      const techBlock = mortalSorcererPurchasedTechniquesBlockedReason();
+      if (techBlock) return techBlock;
       if (!mortalSorcererFinishingPackageValid()) {
         const pkg = String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
         const used = finishingBirthrightPointsUsed();
         if (pkg === "two_techniques") {
-          return "Mortal Sorcerer (Saints & Monsters p. 87): describe both additional Techniques in the Finishing text area — this package does not use Paraphernalia points.";
+          return "Mortal Sorcerer (Saints & Monsters p. 87): pick two additional Techniques from your Working’s chip list above — this package does not use Paraphernalia points.";
         }
         if (pkg === "one_technique_two_paraphernalia") {
-          return `Mortal Sorcerer (Saints & Monsters p. 87): spend exactly two Paraphernalia points (${used} / 2) and describe your one additional Technique in the text area.`;
+          return `Mortal Sorcerer (Saints & Monsters p. 87): spend exactly two Paraphernalia points (${used} / 2) and pick one additional Technique from the chip list above.`;
         }
         return `Mortal Sorcerer (Saints & Monsters p. 87): spend exactly four Paraphernalia points on Finishing picks (${used} / 4), or pick a different Step Seven package.`;
       }
@@ -3190,6 +3495,10 @@ function forwardLeaveBlockScionAfterPersist(fromStep) {
     const pv = heroPurviewsPatronPickRequiredAndMissing();
     if (pv) return pv;
   }
+  if (fromStep === "boons") {
+    const heroSorcTech = sorceryLineHeroAdditionalTechniquesBlockedReason();
+    if (heroSorcTech) return heroSorcTech;
+  }
   if (fromStep === "finishing") {
     return finishingStepLeaveBlockedReason();
   }
@@ -3250,32 +3559,43 @@ function equipmentFilterHaystack(eid, eq) {
   return `${eq?.name || ""} ${eid} ${eq?.equipmentType || ""} ${tagNames} ${desc} ${mech}`.trim().toLowerCase();
 }
 
-/** Mortal / Origin (Finishing): 4 pts. Hero: 7 total on the Birthrights step (not 7+4 combined). Demigod/God: 11 (confirm at table). */
-function maxBirthrightPointsBudget() {
-  const t = normalizedTierId(character.tier);
-  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 7;
-  if (isPostHeroBandCallingTierId(t)) return 11;
-  return 4;
-}
-
 /**
- * Point cap for `finishing.birthrightPicks` (Finishing-step embedded catalog and trim).
- * Mortal Sorcerer: Saints & Monsters p. 87 — 0, 2, or 4 Paraphernalia dots by package; other tiers use `maxBirthrightPointsBudget`.
+ * Mortal Sorcerer Step Seven Paraphernalia allowance (Saints & Monsters p. 87).
+ * @returns {number | null} dot cap, or `null` if this tier does not use Mortal Sorcerer finishing packages.
  */
-function finishingParaphernaliaPointsCap() {
-  const t = normalizedTierId(character.tier);
-  if (t !== "sorcerer") return maxBirthrightPointsBudget();
-  const pkg = String(character.finishing?.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
+function mortalSorcererFinishingParaphernaliaPointsCap(tierId, fin) {
+  if (normalizedTierId(tierId) !== "sorcerer") return null;
+  const pkg = String(fin?.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
   if (pkg === "two_techniques") return 0;
   if (pkg === "one_technique_two_paraphernalia") return 2;
   return 4;
 }
 
-/** Drop picks from the end until points ≤ tier cap (e.g. after lowering Hero from 11→7). */
-function trimBirthrightPicksToBudget() {
-  ensureFinishingShape();
-  const cap = finishingParaphernaliaPointsCap();
-  const arr = character.finishing.birthrightPicks;
+/** Birthright / Paraphernalia point cap for `finishing.birthrightPicks` (trim, picker, export). */
+function finishingParaphernaliaPointsCapForTierAndFinishing(tierId, fin) {
+  const mort = mortalSorcererFinishingParaphernaliaPointsCap(tierId, fin);
+  if (mort != null) return mort;
+  const t = normalizedTierId(tierId);
+  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 7;
+  if (isPostHeroBandCallingTierId(t)) return 11;
+  return 4;
+}
+
+/** Mortal / Origin (Finishing): 4 pts. Hero: 7 total on the Birthrights step (not 7+4 combined). Demigod/God: 11 (confirm at table). */
+function maxBirthrightPointsBudget() {
+  return finishingParaphernaliaPointsCapForTierAndFinishing(character.tier, character.finishing);
+}
+
+/** Point cap for `finishing.birthrightPicks` on the current character (Mortal Sorcerer uses package-based caps). */
+function finishingParaphernaliaPointsCap() {
+  return finishingParaphernaliaPointsCapForTierAndFinishing(character.tier, character.finishing);
+}
+
+/** Drop picks from the end until total point cost ≤ cap (import, export, render). */
+function trimFinishingBirthrightPicksToBudgetInPlace(fin, tierId) {
+  if (!fin || !Array.isArray(fin.birthrightPicks)) return;
+  const cap = finishingParaphernaliaPointsCapForTierAndFinishing(tierId, fin);
+  const arr = fin.birthrightPicks;
   while (arr.length > 0) {
     const used = arr.reduce((s, id) => s + birthrightPointCost(id), 0);
     if (used <= cap) break;
@@ -3283,16 +3603,22 @@ function trimBirthrightPicksToBudget() {
   }
 }
 
+/** Drop picks from the end until points ≤ tier cap (e.g. after lowering Hero from 11→7). */
+function trimBirthrightPicksToBudget() {
+  ensureFinishingShape();
+  trimFinishingBirthrightPicksToBudgetInPlace(character.finishing, character.tier);
+}
+
 /** Mortal Sorcerer Finishing (S&M p. 87): package + spends/notes satisfied. */
 function mortalSorcererFinishingPackageValid() {
   if (normalizedTierId(character.tier) !== "sorcerer") return true;
   ensureFinishingShape();
   const pkg = String(character.finishing.sorcererMortalFinishingPackage || "four_paraphernalia").trim();
-  const notes = String(character.finishing.sorcererMortalExtraTechniquesNotes || "").trim();
   const used = finishingBirthrightPointsUsed();
-  if (pkg === "two_techniques") return notes.length >= 8 && used === 0;
-  if (pkg === "four_paraphernalia") return used === 4;
-  if (pkg === "one_technique_two_paraphernalia") return used === 2 && notes.length >= 8;
+  const addN = (character.sorceryProfile.additionalTechniqueIds || []).length;
+  if (pkg === "two_techniques") return addN === 2 && used === 0;
+  if (pkg === "four_paraphernalia") return used === 4 && addN === 0;
+  if (pkg === "one_technique_two_paraphernalia") return used === 2 && addN === 1;
   return false;
 }
 
@@ -5612,6 +5938,7 @@ function toggleSorcererWorkingSelection(workingId) {
     while (next.length > cap) next = next.slice(1);
   }
   character.sorceryProfile.workingIds = next;
+  pruneSorceryAdditionalTechniques();
   render();
 }
 
@@ -5654,6 +5981,13 @@ function renderWorkings(root) {
   foot.className = "help";
   foot.innerHTML = `<strong>Selected:</strong> ${picked.length ? picked.join(", ") : "—"} <span class="mono">(${picked.length} / ${cap})</span>`;
   wrap.appendChild(foot);
+  if (normalizedTierId(character.tier) === "sorcerer") {
+    const post = document.createElement("p");
+    post.className = "help";
+    post.innerHTML =
+      "Next, on the <strong>Sorcerer</strong> tab, your Working’s <strong>Inherent Technique</strong> appears as a fixed chip (from <em>Saints & Monsters</em> pp. 65–78). Extra Techniques from Step Seven use chip picks on <strong>Finishing</strong> when you choose that package (p. 87).";
+    wrap.appendChild(post);
+  }
   root.appendChild(panel("Workings", wrap));
 }
 
@@ -5669,8 +6003,7 @@ function renderSorcerer(root) {
     detail.innerHTML = `
     <p class="help">Mortal-tier Sorcerers have <strong>no Legend 1</strong> yet and do <strong>not</strong> use the four Sources of Power (Invocation, Patronage, Prohibition, Talisman) from pp. 64–65 at creation — the book ties that choice to <strong>Heroic</strong> Sorcerer chargen (p. 85). Record one <strong>Motif</strong> below (p. 87).</p>
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-inherent">Inherent Technique(s)</label><textarea id="f-sorc-inherent" rows="3" placeholder="List the Inherent Technique for your Working (each Working grants one; pp. 65–66, 86)."></textarea></div>
-    <div class="field"><label for="f-sorc-techniques">Other techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="Extra Techniques from Finishing (p. 87), Charms, and other table notes (p. 65)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Charms and other notes</label><textarea id="f-sorc-techniques" rows="3" placeholder="Charms and freeform notes (Saints & Monsters pp. 65–66). Purchased extra Techniques use chips on Finishing when you pick that Step Seven package (p. 87)."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
   } else {
     const primOpts = [
@@ -5683,20 +6016,20 @@ function renderSorcerer(root) {
     const primHtml = primOpts.map(([v, lab]) => `<option value="${v}">${lab}</option>`).join("");
     detail.innerHTML = `
     <div class="field"><label for="f-sorc-motif">Motif</label><input type="text" id="f-sorc-motif" autocomplete="off" spellcheck="true" /></div>
-    <div class="field"><label for="f-sorc-inherent">Inherent Technique(s)</label><textarea id="f-sorc-inherent" rows="3" placeholder="One inherent per Working at chargen — list each (pp. 65–66, 86)."></textarea></div>
     <div class="field"><label for="f-sorc-primary">Primary source of power (Legend 1+)</label><select id="f-sorc-primary">${primHtml}</select></div>
     <div class="field"><label for="f-sorc-source">Sources of Power (freeform notes)</label><textarea id="f-sorc-source" rows="3"></textarea></div>
     <div class="field"><label for="f-sorc-invocation">Invocation (costs, hubris, disguise)</label><textarea id="f-sorc-invocation" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-patronage">Patronage (Fatebinding, compels)</label><textarea id="f-sorc-patronage" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-prohibition">Prohibition (Sorcerous Prohibition condition)</label><textarea id="f-sorc-prohibition" rows="2"></textarea></div>
     <div class="field"><label for="f-sorc-talisman">Talisman (Relic bond, Legend pool)</label><textarea id="f-sorc-talisman" rows="2"></textarea></div>
-    <div class="field"><label for="f-sorc-techniques">Other techniques and charms (notes)</label><textarea id="f-sorc-techniques" rows="4" placeholder="One extra Technique per Working at Heroic creation beyond each inherent; charms and table notes (pp. 65–66, 86)."></textarea></div>
+    <div class="field"><label for="f-sorc-techniques">Charms and other notes</label><textarea id="f-sorc-techniques" rows="3" placeholder="Charms and misc. notes (pp. 65–66). One additional Technique per Working at chargen uses the chips below."></textarea></div>
     <div class="field"><label for="f-sorc-notes">Chronicle / Marvel / SG notes</label><textarea id="f-sorc-notes" rows="3"></textarea></div>`;
   }
+  if (mortalBand) appendSorceryTechniqueChipsInto(detail, "mortal_profile");
+  else if (isSorcererLineTier(character.tier)) appendSorceryTechniqueChipsInto(detail, "hero_profile");
   root.appendChild(panel(mortalBand ? "Sorcerer profile (Mortal tier)" : "Sorcerer profile (Motif & Sources of Power)", detail));
 
   document.getElementById("f-sorc-motif").value = sp.motif || "";
-  document.getElementById("f-sorc-inherent").value = sp.inherentTechniqueNotes || "";
   if (!mortalBand) {
     document.getElementById("f-sorc-primary").value = sp.primaryPowerSource || "";
     document.getElementById("f-sorc-source").value = sp.powerSource || "";
@@ -5722,7 +6055,7 @@ function renderSorcerer(root) {
     const magM = document.createElement("p");
     magM.className = "help";
     magM.innerHTML =
-      "The structured <strong>Magic</strong> Purview Boon ladder is for <strong>Heroic</strong> Sorcerers and up (Saints & Monsters ch. 3). At Mortal tier you play <strong>Workings</strong>, Marvels, and your single Inherent Technique until your chronicle reaches Legend 1.";
+      "The structured <strong>Magic</strong> Purview Boon ladder is for <strong>Heroic</strong> Sorcerers and up (Saints & Monsters ch. 3). At Mortal tier you play <strong>Workings</strong>, Marvels, and the Techniques from the Workings chapter until your chronicle reaches Legend 1.";
     mp.appendChild(magM);
   } else if (magicPv && typeof magicPv === "object") {
     const magP = document.createElement("p");
@@ -6376,14 +6709,16 @@ function renderFinishing(root) {
       hel.className = "help";
       hel.innerHTML =
         pkgS === "two_techniques"
-          ? "Saints & Monsters p. 87: describe <strong>two</strong> additional Sorcerer <strong>Techniques</strong> (not Calling Knacks). Leave Paraphernalia picks empty for this package."
-          : "Saints & Monsters p. 87: describe your <strong>one</strong> additional Technique, then spend exactly <strong>two</strong> Paraphernalia points in the catalog below.";
+          ? "Saints & Monsters p. 87: pick <strong>two</strong> additional Techniques from your Working’s list (Workings chapter, pp. 65–78). Leave Paraphernalia picks empty for this package."
+          : "Saints & Monsters p. 87: pick <strong>one</strong> additional Technique from the chips, then spend exactly <strong>two</strong> Paraphernalia points in the catalog below.";
       knBr.appendChild(hel);
+      appendSorceryTechniqueChipsInto(knBr, "mortal_finishing");
       const ta = document.createElement("textarea");
       ta.id = "fin-sorc-mort-tech-notes";
-      ta.rows = pkgS === "two_techniques" ? 6 : 4;
+      ta.rows = 2;
       ta.className = "finishing-sorcerer-mortal-tech-notes";
-      ta.setAttribute("aria-label", "Mortal Sorcerer extra Techniques from Step Seven");
+      ta.setAttribute("aria-label", "Optional notes for Mortal Sorcerer Step Seven Techniques");
+      ta.placeholder = "Optional SG / table notes (not required if chips are set)";
       ta.value = character.finishing.sorcererMortalExtraTechniquesNotes || "";
       ta.addEventListener("input", () => {
         ensureFinishingShape();
@@ -6494,7 +6829,7 @@ function renderFinishing(root) {
       const brSub = document.createElement("div");
       brSub.className = "finishing-paraphernalia-birthrights-subpanel";
       const h2br = document.createElement("h2");
-      h2br.textContent = sorcMort ? `Paraphernalia templates (${cap} point${cap === 1 ? "" : "s"})` : `Birthrights (up to ${cap} points)`;
+      h2br.textContent = sorcMort ? "Paraphernalia" : `Birthrights (up to ${cap} points)`;
       brSub.appendChild(h2br);
       const hp = document.createElement("p");
       hp.className = "help";
@@ -7010,6 +7345,7 @@ function renderReview(root) {
 
 function buildExportObject() {
   ensureFinishingShape();
+  trimBirthrightPicksToBudget();
   if (isDragonHeirChargen(character)) {
     ensureDragonShape(character, bundle);
     const snap = buildDragonReviewSnapshot(character, bundle);
@@ -7494,6 +7830,7 @@ function importCharacterFromExportPayload(data) {
     return typeof id === "string" && !!kn && knackEligible(kn, knackImportCtx, bundle);
   });
   finBase.birthrightPicks = finBase.birthrightPicks.filter((id) => typeof id === "string" && validBirthright.has(id));
+  trimFinishingBirthrightPicksToBudgetInPlace(finBase, tier);
 
   const validEquipment = new Set(Object.keys(bundle.equipment || {}).filter((k) => !k.startsWith("_")));
   let sheetEquipmentIds = Array.isArray(data.sheetEquipmentIds)
@@ -7520,6 +7857,10 @@ function importCharacterFromExportPayload(data) {
       const v = data.sorceryProfile[k];
       if (k === "workingIds" && Array.isArray(v)) {
         sorceryProfile.workingIds = v.filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim());
+      } else if (k === "additionalTechniqueIds" && Array.isArray(v)) {
+        sorceryProfile.additionalTechniqueIds = v
+          .filter((x) => typeof x === "string" && x.trim())
+          .map((x) => x.trim());
       } else if (typeof v === "string") sorceryProfile[k] = v;
     }
   }
@@ -7887,6 +8228,8 @@ function refreshFinishingWizardGateUiFromDom() {
     if (v === "two_techniques" || v === "four_paraphernalia" || v === "one_technique_two_paraphernalia") {
       character.finishing.sorcererMortalFinishingPackage = v;
       trimBirthrightPicksToBudget();
+      ensureSorceryProfileShape();
+      pruneSorceryAdditionalTechniques();
     }
   }
   const techNotesRf = document.getElementById("fin-sorc-mort-tech-notes");
@@ -8062,7 +8405,6 @@ function persistFromForm() {
     ensureSorceryProfileShape();
     const sp = character.sorceryProfile;
     sp.motif = document.getElementById("f-sorc-motif")?.value ?? "";
-    sp.inherentTechniqueNotes = document.getElementById("f-sorc-inherent")?.value ?? "";
     sp.techniquesNotes = document.getElementById("f-sorc-techniques")?.value ?? "";
     sp.notes = document.getElementById("f-sorc-notes")?.value ?? "";
     if (normalizedTierId(character.tier) !== "sorcerer") {
@@ -8314,6 +8656,13 @@ function render() {
       if (finBlock) {
         next.disabled = true;
         next.title = finBlock;
+      }
+    }
+    if (step === "sorcerer") {
+      const sorcHeroTech = sorceryLineHeroAdditionalTechniquesBlockedReason();
+      if (sorcHeroTech) {
+        next.disabled = true;
+        next.title = sorcHeroTech;
       }
     }
     const reviewSpec = reviewAdvanceSpecialtyBlockIfApplicable(step);

@@ -381,8 +381,43 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
     if (String(sp.motif || "").trim()) smBlock.push(`Sorcerer motif: ${String(sp.motif).trim()}`);
     const wids = Array.isArray(sp.workingIds) ? sp.workingIds.filter((x) => typeof x === "string" && x.trim()) : [];
     if (wids.length) smBlock.push(`Workings (ids): ${wids.join(", ")}`);
+    const smTable = bundle?.saintsMonsters?.sorcererTechniquesByWorking;
+    const smCatalog = bundle?.saintsMonsters?.sorcererWorkingsCatalog;
+    const workingTitle = (wid) => {
+      const row = Array.isArray(smCatalog) ? smCatalog.find((r) => r && r.id === wid) : null;
+      return row?.name || wid;
+    };
+    const addIds = Array.isArray(sp.additionalTechniqueIds)
+      ? [...new Set(sp.additionalTechniqueIds.filter((x) => typeof x === "string" && x.trim()))]
+      : [];
+    const addSet = new Set(addIds);
+    if (smTable && typeof smTable === "object") {
+      const resolvedAdd = new Set();
+      for (const wid of wids) {
+        const def = smTable[wid];
+        if (!def || typeof def !== "object") continue;
+        const wn = workingTitle(wid);
+        const inh = def.inherent;
+        if (inh?.name)
+          smBlock.push(`${wn} — Inherent Technique: ${inh.name} (Saints & Monsters p. ${inh.pdfPage ?? "?"})`);
+        const extraNames = (Array.isArray(def.additional) ? def.additional : [])
+          .filter((t) => t && addSet.has(t.id))
+          .map((t) => {
+            if (t.id) resolvedAdd.add(t.id);
+            return t.name;
+          })
+          .filter(Boolean);
+        if (extraNames.length) smBlock.push(`${wn} — Additional Techniques: ${extraNames.join(", ")}`);
+      }
+      for (const tid of addIds) {
+        if (resolvedAdd.has(tid)) continue;
+        smBlock.push(`Additional Technique id (not in bundle table for selected Workings): ${tid}`);
+      }
+    } else if (addIds.length) {
+      smBlock.push(`Additional Technique ids: ${addIds.join(", ")}`);
+    }
     if (String(sp.inherentTechniqueNotes || "").trim())
-      smBlock.push(`Inherent technique(s): ${String(sp.inherentTechniqueNotes).trim()}`);
+      smBlock.push(`Inherent technique(s) (legacy notes): ${String(sp.inherentTechniqueNotes).trim()}`);
     if (String(sp.techniquesNotes || "").trim())
       smBlock.push(`Other techniques / charms: ${String(sp.techniquesNotes).trim()}`);
     if (String(sp.powerSource || "").trim()) smBlock.push(`Sources of power: ${String(sp.powerSource).trim()}`);

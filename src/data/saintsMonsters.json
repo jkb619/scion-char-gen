@@ -17,6 +17,64 @@
     "denizenWindFriend"
   ],
   "sorcererDataNote": "Magic Purview and sample Magic Boons merge from ``data/tables/purviews/15_*.json`` and ``data/tables/boons/20_*.json`` at bundle load. Sorcerer wizard fields live in character.sorceryProfile (export JSON).",
+  "sorcererTechniquesByWorking": {
+    "binding": {
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 66–69",
+      "inherent": { "id": "binding_spite", "name": "Spite", "pdfPage": 67 },
+      "additional": [
+        { "id": "binding_curse", "name": "Curse", "pdfPage": 67 },
+        { "id": "binding_draw_out", "name": "Draw Out", "pdfPage": 67 },
+        { "id": "binding_envessel", "name": "Envessel", "pdfPage": 68 },
+        { "id": "binding_spirit_wrestling", "name": "Spirit-Wrestling", "pdfPage": 68 },
+        { "id": "binding_forbiddance", "name": "Forbiddance", "pdfPage": 68 },
+        { "id": "binding_subversion", "name": "Subversion", "pdfPage": 68 }
+      ]
+    },
+    "divining": {
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 69–70",
+      "inherent": { "id": "divining_read_the_signs", "name": "Read the Signs", "pdfPage": 70 },
+      "additional": [
+        { "id": "divining_ecstatic_trance", "name": "Ecstatic Trance", "pdfPage": 69 },
+        { "id": "divining_avert_doom", "name": "Avert Doom", "pdfPage": 70 },
+        { "id": "divining_necromantic_consultation", "name": "Necromantic Consultation", "pdfPage": 70 },
+        { "id": "divining_pronouncement", "name": "Pronouncement", "pdfPage": 70 },
+        { "id": "divining_sudden_insight", "name": "Sudden Insight", "pdfPage": 70 }
+      ]
+    },
+    "summoning": {
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 70–72",
+      "inherent": { "id": "summoning_familiar_spirit", "name": "Familiar Spirit", "pdfPage": 71 },
+      "additional": [
+        { "id": "summoning_embody", "name": "Embody", "pdfPage": 70 },
+        { "id": "summoning_synchronicity", "name": "Synchronicity", "pdfPage": 70 },
+        { "id": "summoning_evocation", "name": "Evocation", "pdfPage": 71 },
+        { "id": "summoning_servitors", "name": "Servitors", "pdfPage": 71 },
+        { "id": "summoning_spirit_teacher", "name": "Spirit Teacher", "pdfPage": 72 }
+      ]
+    },
+    "wonderment": {
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 72–73",
+      "inherent": { "id": "wonderment_veil", "name": "Veil", "pdfPage": 73 },
+      "additional": [
+        { "id": "wonderment_animation", "name": "Animation", "pdfPage": 73 },
+        { "id": "wonderment_concealment", "name": "Concealment", "pdfPage": 73 },
+        { "id": "wonderment_untether", "name": "Untether", "pdfPage": 73 },
+        { "id": "wonderment_conjuring", "name": "Conjuring", "pdfPage": 73 },
+        { "id": "wonderment_glamour", "name": "Glamour", "pdfPage": 73 }
+      ]
+    },
+    "shapechanging": {
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf pp. 73–75",
+      "inherent": { "id": "shapechanging_flying_soul", "name": "Flying Soul", "pdfPage": 73 },
+      "additional": [
+        { "id": "shapechanging_lord_of_animals", "name": "Lord of Animals", "pdfPage": 75 },
+        { "id": "shapechanging_secret_paths", "name": "Secret Paths", "pdfPage": 75 },
+        { "id": "shapechanging_dueling_forms", "name": "Dueling Forms", "pdfPage": 75 },
+        { "id": "shapechanging_fierce_projection", "name": "Fierce Projection", "pdfPage": 76 },
+        { "id": "shapechanging_transformation", "name": "Transformation", "pdfPage": 76 }
+      ]
+    }
+  },
   "sorcererWorkingsCatalog": [
     {
       "id": "binding",
