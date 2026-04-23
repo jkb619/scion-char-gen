@@ -45,10 +45,11 @@ locals {
     for id in local.private_subnet_ids : data.aws_subnet.detail[id].arn
   ]
 
-  # Fargate / interface endpoints: prefer private subnets; many account VPCs are public-only (no "private" by map_public_ip).
-  fargate_subnet_ids = length(local.private_subnet_ids) > 0 ? local.private_subnet_ids : local.public_subnet_ids
-  # Tasks in public subnets need a public IP for ECR pull unless you add interface endpoints for ECR.
-  fargate_assign_public_ip = length(local.private_subnet_ids) == 0 && length(local.public_subnet_ids) > 0
+  # Fargate: run in public subnets when any exist (internet path for image pull / ECS Exec); otherwise private-only VPCs fall back to private subnets.
+  fargate_uses_public_subnets = length(local.public_subnet_ids) > 0
+  fargate_subnet_ids          = local.fargate_uses_public_subnets ? local.public_subnet_ids : local.private_subnet_ids
+  # Public-subnet tasks need assign_public_ip=true unless every pull/API path uses interface endpoints and routing supports it without a public IP.
+  fargate_assign_public_ip = local.fargate_uses_public_subnets
 
   # Interface VPC endpoints: at most one subnet per AZ per endpoint (DuplicateSubnetsInSameZone if you pass two subnets in the same AZ).
   fargate_subnet_ids_by_az = {

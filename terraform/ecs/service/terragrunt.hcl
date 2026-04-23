@@ -35,8 +35,8 @@ dependency "vpc" {
     vpc_cidr_block         = "10.0.0.0/16"
     public_subnets         = ["subnet-11111111", "subnet-22222222"]
     private_subnets        = ["subnet-33333333", "subnet-44444444"]
-    fargate_subnet_ids     = ["subnet-33333333", "subnet-44444444"]
-    fargate_assign_public_ip = false
+    fargate_subnet_ids       = ["subnet-11111111", "subnet-22222222"]
+    fargate_assign_public_ip = true
     public_subnet_arns = [
       "arn:aws:ec2:us-east-2:373055206579:subnet/subnet-11111111",
       "arn:aws:ec2:us-east-2:373055206579:subnet/subnet-22222222"

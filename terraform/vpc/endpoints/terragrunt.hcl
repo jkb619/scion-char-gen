@@ -1,5 +1,5 @@
 # VPC interface endpoints for AWS APIs used at task startup (Secrets Manager, ECR, S3, CloudWatch Logs).
-# Keeps that traffic on PrivateLink inside the VPC (works with or without NAT; if you have NAT but still see timeouts, confirm fargate_subnet_ids subnets have 0.0.0.0/0 -> your NAT in their route tables).
+# Keeps that traffic on PrivateLink inside the VPC. Subnets follow fargate_subnet_ids (public when the VPC has public subnets). If tasks are on private subnets without a public IP, confirm those subnets have 0.0.0.0/0 -> NAT (or rely on these endpoints instead of the public internet).
 terraform {
   # v5.8.1+ passes aws_vpc_endpoint.dns_options; S3 interface needs private_dns_only_for_inbound_resolver_endpoint=false unless a matching S3 gateway exists (AWS).
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git//modules/vpc-endpoints?ref=v5.8.1"
@@ -17,9 +17,9 @@ dependency "vpc" {
     vpc_cidr_block            = "10.0.0.0/16"
     private_subnets           = ["subnet-23456789", "subnet-98764321"]
     public_subnets            = ["subnet-11111111", "subnet-22222222"]
-    fargate_subnet_ids                      = ["subnet-23456789", "subnet-98764321"]
-    fargate_interface_endpoint_subnet_ids  = ["subnet-23456789", "subnet-98764321"]
-    fargate_assign_public_ip                = false
+    fargate_subnet_ids                     = ["subnet-11111111", "subnet-22222222"]
+    fargate_interface_endpoint_subnet_ids  = ["subnet-11111111", "subnet-22222222"]
+    fargate_assign_public_ip               = true
   }
 
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]

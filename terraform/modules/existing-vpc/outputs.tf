@@ -30,7 +30,7 @@ output "private_subnet_arns" {
 }
 
 output "fargate_subnet_ids" {
-  description = "Subnet IDs for Fargate and interface VPC endpoints: private subnets if any, else public"
+  description = "Subnet IDs for Fargate and interface VPC endpoints: public subnets when the VPC has any (map_public_ip_on_launch=true), else private-only list"
   value       = local.fargate_subnet_ids
 }
 
@@ -40,7 +40,7 @@ output "fargate_interface_endpoint_subnet_ids" {
 }
 
 output "fargate_assign_public_ip" {
-  description = "Set true on ECS when tasks run in public subnets (no private subnets detected)"
+  description = "Set true on ECS when tasks run in public subnets (required for default ECR reachability without relying on a NAT-only path)"
   value       = local.fargate_assign_public_ip
 }
 

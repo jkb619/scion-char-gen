@@ -11,7 +11,7 @@ locals {
   existing_vpc_id = "vpc-08abca3842f01b511"
 
   # Optional: two+ subnet IDs for the internet-facing ALB (different AZs). Empty = auto-pick from the VPC.
-  # If curl to the ALB DNS times out on :443, subnets must have 0.0.0.0/0 -> Internet Gateway (AWS "public subnet"). NAT-only default routes do not accept inbound internet to the ALB — set subnet IDs here (public tier) while ECS stays on private subnets.
+  # If curl to the ALB DNS times out on :443, subnets must have 0.0.0.0/0 -> Internet Gateway (AWS "public subnet"). NAT-only default routes do not accept inbound internet to the ALB — set subnet IDs here (public tier). Fargate uses public subnets when the VPC has any; app traffic should use the ALB (ECS security group allows the app port only from the ALB security group).
   alb_subnet_ids = []
 
   common_tags = {

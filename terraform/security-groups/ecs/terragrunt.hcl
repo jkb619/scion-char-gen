@@ -39,7 +39,7 @@ locals {
 
 inputs = {
   name        = "${local.project_name}-ecs-sg"
-  description = "Security group for ECS tasks"
+  description = "ECS tasks: app port only from ALB security group (no direct internet/CIDR ingress; clients must use the load balancer)"
   vpc_id      = dependency.vpc.outputs.vpc_id
 
   ingress_with_source_security_group_id = [
@@ -47,7 +47,7 @@ inputs = {
       from_port                = local.container_port
       to_port                  = local.container_port
       protocol                 = "tcp"
-      description              = "HTTP from ALB"
+      description              = "App port from ALB only (blocks direct access to task ENIs even in a public subnet)"
       source_security_group_id = dependency.alb_sg.outputs.security_group_id
     }
   ]

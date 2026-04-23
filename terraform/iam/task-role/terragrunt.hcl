@@ -77,6 +77,18 @@ inputs = {
         "arn:aws:kms:${local.aws_region}:${local.aws_account_id}:key/*"
       ]
     }
+    # ECS Exec (AWS-API shell into the task) — required by aws ecs execute-command and tools such as https://github.com/tedsmitt/ecsgo
+    ECSExecSSMMessages = {
+      sid    = "ECSExecSSMMessages"
+      effect = "Allow"
+      actions = [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ]
+      resources = ["*"]
+    }
   }
 
   tags = merge(local.global_variables.locals.common_tags, {
