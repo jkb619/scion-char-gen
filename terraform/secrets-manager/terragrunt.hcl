@@ -31,7 +31,9 @@ locals {
 inputs = {
   name                    = "${local.project_name}-secrets"
   description             = "Secrets for ${local.project_name} application"
-  recovery_window_in_days = 7
+  # 0 = delete immediately on destroy so the name is free for quick redeploys.
+  # A non-zero window leaves the secret "scheduled for deletion" and blocks CreateSecret with the same name (AWS min window is 7 when used).
+  recovery_window_in_days = 0
   kms_key_id              = dependency.kms.outputs.key_arn
   secret_string           = local.secret_json
 

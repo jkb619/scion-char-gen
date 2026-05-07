@@ -4,7 +4,7 @@
 # AWS: region pinned to us-east-2 (exported as AWS_REGION + AWS_DEFAULT_REGION). Override: `make push AWS_REGION=…`.
 #   Account 373055206579, VPC vpc-08abca3842f01b511 — Terraform/OpenTofu + aws CLI use the same region.
 #
-.PHONY: help info plan plan-all apply destroy destory run run-http build push login tag create-repo create-repo-deploy restart-service clean
+.PHONY: help info plan plan-all apply destroy secrets-purge run run-http build push login tag create-repo create-repo-deploy restart-service clean
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PORT ?= 8000
@@ -56,7 +56,8 @@ help: ## Show targets
 	@echo "$(YELLOW)Infrastructure:$(NC)"
 	@echo "  make plan / plan-all  — terragrunt run-all plan (set ACM + Route53 in terraform/globals.hcl)"
 	@echo "  make apply            — terragrunt run-all apply"
-	@echo "  make destroy          — terragrunt run-all destroy (same as: make destory)"
+	@echo "  make destroy          — terragrunt run-all destroy + purge app secret name"
+	@echo "  make secrets-purge    — remove $(APP_NAME)-secrets in AWS (fix \"scheduled for deletion\" before apply)"
 	@echo ""
 	@echo "$(YELLOW)Defaults:$(NC) APP_NAME=$(APP_NAME) AWS_ACCOUNT_ID=$(AWS_ACCOUNT_ID) AWS_REGION=$(AWS_REGION) AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)"
 	@echo "           VPC_ID=$(VPC_ID)  ECS_CLUSTER=$(ECS_CLUSTER) ECS_SERVICE=$(ECS_SERVICE)"
@@ -84,12 +85,17 @@ apply: ## terragrunt run-all apply for all modules under $(TERRAFORM_DIR)/
 	cd "$(ROOT)/$(TERRAFORM_DIR)" && terragrunt run-all apply
 	@echo "$(GREEN)apply completed$(NC)"
 
-# `destory` alias: common typo — same as destroy.
-destroy destory: ## Tear down all Terragrunt-managed resources (terragrunt run-all destroy)
+destroy: ## Tear down all Terragrunt-managed resources (terragrunt run-all destroy)
 	@test -d "$(ROOT)/$(TERRAFORM_DIR)" || (echo "$(RED)No directory $(TERRAFORM_DIR)/ — add Terragrunt modules or set TERRAFORM_DIR=...$(NC)" >&2 && exit 1)
 	@echo "$(RED)Terragrunt run-all destroy in $(TERRAFORM_DIR)/ — this removes managed AWS resources (not the existing VPC).$(NC)"
 	cd "$(ROOT)/$(TERRAFORM_DIR)" && terragrunt run-all destroy
+	@$(MAKE) secrets-purge
 	@echo "$(GREEN)destroy completed$(NC)"
+
+secrets-purge: ## Force-remove $(APP_NAME)-secrets (clears pending-deletion so apply can recreate)
+	@echo "$(YELLOW)Purging Secrets Manager secret $(APP_NAME)-secrets (if present)...$(NC)"
+	@"$(ROOT)/$(TERRAFORM_DIR)/scripts/purge-secrets-manager-secret.sh" "$(APP_NAME)-secrets"
+	@echo "$(GREEN)secrets-purge completed$(NC)"
 
 # Default: HTTPS with repo-local dev cert (src/scripts/dev_tls_cert.sh).
 run run-https:
