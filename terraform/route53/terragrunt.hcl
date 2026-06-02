@@ -10,12 +10,12 @@ include "globals" {
   path = find_in_parent_folders("globals.hcl")
 }
 
-dependency "alb" {
-  config_path = "../alb"
+dependency "lightsail_service" {
+  config_path = "../lightsail-service"
 
   mock_outputs = {
-    lb_dns_name = "example-alb-123.us-east-2.elb.amazonaws.com"
-    lb_zone_id  = "Z3AADJGX6KTTL2"
+    service_name = "scion-chargen"
+    url          = "https://scion-chargen.abcdef123.us-east-2.cs.amazonlightsail.com"
   }
 
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
@@ -34,14 +34,10 @@ inputs = {
 
   records = [
     {
-      name = local.gv.route53_record_name
-      type = "A"
-      alias = {
-        name                   = dependency.alb.outputs.lb_dns_name
-        zone_id                = dependency.alb.outputs.lb_zone_id
-        evaluate_target_health = true
-      }
-      ttl = null
+      name    = local.gv.route53_record_name
+      type    = "CNAME"
+      ttl     = 300
+      records = [replace(dependency.lightsail_service.outputs.url, "https://", "")]
     }
   ]
 

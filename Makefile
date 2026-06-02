@@ -1,10 +1,9 @@
-# Scion Character Creator — local dev, Docker image, AWS ECR/ECS deploy
+# Scion Character Creator — local dev, Docker image, AWS Lightsail deploy
 # Based on magic-castle/hrmobile layout (Dockerfile under docker/, api.mk → docker.mk).
 #
-# AWS: region pinned to us-east-2 (exported as AWS_REGION + AWS_DEFAULT_REGION). Override: `make push AWS_REGION=…`.
-#   Account 373055206579, VPC vpc-08abca3842f01b511 — Terraform/OpenTofu + aws CLI use the same region.
+# AWS: region pinned to us-east-2 (exported as AWS_REGION + AWS_DEFAULT_REGION). Override: `make deploy AWS_REGION=…`.
 #
-.PHONY: help info plan plan-all apply destroy secrets-purge run run-http build push login tag create-repo create-repo-deploy restart-service clean
+.PHONY: help info run run-https run-http build build-no-cache run-docker stop-docker clean deploy ls-push ls-deploy ls-status ls-logs plan apply destroy
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PORT ?= 8000
@@ -15,23 +14,19 @@ DEV_TLS_KEY := $(ROOT)/.certs/dev.key
 
 APP_NAME := scion-chargen
 AWS_ACCOUNT_ID ?= 373055206579
-# Pin region for Makefile-driven aws/terragrunt (exported to recipe shells; override with `make AWS_REGION=…`).
+# Pin region for Makefile-driven aws CLI (exported to recipe shells; override with `make AWS_REGION=…`).
 AWS_REGION := us-east-2
 export AWS_REGION
 AWS_DEFAULT_REGION := $(AWS_REGION)
 export AWS_DEFAULT_REGION
-# Documented for ECS/ALB/security-group wiring (Terraform or console); not consumed by docker build.
-VPC_ID ?= vpc-08abca3842f01b511
 
-ECR_REPOSITORY := $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(APP_NAME)
 IMAGE_TAG ?= latest
 DOCKER_BUILD_CONTEXT := .
 DOCKERFILE := docker/Dockerfile
 DOCKER_PUBLISH_PORT ?= 8000
-ECS_CLUSTER ?= $(APP_NAME)-cluster
-ECS_SERVICE ?= $(APP_NAME)-service
-# Terragrunt root (hrmobile-style layout: `terraform/` with nested terragrunt.hcl files).
-TERRAFORM_DIR ?= terraform
+
+LIGHTSAIL_SERVICE := scion-chargen
+LIGHTSAIL_POWER := nano
 
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
@@ -46,56 +41,45 @@ help: ## Show targets
 	@echo "$(YELLOW)Local (no Docker):$(NC)"
 	@echo "  make run / run-https  — uvicorn dev server (see src/app/__main__.py)"
 	@echo ""
-	@echo "$(YELLOW)Docker / AWS:$(NC)"
+	@echo "$(YELLOW)Docker:$(NC)"
 	@echo "  make build            — docker build ($(DOCKERFILE))"
-	@echo "  make push             — tag, ECR login, push, optional ECS force deploy"
-	@echo "  make create-repo      — aws ecr create-repository"
-	@echo "  make create-repo-deploy — create-repo + build + push"
+	@echo "  make build-no-cache   — docker build without cache"
 	@echo "  make run-docker       — run image locally on port $(DOCKER_PUBLISH_PORT)"
+	@echo "  make stop-docker      — stop local container"
+	@echo "  make clean            — remove local image tag"
 	@echo ""
-	@echo "$(YELLOW)Infrastructure:$(NC)"
-	@echo "  make plan / plan-all  — terragrunt run-all plan (set ACM + Route53 in terraform/globals.hcl)"
+	@echo "$(YELLOW)Lightsail Deploy:$(NC)"
+	@echo "  make deploy           — build + push + deploy (full workflow)"
+	@echo "  make ls-push          — push image to Lightsail"
+	@echo "  make ls-deploy        — deploy latest pushed image"
+	@echo "  make ls-status        — show current deployment state"
+	@echo "  make ls-logs          — fetch container logs"
+	@echo ""
+	@echo "$(YELLOW)Terraform:$(NC)"
+	@echo "  make plan             — terragrunt run-all plan"
 	@echo "  make apply            — terragrunt run-all apply"
-	@echo "  make destroy          — terragrunt run-all destroy + purge app secret name"
-	@echo "  make secrets-purge    — remove $(APP_NAME)-secrets in AWS (fix \"scheduled for deletion\" before apply)"
+	@echo "  make destroy          — terragrunt run-all destroy"
 	@echo ""
-	@echo "$(YELLOW)Defaults:$(NC) APP_NAME=$(APP_NAME) AWS_ACCOUNT_ID=$(AWS_ACCOUNT_ID) AWS_REGION=$(AWS_REGION) AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)"
-	@echo "           VPC_ID=$(VPC_ID)  ECS_CLUSTER=$(ECS_CLUSTER) ECS_SERVICE=$(ECS_SERVICE)"
+	@echo "$(YELLOW)Defaults:$(NC) APP_NAME=$(APP_NAME) AWS_REGION=$(AWS_REGION) LIGHTSAIL_SERVICE=$(LIGHTSAIL_SERVICE) LIGHTSAIL_POWER=$(LIGHTSAIL_POWER)"
 
 info: ## Show Docker / AWS settings
 	@echo "$(GREEN)Configuration$(NC)"
-	@echo "  App name:        $(APP_NAME)"
-	@echo "  AWS account:     $(AWS_ACCOUNT_ID)"
-	@echo "  AWS region:      $(AWS_REGION) (AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION))"
-	@echo "  VPC (for ECS):   $(VPC_ID)"
-	@echo "  ECR repository:  $(ECR_REPOSITORY):$(IMAGE_TAG)"
-	@echo "  ECS cluster:     $(ECS_CLUSTER)"
-	@echo "  ECS service:     $(ECS_SERVICE)"
-	@echo "  Terraform dir:   $(ROOT)/$(TERRAFORM_DIR)"
+	@echo "  App name:          $(APP_NAME)"
+	@echo "  AWS account:       $(AWS_ACCOUNT_ID)"
+	@echo "  AWS region:        $(AWS_REGION)"
+	@echo "  Lightsail service: $(LIGHTSAIL_SERVICE)"
+	@echo "  Lightsail power:   $(LIGHTSAIL_POWER)"
+	@echo "  Docker image:      $(APP_NAME):$(IMAGE_TAG)"
+	@echo "  Dockerfile:        $(DOCKERFILE)"
 
-plan plan-all: ## terragrunt run-all plan for all modules under $(TERRAFORM_DIR)/
-	@test -d "$(ROOT)/$(TERRAFORM_DIR)" || (echo "$(RED)No directory $(TERRAFORM_DIR)/ — add Terragrunt modules or set TERRAFORM_DIR=...$(NC)" >&2 && exit 1)
-	@echo "$(GREEN)Terragrunt run-all plan in $(TERRAFORM_DIR)/$(NC)"
-	cd "$(ROOT)/$(TERRAFORM_DIR)" && terragrunt run-all plan
-	@echo "$(GREEN)plan completed$(NC)"
+plan: ## Run terragrunt plan for all modules
+	cd terraform && terragrunt run-all plan
 
-apply: ## terragrunt run-all apply for all modules under $(TERRAFORM_DIR)/
-	@test -d "$(ROOT)/$(TERRAFORM_DIR)" || (echo "$(RED)No directory $(TERRAFORM_DIR)/ — add Terragrunt modules or set TERRAFORM_DIR=...$(NC)" >&2 && exit 1)
-	@echo "$(YELLOW)Terragrunt run-all apply in $(TERRAFORM_DIR)/$(NC)"
-	cd "$(ROOT)/$(TERRAFORM_DIR)" && terragrunt run-all apply
-	@echo "$(GREEN)apply completed$(NC)"
+apply: ## Run terragrunt apply for all modules
+	cd terraform && terragrunt run-all apply
 
-destroy: ## Tear down all Terragrunt-managed resources (terragrunt run-all destroy)
-	@test -d "$(ROOT)/$(TERRAFORM_DIR)" || (echo "$(RED)No directory $(TERRAFORM_DIR)/ — add Terragrunt modules or set TERRAFORM_DIR=...$(NC)" >&2 && exit 1)
-	@echo "$(RED)Terragrunt run-all destroy in $(TERRAFORM_DIR)/ — this removes managed AWS resources (not the existing VPC).$(NC)"
-	cd "$(ROOT)/$(TERRAFORM_DIR)" && terragrunt run-all destroy
-	@$(MAKE) secrets-purge
-	@echo "$(GREEN)destroy completed$(NC)"
-
-secrets-purge: ## Force-remove $(APP_NAME)-secrets (clears pending-deletion so apply can recreate)
-	@echo "$(YELLOW)Purging Secrets Manager secret $(APP_NAME)-secrets (if present)...$(NC)"
-	@"$(ROOT)/$(TERRAFORM_DIR)/scripts/purge-secrets-manager-secret.sh" "$(APP_NAME)-secrets"
-	@echo "$(GREEN)secrets-purge completed$(NC)"
+destroy: ## Run terragrunt destroy for all modules
+	cd terraform && terragrunt run-all destroy
 
 # Default: HTTPS with repo-local dev cert (src/scripts/dev_tls_cert.sh).
 run run-https:
