@@ -24,6 +24,7 @@ PANDORAS_BOX_FILENAMES = (
     "SCION_Pandoras_Box_(Revised_Download).pdf",
     "SCION_Pandoras_Box_Revised.pdf",
     "Pandoras_Box_Revised.pdf",
+    "Pandoras_Box_Finale.pdf",
 )
 
 MYSTERIES_FILENAMES = (

@@ -15,15 +15,25 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 from app.services.data_tables import primary_write_path
+from scion_books_dir import find_pandoras_box_revised_pdf, find_pdf_in_books
 
 DATA = SRC / "data"
 BR_PATH = DATA / "birthrights.json"
 PV_PATH = primary_write_path("purviews")
-PB_PDF = Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
-GOD_PDF = Path("/mnt/c/Users/John/Desktop/Scion/books/Scion_God_Second_Edition_(Final_Download).pdf")
+
+GOD_PDF_FILENAMES = (
+    "Scion_God_Second_Edition_(Final_Download).pdf",
+    "Scion_God_Second_Edition.pdf",
+)
+
+PB_PDF = find_pandoras_box_revised_pdf() or Path("/mnt/c/Users/John/Desktop/Scion/books/SCION_Pandoras_Box_(Revised_Download).pdf")
+GOD_PDF = find_pdf_in_books(GOD_PDF_FILENAMES) or Path("/mnt/c/Users/John/Desktop/Scion/books/Scion_God_Second_Edition_(Final_Download).pdf")
 
 JUNK_LINE = re.compile(
     r"^(PANDORA\u2019S BOX|CHAPTER [^\n]+|Birthrights)\s+\d+\s*$|^\d{1,3}\s*$",
