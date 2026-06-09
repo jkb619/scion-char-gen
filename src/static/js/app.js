@@ -1,3 +1,4 @@
+import { isEntryVisibleForBooks } from "./bookFilter.js";
 import { applyHint, applySkillSpecialtyHints, applyGameDataHint } from "./fieldHelp.js";
 import {
   buildCharacterSheet,
@@ -52,6 +53,9 @@ import {
 import { appendFatebindingsFinishingEditor } from "./fatebindingsFinishingEditor.js";
 import { appendFinishingExtendedNotesPanel } from "./finishingExtendedNotesPanel.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
+import { createBookSourceFilterPanel } from "./bookSourceFilter.js";
+import { detectConflicts } from "./bookConflictDetection.js";
+import { showConflictModal } from "./bookConflictModal.js";
 import {
   dragonHeirPostConceptStepList,
   renderDragonHeirStepInRoot,
@@ -585,6 +589,19 @@ function getTierAdvancementRule(tierId) {
 
 /** @type {any} */
 let bundle = null;
+
+/** Set of allowed book slugs for filtering. All books enabled by default (populated during init). */
+let allowedBooks = new Set();
+
+/** Sync the book-filter panel checkboxes to match the current `allowedBooks` Set. */
+function syncBookFilterPanelCheckboxes() {
+  const panel = document.querySelector(".book-source-filter");
+  if (!panel) return;
+  const checkboxes = panel.querySelectorAll('input[type="checkbox"]');
+  for (const cb of checkboxes) {
+    cb.checked = allowedBooks.has(cb.value);
+  }
+}
 
 /** @type {ReturnType<typeof defaultCharacter>} */
 let character = defaultCharacter();
@@ -1391,7 +1408,7 @@ function applyPathMathToSkillDots() {
 
 function pantheonList() {
   const list = Object.values(bundle.pantheons || {}).filter(
-    (p) => p && typeof p === "object" && p.id && !String(p.id).startsWith("_"),
+    (p) => p && typeof p === "object" && p.id && !String(p.id).startsWith("_") && isEntryVisibleForBooks(p, allowedBooks),
   );
   return list.sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), undefined, { sensitivity: "base" }));
 }
@@ -2738,10 +2755,11 @@ function renderPatronPurviewPanel(mount) {
     );
     for (const pid of opts) {
       if (takenElsewhere.has(pid) && pid !== curSlot) continue;
+      const pv = bundle.purviews?.[pid];
+      if (pv && !isEntryVisibleForBooks(pv, allowedBooks)) continue;
       const o = document.createElement("option");
       o.value = pid;
       o.textContent = purviewLabel(pid);
-      const pv = bundle.purviews?.[pid];
       if (pv && typeof pv === "object") applyGameDataHint(o, pv);
       sel.appendChild(o);
     }
@@ -5090,8 +5108,8 @@ function renderCalling(root) {
       String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0]), undefined, { sensitivity: "base" }),
     );
   const allCallingEntries = sortCallingEntries(
-    Object.entries(bundle.callings || {}).filter(([cid]) =>
-      callingIdInWizardLibraryChooser(cid, bundle, mythosPan),
+    Object.entries(bundle.callings || {}).filter(([cid, c]) =>
+      callingIdInWizardLibraryChooser(cid, bundle, mythosPan) && isEntryVisibleForBooks(c, allowedBooks),
     ),
   );
   /** Hero Calling 1: must be one of the divine parent’s listed Callings (when a parent is set). */
@@ -5100,7 +5118,7 @@ function renderCalling(root) {
         allowedCallingIds
           .filter((cid) => callingIdInWizardLibraryChooser(cid, bundle, mythosPan))
           .map((cid) => [cid, bundle.callings[cid]])
-          .filter(([, c]) => c),
+          .filter(([, c]) => c && isEntryVisibleForBooks(c, allowedBooks)),
       )
     : null;
   let callingEntries = patronCallingEntries || allCallingEntries;
@@ -5323,6 +5341,12 @@ function renderCalling(root) {
       applyGameDataHint(o, c);
       sel.appendChild(o);
     }
+    if (callingEntries.length === 0) {
+      sel.disabled = true;
+      const placeholder = document.createElement("option");
+      placeholder.textContent = "No entries available for current book selection";
+      sel.appendChild(placeholder);
+    }
     sel.value = character.callingId && callingEntries.some(([cid]) => cid === character.callingId) ? character.callingId : firstId;
     character.callingId = sel.value;
     sel.addEventListener("change", () => {
@@ -5374,7 +5398,7 @@ function renderCalling(root) {
   const heroImmKnackSlots = immortalKnackCostsTwoCallingSlots(character.tier);
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   const knackEntries = Object.entries(bundle.knacks)
-    .filter(([kid]) => !kid.startsWith("_"))
+    .filter(([kid, k]) => !kid.startsWith("_") && isEntryVisibleForBooks(k, allowedBooks))
     .sort((a, b) => {
       const na = String(a[1]?.name || a[0]);
       const nb = String(b[1]?.name || b[0]);
@@ -5621,6 +5645,12 @@ function renderCalling(root) {
       knackPanel.appendChild(chips);
     }
   }
+  if (knackEntries.length === 0) {
+    const emptyMsg = document.createElement("p");
+    emptyMsg.className = "help book-filter-empty";
+    emptyMsg.textContent = "No entries available for the current book selection. Adjust the Source Books filter to see more options.";
+    knackPanel.appendChild(emptyMsg);
+  }
   applyHint(knackPanel, "knack-select");
   wrap.appendChild(knackPanel);
 
@@ -5805,7 +5835,7 @@ function renderPurviews(root) {
   if (singlePatronPurviewTier) {
     purviewEntries = patronOpts
       .map((pid) => [pid, bundle.purviews?.[pid]])
-      .filter(([pid, p]) => !String(pid).startsWith("_") && p && typeof p === "object")
+      .filter(([pid, p]) => !String(pid).startsWith("_") && p && typeof p === "object" && isEntryVisibleForBooks(p, allowedBooks))
       .sort((a, b) =>
         purviewChipSortLabel(a[0], a[1]).localeCompare(purviewChipSortLabel(b[0], b[1]), undefined, { sensitivity: "base" }),
       );
@@ -5819,6 +5849,7 @@ function renderPurviews(root) {
     const sorcererHeroMagicOnly = tierNorm === "sorcerer_hero";
     purviewEntries = Object.entries(bundle.purviews || {}).filter(([pid, p]) => {
       if (pid.startsWith("_") || !p || typeof p !== "object") return false;
+      if (!isEntryVisibleForBooks(p, allowedBooks)) return false;
       if (sorcererHeroMagicOnly && pid !== "magic") return false;
       if (patronOpts.length > 0 && patronSet.has(pid)) return false;
       if (demigodLike && pantheonSigId && pid === pantheonSigId) return false;
@@ -5861,6 +5892,12 @@ function renderPurviews(root) {
     });
     applyGameDataHint(chip, p);
     chips.appendChild(chip);
+  }
+  if (purviewEntries.length === 0) {
+    const emptyMsg = document.createElement("p");
+    emptyMsg.className = "help book-filter-empty";
+    emptyMsg.textContent = "No entries available for the current book selection. Adjust the Source Books filter to see more options.";
+    chips.appendChild(emptyMsg);
   }
   const innateBelowChips = document.createElement("div");
   innateBelowChips.className = "purview-innate-below-chips";
@@ -6295,7 +6332,7 @@ function renderBirthrights(root) {
   tbl2.appendChild(thead2);
   const body2 = document.createElement("tbody");
   const entries = Object.entries(bundle.birthrights)
-    .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id))
+    .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id) && isEntryVisibleForBooks(br, allowedBooks))
     .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]));
   for (const [bid, br] of entries) {
     const cost = birthrightPointCost(bid);
@@ -6350,6 +6387,12 @@ function renderBirthrights(root) {
   ]);
   brScroll.appendChild(tbl2);
   catalog.appendChild(brScroll);
+  if (entries.length === 0) {
+    const emptyMsg = document.createElement("p");
+    emptyMsg.className = "help book-filter-empty";
+    emptyMsg.textContent = "No entries available for the current book selection. Adjust the Source Books filter to see more options.";
+    catalog.appendChild(emptyMsg);
+  }
   wrap.appendChild(catalog);
 
   const picks = document.createElement("section");
@@ -6431,6 +6474,7 @@ function renderBoons(root) {
 
   for (const [bid, b] of entries) {
     if (boonIsPurviewInnateAutomaticGrant(b, bundle)) continue;
+    if (!isEntryVisibleForBooks(b, allowedBooks)) continue;
     const eligible = boonEligible(b, character, bundle);
     const on = character.boonIds.includes(bid);
     if (!on && (!eligible || atBoonCap)) continue;
@@ -6494,6 +6538,11 @@ function renderBoons(root) {
   if (!anyShown) {
     const empty = document.createElement("p");
     empty.className = "help";
+    // Check if book filter is the cause (entries exist but are hidden by allowedBooks)
+    const hasEntriesBeforeBookFilter = entries.some(([, b]) => !boonIsPurviewInnateAutomaticGrant(b, bundle) && boonEligible(b, character, bundle));
+    if (hasEntriesBeforeBookFilter) {
+      empty.textContent = "No entries available for the current book selection. Adjust the Source Books filter to see more options.";
+    } else {
     const tracked = [...characterPurviewIdSet(character, bundle)].sort();
     const trackedNote =
       tracked.length > 0
@@ -6503,6 +6552,7 @@ function renderBoons(root) {
       "No qualifying Boons yet — confirm <strong>tier</strong> (e.g. some Boons need Demigod or God tier) and Purviews in scope. (Legend and printed Boon prerequisites from the books are not enforced in this wizard; both change in play — confirm at the table.)" +
       trackedNote +
       " If this list omits a Purview you expect, open <strong>Purviews</strong> (and <strong>Paths</strong> for pantheon/parent) so patron slots and sheet picks sync, then return here.";
+    }
     wrap.appendChild(empty);
   }
 
@@ -6747,7 +6797,7 @@ function renderFinishing(root) {
       const callingKnackSet = new Set(character.knackIds || []);
       const finUniq = [...new Set(character.finishing.finishingKnackIds || [])];
       const knackEntriesFin = Object.entries(bundle.knacks)
-        .filter(([kid]) => !kid.startsWith("_"))
+        .filter(([kid, k]) => !kid.startsWith("_") && isEntryVisibleForBooks(k, allowedBooks))
         .sort((a, b) => {
           const na = String(a[1]?.name || a[0]);
           const nb = String(b[1]?.name || b[0]);
@@ -6884,7 +6934,7 @@ function renderFinishing(root) {
       const finBody = document.createElement("tbody");
       const usedBr = finishingBirthrightPointsUsed();
       const finEntries = Object.entries(bundle.birthrights)
-        .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id))
+        .filter(([id, br]) => !id.startsWith("_") && !isChargenWizardHiddenBirthrightRow(br, id) && isEntryVisibleForBooks(br, allowedBooks))
         .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]));
       for (const [bid, br] of finEntries) {
         const cost = birthrightPointCost(bid);
@@ -7004,7 +7054,7 @@ function renderFinishing(root) {
   const eqBody = document.createElement("tbody");
   const eqSet = new Set(character.sheetEquipmentIds || []);
   const eqEntries = Object.entries(bundle.equipment || {})
-    .filter(([eid, eq]) => !eid.startsWith("_") && !isChargenWizardHiddenEquipmentRow(eq, eid))
+    .filter(([eid, eq]) => !eid.startsWith("_") && !isChargenWizardHiddenEquipmentRow(eq, eid) && isEntryVisibleForBooks(eq, allowedBooks))
     .sort((a, b) => String(a[1]?.name || a[0]).localeCompare(String(b[1]?.name || b[0])));
   for (const [eid, eq] of eqEntries) {
     const tr = document.createElement("tr");
@@ -7050,6 +7100,12 @@ function renderFinishing(root) {
   ]);
   eqScroll.appendChild(eqTbl);
   eqCat.appendChild(eqScroll);
+  if (eqEntries.length === 0) {
+    const emptyMsg = document.createElement("p");
+    emptyMsg.className = "help book-filter-empty";
+    emptyMsg.textContent = "No entries available for the current book selection. Adjust the Source Books filter to see more options.";
+    eqCat.appendChild(emptyMsg);
+  }
   eqLayout.appendChild(eqCat);
   const eqSel = document.createElement("div");
   eqSel.className = "equipment-picker-selected";
@@ -7375,6 +7431,7 @@ function buildExportObject() {
       deeds: character.deeds,
       notes: character.notes ?? "",
       ...snap,
+      allowedBooks: Array.from(allowedBooks),
     };
   }
   const p = selectedPantheon();
@@ -7556,6 +7613,7 @@ function buildExportObject() {
     sorceryProfile: (ensureSorceryProfileShape(), { ...character.sorceryProfile }),
     titanicProfile: (ensureTitanicProfileShape(), { ...character.titanicProfile }),
     mythosInnatePower: (ensureMythosInnatePowerShape(), { ...character.mythosInnatePower }),
+    allowedBooks: Array.from(allowedBooks),
   };
 }
 
@@ -8703,6 +8761,66 @@ function render() {
   }
 }
 
+/**
+ * Remove a conflicting character selection by type and id.
+ * Called when the user confirms removal of a book that has active selections.
+ *
+ * @param {string} type - display type label (e.g. "Boon", "Knack", "Birthright", "Equipment", "Purview", "Calling")
+ * @param {string} id - the selection id to remove
+ */
+function removeSelectionFromCharacter(type, id) {
+  switch (type) {
+    case "Boon":
+      character.boonIds = (character.boonIds || []).filter((x) => x !== id);
+      break;
+    case "Knack":
+      character.knackIds = (character.knackIds || []).filter((x) => x !== id);
+      // Also remove from finishing knack ids if present
+      if (character.finishing && Array.isArray(character.finishing.finishingKnackIds)) {
+        character.finishing.finishingKnackIds = character.finishing.finishingKnackIds.filter((x) => x !== id);
+      }
+      // Remove from knack slot assignments
+      if (character.knackSlotById && character.knackSlotById[id] !== undefined) {
+        delete character.knackSlotById[id];
+      }
+      break;
+    case "Birthright":
+      character.birthrightIds = (character.birthrightIds || []).filter((x) => x !== id);
+      // Also remove from finishing birthright picks if present
+      if (character.finishing && Array.isArray(character.finishing.birthrightPicks)) {
+        character.finishing.birthrightPicks = character.finishing.birthrightPicks.filter((x) => x !== id);
+      }
+      break;
+    case "Equipment":
+      character.sheetEquipmentIds = (character.sheetEquipmentIds || []).filter((x) => x !== id);
+      break;
+    case "Purview":
+      character.purviewIds = (character.purviewIds || []).filter((x) => x !== id);
+      // Also remove from patron purview slots if present
+      if (Array.isArray(character.patronPurviewSlots)) {
+        character.patronPurviewSlots = character.patronPurviewSlots.map((s) => (s === id ? "" : s));
+      }
+      break;
+    case "Calling":
+      if (character.callingId === id) {
+        character.callingId = "";
+      }
+      // Also remove from calling slots (Hero three-row mode)
+      if (Array.isArray(character.callingSlots)) {
+        character.callingSlots = character.callingSlots.filter((slot) => {
+          if (typeof slot === "object" && slot) return slot.id !== id;
+          return true;
+        });
+      }
+      break;
+    case "Path":
+      // Paths are not stored as IDs in the same way; no removal needed
+      break;
+    default:
+      break;
+  }
+}
+
 async function init() {
   const embedded = readEmbeddedBundleFromDom();
   if (embedded && typeof embedded === "object" && embedded.tier && typeof embedded.tier === "object") {
@@ -8726,6 +8844,42 @@ async function init() {
   normalizeCharacterStateAfterLoad();
   updateHeaderTierDisplay();
 
+  // --- Book Source Filter panel ---
+  const registry = bundle._sourceRegistry || [];
+  // Initialize allowedBooks with all known slugs (default: all enabled)
+  for (const entry of registry) {
+    allowedBooks.add(entry.slug);
+  }
+  const bookFilterPanel = createBookSourceFilterPanel(registry, allowedBooks, (slug, isAllowed) => {
+    // onChange callback — re-render after filter change
+  }, async (slug) => {
+    // onBeforeUncheck — check for conflicts before removing a book
+    const conflicts = detectConflicts(slug, character, bundle);
+    if (conflicts.length === 0) return true; // no conflicts, proceed immediately
+
+    // Conflicts exist: show modal, keep book in allowedBooks until user confirms
+    const confirmed = await showConflictModal(conflicts);
+    if (!confirmed) return false; // cancel — re-check checkbox, leave state unchanged
+
+    // Confirmed: remove all conflicting selections from character state
+    for (const conflict of conflicts) {
+      removeSelectionFromCharacter(conflict.type, conflict.id);
+    }
+    return true; // proceed with removal from allowedBooks
+  });
+  const toolbar = document.getElementById("wizard-line-toolbar");
+  if (toolbar) {
+    toolbar.parentNode.insertBefore(bookFilterPanel, toolbar.nextSibling);
+  }
+
+  // Listen for book-filter-changed and re-render current step (same render cycle, no page rebuild)
+  document.addEventListener("book-filter-changed", (e) => {
+    allowedBooks = e.detail.allowedBooks;
+    const scrollY = window.scrollY;
+    render();
+    window.scrollTo(0, scrollY);
+  });
+
   const fileImport = document.getElementById("input-import-json");
   document.getElementById("btn-import-json")?.addEventListener("click", () => fileImport?.click());
   fileImport?.addEventListener("change", async () => {
@@ -8735,6 +8889,16 @@ async function init() {
       const text = await file.text();
       const parsed = JSON.parse(text);
       character = importCharacterFromExportPayload(parsed);
+
+      // Restore allowedBooks from imported payload (Requirement 4.3, 4.4, 4.5)
+      if (Array.isArray(parsed.allowedBooks)) {
+        const validSlugs = new Set((bundle._sourceRegistry || []).map(e => e.slug));
+        allowedBooks = new Set(parsed.allowedBooks.filter(slug => validSlugs.has(slug)));
+      } else {
+        // Field absent (older exports): default all books enabled
+        allowedBooks = new Set((bundle._sourceRegistry || []).map(e => e.slug));
+      }
+
       stepIndex = 0;
       reviewViewMode = "sheet";
       appMainTab = "wizard";
@@ -8742,6 +8906,7 @@ async function init() {
       normalizeCharacterStateAfterLoad();
       updateHeaderTierDisplay();
       render();
+      syncBookFilterPanelCheckboxes();
       scrollWizardStepIntoView();
     } catch (e) {
       console.error(e);

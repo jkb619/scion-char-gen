@@ -1,0 +1,19 @@
+book_id: titans_rising
+filenames:
+  - "TItans_Rising_(Final_Download).pdf"
+  - "Titans_Rising_(Final_Download).pdf"
+  - "Scion_TItans_Rising_(Final_Download).pdf"
+  - "Scion_Titans_Rising_(Final_Download).pdf"
+output_path: "src/data/_extracted/titans_rising.txt"
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

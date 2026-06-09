@@ -4,15 +4,28 @@
 LIGHTSAIL_SERVICE ?= scion-chargen
 LIGHTSAIL_POWER   ?= nano
 
-build: ## Build the Docker image
+build: ## Build the Docker image (runs parsers first if PDFs are available)
+	@echo "$(GREEN)Running book parsers...$(NC)"
+	$(MAKE) parse-books
 	@echo "$(GREEN)Building Docker image: $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	docker build -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
 
-build-no-cache: ## Build the Docker image without cache
+build-no-cache: ## Build the Docker image without cache (runs parsers first)
+	@echo "$(GREEN)Running book parsers...$(NC)"
+	$(MAKE) parse-books
 	@echo "$(GREEN)Building Docker image (no cache): $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	docker build --no-cache -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
+
+parse-books: ## Re-run PDF parsers to regenerate src/data/books/ slices
+	@echo "$(GREEN)Regenerating book bundle slices from PDFs...$(NC)"
+	@if command -v pdftotext >/dev/null 2>&1; then \
+		cd "$(ROOT)" && PYTHONPATH="$(ROOT)/src" $(PY) src/scripts/build_book_bundle_slices.py; \
+	else \
+		echo "$(YELLOW)  pdftotext not found — skipping (install poppler-utils)$(NC)"; \
+	fi
+	@echo "$(GREEN)Book parsing complete.$(NC)"
 
 run-docker: ## Run the container locally (foreground, rm on exit)
 	@echo "$(GREEN)Running $(APP_NAME):$(IMAGE_TAG) on http://localhost:$(DOCKER_PUBLISH_PORT)$(NC)"
@@ -41,7 +54,8 @@ ls-deploy: ## Deploy latest pushed image to Lightsail
 		--service-name $(LIGHTSAIL_SERVICE) \
 		--region $(AWS_REGION) \
 		--containers '{"app": {"image": "$(LATEST_IMAGE)", "ports": {"8000": "HTTP"}, "environment": {"PORT": "8000"}}}' \
-		--public-endpoint '{"containerName": "app", "containerPort": 8000, "healthCheck": {"path": "/", "intervalSeconds": 30, "timeoutSeconds": 5, "unhealthyThreshold": 3, "healthyThreshold": 2, "successCodes": "200"}}'
+		--public-endpoint '{"containerName": "app", "containerPort": 8000, "healthCheck": {"path": "/", "intervalSeconds": 30, "timeoutSeconds": 5, "unhealthyThreshold": 3, "healthyThreshold": 2, "successCodes": "200"}}' \
+		--no-cli-pager
 	@echo "$(GREEN)Deployment created. Run 'make ls-status' to monitor.$(NC)"
 
 deploy: ## Build, push, and deploy to Lightsail (full workflow)
@@ -54,12 +68,14 @@ deploy: ## Build, push, and deploy to Lightsail (full workflow)
 ls-status: ## Show Lightsail service status and URL
 	aws lightsail get-container-services \
 		--service-name $(LIGHTSAIL_SERVICE) \
-		--region $(AWS_REGION)
+		--region $(AWS_REGION) \
+		--no-cli-pager
 
 ls-logs: ## Fetch Lightsail container logs
 	aws lightsail get-container-log \
 		--service-name $(LIGHTSAIL_SERVICE) \
 		--container-name app \
-		--region $(AWS_REGION)
+		--region $(AWS_REGION) \
+		--no-cli-pager
 
 

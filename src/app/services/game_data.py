@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from app.services.source_registry import SourceRegistry
+    from app.services.source_tag_resolver import SourceTagResolver
 
 from app.config import DATA_DIR
 from app.services.book_bundles import merge_book_directory_into_bundle
@@ -62,6 +66,33 @@ def _apply_patron_asset_skill_overrides(pantheons: dict[str, Any], overrides_roo
             for row in rows:
                 if isinstance(row, dict) and row.get("id") == patron_id:
                     row["assetSkills"] = list(cleaned)
+
+
+def _augment_source_book_ids(bundle: dict, registry: SourceRegistry, resolver: SourceTagResolver) -> None:
+    """Mutate bundle entries in-place to add _sourceBookId field."""
+    AUGMENTABLE_TABLES = ("equipment", "tags", "birthrights", "boons", "knacks", "purviews", "callings", "paths")
+    for table_name in AUGMENTABLE_TABLES:
+        table = bundle.get(table_name)
+        if not isinstance(table, dict):
+            continue
+        for key, entry in table.items():
+            if not isinstance(entry, dict) or key.startswith("_"):
+                continue
+            # Fast path: sourceBook slug already set by book_bundles.py
+            slug = entry.get("sourceBook")
+            if slug and slug in registry.entries:
+                entry["_sourceBookId"] = slug
+                continue
+            # Fallback: resolve from `source` free-text field
+            source = entry.get("source")
+            if not source:
+                continue
+            resolved = resolver.resolve(str(source))
+            if len(resolved) == 1:
+                entry["_sourceBookId"] = resolved[0]
+            elif len(resolved) > 1:
+                entry["_sourceBookId"] = resolved
+            # else: no match → omit field entirely
 
 
 def _read_json(path: Path) -> Any:
@@ -276,6 +307,21 @@ def load_bundle() -> dict[str, Any]:
             if isinstance(cr, dict):
                 bundle["canonicalRules"] = cr
     merge_book_directory_into_bundle(bundle, DATA_DIR)
+
+    # Augment entries with normalized _sourceBookId for frontend filtering.
+    from app.services.source_registry import SourceRegistry
+    from app.services.source_tag_resolver import SourceTagResolver
+
+    registry = SourceRegistry(books_dir=DATA_DIR / "books")
+    resolver = SourceTagResolver(registry=registry)
+    _augment_source_book_ids(bundle, registry, resolver)
+
+    # Expose registry to frontend for book filter panel.
+    bundle["_sourceRegistry"] = [
+        {"slug": entry.slug, "title": entry.title, "group": entry.group}
+        for entry in sorted(registry.entries.values(), key=lambda e: e.title.lower())
+    ]
+
     return bundle
 
 

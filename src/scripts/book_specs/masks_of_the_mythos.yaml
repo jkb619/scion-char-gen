@@ -1,0 +1,18 @@
+book_id: masks_of_the_mythos
+filenames:
+  - "Scion_Masks_of_the_Mythos_(Final_Download).pdf"
+  - "Scion_Masks_of_the_Mythos.pdf"
+  - "Masks_of_the_Mythos.pdf"
+output_path: "src/data/_extracted/masks_of_the_mythos.txt"
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

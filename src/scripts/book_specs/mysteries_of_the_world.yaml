@@ -1,0 +1,17 @@
+book_id: mysteries_of_the_world
+filenames:
+  - "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf"
+  - "Mysteries_of_the_World_-_Scion_Companion.pdf"
+output_path: "src/data/_extracted/mysteries_of_the_world.txt"
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

@@ -1904,3 +1904,85 @@ textarea.has-doc-hint:focus-visible {
 .tag-check-label {
   color: var(--text);
 }
+
+/* --- Book Source Filter panel --- */
+.book-source-filter {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0;
+  margin: 0.75rem 1.25rem;
+}
+
+.book-source-filter > summary {
+  cursor: pointer;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  color: var(--text);
+  user-select: none;
+}
+
+.book-source-filter[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.book-source-filter-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.book-source-filter-toolbar button {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.book-source-filter-toolbar button:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.book-source-filter-group {
+  padding: 0.5rem 1rem;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0 1rem;
+}
+
+.book-source-filter-group legend {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 0 0.25rem;
+}
+
+.book-source-filter-group:last-child {
+  border-bottom: none;
+}
+
+.book-source-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.book-source-filter-item input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--accent);
+}

@@ -20,3 +20,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "certificate_name" {
+  description = "Certificate name for public domain attachment (omit to skip domain config)"
+  type        = string
+  default     = null
+}
+
+variable "domain_name" {
+  description = "Public domain name to attach (requires certificate_name)"
+  type        = string
+  default     = null
+}

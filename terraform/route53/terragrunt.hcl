@@ -37,7 +37,7 @@ inputs = {
       name    = local.gv.route53_record_name
       type    = "CNAME"
       ttl     = 300
-      records = [replace(dependency.lightsail_service.outputs.url, "https://", "")]
+      records = [trimsuffix(replace(dependency.lightsail_service.outputs.url, "https://", ""), "/")]
     }
   ]
 

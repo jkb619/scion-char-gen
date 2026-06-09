@@ -1,0 +1,24 @@
+book_id: saints_monsters
+filenames:
+  - "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
+  - "Scion_Players_Guide_Saints_Monsters.pdf"
+  - "Saints_and_Monsters.pdf"
+output_path: "src/data/_extracted/saints_monsters.txt"
+
+json_output_paths:
+  boons: "src/data/tables/boons/20_Scion_Players_Guide_Saints_Monsters.json"
+  knacks: "src/data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json"
+  purviews: "src/data/tables/purviews/15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

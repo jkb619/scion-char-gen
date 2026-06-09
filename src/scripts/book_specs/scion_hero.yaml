@@ -1,0 +1,17 @@
+book_id: scion_hero
+filenames:
+  - "Scion_Hero_(Final_Download).pdf"
+  - "Scion_Hero.pdf"
+output_path: "src/data/_extracted/scion_hero.txt"
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

@@ -1,0 +1,22 @@
+book_id: scion_origin
+filenames:
+  - "Scion_Origin_(Revised_Download).pdf"
+  - "Scion_Origin_Revised.pdf"
+output_path: "src/data/_extracted/scion_origin_revised.txt"
+
+json_output_paths:
+  callings: "src/data/tables/callings/00_Scion_Origin_Core_Callings.json"
+  knacks: "src/data/tables/knacks/00_SCION_Pandoras_Box_and_Origin_Knacks.json"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

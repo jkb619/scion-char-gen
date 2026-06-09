@@ -3,7 +3,7 @@
 #
 # AWS: region pinned to us-east-2 (exported as AWS_REGION + AWS_DEFAULT_REGION). Override: `make deploy AWS_REGION=…`.
 #
-.PHONY: help info run run-https run-http build build-no-cache run-docker stop-docker clean deploy ls-push ls-deploy ls-status ls-logs plan apply destroy
+.PHONY: help info run run-https run-http build build-no-cache run-docker stop-docker clean deploy ls-push ls-deploy ls-status ls-logs plan apply destroy parse-books
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PORT ?= 8000
@@ -42,8 +42,9 @@ help: ## Show targets
 	@echo "  make run / run-https  — uvicorn dev server (see src/app/__main__.py)"
 	@echo ""
 	@echo "$(YELLOW)Docker:$(NC)"
-	@echo "  make build            — docker build ($(DOCKERFILE))"
-	@echo "  make build-no-cache   — docker build without cache"
+	@echo "  make build            — parse books + docker build ($(DOCKERFILE))"
+	@echo "  make build-no-cache   — parse books + docker build without cache"
+	@echo "  make parse-books      — re-run PDF parsers only (no Docker build)"
 	@echo "  make run-docker       — run image locally on port $(DOCKER_PUBLISH_PORT)"
 	@echo "  make stop-docker      — stop local container"
 	@echo "  make clean            — remove local image tag"

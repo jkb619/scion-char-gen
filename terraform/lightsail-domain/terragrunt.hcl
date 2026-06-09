@@ -17,7 +17,7 @@ dependency "lightsail_service" {
     service_name = "scion-chargen"
   }
 
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init"]
 }
 
 dependency "lightsail_certificate" {
@@ -27,7 +27,7 @@ dependency "lightsail_certificate" {
     certificate_name = "tulta-munille-cert"
   }
 
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init"]
 }
 
 locals {

@@ -31,6 +31,51 @@ DESC_MAX = 720
 MECH_MAX = 720
 BLOCK_MAX = 3200
 
+# ---------------------------------------------------------------------------
+# PDFs handled by explicit builders in this script (skip in generic sweep)
+# ---------------------------------------------------------------------------
+KNOWN_PDFS = {
+    "7711-Divine_Garage.pdf",
+    "7711-Divine_Menagerie.pdf",
+    "7711-Divine_Menagerie_2.pdf",
+    "7711-Divine_Menagerie_3.pdf",
+    "7711-Divine_Menagerie_4_-_pages.pdf",
+    "7711-Divine_Reliquary_v2.pdf",
+    "7711-Divine_Arenas.pdf",
+    "7711-Divine_Identities.pdf",
+    "7711-Divine_Armory.pdf",
+    "248670-Scion_Britannias_Dragons.pdf",
+    "255389-RECONDITIONED_2.pdf",
+    # Duplicate / alternate editions (content merged into canonical entries)
+    "Pandoras_Box_Finale.pdf",
+    # Companion list PDFs (not standalone books)
+    "7711-Divine_Garage_-_List_of_Vehicles.pdf",
+    "7711-Divine_Menagerie_-_List_of_Antagonists.pdf",
+    "7711-Divine_Menagerie_2_-_List_of_Antagonists.pdf",
+    "7711-Divine_Menagerie_3_-_List_of_Antagonists.pdf",
+    "7711-Divine_Reliquary_v2_-_List_of_Relics.pdf",
+    "7711-Divine_Armory_-_List_of_Weapons.pdf",
+}
+
+# Core PDFs handled by the main parser framework (parse.py), not this script
+CORE_PDFS = {
+    "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "Scion_Origin_(Revised_Download).pdf",
+    "Scion_Hero_(Final_Download).pdf",
+    "Scion_Demigod_Second_Edition_(Final_Download).pdf",
+    "Scion_God_Second_Edition_(Final_Download).pdf",
+    "Scion_Dragon_(Final_Download).pdf",
+    "Scion_Dragon_Companion_(Final_Download).pdf",
+    "Mysteries_of_the_World_-_Scion_Companion_(Final_Download).pdf",
+    "Scion_Masks_of_the_Mythos_(Final_Download).pdf",
+    "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
+    "TItans_Rising_(Final_Download).pdf",
+    "Titans_Rising_(Final_Download).pdf",
+}
+
+# Slugs to skip — duplicates of canonical CORE_BOOKS entries
+_SKIP_GENERIC_SLUGS = {"pandoras_box_finale"}
+
 
 def _run_pdftotext(pdf: Path) -> str:
     try:
@@ -524,6 +569,50 @@ def build_britannia_dragons_knacks() -> None:
     )
 
 
+def build_divine_armory() -> None:
+    main = find_pdf_in_books(("7711-Divine_Armory.pdf",), None)
+    lst = find_pdf_in_books(("7711-Divine_Armory_-_List_of_Weapons.pdf",), None)
+    if not main:
+        return
+    pages = pdf_pages(main)
+    pdf_name = "7711-Divine_Armory.pdf"
+    equipment: dict[str, Any] = {}
+
+    # Parse weapon names from the list PDF (format: "Name\nTags: ...\nTotal: N")
+    names: list[str] = []
+    if lst:
+        text = _run_pdftotext(lst)
+        # Each weapon entry: Title Case name on its own line, followed by "Tags:" line
+        for m in re.finditer(r"^([A-Z][A-Za-z \-']+)$\s*Tags:", text, re.MULTILINE):
+            name = m.group(1).strip()
+            if 3 <= len(name) <= 50 and name not in ("Unarmed", "Melee Weapons", "Ranged Weapons", "Tactical Weapons", "Armor"):
+                names.append(name)
+        names = sorted(set(names))
+
+    for raw in names:
+        loc = extract_bullet_block(pages, raw) or extract_plain_title_block(pages, raw)
+        page = loc[0] if loc else None
+        block = loc[1] if loc else ""
+        desc, mech = split_description_mechanical(block) if block else ("", "")
+        desc = re.sub(r"^■\s*\S+[^\n]*\s*", "", desc).strip()
+        desc, mech = _squish(desc, 620), _squish(mech, 620)
+        eq_id = pascal_id("eqDa", raw)
+        src = f"{pdf_name} p.{page}" if page else f"{pdf_name} (see list)"
+        equipment[eq_id] = {
+            "id": eq_id,
+            "name": raw,
+            "equipmentType": "weapon",
+            "tagIds": [],
+            "description": desc or f"Weapon/armor from Divine Armory — {raw}.",
+            "mechanicalEffects": mech or "Tags and Enhancement in PDF.",
+            "source": src,
+        }
+    _write(
+        BOOKS_OUT / "divine_armory.json",
+        {"_meta": _meta("divine_armory", "Divine Armory", pdf_name, "storypath_nexus"), "equipment": equipment},
+    )
+
+
 def build_reconditioned_row() -> None:
     p1 = find_pdf_in_books(("255389-RECONDITIONED_2.pdf", "255389-reconditioned.pdf"), None)
     if not p1:
@@ -543,6 +632,491 @@ def build_reconditioned_row() -> None:
         }
     }
     _write(BOOKS_OUT / "reconditioned.json", {"_meta": _meta("reconditioned", "Reconditioned", pdf_name, "other"), "equipment": equipment})
+
+
+# ---------------------------------------------------------------------------
+# Generic fallback parser for unknown / new PDFs
+# ---------------------------------------------------------------------------
+
+def _slug_from_filename(filename: str) -> str:
+    """Derive a snake_case slug from a PDF filename.
+
+    Strips numeric prefix (e.g. '7711-', '248670-'), common download suffixes,
+    extension, and converts to lower snake_case.
+    """
+    stem = Path(filename).stem
+    # Strip leading numeric prefix like "7711-" or "248670-"
+    stem = re.sub(r"^\d+[-_]", "", stem)
+    # Strip common download suffixes
+    stem = re.sub(r"[_\s]*\((?:Final_?Download|Revised_?Download|Download)\)", "", stem, flags=re.I)
+    # Strip version suffixes like "_v3"
+    stem = re.sub(r"_v\d+$", "", stem, flags=re.I)
+    # Replace separators with underscores
+    stem = re.sub(r"[-\s]+", "_", stem)
+    # CamelCase → snake_case
+    stem = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", stem)
+    # Collapse multiple underscores, strip edges, lowercase
+    stem = re.sub(r"_+", "_", stem).strip("_").lower()
+    return stem
+
+
+def _detect_title(pages: list[str]) -> str:
+    """Try to detect the book title from the first page or two."""
+    # Common words that indicate credits/authors, not titles
+    skip_words = {"by", "written", "author", "design", "layout", "editing", "art", "illustration", "cover"}
+    for pg in pages[:2]:
+        lines = [ln.strip() for ln in pg.splitlines() if ln.strip()]
+        for ln in lines[:12]:
+            # Skip very short or very long lines
+            if len(ln) < 4 or len(ln) > 80:
+                continue
+            # Skip lines that are clearly not titles
+            if ln.startswith("©") or ln.startswith("http") or "@" in ln:
+                continue
+            # Skip author/credits lines (contain commas with many proper names)
+            if ln.count(",") >= 2:
+                continue
+            low = ln.lower()
+            if any(w in low for w in skip_words):
+                continue
+            # Look for "Scion" in the line — strong signal it's a title
+            if "scion" in low or "divine" in low:
+                title = ln.rstrip(".!:;,")
+                # Normalize case if ALL CAPS
+                if title.isupper():
+                    title = title.title()
+                if len(title) >= 4:
+                    return title
+            # Fall back to Title Case or ALL CAPS lines
+            if ln.istitle() or (ln.isupper() and len(ln) > 5):
+                title = ln.rstrip(".!:;,")
+                if title.isupper():
+                    title = title.title()
+                if len(title) >= 4:
+                    return title
+    return ""
+
+
+# --- Title overrides for PDFs whose auto-detection picks up wrong text ---
+_TITLE_OVERRIDES: dict[str, str] = {
+    "Scion_God_Players_Guide_(Final_Download).pdf": "Scion: God Players Guide",
+    "Scion_-_Titanomachy_(Final_Download).pdf": "Scion: Titanomachy",
+    "Scion_Mythical_Denizens_(Final_Download).pdf": "Scion: Mythical Denizens",
+    "Scion_Wild_Hunt_(Final_Download).pdf": "Scion: Wild Hunt",
+    "Realms_of_Mystery__Magic_(Final_Download).pdf": "Realms of Mystery & Magic",
+    "Rock_Gods_and_Road_Trips_(Final_Download).pdf": "Rock Gods and Road Trips",
+    "Pandoras_Box_Finale.pdf": "Pandora's Box (Finale)",
+    "248484-ScionCC_v3.pdf": "Scion Community Compilation",
+    "7711-Divine_Armory.pdf": "Divine Armory",
+}
+
+_RE_EQUIPMENT_TAGS = re.compile(
+    r"\b(Ranged|Melee|Bashing|Lethal|Aggravated|Piercing|Grapple|Thrown|"
+    r"Concealable|Two-[Hh]anded|Reach|Pushing|Stun|Deadly|Loud|"
+    r"Hard Armor|Soft Armor|Ballistic|Firearm)\b"
+)
+_RE_CREATURE_STATS = re.compile(
+    r"(Primary Pool|Attack|Defense|Health|Willpower|Desperation Pool)", re.I
+)
+_RE_KNACK_HEADING = re.compile(r"\b[Kk]nacks?\b")
+_RE_BOON_DOTS = re.compile(r"[●◆]{1,5}|(?:Innate|●{1,5})")
+_RE_PATH_SECTION = re.compile(r"\bPath\b.*Skills:", re.I | re.DOTALL)
+_RE_BULLET_ENTRY = re.compile(r"■\s*([^\n]{4,100})")
+_RE_HEADING_LINE = re.compile(r"^[A-Z][A-Z ]{3,60}$|^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,5}$")
+
+
+def _extract_equipment_entries(pages: list[str], slug: str, pdf_name: str) -> dict[str, Any]:
+    """Extract equipment entries: bullet items with weapon/armor tags."""
+    entries: dict[str, Any] = {}
+    n = 0
+    for i, pg in enumerate(pages):
+        for m in _RE_BULLET_ENTRY.finditer(pg):
+            name_raw = m.group(1).strip()
+            # Look at surrounding context for equipment tags
+            context_start = max(0, m.start() - 20)
+            context_end = min(len(pg), m.end() + 600)
+            context = pg[context_start:context_end]
+            tag_hits = _RE_EQUIPMENT_TAGS.findall(context)
+            if len(tag_hits) < 2:
+                continue
+            n += 1
+            eid = f"eq{pascal_body(slug[:8])}{n:03d}"
+            block = pg[m.start():min(len(pg), m.start() + BLOCK_MAX)]
+            # Trim at next bullet
+            nxt = re.search(r"(?=\s■\s)", block[25:])
+            if nxt:
+                block = block[:25 + nxt.start()]
+            desc, mech = split_description_mechanical(block)
+            desc = re.sub(r"^■\s*\S+[^\n]*\s*", "", desc).strip()
+            entries[eid] = {
+                "id": eid,
+                "name": re.sub(r"\s*\(.*?\)\s*$", "", name_raw).strip() or name_raw,
+                "equipmentType": "weapon" if any(t in tag_hits for t in ("Melee", "Ranged", "Firearm")) else "armor" if any(t in tag_hits for t in ("Hard Armor", "Soft Armor", "Ballistic")) else "general",
+                "tagIds": [],
+                "description": _squish(desc, DESC_MAX) or f"Equipment from {pdf_name}.",
+                "mechanicalEffects": _squish(mech, MECH_MAX) or "See PDF for full stats.",
+                "source": f"{pdf_name} p.{i + 1}",
+            }
+    return entries
+
+
+def _extract_knack_entries(pages: list[str], slug: str, pdf_name: str) -> dict[str, Any]:
+    """Extract knack-like entries: Title Case names followed by description paragraphs.
+
+    Skips entries that look like weapons, armor, or equipment items.
+    """
+    entries: dict[str, Any] = {}
+    n = 0
+    in_knack_section = False
+
+    # Words that indicate an entry is equipment, not a knack
+    _ITEM_WORDS = frozenset({
+        "sword", "knife", "dagger", "axe", "mace", "hammer", "spear", "lance",
+        "halberd", "staff", "club", "flail", "whip", "blade", "cane", "pike",
+        "trident", "javelin", "sling", "bow", "crossbow", "longbow",
+        "gun", "pistol", "rifle", "musket", "shotgun", "revolver", "cannon",
+        "carbine", "derringer", "submachine", "chaingun", "speargun",
+        "armor", "shield", "helm", "helmet", "gauntlet", "breastplate",
+        "chainmail", "plate", "buckler", "cuirass", "greaves",
+    })
+
+    def _looks_like_item(name: str) -> bool:
+        words = set(name.lower().split())
+        return bool(words & _ITEM_WORDS)
+
+    def _looks_like_sentence(name: str) -> bool:
+        """Reject lines that are sentence fragments, not proper names."""
+        words = name.split()
+        if len(words) > 6:
+            return True
+        # Lines starting with "The" are almost always section headings or descriptions, not knack names
+        if name.startswith("The "):
+            return True
+        # If 2+ non-initial words are lowercase function words, it's a sentence
+        _FUNCTION_WORDS = {"is", "are", "the", "a", "an", "of", "for", "to", "in",
+                           "on", "at", "by", "with", "from", "have", "has", "been",
+                           "was", "were", "will", "can", "do", "does", "did",
+                           "belong", "appears", "following", "additional", "sometimes"}
+        low_hits = sum(1 for w in words[1:] if w.lower() in _FUNCTION_WORDS)
+        if low_hits >= 2:
+            return True
+        # Ends with a verb/preposition/article — likely a sentence fragment
+        if words[-1].lower() in {"are", "is", "the", "have", "been", "in", "of", "to", "and", "or", "belong"}:
+            return True
+        # Long names with "and" are typically organization/description phrases, not knacks
+        if len(words) >= 4 and "and" in [w.lower() for w in words]:
+            return True
+        # Contains a lowercase word that's clearly a verb/connector (not part of a name)
+        _VERB_WORDS = {"appears", "belong", "following", "additional", "sometimes",
+                       "stereotypical", "organizational", "witness"}
+        if any(w.lower() in _VERB_WORDS for w in words):
+            return True
+        return False
+
+    # If the book is primarily equipment-focused (many equipment tag hits),
+    # require stricter knack evidence
+    full_text = "\f".join(pages)
+    equip_tag_count = len(_RE_EQUIPMENT_TAGS.findall(full_text))
+    knack_ref_count = len(re.findall(r"\b[Kk]nacks?\b", full_text))
+    # If equipment tags vastly outnumber knack references, this is an equipment book
+    is_equipment_book = equip_tag_count > 50 and equip_tag_count > knack_ref_count * 5
+
+    # For equipment books, don't extract knacks at all — the Title Case pattern
+    # generates too many false positives from weapon/armor names
+    if is_equipment_book:
+        return entries
+
+    for i, pg in enumerate(pages):
+        if _RE_KNACK_HEADING.search(pg):
+            in_knack_section = True
+        if not in_knack_section:
+            continue
+
+        lines = pg.splitlines()
+        j = 0
+        while j < len(lines):
+            ln = lines[j].strip()
+            # Look for a Title Case name on its own line (knack pattern)
+            if (
+                ln
+                and 4 <= len(ln) <= 55
+                and re.match(r"^[A-Z][a-z]+(?:\s+[A-Za-z\']+){0,5}$", ln)
+                and not ln.startswith("Chapter")
+                and not ln.startswith("Appendix")
+                and not _looks_like_item(ln)
+                and not _looks_like_sentence(ln)
+            ):
+                # Collect following paragraph(s) as description
+                desc_lines: list[str] = []
+                k = j + 1
+                while k < len(lines) and len(desc_lines) < 15:
+                    follow = lines[k].strip()
+                    if not follow:
+                        if desc_lines:
+                            break
+                        k += 1
+                        continue
+                    # Stop if we hit another Title Case heading
+                    if re.match(r"^[A-Z][a-z]+(?:\s+[A-Za-z\']+){0,5}$", follow) and len(follow) <= 55:
+                        break
+                    desc_lines.append(follow)
+                    k += 1
+
+                if desc_lines and len(" ".join(desc_lines)) > 30:
+                    n += 1
+                    kid = f"knk{pascal_body(slug[:8])}{n:03d}"
+                    full_desc = " ".join(desc_lines)
+                    entries[kid] = {
+                        "id": kid,
+                        "name": ln,
+                        "callingsAny": True,
+                        "tierMin": "mortal",
+                        "knackKind": "mortal",
+                        "description": _squish(full_desc, DESC_MAX),
+                        "mechanicalEffects": f"See {pdf_name} for full rules.",
+                        "source": f"{pdf_name} p.{i + 1}",
+                    }
+                    j = k
+                    continue
+            j += 1
+    return entries
+
+
+def _extract_birthright_entries(pages: list[str], slug: str, pdf_name: str) -> dict[str, Any]:
+    """Extract creature/follower stat blocks (Primary Pool / Health / Willpower patterns)."""
+    entries: dict[str, Any] = {}
+    n = 0
+    for i, pg in enumerate(pages):
+        # Look for bullet entries near creature stats
+        for m in _RE_BULLET_ENTRY.finditer(pg):
+            name_raw = m.group(1).strip()
+            context_end = min(len(pg), m.end() + 800)
+            context = pg[m.start():context_end]
+            stat_hits = _RE_CREATURE_STATS.findall(context)
+            if len(stat_hits) < 2:
+                continue
+            # Skip if this looks more like equipment
+            if _RE_EQUIPMENT_TAGS.search(context[:200]) and len(_RE_EQUIPMENT_TAGS.findall(context[:200])) >= 2:
+                continue
+            n += 1
+            bid = f"br{pascal_body(slug[:8])}{n:03d}"
+            block = pg[m.start():min(len(pg), m.start() + BLOCK_MAX)]
+            nxt = re.search(r"(?=\s■\s)", block[25:])
+            if nxt:
+                block = block[:25 + nxt.start()]
+            desc, mech = split_description_mechanical(block)
+            desc = re.sub(r"^■\s*\S+[^\n]*\s*", "", desc).strip()
+            entries[bid] = {
+                "id": bid,
+                "name": re.sub(r"\s*\(.*?\)\s*$", "", name_raw).strip() or name_raw,
+                "birthrightType": "creature",
+                "pointCost": 1,
+                "description": _squish(desc, DESC_MAX) or f"Creature/follower from {pdf_name}.",
+                "mechanicalEffects": _squish(mech, MECH_MAX) or "See PDF for pools and stats.",
+                "source": f"{pdf_name} p.{i + 1}",
+                "creatureDetails": {"tagIds": []},
+            }
+    return entries
+
+
+def _extract_boon_entries(pages: list[str], slug: str, pdf_name: str) -> dict[str, Any]:
+    """Extract boon entries: names with dot ratings (● characters) or near Boon headings."""
+    entries: dict[str, Any] = {}
+    n = 0
+    in_boon_section = False
+    boon_re = re.compile(r"^(.{4,50}?)\s*(●{1,5}|[●◆]{1,5})\s*$")
+
+    for i, pg in enumerate(pages):
+        if re.search(r"\bBoons?\b", pg):
+            in_boon_section = True
+        if not in_boon_section:
+            continue
+        for ln in pg.splitlines():
+            s = ln.strip()
+            m = boon_re.match(s)
+            if not m:
+                continue
+            name_raw = m.group(1).strip()
+            dots = len(m.group(2).replace("◆", "●"))
+            if len(name_raw) < 3 or name_raw.lower().startswith("chapter"):
+                continue
+            n += 1
+            boid = f"boon{pascal_body(slug[:8])}{n:03d}"
+            entries[boid] = {
+                "id": boid,
+                "name": name_raw,
+                "dotRating": dots,
+                "description": f"Boon from {pdf_name} — see PDF for activation and effects.",
+                "mechanicalEffects": f"{dots}-dot Boon. Confirm rules in {pdf_name}.",
+                "source": f"{pdf_name} p.{i + 1}",
+            }
+    return entries
+
+
+def _extract_path_entries(pages: list[str], slug: str, pdf_name: str) -> dict[str, Any]:
+    """Extract Path sections with Skills/connections."""
+    entries: dict[str, Any] = {}
+    n = 0
+    full = "\f".join(pages)
+    for m in re.finditer(r"Sample [Cc]onnections?:", full):
+        page = 1 + full[:m.start()].count("\f")
+        prev = full[max(0, m.start() - 1600):m.start()]
+        ls = prev.rfind("Skills:")
+        if ls < 0:
+            continue
+        before_skills = prev[:ls].strip()
+        lines = [ln.strip() for ln in before_skills.splitlines() if ln.strip()]
+        if not lines:
+            continue
+        title = lines[-1]
+        if not re.match(r"^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,4}$", title) or len(title) >= 48:
+            continue
+        if any(x in title for x in ("/", "Chapter", "Paths", "Appendix", "List of")):
+            continue
+        n += 1
+        pid = f"path{pascal_body(slug[:8])}{n:03d}"
+        tail = full[max(0, m.start() - 400):m.start() + 1400]
+        desc, mech = split_description_mechanical(tail)
+        entries[pid] = {
+            "id": pid,
+            "name": title,
+            "pathKind": "role",
+            "description": desc or f"Path «{title}» — see PDF for Skills and connections.",
+            "suggestedSkills": [],
+            "mechanicalEffects": mech or f"Path from {pdf_name} — confirm with PDF.",
+            "source": f"{pdf_name} p.{page}",
+        }
+    return entries
+
+
+def build_generic_book(pdf_path: Path) -> Path | None:
+    """Generic fallback parser for unknown Scion PDFs.
+
+    Extracts whatever structured content can be detected and writes a
+    ``src/data/books/<slug>.json`` file. Returns the output path on success,
+    or None if the PDF cannot be processed.
+    """
+    pdf_name = pdf_path.name
+    slug = _slug_from_filename(pdf_name)
+
+    if slug in _SKIP_GENERIC_SLUGS:
+        return None
+
+    out_path = BOOKS_OUT / f"{slug}.json"
+
+    # Don't overwrite existing curated data
+    if out_path.exists():
+        return None
+
+    # Run pdftotext
+    pages = pdf_pages(pdf_path)
+    if not pages or all(not p.strip() for p in pages):
+        # Empty or unreadable PDF — write minimal meta-only entry
+        payload: dict[str, Any] = {
+            "_meta": _meta(slug, slug.replace("_", " ").title(), pdf_name, "unknown",
+                           note="Auto-generated stub — PDF was empty or unreadable."),
+        }
+        _write(out_path, payload)
+        return out_path
+
+    # Detect title
+    title = _TITLE_OVERRIDES.get(pdf_name) or _detect_title(pages) or slug.replace("_", " ").title()
+
+    # Try extracting each content type
+    equipment = _extract_equipment_entries(pages, slug, pdf_name)
+    knacks = _extract_knack_entries(pages, slug, pdf_name)
+    birthrights = _extract_birthright_entries(pages, slug, pdf_name)
+    boons = _extract_boon_entries(pages, slug, pdf_name)
+    paths = _extract_path_entries(pages, slug, pdf_name)
+
+    # Build payload with whatever was found
+    payload = {
+        "_meta": _meta(slug, title, pdf_name, "storypath_nexus",
+                       note="Auto-generated by generic fallback parser. Review and curate entries."),
+    }
+    if equipment:
+        payload["equipment"] = equipment
+    if knacks:
+        payload["knacks"] = knacks
+    if birthrights:
+        payload["birthrights"] = birthrights
+    if boons:
+        payload["boons"] = boons
+    if paths:
+        payload["paths"] = paths
+
+    _write(out_path, payload)
+    return out_path
+
+
+def _discover_unhandled_pdfs() -> list[Path]:
+    """Find PDFs in book directories that aren't handled by explicit builders or core parser."""
+    skip_names = KNOWN_PDFS | CORE_PDFS
+    # Also skip any PDF whose slug already has a JSON output
+    existing_slugs = {p.stem for p in BOOKS_OUT.glob("*.json")}
+
+    unhandled: list[Path] = []
+    seen_names: set[str] = set()
+
+    for d in books_search_dirs(None):
+        for pdf in sorted(d.glob("*.pdf")):
+            # Deduplicate by filename (same PDF in multiple search dirs)
+            if pdf.name in seen_names:
+                continue
+            seen_names.add(pdf.name)
+
+            if pdf.name in skip_names:
+                continue
+
+            slug = _slug_from_filename(pdf.name)
+            if slug in existing_slugs:
+                continue
+
+            unhandled.append(pdf)
+
+    return unhandled
+
+
+def _cleanup_stale_book_slices() -> None:
+    """Remove JSON files in src/data/books/ whose source PDF no longer exists.
+
+    Only removes files that were auto-generated by this script (identified by
+    having a _meta.sourcePdf field). If the referenced PDF cannot be found in
+    any search directory, the JSON is deleted.
+    """
+    if not BOOKS_OUT.is_dir():
+        return
+
+    # Build set of all PDF filenames currently available
+    available_pdfs: set[str] = set()
+    for d in books_search_dirs(None):
+        for pdf in d.glob("*.pdf"):
+            available_pdfs.add(pdf.name)
+
+    removed: list[str] = []
+    for json_path in sorted(BOOKS_OUT.glob("*.json")):
+        if json_path.name.startswith("_"):
+            continue
+        try:
+            with json_path.open(encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
+        meta = data.get("_meta")
+        if not isinstance(meta, dict):
+            continue
+        source_pdf = meta.get("sourcePdf")
+        if not source_pdf or not isinstance(source_pdf, str):
+            continue
+        # Check if the source PDF still exists in any search directory
+        if source_pdf.strip() not in available_pdfs:
+            json_path.unlink()
+            removed.append(json_path.name)
+
+    if removed:
+        print(f"\n  Cleanup: removed {len(removed)} stale book slice(s):", flush=True)
+        for name in removed:
+            print(f"    ✗ {name} (source PDF no longer found)", flush=True)
 
 
 def main() -> int:
@@ -588,10 +1162,26 @@ def main() -> int:
     build_divine_reliquary()
     build_divine_arenas_tags()
     build_divine_identities_paths()
+    build_divine_armory()
     build_britannia_dragons_knacks()
     build_reconditioned_row()
 
-    print(f"Wrote slices under {BOOKS_OUT}", flush=True)
+    # --- Generic fallback: sweep for unhandled PDFs ---
+    unhandled = _discover_unhandled_pdfs()
+    if unhandled:
+        print(f"\n  Generic parser: found {len(unhandled)} unhandled PDF(s):", flush=True)
+        for pdf_path in unhandled:
+            result = build_generic_book(pdf_path)
+            if result:
+                slug = result.stem
+                print(f"    ✓ {pdf_path.name} → {result.name}", flush=True)
+            else:
+                print(f"    – {pdf_path.name} (skipped — output already exists)", flush=True)
+
+    # --- Cleanup: remove stale JSON files whose source PDF no longer exists ---
+    _cleanup_stale_book_slices()
+
+    print(f"\nWrote slices under {BOOKS_OUT}", flush=True)
     return 0
 
 
