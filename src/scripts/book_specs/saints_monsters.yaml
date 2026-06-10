@@ -6,9 +6,9 @@ filenames:
 output_path: "src/data/_extracted/saints_monsters.txt"
 
 json_output_paths:
-  boons: "src/data/tables/boons/20_Scion_Players_Guide_Saints_Monsters.json"
-  knacks: "src/data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json"
-  purviews: "src/data/tables/purviews/15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json"
+  boons: "src/data/boons.json"
+  knacks: "src/data/knacks.json"
+  purviews: "src/data/purviews.json"
 
 section_anchors:
   - pattern: "TODO"

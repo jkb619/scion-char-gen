@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit ``src/data/tables/purviews/40_Standard_Purview_Innate_Blurbs.json`` (run from repo root)."""
+"""Emit purview innate blurbs into src/data/purviews.json (run from repo root)."""
 from __future__ import annotations
 
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-OUT = SRC / "data" / "tables" / "purviews" / "40_Standard_Purview_Innate_Blurbs.json"
+OUT = ROOT / "json" / "purview_innates" / "standard_blurbs.json"
 
 # Verbatim (normalized whitespace) from data/_extracted/masks_of_the_mythos.txt — Arcane Calculus Innate Power.
 ARCANE_CALCULUS = (

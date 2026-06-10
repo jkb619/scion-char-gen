@@ -1,0 +1,348 @@
+{
+  "_meta": {
+    "note": "Callings parsed from Pandora's Box (Revised) Callings chapter (40 rows). Intro blurbs precede tier Knack lists in the PDF.",
+    "motmInvertedPairs": {
+      "creator": "destroyer",
+      "guardian": "corruptor",
+      "healer": "defiler",
+      "leader": "tyrant",
+      "lover": "adversary",
+      "sage": "cosmos",
+      "warrior": "torturer"
+    },
+    "motmUnpairedCallings": [
+      "hunter",
+      "judge",
+      "liminal",
+      "trickster"
+    ],
+    "motmKnackAccess": "Mythos characters with an inverted Calling also qualify for standard twin Calling Knacks (MotM p. 46).",
+    "denizenCallingIds": [
+      "c_sith",
+      "kitsune",
+      "satyr",
+      "therianthrope",
+      "wolf_warrior"
+    ],
+    "denizenCallingNote": "PB Denizen Knack chapters — companion types, not player Calling picks.",
+    "sourceBook": "SCION_Pandoras_Box_(Revised_Download).pdf",
+    "entryCount": 44,
+    "pbEntryCount": 40,
+    "supplementEntryCount": 4,
+    "extractedOn": "2026-06-09",
+    "regenerate": "python3 src/scripts/ingest_pandoras_box_pdf.py && python3 src/scripts/extract_pb_callings_to_json.py"
+  },
+  "adversary": {
+    "id": "adversary",
+    "name": "Adversary",
+    "description": "Adversary Knacks let you understand a person’s weakness and turn it against them, whether to destroy them or force them to change. Adversary knacks are based around opposition and betrayal.",
+    "mechanicalEffects": "Adversary Knacks let you understand a person’s weakness and turn it against them, whether to destroy them or force them to change. Adversary knacks are based around opposition and betrayal.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.73"
+  },
+  "architect": {
+    "id": "architect",
+    "name": "Architect",
+    "description": "Many have lamented tragedies that foreknowledge might have prevented, but only a few among those blessed (or cursed) to know Fate’s workings have the will to turn aside what otherwise will be.",
+    "mechanicalEffects": "Many have lamented tragedies that foreknowledge might have prevented, but only a few among those blessed (or cursed) to know Fate’s workings have the will to turn aside what otherwise will be.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.21"
+  },
+  "automachy": {
+    "id": "automachy",
+    "name": "Automachy",
+    "description": "These Automachy Knacks gift Scions with specific aptitudes regarding different aspects of automobiles. Since they are relatively new, it’s possible other such Knacks haven’t been discovered yet.",
+    "mechanicalEffects": "These Automachy Knacks gift Scions with specific aptitudes regarding different aspects of automobiles. Since they are relatively new, it’s possible other such Knacks haven’t been discovered yet.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.20"
+  },
+  "c_sith": {
+    "id": "c_sith",
+    "name": "Cú Sith",
+    "denizenCalling": true,
+    "description": "Calling of the Cú Sith.",
+    "mechanicalEffects": "Knack lists by tier in Pandora's Box (Revised) Calling chapter; confirm tier limits at the table.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.108"
+  },
+  "collector": {
+    "id": "collector",
+    "name": "Collector",
+    "description": "Collector Knacks improve your ability to gather and curate your hoard, as well as focusing your mind on commerce and numbers. They are driven by the concepts of ownership and analytics.",
+    "mechanicalEffects": "Collector Knacks improve your ability to gather and curate your hoard, as well as focusing your mind on commerce and numbers. They are driven by the concepts of ownership and analytics.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.85"
+  },
+  "covenant": {
+    "id": "covenant",
+    "name": "Covenant",
+    "description": "Some Gods — and thus, some Scions — belong to no pantheon and possess no Pantheon Signature Purview. They can instead substitute a Covenant for some of the benefits of belonging to a pantheon.",
+    "mechanicalEffects": "Some Gods — and thus, some Scions — belong to no pantheon and possess no Pantheon Signature Purview. They can instead substitute a Covenant for some of the benefits of belonging to a pantheon.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.24"
+  },
+  "creator": {
+    "id": "creator",
+    "name": "Creator",
+    "description": "Creator Knacks enhance your ability to craft, shape, and even destroy things. Creator Knacks are driven by the concepts of building and shaping. Keep in mind that the crafting rules don’t necessarily apply to material objects but to plans and other esoteric effects. Creator Knacks can apply to these as well — Reverse Engineer applies to computer code just as well as car engines.",
+    "mechanicalEffects": "Creator Knacks enhance your ability to craft, shape, and even destroy things. Creator Knacks are driven by the concepts of building and shaping. Keep in mind that the crafting rules don’t necessarily apply to material objects but to plans and other esoteric effects. Creator Knacks can apply to these as well — Reverse Engineer applies to computer code just as well as car engines.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.24"
+  },
+  "destroyer": {
+    "id": "destroyer",
+    "name": "Destroyer",
+    "description": "Destroyer Knacks bestow the power to crush and destroy objects and enemies alike. They are driven by the concepts of destruction and forcefulness.",
+    "mechanicalEffects": "Destroyer Knacks bestow the power to crush and destroy objects and enemies alike. They are driven by the concepts of destruction and forcefulness.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.76"
+  },
+  "druid": {
+    "id": "druid",
+    "name": "Druid",
+    "description": "Originally the priests of the Nemetondevos, the druids took their great knowledge of the World elsewhere after the Romans conquered Gaul.",
+    "mechanicalEffects": "Originally the priests of the Nemetondevos, the druids took their great knowledge of the World elsewhere after the Romans conquered Gaul.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.26"
+  },
+  "guardian": {
+    "id": "guardian",
+    "name": "Guardian",
+    "description": "Guardian Knacks gift you with the vast fortitude and sharp senses, to better protect those you have sworn to guard. Guardian Knacks are driven by the concepts of durability and protection. Guardian Knacks revolve around choosing a specific person to protect. When choosing who is worth of your divine protection, bear in mind that — unless they’ve completely neglected to invest in any sort of combat abilities — your…",
+    "mechanicalEffects": "Guardian Knacks gift you with the vast fortitude and sharp senses, to better protect those you have sworn to guard. Guardian Knacks are driven by the concepts of durability and protection. Guardian Knacks revolve around choosing a specific person to protect. When choosing who is worth of your divine protection, bear in mind that — unless they’ve completely neglected to invest in any sort of combat abilities — your bandmates do not need you to be the wall between them and your enemies. They should, for the most part, be able to handle that themselves. This is not to say that the Storyguide should forbid you from using these abilities on your bandmates, especially when it would be cool or dramatic, but that the intent is that a Guardian Scion protects those who are weaker than herself.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.29"
+  },
+  "healer": {
+    "id": "healer",
+    "name": "Healer",
+    "description": "Healer Knacks improve your ability to heal and help your allies with mundane medicines. Healer Knacks are driven by the concepts of purification and restoration.",
+    "mechanicalEffects": "Healer Knacks improve your ability to heal and help your allies with mundane medicines. Healer Knacks are driven by the concepts of purification and restoration.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.32"
+  },
+  "herald": {
+    "id": "herald",
+    "name": "Herald",
+    "description": "Heralds immerse themselves in the current of destiny, for they are ensnared and can’t imagine existence without the focus of that destiny.",
+    "mechanicalEffects": "Heralds immerse themselves in the current of destiny, for they are ensnared and can’t imagine existence without the focus of that destiny.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.32"
+  },
+  "hunter": {
+    "id": "hunter",
+    "name": "Hunter",
+    "description": "Hunter Knacks improve your ability to pursue and track a target and avoid detection when on the hunt. Hunter Knacks are driven by the concepts of pursuit and perception against a single target, called the quarry. Like Creator Knacks, Hunter Knacks do not need a literal stalked target. Figurative stalking — be it chasing down a malevolent Kami hidden in construction blueprints or pursuing a black hat hacker through a…",
+    "mechanicalEffects": "Hunter Knacks improve your ability to pursue and track a target and avoid detection when on the hunt. Hunter Knacks are driven by the concepts of pursuit and perception against a single target, called the quarry. Like Creator Knacks, Hunter Knacks do not need a literal stalked target. Figurative stalking — be it chasing down a malevolent Kami hidden in construction blueprints or pursuing a black hat hacker through a mainframe. So long as there is opposition, it’s sufficient for Hunters to pursue. Some Hunter Knacks refer to a hunting ground. This can be any place that the hunter has familiarized themselves with in detail, through either a day’s worth of free and casual inspection or a dramatic scene dedicated to learning the place’s true nature.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.36"
+  },
+  "judge": {
+    "id": "judge",
+    "name": "Judge",
+    "description": "Judge Knacks give you power over laws, rules, and the truth. They are driven by the concepts of ordinance and judgment. ENFORCER’S EYE When observing a crowd or another group of characters (such as assembled personages at a party), you automatically identify anyone with a criminal background. Gain +1 Enhancement to any actions taken to either further pursue their criminal activities, or to bring them to justice. If…",
+    "mechanicalEffects": "Judge Knacks give you power over laws, rules, and the truth. They are driven by the concepts of ordinance and judgment. ENFORCER’S EYE When observing a crowd or another group of characters (such as assembled personages at a party), you automatically identify anyone with a criminal background. Gain +1 Enhancement to any actions taken to either further pursue their criminal activities, or to bring them to justice. If the target is of a Tier higher than you or is concealing their identity via magic, make a Clash of Wills.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.39"
+  },
+  "kitsune": {
+    "id": "kitsune",
+    "name": "Kitsune",
+    "denizenCalling": true,
+    "description": "Calling of the Kitsune.",
+    "mechanicalEffects": "Knack lists by tier in Pandora's Box (Revised) Calling chapter; confirm tier limits at the table.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.109"
+  },
+  "knight": {
+    "id": "knight",
+    "name": "Knight",
+    "description": "Knights of the Round Table are recruited as agents of the new king, serving him when they hear of his actions. Such warriors swear themselves to the service to other worthy causes or individuals until Avalon calls.",
+    "mechanicalEffects": "Knights of the Round Table are recruited as agents of the new king, serving him when they hear of his actions. Such warriors swear themselves to the service to other worthy causes or individuals until Avalon calls.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.40"
+  },
+  "leader": {
+    "id": "leader",
+    "name": "Leader",
+    "description": "Leader Knacks grant you the power to hold sway over your followers and keep order in the midst of chaos. Leader Knacks are driven by the concepts of charisma and control. This section references characters that “follow” the Leader Scion. Followers are typically not bandmates, and are often trivial targets (though not necessarily). Use this as a metric for determining whether or not a character is a follower.",
+    "mechanicalEffects": "Leader Knacks grant you the power to hold sway over your followers and keep order in the midst of chaos. Leader Knacks are driven by the concepts of charisma and control. This section references characters that “follow” the Leader Scion. Followers are typically not bandmates, and are often trivial targets (though not necessarily). Use this as a metric for determining whether or not a character is a follower.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.44"
+  },
+  "liminal": {
+    "id": "liminal",
+    "name": "Liminal",
+    "description": "Liminal Knacks at the mortal level grant you the power to send messages, to ease your travels, and to draw upon the silence at the edges of mortal perception. Liminal Knacks are driven by the concepts of boundary and distance.",
+    "mechanicalEffects": "Liminal Knacks at the mortal level grant you the power to send messages, to ease your travels, and to draw upon the silence at the edges of mortal perception. Liminal Knacks are driven by the concepts of boundary and distance.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.47"
+  },
+  "lover": {
+    "id": "lover",
+    "name": "Lover",
+    "description": "Lover Knacks bestow upon you domain over relationships, attention, and other’s emotions. Lover Knacks are driven by the concepts of emotion and relationships.",
+    "mechanicalEffects": "Lover Knacks bestow upon you domain over relationships, attention, and other’s emotions. Lover Knacks are driven by the concepts of emotion and relationships.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.50"
+  },
+  "miracleworker": {
+    "id": "miracleworker",
+    "name": "Miracle Worker",
+    "description": "Some Prophets learn to use Fate itself as a tool, reworking its strands and thereby allowing them to produce wonders. These Miracleworkers do the impossible, turning existence itself into a weapon against their enemies and a wonder to awe and terrify their fellow mortals.",
+    "mechanicalEffects": "Some Prophets learn to use Fate itself as a tool, reworking its strands and thereby allowing them to produce wonders. These Miracleworkers do the impossible, turning existence itself into a weapon against their enemies and a wonder to awe and terrify their fellow mortals.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.50"
+  },
+  "monster": {
+    "id": "monster",
+    "name": "Monster",
+    "description": "Monster Knacks unleash your inner beast, often transforming your flesh to match. They are powered by the concepts of transformation and predation. Characters with any dots in Monster gain access to a Monstrous Urge — a condition that reflects the beast that dwells within them. You can activate your Monstrous Urge anytime you are injured, threatened, or embarrassed.",
+    "mechanicalEffects": "Monster Knacks unleash your inner beast, often transforming your flesh to match. They are powered by the concepts of transformation and predation. Characters with any dots in Monster gain access to a Monstrous Urge — a condition that reflects the beast that dwells within them. You can activate your Monstrous Urge anytime you are injured, threatened, or embarrassed.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.78"
+  },
+  "mystic": {
+    "id": "mystic",
+    "name": "Mystic",
+    "description": "Mystic Knacks grant you power to command knowledge of the World and its magic. They are driven by the concepts of understanding and knowledge.",
+    "mechanicalEffects": "Mystic Knacks grant you power to command knowledge of the World and its magic. They are driven by the concepts of understanding and knowledge.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.89"
+  },
+  "nomad": {
+    "id": "nomad",
+    "name": "Nomad",
+    "description": "Nomad Knacks grant you the power to travel vast distances with ease. They are driven by the concepts of journeying and navigation.",
+    "mechanicalEffects": "Nomad Knacks grant you the power to travel vast distances with ease. They are driven by the concepts of journeying and navigation.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.90"
+  },
+  "oracle": {
+    "id": "oracle",
+    "name": "Oracle",
+    "description": "All Prophets can see the inherent workings of Fate, but some go beyond even such miraculous heights. Oracles peer deep into Fate without obstruction, interpreting the swirls of information that Fate provides.",
+    "mechanicalEffects": "All Prophets can see the inherent workings of Fate, but some go beyond even such miraculous heights. Oracles peer deep into Fate without obstruction, interpreting the swirls of information that Fate provides.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.50"
+  },
+  "outsider": {
+    "id": "outsider",
+    "name": "Outsider",
+    "description": "Outsider Knacks grant you the power to interact with groups that you are not a part of, be unnoticed by others, or fortify boundaries between themselves and others. These Knacks are driven by the concepts of otherness and bending the generally accepted rules.",
+    "mechanicalEffects": "Outsider Knacks grant you the power to interact with groups that you are not a part of, be unnoticed by others, or fortify boundaries between themselves and others. These Knacks are driven by the concepts of otherness and bending the generally accepted rules.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.51"
+  },
+  "predator": {
+    "id": "predator",
+    "name": "Predator",
+    "description": "Predator Knacks make you an unparalleled hunter, capable of stalking the most dangerous prey. They are driven by the concepts of stealth and killing.",
+    "mechanicalEffects": "Predator Knacks make you an unparalleled hunter, capable of stalking the most dangerous prey. They are driven by the concepts of stealth and killing.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.90"
+  },
+  "primeval": {
+    "id": "primeval",
+    "name": "Primeval",
+    "description": "The most esoteric of the Callings, Primeval Knacks allow you to inhabit an aspect of the World: the oceans, a tsunami, a storm, etc. They are driven by the concepts of embodiment and environment. A DRAGON’S TERRITORY The Field you are fighting in becomes your territory. When an enemy enters your territory, you have the option to make one attack against them, regardless of which range band they have entered, and…",
+    "mechanicalEffects": "The most esoteric of the Callings, Primeval Knacks allow you to inhabit an aspect of the World: the oceans, a tsunami, a storm, etc. They are driven by the concepts of embodiment and environment. A DRAGON’S TERRITORY The Field you are fighting in becomes your territory. When an enemy enters your territory, you have the option to make one attack against them, regardless of which range band they have entered, and which may not be boosted by any Knacks that allow you to make extra attacks. You use this ability even if you have already taken your action this round and may do so no matter how many enemies enter your divine territory, but you may only make one attack per enemy.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.81"
+  },
+  "prophets": {
+    "id": "prophets",
+    "name": "Prophets",
+    "description": "Throughout history, there’ve been those that could see the paths beyond time itself and were driven to explore those possibilities.",
+    "mechanicalEffects": "Throughout history, there’ve been those that could see the paths beyond time itself and were driven to explore those possibilities.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.52"
+  },
+  "psychopomp": {
+    "id": "psychopomp",
+    "name": "Psychopomp",
+    "description": "The World is vast and the myriad paths that connect its Realms can be difficult to navigate, even for the Gods. Some Gods, however, excel at it, and for this reason are given the roles of heralds, messengers, and guides.",
+    "mechanicalEffects": "The World is vast and the myriad paths that connect its Realms can be difficult to navigate, even for the Gods. Some Gods, however, excel at it, and for this reason are given the roles of heralds, messengers, and guides.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.56"
+  },
+  "ruler": {
+    "id": "ruler",
+    "name": "Ruler",
+    "description": "Ruler Knacks grant you the power to direct others and lead them fearlessly. They are driven by the concepts of authority and command.",
+    "mechanicalEffects": "Ruler Knacks grant you the power to direct others and lead them fearlessly. They are driven by the concepts of authority and command.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.89"
+  },
+  "sage": {
+    "id": "sage",
+    "name": "Sage",
+    "description": "Sage Knacks boost your command of academic knowledge, including your ability to learn and teach. Sage Knacks are driven by the concepts of information and observation.",
+    "mechanicalEffects": "Sage Knacks boost your command of academic knowledge, including your ability to learn and teach. Sage Knacks are driven by the concepts of information and observation.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.59"
+  },
+  "saint": {
+    "id": "saint",
+    "name": "Saint",
+    "description": "Saints are not chosen by the Gods, nor do they wield divine power. They are culture heroes, but they are not Heroes. They are human, quintessentially and completely. It is impossible for any Scion to ever have a Saint Knack by any means, including Followers Birthrights.",
+    "mechanicalEffects": "Saints are not chosen by the Gods, nor do they wield divine power. They are culture heroes, but they are not Heroes. They are human, quintessentially and completely. It is impossible for any Scion to ever have a Saint Knack by any means, including Followers Birthrights.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.60"
+  },
+  "satyr": {
+    "id": "satyr",
+    "name": "Satyr",
+    "denizenCalling": true,
+    "description": "Calling of the Satyr.",
+    "mechanicalEffects": "Knack lists by tier in Pandora's Box (Revised) Calling chapter; confirm tier limits at the table.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.110"
+  },
+  "shepherd": {
+    "id": "shepherd",
+    "name": "Shepherd",
+    "description": "Shepherd Knacks have the power to choose a Ward and support them, allowing them to shrug off wounds or effects that would otherwise be debilitating, or Fatebind them with others with relative ease. These Knacks operate on the concepts of allyship and aid. Your ward may be a bandmate, if that player and your Storyguide both agree, but under most circumstances, they will be a Storyguide character.",
+    "mechanicalEffects": "Shepherd Knacks have the power to choose a Ward and support them, allowing them to shrug off wounds or effects that would otherwise be debilitating, or Fatebind them with others with relative ease. These Knacks operate on the concepts of allyship and aid. Your ward may be a bandmate, if that player and your Storyguide both agree, but under most circumstances, they will be a Storyguide character.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.62"
+  },
+  "therianthrope": {
+    "id": "therianthrope",
+    "name": "Therianthrope",
+    "denizenCalling": true,
+    "description": "Calling of the Therianthrope.",
+    "mechanicalEffects": "Knack lists by tier in Pandora's Box (Revised) Calling chapter; confirm tier limits at the table.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.110"
+  },
+  "trickster": {
+    "id": "trickster",
+    "name": "Trickster",
+    "description": "Trickster Knacks help you lie, cheat, and steal. Trickster Knacks are driven by the concepts of deception and larceny.",
+    "mechanicalEffects": "Trickster Knacks help you lie, cheat, and steal. Trickster Knacks are driven by the concepts of deception and larceny.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.65"
+  },
+  "tyrant": {
+    "id": "tyrant",
+    "name": "Tyrant",
+    "description": "Inverted Leader — imposes will through oppression and authority; demands obedience as a despot.",
+    "mechanicalEffects": "Mythos Calling; inverted Knacks plus standard Leader Knacks (LEADER/TYRANT, MotM p. 46). PB Tyrant knacks also apply for non-Mythos Tyrant characters.",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Leader / Tyrant; SCION_Pandoras_Box_(Revised_Download).pdf p.85"
+  },
+  "warrior": {
+    "id": "warrior",
+    "name": "Warrior",
+    "description": "The most direct of the Callings. Warrior Knacks make you a master of weapons and a crusher of foes. Warrior Knacks are driven by the concepts of conflict and violence.",
+    "mechanicalEffects": "The most direct of the Callings. Warrior Knacks make you a master of weapons and a crusher of foes. Warrior Knacks are driven by the concepts of conflict and violence.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.70"
+  },
+  "watcher": {
+    "id": "watcher",
+    "name": "Watcher",
+    "description": "Watcher Knacks give you incredible power of observation, allowing you to keep a close eye on your enemies from any distance away. They are driven by the concepts of surveying and analysis.",
+    "mechanicalEffects": "Watcher Knacks give you incredible power of observation, allowing you to keep a close eye on your enemies from any distance away. They are driven by the concepts of surveying and analysis.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.92"
+  },
+  "wolf_warrior": {
+    "id": "wolf_warrior",
+    "name": "Wolf-Warrior",
+    "denizenCalling": true,
+    "description": "Calling of the Wolf-Warrior.",
+    "mechanicalEffects": "Knack lists by tier in Pandora's Box (Revised) Calling chapter; confirm tier limits at the table.",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.111"
+  },
+  "corruptor": {
+    "id": "corruptor",
+    "name": "Corruptor",
+    "description": "Inverted Guardian — infiltration and rot until the protected thing becomes an extension of the Corruptor’s will.",
+    "mechanicalEffects": "Mythos Calling; inverted Knacks plus standard Guardian Knacks (GUARDIAN/CORRUPTOR, MotM p. 46).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Guardian / Corruptor"
+  },
+  "cosmos": {
+    "id": "cosmos",
+    "name": "Cosmos",
+    "description": "Inverted Sage — knowledge as vast and annihilating as deep space; insight that breaks the witness.",
+    "mechanicalEffects": "Mythos Calling; inverted Knacks plus standard Sage Knacks (SAGE/COSMOS, MotM p. 46).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Sage / Cosmos"
+  },
+  "defiler": {
+    "id": "defiler",
+    "name": "Defiler",
+    "description": "Inverted Healer — preservation of sickness and corruption so harm spreads farther than the original wound.",
+    "mechanicalEffects": "Mythos Calling; inverted Knacks plus standard Healer Knacks (HEALER/DEFILER, MotM p. 46).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Healer / Defiler"
+  },
+  "torturer": {
+    "id": "torturer",
+    "name": "Torturer",
+    "description": "Inverted Warrior — violence for the sustained infliction of pain, detached from glory or cause.",
+    "mechanicalEffects": "Mythos Calling; inverted Knacks plus standard Warrior Knacks (WARRIOR/TORTURER, MotM p. 46).",
+    "source": "Scion_Masks_of_the_Mythos_(Final_Download).pdf — Warrior / Torturer"
+  }
+}

@@ -1059,7 +1059,7 @@ textarea.has-doc-hint:focus-visible {
   flex: 0 0 auto;
 }
 
-/* Hero / Titanic: Knack chips grouped under the Calling row they match first (or “Any Calling”). */
+/* Hero / Titanic: Knack chips grouped under the Calling row they match first (or “General Calling”). */
 .calling-knack-chip-group {
   margin: 0.65rem 0 0.5rem;
   padding: 0.45rem 0.5rem 0.55rem;
@@ -1079,6 +1079,18 @@ textarea.has-doc-hint:focus-visible {
 
 .chips.chips--calling-knack-subgroup {
   margin-top: 0;
+}
+
+.calling-knack-motm-subpool {
+  margin-top: 0.45rem;
+}
+
+.calling-knack-motm-subpool-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--muted);
+  letter-spacing: 0.02em;
 }
 
 .calling-visitation-hero-intro {
@@ -1390,6 +1402,11 @@ textarea.has-doc-hint:focus-visible {
 .chip .knack-kind-badge.knack-kind-mortal {
   background: rgba(90, 140, 110, 0.45);
   color: #d4f5e2;
+}
+
+.chip .knack-kind-badge.knack-kind-heroic {
+  background: rgba(70, 110, 160, 0.45);
+  color: #dce8f8;
 }
 
 .chip .knack-kind-badge.knack-kind-immortal {
@@ -1905,8 +1922,9 @@ textarea.has-doc-hint:focus-visible {
   color: var(--text);
 }
 
-/* --- Book Source Filter panel --- */
+/* --- Book Source Filter panel (hidden — non-functional until source tagging is complete) --- */
 .book-source-filter {
+  display: none;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 6px;

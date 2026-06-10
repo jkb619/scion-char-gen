@@ -7,8 +7,8 @@ filenames:
 output_path: "src/data/_extracted/pandoras_box.txt"
 
 json_output_paths:
-  boons: "src/data/tables/boons/00_SCION_Pandoras_Box_Revised.json"
-  purviews: "src/data/tables/purviews/00_SCION_Pandoras_Box_Revised.json"
+  boons: "src/data/boons.json"
+  purviews: "src/data/purviews.json"
   boonPbMechanics: "src/data/boonPbMechanics.json"
 
 section_anchors:

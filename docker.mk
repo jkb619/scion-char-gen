@@ -4,28 +4,15 @@
 LIGHTSAIL_SERVICE ?= scion-chargen
 LIGHTSAIL_POWER   ?= nano
 
-build: ## Build the Docker image (runs parsers first if PDFs are available)
-	@echo "$(GREEN)Running book parsers...$(NC)"
-	$(MAKE) parse-books
+build: ## Build the Docker image
 	@echo "$(GREEN)Building Docker image: $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	docker build -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
 
-build-no-cache: ## Build the Docker image without cache (runs parsers first)
-	@echo "$(GREEN)Running book parsers...$(NC)"
-	$(MAKE) parse-books
+build-no-cache: ## Build the Docker image without cache
 	@echo "$(GREEN)Building Docker image (no cache): $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	docker build --no-cache -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
-
-parse-books: ## Re-run PDF parsers to regenerate src/data/books/ slices
-	@echo "$(GREEN)Regenerating book bundle slices from PDFs...$(NC)"
-	@if command -v pdftotext >/dev/null 2>&1; then \
-		cd "$(ROOT)" && PYTHONPATH="$(ROOT)/src" $(PY) src/scripts/build_book_bundle_slices.py; \
-	else \
-		echo "$(YELLOW)  pdftotext not found — skipping (install poppler-utils)$(NC)"; \
-	fi
-	@echo "$(GREEN)Book parsing complete.$(NC)"
 
 run-docker: ## Run the container locally (foreground, rm on exit)
 	@echo "$(GREEN)Running $(APP_NAME):$(IMAGE_TAG) on http://localhost:$(DOCKER_PUBLISH_PORT)$(NC)"

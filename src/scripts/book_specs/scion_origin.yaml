@@ -5,8 +5,8 @@ filenames:
 output_path: "src/data/_extracted/scion_origin_revised.txt"
 
 json_output_paths:
-  callings: "src/data/tables/callings/00_Scion_Origin_Core_Callings.json"
-  knacks: "src/data/tables/knacks/00_SCION_Pandoras_Box_and_Origin_Knacks.json"
+  callings: "src/data/callings.json"
+  knacks: "src/data/knacks.json"
 
 section_anchors:
   - pattern: "TODO"

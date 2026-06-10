@@ -1,0 +1,17 @@
+book_id: mythical_denizens
+filenames:
+  - "Scion_Mythical_Denizens_(Final_Download).pdf"
+output_path: "src/data/_extracted/mythical_denizens.txt"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

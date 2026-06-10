@@ -1,0 +1,17 @@
+book_id: demigod_companion
+filenames:
+  - "Scion_Demigod_Companion_(Final_Download).pdf"
+output_path: "src/data/_extracted/demigod_companion.txt"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

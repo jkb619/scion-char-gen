@@ -22,18 +22,6 @@
  * @returns {boolean} True if the entry should be displayed.
  */
 export function isEntryVisibleForBooks(entry, allowedBooks) {
-    const id = entry._sourceBookId;
-
-    // Untagged entries are always visible
-    if (id === undefined || id === null) {
-        return true;
-    }
-
-    // Multi-book entries: visible if any source is allowed
-    if (Array.isArray(id)) {
-        return id.some(slug => allowedBooks.has(slug));
-    }
-
-    // Single-book entry: visible if that book is allowed
-    return allowedBooks.has(id);
+    // Book filter disabled — all entries are always visible regardless of source book.
+    return true;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-1) Apply PB-aligned patches to the primary knacks fragment (``data/tables/knacks/00_*.json`` via ``primary_write_path``).
+1) Apply PB-aligned patches to ``src/data/knacks.json`` (via ``primary_write_path``).
 2) Prepend a short usage-frequency clause to each knack `description` when missing.
 
 Run from repo root: python3 scripts/apply_knack_usage_leads.py
@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
-from app.services.data_tables import primary_write_path, table_fragment_dir
+from app.services.data_tables import primary_write_path
 
 KNACKS = primary_write_path("knacks")
 
@@ -457,12 +457,6 @@ def main() -> int:
 
     KNACKS.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {KNACKS.relative_to(ROOT)} ({updated} descriptions gained a usage lead)")
-
-    for fname in ("30_TItans_Rising_Titanic_Knacks.json", "20_Scion_Players_Guide_Saints_Monsters.json"):
-        p = table_fragment_dir("knacks") / fname
-        if p.is_file():
-            n = _apply_usage_only(p)
-            print(f"Wrote {p.relative_to(ROOT)} ({n} descriptions gained a usage lead)")
     return 0
 
 

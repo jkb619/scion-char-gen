@@ -164,31 +164,31 @@ def main() -> int:
             continue
         name = (val.get("name") or "").strip()
         if not name:
-            all_bad.append(("tables/callings", cid, name, "empty name"))
+            all_bad.append(("callings.json", cid, name, "empty name"))
             continue
         if cid in SAINTS_ONLY_CALLING_IDS:
             h, hs, lab = saints_n, saints_ns, "Saints extract"
             if h is None or hs is None:
-                all_bad.append(("tables/callings", cid, name, "missing Saints extract"))
+                all_bad.append(("callings.json", cid, name, "missing Saints extract"))
                 continue
             if not matches_smart(h, hs, name):
-                all_bad.append(("tables/callings", cid, name, f"not in {lab}"))
+                all_bad.append(("callings.json", cid, name, f"not in {lab}"))
         elif cid in MYTHOS_OR_TITANIC_CALLING_IDS:
             if motm_saints_n is None or motm_saints_ns is None:
-                all_bad.append(("tables/callings", cid, name, "missing MotM/Saints extract"))
+                all_bad.append(("callings.json", cid, name, "missing MotM/Saints extract"))
                 continue
             if not matches_smart(motm_saints_n, motm_saints_ns, name):
                 all_bad.append(
-                    ("tables/callings", cid, name, "not in MotM+Saints extract"),
+                    ("callings.json", cid, name, "not in MotM+Saints extract"),
                 )
         else:
             if core_n is None or core_ns is None:
-                all_bad.append(("tables/callings", cid, name, "missing PB+Origin extract"))
+                all_bad.append(("callings.json", cid, name, "missing PB+Origin extract"))
                 continue
             if not matches_smart(core_n, core_ns, name):
-                all_bad.append(("tables/callings", cid, name, "not in PB+Origin extract"))
+                all_bad.append(("callings.json", cid, name, "not in PB+Origin extract"))
 
-    # --- Purviews (merged from tables/purviews/*.json) ---
+    # --- Purviews (purviews.json) ---
     pur_raw = load_merged_table("purviews")
     for pid, val in pur_raw.items():
         if pid.startswith("_") or not isinstance(val, dict):
@@ -200,7 +200,7 @@ def main() -> int:
         if miss:
             all_bad.append(
                 (
-                    "tables/purviews",
+                    "purviews.json",
                     pid,
                     (val.get("name") or pid),
                     "missing " + "; ".join(miss),
@@ -226,7 +226,7 @@ def main() -> int:
             dragon_ns,
         )
         if not cands:
-            all_bad.append(("tables/purviews", pid, (val.get("name") or pid), "no extract for source"))
+            all_bad.append(("purviews.json", pid, (val.get("name") or pid), "no extract for source"))
             continue
 
         pname = (val.get("name") or "").strip()
@@ -234,7 +234,7 @@ def main() -> int:
             ok, _ = _matches_any(cands, pname, smart=True)
             if not ok:
                 all_bad.append(
-                    ("tables/purviews", pid, pname, f"Purview name not in ({src[:48]}…)"),
+                    ("purviews.json", pid, pname, f"Purview name not in ({src[:48]}…)"),
                 )
 
         innate = (val.get("purviewInnateName") or "").strip()
@@ -242,7 +242,7 @@ def main() -> int:
             ok, _ = _matches_any(cands, innate, smart=False)
             if not ok:
                 all_bad.append(
-                    ("tables/purviews", pid, innate, "purviewInnateName not in cited extract(s)"),
+                    ("purviews.json", pid, innate, "purviewInnateName not in cited extract(s)"),
                 )
 
         ladder = val.get("boonLadderNames")
@@ -255,7 +255,7 @@ def main() -> int:
                 if not ok:
                     all_bad.append(
                         (
-                            "tables/purviews",
+                            "purviews.json",
                             f"{pid} boonLadderNames[{i}]",
                             t,
                             "not in cited extract(s)",

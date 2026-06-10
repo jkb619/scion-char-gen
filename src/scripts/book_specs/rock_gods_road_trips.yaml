@@ -1,0 +1,17 @@
+book_id: rock_gods_road_trips
+filenames:
+  - "Rock_Gods_and_Road_Trips_(Final_Download).pdf"
+output_path: "src/data/_extracted/rock_gods_road_trips.txt"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

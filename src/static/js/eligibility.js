@@ -34,6 +34,44 @@ export function isSorcererLineTierId(tierId) {
   return SORCERER_LINE_TIER_IDS.has(normalizedTierIdEligibility(tierId));
 }
 
+/**
+ * Knack category from `tier` on the row: mortal | immortal only (Hero p.223).
+ * Accepts legacy `tier: "heroic"` (→ immortal) and `knackKind` / `tierMin` until catalogs migrate.
+ * @param {Record<string, unknown> | null | undefined} k
+ * @returns {"mortal" | "immortal"}
+ */
+export function knackRuleTier(k) {
+  if (!k || typeof k !== "object") return "immortal";
+  const t = String(k.tier ?? "").trim().toLowerCase();
+  if (t === "mortal") return "mortal";
+  if (t === "immortal" || t === "heroic") return "immortal";
+  const kind = String(k.knackKind ?? "").trim().toLowerCase();
+  const tmin = String(k.tierMin ?? "").trim().toLowerCase();
+  if (kind === "mortal" || tmin === "mortal") return "mortal";
+  return "immortal";
+}
+
+/**
+ * Hero-band Calling-dot cost for a knack (Hero p.183–184). Uses `callingSlotCost` when present.
+ * @param {Record<string, unknown> | null | undefined} k
+ * @returns {1 | 2}
+ */
+export function knackHeroBandSlotCost(k) {
+  if (!k || typeof k !== "object") return 1;
+  if (knackRuleTier(k) === "mortal") return 1;
+  const raw = k.callingSlotCost;
+  if (raw != null) {
+    const n = Math.round(Number(raw));
+    if (n === 2) return 2;
+    return 1;
+  }
+  const kind = String(k.knackKind ?? "").trim().toLowerCase();
+  const tmin = String(k.tierMin ?? "").trim().toLowerCase();
+  if (kind === "immortal" && (tmin === "demigod" || tmin === "god")) return 2;
+  if (String(k.tier ?? "").trim().toLowerCase() === "immortal" && kind === "immortal") return 2;
+  return 1;
+}
+
 /** Demigod- and God-band tiers: deity line (Hero→Demigod→God), Titan line (Titanic→Demigod→God), Sorcerer divine band. */
 export function isPostHeroBandCallingTierId(tierId) {
   const t = normalizedTierIdEligibility(tierId);
@@ -75,6 +113,9 @@ export function immortalKnackCostsTwoCallingSlots(tierId) {
 }
 
 const HERO_STYLE_CALLING_SLOT_ROW_COUNT = 3;
+
+/** Pandora's Box “GENERAL” knack pool (characters of any Calling). */
+export const GENERAL_CALLING_LABEL = "General Calling";
 
 /**
  * Hero / Titanic: always three Calling rows.
@@ -162,7 +203,10 @@ export function characterPurviewIdSet(character, bundle) {
   return out;
 }
 
-/** MotM inverted ↔ normal Calling pairs (see `data/callings.json`). */
+/**
+ * MotM inverted ↔ standard Calling pairs (Masks of the Mythos p. 46).
+ * Unpaired on MotM: Hunter, Judge, Liminal, Trickster (no standard twin).
+ */
 const MYTHOS_INVERTED_CALLING_TWIN = {
   creator: "destroyer",
   destroyer: "creator",
@@ -180,7 +224,7 @@ const MYTHOS_INVERTED_CALLING_TWIN = {
   torturer: "warrior",
 };
 
-/** Standard Storypath Calling ids that MotM replaces with an inverted Calling in the chooser. */
+/** Standard Calling id for each MotM inverted Calling in the wizard chooser. */
 const MYTHOS_NORMAL_CALLING_IDS = new Set([
   "creator",
   "guardian",
@@ -191,8 +235,44 @@ const MYTHOS_NORMAL_CALLING_IDS = new Set([
   "warrior",
 ]);
 
+/** MotM Callings with no inverted/standard pair (knacks from that Calling only). */
+export const MYTHOS_UNPAIRED_CALLING_IDS = new Set(["hunter", "judge", "liminal", "trickster"]);
+
+/** PB Denizen companion types — knack pools for NPC companions, not player Calling picks. */
+const DENIZEN_CALLING_IDS_FALLBACK = new Set([
+  "c_sith",
+  "kitsune",
+  "satyr",
+  "therianthrope",
+  "wolf_warrior",
+]);
+
 /**
- * MotM Mythos: patron data may list a standard Calling id; the wizard only offers the inverted Calling (e.g. Sage → Cosmos).
+ * @param {{ callings?: Record<string, unknown> }} [bundle]
+ * @returns {Set<string>}
+ */
+export function denizenCallingIds(bundle) {
+  const fromMeta = bundle?.callings?._meta?.denizenCallingIds;
+  if (Array.isArray(fromMeta) && fromMeta.length) {
+    return new Set(fromMeta.map((id) => String(id).trim()).filter(Boolean));
+  }
+  return DENIZEN_CALLING_IDS_FALLBACK;
+}
+
+/**
+ * True for PB Denizen companion types (Kitsune, Satyr, …) — excluded from Calling choosers.
+ * @param {string} [callingId]
+ * @param {{ callings?: Record<string, { denizenCalling?: boolean }> }} [bundle]
+ */
+export function isDenizenCallingId(callingId, bundle) {
+  const cid = String(callingId ?? "").trim();
+  if (!cid) return false;
+  if (bundle?.callings?.[cid]?.denizenCalling === true) return true;
+  return denizenCallingIds(bundle).has(cid);
+}
+
+/**
+ * MotM Mythos: patron data may list a standard Calling id; the wizard offers the inverted twin when one exists (e.g. Sage → Cosmos, Warrior → Torturer).
  * @param {string} [callingId]
  * @returns {string}
  */
@@ -216,7 +296,8 @@ export function isMythosInvertedTwinCallingId(callingId) {
 }
 
 /**
- * Wizard Calling pickers: non-Mythos omits MotM inverted twins; Mythos omits the standard side when an inverted twin exists in the bundle.
+ * Wizard Calling pickers: non-Mythos omits MotM inverted twins.
+ * Mythos: both standard and inverted twins are choosable (MotM p. 46 — e.g. Sage and Cosmos).
  * @param {string} callingId
  * @param {{ callings?: Record<string, unknown> }} bundle
  * @param {boolean} mythosPantheon
@@ -224,7 +305,8 @@ export function isMythosInvertedTwinCallingId(callingId) {
 export function callingIdInWizardLibraryChooser(callingId, bundle, mythosPantheon) {
   const cid = String(callingId || "").trim();
   if (!cid || cid.startsWith("_") || !bundle?.callings?.[cid]) return false;
-  if (mythosPantheon) return cid === mythosPatronCallingIdForChooser(cid);
+  if (isDenizenCallingId(cid, bundle)) return false;
+  if (mythosPantheon) return true;
   return !isMythosInvertedTwinCallingId(cid);
 }
 
@@ -273,14 +355,14 @@ export function mythosCharacterCallingIdsForKnacks(character) {
     const cid = String(character?.callingId ?? "").trim();
     if (cid) out.add(cid);
   }
-  if (String(character?.pantheonId ?? "").trim() === "mythos") {
-    const extras = new Set();
-    for (const cid of out) {
-      const twin = mythosCallingTwinId(cid);
-      if (twin) extras.add(twin);
-    }
-    for (const e of extras) out.add(e);
+  const mythosPan = String(character?.pantheonId ?? "").trim() === "mythos";
+  const extras = new Set();
+  for (const cid of out) {
+    const twin = mythosCallingTwinId(cid);
+    if (!twin) continue;
+    if (mythosPan || isMythosInvertedTwinCallingId(cid)) extras.add(twin);
   }
+  for (const e of extras) out.add(e);
   return out;
 }
 
@@ -302,15 +384,15 @@ export function bundleKnackById(kid, bundle) {
 
 /**
  * Calling-dot–equivalent cost per Knack.
- * Hero-band: Heroic = 1; Immortal = 2 (Hero p.184). Post-Hero: Immortal and Heroic each = 1 (Demigod pp.149–150).
+ * Hero-band: `callingSlotCost` 1 or 2 (Hero p.183–184). Post-Hero: all immortal knacks cost 1 dot.
  * @param {Record<string, unknown> | null} k
  * @param {{ tier?: string } | null} [character] — omit for legacy callers (treated as Hero-band costs).
  */
 export function knackCallingSlotCost(k, character) {
   if (!k || typeof k !== "object") return 1;
-  if (k.knackKind !== "immortal") return 1;
+  if (knackRuleTier(k) === "mortal") return 1;
   if (character?.tier != null && !immortalKnackCostsTwoCallingSlots(character.tier)) return 1;
-  return 2;
+  return knackHeroBandSlotCost(k);
 }
 
 function heroCallingSlotRowDots(character, rowIdx) {
@@ -324,15 +406,14 @@ function slotRowCallingTokenSet(rowCallingId, character) {
   const cid = String(rowCallingId ?? "").trim();
   if (!cid) return new Set();
   const out = new Set([cid]);
-  if (String(character?.pantheonId ?? "").trim() === "mythos") {
-    const t = mythosCallingTwinId(cid);
-    if (t) out.add(t);
-  }
+  const mythosPan = String(character?.pantheonId ?? "").trim() === "mythos";
+  const t = mythosCallingTwinId(cid);
+  if (t && (mythosPan || isMythosInvertedTwinCallingId(cid))) out.add(t);
   return out;
 }
 
 /**
- * Knacks shown under Origin / Finishing “Any Calling” (general pool): explicit any-Calling, no list,
+ * Knacks shown under Origin / Finishing “General Calling” pool: explicit General Calling, no list,
  * or PB-style “one of several Callings” rows. These may sit on a Hero `callingSlots` row whose Calling
  * is not chosen yet (`id: ""`) until Visitation rows are filled — same idea as {@link originCallingKnackChipGroupKey}.
  * @param {Record<string, unknown>} k
@@ -348,22 +429,24 @@ export function knackMayUsePendingHeroCallingRow(k, _character) {
 }
 
 /**
- * Origin / single-Calling Calling step: chip group heading (mirrors Hero row vs “Any Calling”).
+ * Origin / single-Calling Calling step: chip group heading (mirrors Hero row vs “General Calling”).
  * @param {Record<string, unknown>} k
  * @param {CharacterLike} character
  * @returns {"selected" | "any"}
  */
 export function originCallingKnackChipGroupKey(k, character) {
   if (!k || typeof k !== "object") return "any";
-  if (knackMayUsePendingHeroCallingRow(k, character)) return "any";
+  if (k.callingsAny === true || k.calling === "any") return "any";
   const knTok = knackCallingTokensForRowMatch(k, character);
   if (knTok === null || knTok.size === 0) return "any";
   const cid = String(character?.callingId ?? "").trim();
-  if (!cid) return "any";
-  const rowTok = slotRowCallingTokenSet(cid, character);
-  for (const x of knTok) {
-    if (rowTok.has(x)) return "selected";
+  if (cid) {
+    const rowTok = slotRowCallingTokenSet(cid, character);
+    for (const x of knTok) {
+      if (rowTok.has(x)) return "selected";
+    }
   }
+  if (knackMayUsePendingHeroCallingRow(k, character)) return "any";
   return "any";
 }
 
@@ -383,7 +466,7 @@ function knackRawCallingIdList(k) {
  * Expanded Calling ids for matching a Hero Calling row (same rules as `knackEligible` + row twin set).
  * @param {Record<string, unknown>} k
  * @param {CharacterLike} character
- * @returns {Set<string> | null} `null` = any Calling (all filled rows may pay).
+ * @returns {Set<string> | null} `null` = General Calling (all filled rows may pay).
  */
 export function knackCallingTokensForRowMatch(k, character) {
   if (!k || typeof k !== "object") return new Set();
@@ -395,13 +478,36 @@ export function knackCallingTokensForRowMatch(k, character) {
 }
 
 /**
+ * MotM inverted Calling (e.g. Cosmos): split eligible knacks into inverted Mythos vs standard twin pool.
+ * @param {Record<string, unknown>} k
+ * @param {CharacterLike} character
+ * @param {string} [rowCallingId] — Hero row Calling; defaults to `character.callingId`
+ * @returns {"inverted" | "standard-twin" | null}
+ */
+export function motmInvertedKnackSubpoolKey(k, character, rowCallingId) {
+  const cid = String(rowCallingId ?? character?.callingId ?? "").trim();
+  if (!cid || String(character?.pantheonId ?? "").trim() !== "mythos") return null;
+  if (!isMythosInvertedTwinCallingId(cid)) return null;
+  const twin = mythosCallingTwinId(cid);
+  if (!twin) return null;
+  const kid = String(k?.id ?? "");
+  const pant = Array.isArray(k?.pantheonAnyOf) ? k.pantheonAnyOf : [];
+  if (kid.startsWith("mythos_") && pant.includes("mythos")) return "inverted";
+  const raw = knackRawCallingIdList(k);
+  if (raw.includes(twin)) return "standard-twin";
+  if (raw.includes(cid)) return "inverted";
+  return null;
+}
+
+/**
  * @param {Record<string, unknown>} k
  * @param {{ callings?: Record<string, { name?: string }> }} [bundle]
+ * @param {CharacterLike} [character] — when set, notes MotM twin access (Cosmos ↔ Sage, etc.)
  * @returns {string} Short line for tooltips: “Applies to: …”.
  */
-export function knackAppliesToCallingsLine(k, bundle) {
+export function knackAppliesToCallingsLine(k, bundle, character) {
   if (!k || typeof k !== "object") return "";
-  if (k.callingsAny === true || k.calling === "any") return "Applies to: any Calling.";
+  if (k.callingsAny === true || k.calling === "any") return `Applies to: ${GENERAL_CALLING_LABEL}.`;
   const raw = knackRawCallingIdList(k);
   if (!raw.length) return "";
   const expanded = expandMotmMythosKnackCallingIds(k, raw);
@@ -410,7 +516,20 @@ export function knackAppliesToCallingsLine(k, bundle) {
     .map((id) => (callings[id] && typeof callings[id] === "object" ? String(callings[id].name || "").trim() : "") || id)
     .filter(Boolean);
   if (!names.length) return "";
-  return `Applies to: ${names.join(", ")}.`;
+  let line = `Applies to: ${names.join(", ")}.`;
+  const cid = String(character?.callingId ?? "").trim();
+  if (cid && String(character?.pantheonId ?? "").trim() === "mythos" && isMythosInvertedTwinCallingId(cid)) {
+    const sub = motmInvertedKnackSubpoolKey(k, character, cid);
+    const twin = mythosCallingTwinId(cid);
+    const invName = (callings[cid] && String(callings[cid].name || "").trim()) || cid;
+    const twinName = (twin && callings[twin] && String(callings[twin].name || "").trim()) || twin || "";
+    if (sub === "standard-twin" && twinName) {
+      line += ` Available with your ${invName} Calling via the ${invName}/${twinName} pair (MotM p. 46).`;
+    } else if (sub === "inverted" && twinName) {
+      line += ` Inverted ${invName} knack (MotM); ${twinName} standard knacks are also available separately.`;
+    }
+  }
+  return line;
 }
 
 export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
@@ -424,7 +543,7 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
    * until the Calling step picks Visitation Callings. Only row 0 has a Calling id, so without this rule
    * `solveHeroKnackSlotAssignment` could place at most one Knack; `pruneKnackIdsToCallingSlotCap` then
    * drops trailing picks — including the two Origin Finishing bonus Knacks merged into `knackIds`.
-   * Match the Finishing “Any Calling” bucket ({@link knackMayUsePendingHeroCallingRow}), not only
+   * Match the Finishing “General Calling” bucket ({@link knackMayUsePendingHeroCallingRow}), not only
    * `knTok === null` — multi-Calling (“one of …”) rows use a non-null Set and still belong in that pool.
    */
   if (!rowId) return knackMayUsePendingHeroCallingRow(k, character);
@@ -438,8 +557,8 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
 
 /**
  * Assign each main Knack to a Calling row so each row’s spent cost ≤ that row’s dots (Hero `callingSlots`).
- * Hero-band: Immortal only on rows with two+ dots, costs two slots, at most one Immortal in the list.
- * Post-Hero: Immortal costs one slot per row dot like Heroic; multiple Immortals allowed if rows allow.
+ * Hero-band: two-dot knacks only on rows with two+ dots; at most one two-dot knack in the list.
+ * Post-Hero: all immortal knacks cost one dot per row.
  * @param {string[]} knackIds
  * @param {CharacterLike} character
  * @param {{ knacks?: Record<string, unknown> }} bundle
@@ -449,7 +568,7 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return {};
   const ids = [...(knackIds || [])].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
   const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
-  if (heroImm && immortalKnackCountInList(ids, bundle) > 1) return null;
+  if (heroImm && heavyImmortalKnackCountInList(ids, bundle) > 1) return null;
   if (ids.length === 0) return {};
   const slots = character.callingSlots;
   const rowCount = slots.length;
@@ -465,7 +584,7 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
     const cost = knackCallingSlotCost(kn, character);
     for (let r = 0; r < rowCount; r += 1) {
       if (!heroCallingRowMatchesKnack(r, kn, character, bundle)) continue;
-      if (kn.knackKind === "immortal" && rowCaps[r] < minDotsForImmortalRow) continue;
+      if (knackCallingSlotCost(kn, character) === 2 && rowCaps[r] < minDotsForImmortalRow) continue;
       if (rowUsed[r] + cost > rowCaps[r]) continue;
       rowUsed[r] += cost;
       slotMap[kid] = r;
@@ -550,31 +669,37 @@ export function knackIdsCallingSlotsUsed(knackIds, bundle, character) {
   return sum;
 }
 
-export function immortalKnackCountInList(knackIds, bundle) {
+/** Knacks that cost two Calling dots at Hero tier (`callingSlotCost` 2). */
+export function heavyImmortalKnackCountInList(knackIds, bundle) {
   let n = 0;
   for (const id of knackIds || []) {
     const kn = bundleKnackById(id, bundle);
-    if (kn?.knackKind === "immortal") n += 1;
+    if (knackHeroBandSlotCost(kn) === 2) n += 1;
   }
   return n;
 }
 
+/** @deprecated Use {@link heavyImmortalKnackCountInList} — counts two-dot Hero-band knacks, not all immortal tier. */
+export function immortalKnackCountInList(knackIds, bundle) {
+  return heavyImmortalKnackCountInList(knackIds, bundle);
+}
+
 /**
  * Hero+ (Scion: Hero / Saints & Monsters Step Five): total slot cost ≤ Calling dots.
- * Hero-band: at most one Immortal (two slots); needs two+ Calling dots if any Immortal.
- * Post-Hero: Immortal and Heroic each one slot; no cap on Immortal count beyond dot budget.
+ * Hero-band: at most one two-dot knack; needs two+ Calling dots if any two-dot knack.
+ * Post-Hero: all immortal knacks one dot; no separate two-dot cap beyond dot budget.
  */
 export function knackSetWithinCallingSlots(knackIds, character, bundle) {
   const cap = callingKnackSlotCap(character);
   const used = knackIdsCallingSlotsUsed(knackIds, bundle, character);
   if (used > cap) return false;
   const tr = tierRank(character.tier);
-  const imm = immortalKnackCountInList(knackIds, bundle);
-  if (tr <= 0) return imm === 0;
+  const heavy = heavyImmortalKnackCountInList(knackIds, bundle);
+  if (tr <= 0) return heavy === 0;
   const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
   if (heroImm) {
-    if (imm > 1) return false;
-    if (cap < 2 && imm > 0) return false;
+    if (heavy > 1) return false;
+    if (cap < 2 && heavy > 0) return false;
   }
   return true;
 }
@@ -613,11 +738,11 @@ export function knackEligibleForFinishingExtraKnack(k, character, bundle) {
   if (tr < 1) return true;
 
   const combined = [...main, ...fin, kid];
-  const imm = immortalKnackCountInList(combined, bundle);
+  const heavy = heavyImmortalKnackCountInList(combined, bundle);
   const heroImm = immortalKnackCostsTwoCallingSlots(character.tier);
-  if (heroImm && imm > 1) return false;
-  const minCapForImm = heroImm ? 2 : 1;
-  if (k.knackKind === "immortal" && callingKnackSlotCap(character) < minCapForImm) return false;
+  if (heroImm && heavy > 1) return false;
+  const minCapForHeavy = heroImm ? 2 : 1;
+  if (knackHeroBandSlotCost(k) === 2 && callingKnackSlotCap(character) < minCapForHeavy) return false;
   return true;
 }
 
@@ -638,7 +763,7 @@ export function knackFinishingPickIsValidHeld(k, character, bundle) {
   if (tr < 1) return true;
   if (!immortalKnackCostsTwoCallingSlots(character.tier)) return true;
   const combined = [...main, ...fin];
-  return immortalKnackCountInList(combined, bundle) <= 1;
+  return heavyImmortalKnackCountInList(combined, bundle) <= 1;
 }
 
 /**
@@ -679,12 +804,13 @@ export function knackEligible(k, character, _bundle) {
   }
 
   const tr = tierRank(character.tier);
-  const tMin = k.tierMin != null ? tierRank(k.tierMin) : 0;
-  const tMax = k.tierMax != null ? tierRank(k.tierMax) : 3;
-  if (tr < tMin || tr > tMax) return false;
-
-  /** Origin / Mortal (and Sorcerer) play tier: only Mortal Knacks, never Immortal (two-slot) Knacks. */
-  if (tr === 0 && k.knackKind === "immortal") return false;
+  const kt = knackRuleTier(k);
+  /** Origin: Mortal Knacks only. Hero+: Immortal Knacks (no new Mortal picks). */
+  if (tr === 0) {
+    if (kt !== "mortal") return false;
+  } else if (kt === "mortal") {
+    return false;
+  }
 
   const pv = k.purviewAnyOf;
   if (Array.isArray(pv) && pv.length) {
@@ -714,8 +840,8 @@ export function knackEligible(k, character, _bundle) {
     if (lr < leg) return false;
   }
 
-  /** Hero-band Immortal Knacks need a Calling row (or single Calling rating) of at least two dots (Hero p.184). */
-  if (k.knackKind === "immortal" && immortalKnackCostsTwoCallingSlots(character.tier)) {
+  /** Hero-band two-dot knacks need a Calling row (or single Calling rating) of at least two dots (Hero p.184). */
+  if (knackHeroBandSlotCost(k) === 2 && immortalKnackCostsTwoCallingSlots(character.tier)) {
     const maxRow = maxHeroCallingSlotDotCount(character);
     if (maxRow != null) {
       if (maxRow < 2) return false;

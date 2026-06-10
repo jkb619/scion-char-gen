@@ -21,6 +21,8 @@ import {
   heroCallingRowMatchesKnack,
   knackCallingTokensForRowMatch,
   originCallingKnackChipGroupKey,
+  knackRuleTier,
+  GENERAL_CALLING_LABEL,
   heroUsesCallingSlotRows,
   isPostHeroBandCallingTierId,
   maxWizardBoonPicksForTier,
@@ -32,6 +34,8 @@ import {
   mythosCallingTwinId,
   mythosPatronCallingIdForChooser,
   callingIdInWizardLibraryChooser,
+  isMythosInvertedTwinCallingId,
+  motmInvertedKnackSubpoolKey,
   isSorcererLineTierId,
 } from "./eligibility.js";
 import { boonDisplayLabel } from "./boonLabels.js";
@@ -1011,7 +1015,7 @@ function renderMythosInnatePowerPanel(wrap) {
     const warn = document.createElement("p");
     warn.className = "warn";
     warn.textContent =
-      "None of this parent’s Purviews have MotM Awareness Innate text in this app yet (MotM fragment under data/tables/purviews/).";
+      "None of this parent’s Purviews have MotM Awareness Innate text in this app yet (see purviews.json mythosAwarenessInnate).";
     fieldset.appendChild(warn);
   }
 
@@ -2001,15 +2005,20 @@ function callingIdsAllowedForCharacter() {
   if (!Array.isArray(raw) || raw.length === 0) return null;
   let out = raw.filter((cid) => typeof cid === "string" && !cid.startsWith("_") && bundle.callings?.[cid]);
   if (out.length === 0) return null;
-  /** MotM: chooser lists only inverted Callings; standard ids from data map to their inverted twin (e.g. Sage → Cosmos). */
+  /** MotM: patron favored Callings include both standard and inverted twin (e.g. Sage and Cosmos). */
   if (isMythosPantheonSelected()) {
     const seen = new Set();
     const mapped = [];
     for (const cid of out) {
-      const use = mythosPatronCallingIdForChooser(cid);
-      if (!use || !bundle.callings?.[use] || seen.has(use)) continue;
-      seen.add(use);
-      mapped.push(use);
+      const inverted = mythosPatronCallingIdForChooser(cid);
+      if (inverted && bundle.callings?.[inverted] && !seen.has(inverted)) {
+        seen.add(inverted);
+        mapped.push(inverted);
+      }
+      if (bundle.callings?.[cid] && !seen.has(cid)) {
+        seen.add(cid);
+        mapped.push(cid);
+      }
     }
     out = mapped;
   }
@@ -2904,12 +2913,18 @@ function renderFinalAttrDotRow(
 
 /**
  * Mortal / Mortal-band Sorcerer / Dragon Hatchling: Path Skills, Attributes, and related layout stay editable.
- * All higher tiers (and Dragon Asset+): read-only until a dedicated tier-raise UI exists.
+ * Higher tiers: editable when building fresh (path skills not yet assigned), locked once configured.
+ * This prevents editing skills after tier advancement while allowing fresh higher-tier builds.
  */
 function postOriginMortalChargenLocked(character) {
   if (isDragonHeirChargen(character)) return dragonHeirAttributesCoreLayoutLocked(character);
   const t = normalizedTierId(character.tier);
-  return t !== "mortal" && t !== "sorcerer";
+  if (t === "mortal" || t === "sorcerer") return false;
+  // At higher tiers, lock only if path skills have already been configured
+  const ps = character.pathSkills;
+  if (!ps || typeof ps !== "object") return false;
+  const hasSkills = PATH_KEYS.some((pk) => Array.isArray(ps[pk]) && ps[pk].length > 0);
+  return hasSkills;
 }
 
 /**
@@ -4629,7 +4644,7 @@ function renderSkills(root) {
     const lock = document.createElement("p");
     lock.className = "help attributes-core-locked-note";
     lock.textContent =
-      "Path Skills, Path priority, overflow placement, and Specialties are read-only after Origin (Mortal / Mortal-band Sorcerer). Chronicle-based increases are not edited here yet.";
+      "Path Skills, Path priority, overflow placement, and Specialties are locked after being configured. To re-edit, clear your Path Skill selections first.";
     wrap.appendChild(lock);
   }
 
@@ -5061,13 +5076,9 @@ function renderAttributes(root) {
  * @param {Record<string, unknown>} k
  */
 function setKnackChipContents(chip, k) {
-  const kk = k?.knackKind;
+  const kt = knackRuleTier(k);
   const name = typeof k?.name === "string" ? k.name : "";
   chip.textContent = "";
-  if (kk !== "mortal" && kk !== "immortal") {
-    chip.textContent = name;
-    return;
-  }
   const inner = document.createElement("span");
   inner.className = "chip-knack-inner";
   const nm = document.createElement("span");
@@ -5075,8 +5086,9 @@ function setKnackChipContents(chip, k) {
   nm.textContent = name;
   inner.appendChild(nm);
   const bd = document.createElement("span");
-  bd.className = kk === "mortal" ? "knack-kind-badge knack-kind-mortal" : "knack-kind-badge knack-kind-immortal";
-  bd.textContent = kk === "mortal" ? "Mortal" : "Immortal";
+  bd.className =
+    kt === "mortal" ? "knack-kind-badge knack-kind-mortal" : "knack-kind-badge knack-kind-immortal";
+  bd.textContent = kt === "mortal" ? "Mortal" : "Immortal";
   inner.appendChild(bd);
   chip.appendChild(inner);
 }
@@ -5090,14 +5102,14 @@ function renderCalling(root) {
     if (isMythosPantheonSelected()) {
       const hint = document.createElement("p");
       hint.className = "help";
-      hint.textContent = `Masks of the Mythos: only inverted Callings from this list appear — each id from ${deity?.name || "your divine parent"} in pantheon data is shown as its MotM Calling (standard names in the file map to inverted equivalents, e.g. Sage → Cosmos).`;
+      hint.textContent = `Masks of the Mythos: Calling rows may use standard or inverted twins from each MotM pair (Creator or Destroyer, Sage or Cosmos, etc.). Patron favored Callings include both sides where a pair exists. Hunter, Judge, Liminal, and Trickster have no inversion.`;
       wrap.appendChild(hint);
     }
   } else if (!character.parentDeityId) {
     const hint = document.createElement("p");
     hint.className = "help";
     hint.textContent = isMythosPantheonSelected()
-      ? "Choose a divine parent on the Paths step to limit Calling 1 to that deity’s MotM Calling list. Until then, the full library below shows each inverted Calling where MotM pairs one (standard sides like Sage are omitted when Cosmos exists); unpaired Callings (e.g. Liminal) stay listed."
+      ? "Choose a divine parent on the Paths step to limit Calling 1 to that deity’s favored Callings (each MotM pair lists both standard and inverted options). Until then, the full Calling library is available for rows 2–3."
       : "Choose a divine parent on the Paths step to limit Calling to that deity’s listed Callings. Until then, every standard Calling in the library is shown (MotM inverted Callings are hidden for non-Mythos characters).";
     wrap.appendChild(hint);
   }
@@ -5395,6 +5407,20 @@ function renderCalling(root) {
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
   knackPanel.innerHTML = `<h2>Knacks</h2>`;
+  const originCallingId = String(character.callingId || "").trim();
+  if (
+    isMythosPantheonSelected() &&
+    originCallingId &&
+    isMythosInvertedTwinCallingId(originCallingId)
+  ) {
+    const twinId = mythosCallingTwinId(originCallingId);
+    const invName = bundle.callings[originCallingId]?.name || originCallingId;
+    const twinName = (twinId && bundle.callings[twinId]?.name) || twinId || "standard counterpart";
+    const motmKnackHelp = document.createElement("p");
+    motmKnackHelp.className = "help";
+    motmKnackHelp.textContent = `Masks of the Mythos (p. 46): ${invName} is paired with ${twinName}. Choose Knacks from both pools — inverted Mythos knacks (${invName}) and standard ${twinName} knacks (Origin / Pandora's Box). Same rule applies to every MotM pair (Creator/Destroyer, Guardian/Corruptor, Healer/Defiler, Leader/Tyrant, Lover/Adversary, Sage/Cosmos, Warrior/Torturer). Hunter, Judge, Liminal, and Trickster have no paired inversion.`;
+    knackPanel.appendChild(motmKnackHelp);
+  }
   const heroImmKnackSlots = immortalKnackCostsTwoCallingSlots(character.tier);
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   const knackEntries = Object.entries(bundle.knacks)
@@ -5407,7 +5433,7 @@ function renderCalling(root) {
       return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
     });
 
-  /** Three Calling rows (Hero-style): group Knacks by row + “Any Calling” even when tier id isn’t Hero (e.g. Demigod+). */
+  /** Three Calling rows (Hero-style): group Knacks by row + “General Calling” even when tier id isn’t Hero (e.g. Demigod+). */
   const useThreeRowKnackBuckets =
     !isOriginPlayTier(character.tier) &&
     Array.isArray(character.callingSlots) &&
@@ -5455,7 +5481,7 @@ function renderCalling(root) {
       if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
       render();
     });
-    const appliesLine = knackAppliesToCallingsLine(k, bundle);
+    const appliesLine = knackAppliesToCallingsLine(k, bundle, character);
     applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
     if (slotBlocked) {
       const gateHint = useThreeRowKnackBuckets
@@ -5479,6 +5505,60 @@ function renderCalling(root) {
       chip.title = chip.title ? `${chip.title}\n\n${payNote}` : payNote;
     }
     container.appendChild(chip);
+  }
+
+  /**
+   * @param {HTMLElement} parent
+   * @param {[string, Record<string, unknown>][]} list
+   * @param {string} [rowCallingId]
+   */
+  function appendKnackChipsWithMotmSubpools(parent, list, rowCallingId) {
+    const cid = String(rowCallingId ?? character.callingId ?? "").trim();
+    if (
+      !cid ||
+      !isMythosPantheonSelected() ||
+      !isMythosInvertedTwinCallingId(cid)
+    ) {
+      for (const [kid, k] of list) appendKnackChip(parent, kid, k);
+      return;
+    }
+    const twinId = mythosCallingTwinId(cid);
+    const invName = bundle.callings[cid]?.name || cid;
+    const twinName = (twinId && bundle.callings[twinId]?.name) || twinId || "Standard";
+    /** @type {[string, Record<string, unknown>][]} */
+    const inverted = [];
+    /** @type {[string, Record<string, unknown>][]} */
+    const standard = [];
+    /** @type {[string, Record<string, unknown>][]} */
+    const other = [];
+    for (const pair of list) {
+      const sub = motmInvertedKnackSubpoolKey(pair[1], character, cid);
+      if (sub === "inverted") inverted.push(pair);
+      else if (sub === "standard-twin") standard.push(pair);
+      else other.push(pair);
+    }
+    const addSubpool = (title, items) => {
+      if (!items.length) return;
+      const sub = document.createElement("div");
+      sub.className = "calling-knack-motm-subpool";
+      const h4 = document.createElement("h4");
+      h4.className = "calling-knack-motm-subpool-title";
+      h4.textContent = title;
+      sub.appendChild(h4);
+      const chips = document.createElement("div");
+      chips.className = "chips chips--calling-knack-subgroup";
+      for (const [kid, k] of items) appendKnackChip(chips, kid, k);
+      sub.appendChild(chips);
+      parent.appendChild(sub);
+    };
+    addSubpool(`Inverted — ${invName} (MotM)`, inverted);
+    addSubpool(`${twinName} (standard)`, standard);
+    if (other.length) {
+      const chips = document.createElement("div");
+      chips.className = "chips chips--calling-knack-subgroup";
+      for (const [kid, k] of other) appendKnackChip(chips, kid, k);
+      parent.appendChild(chips);
+    }
   }
 
   if (useThreeRowKnackBuckets) {
@@ -5516,7 +5596,7 @@ function renderCalling(root) {
       const head = document.createElement("h3");
       head.className = "calling-knack-chip-group-title";
       if (key === "any") {
-        head.textContent = "Any Calling";
+        head.textContent = GENERAL_CALLING_LABEL;
       } else {
         const rid = String(character.callingSlots?.[key]?.id || "").trim();
         head.textContent = rid
@@ -5525,10 +5605,9 @@ function renderCalling(root) {
       }
       section.appendChild(head);
       const chipWrap = document.createElement("div");
-      chipWrap.className = "chips chips--calling-knack-subgroup";
-      for (const [kid, k] of list) {
-        appendKnackChip(chipWrap, kid, k);
-      }
+      chipWrap.className = "calling-knack-chip-group-body";
+      const rowCallingId = key === "any" ? "" : String(character.callingSlots?.[key]?.id || "").trim();
+      appendKnackChipsWithMotmSubpools(chipWrap, list, rowCallingId || undefined);
       section.appendChild(chipWrap);
       knackPanel.appendChild(section);
     }
@@ -5558,7 +5637,7 @@ function renderCalling(root) {
       const head = document.createElement("h3");
       head.className = "calling-knack-chip-group-title";
       if (key === "any") {
-        head.textContent = "Any Calling";
+        head.textContent = GENERAL_CALLING_LABEL;
       } else {
         const rid = String(character.callingId || "").trim();
         head.textContent = rid
@@ -5567,17 +5646,20 @@ function renderCalling(root) {
       }
       section.appendChild(head);
       const chipWrap = document.createElement("div");
-      chipWrap.className = "chips chips--calling-knack-subgroup";
+      chipWrap.className = "calling-knack-chip-group-body";
       if (list.length === 0) {
         const empty = document.createElement("p");
         empty.className = "help";
         empty.textContent =
           "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
         chipWrap.appendChild(empty);
+      } else if (key === "selected") {
+        appendKnackChipsWithMotmSubpools(chipWrap, list, originCallingId || undefined);
       } else {
-        for (const [kid, k] of list) {
-          appendKnackChip(chipWrap, kid, k);
-        }
+        const chips = document.createElement("div");
+        chips.className = "chips chips--calling-knack-subgroup";
+        for (const [kid, k] of list) appendKnackChip(chips, kid, k);
+        chipWrap.appendChild(chips);
       }
       section.appendChild(chipWrap);
       knackPanel.appendChild(section);
@@ -5609,7 +5691,7 @@ function renderCalling(root) {
         const head = document.createElement("h3");
         head.className = "calling-knack-chip-group-title";
         if (key === "any") {
-          head.textContent = "Any Calling";
+          head.textContent = GENERAL_CALLING_LABEL;
         } else {
           const rid = String(character.callingId || "").trim();
           head.textContent = rid
@@ -5618,17 +5700,20 @@ function renderCalling(root) {
         }
         section.appendChild(head);
         const chipWrap = document.createElement("div");
-        chipWrap.className = "chips chips--calling-knack-subgroup";
+        chipWrap.className = "calling-knack-chip-group-body";
         if (list.length === 0) {
           const empty = document.createElement("p");
           empty.className = "help";
           empty.textContent =
             "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
           chipWrap.appendChild(empty);
+        } else if (key === "selected") {
+          appendKnackChipsWithMotmSubpools(chipWrap, list, originCallingId || undefined);
         } else {
-          for (const [kid, k] of list) {
-            appendKnackChip(chipWrap, kid, k);
-          }
+          const chips = document.createElement("div");
+          chips.className = "chips chips--calling-knack-subgroup";
+          for (const [kid, k] of list) appendKnackChip(chips, kid, k);
+          chipWrap.appendChild(chips);
         }
         section.appendChild(chipWrap);
         knackPanel.appendChild(section);
@@ -6825,7 +6910,7 @@ function renderFinishing(root) {
             "No longer qualifies for your current Calling/tier/gates—remove or adjust your character.";
         }
         setKnackChipContents(chip, k);
-        const appliesLine = knackAppliesToCallingsLine(k, bundle);
+        const appliesLine = knackAppliesToCallingsLine(k, bundle, character);
         applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
         chip.addEventListener("click", () => {
           toggleFinishingKnack(kid);
@@ -6855,7 +6940,7 @@ function renderFinishing(root) {
           const head = document.createElement("h3");
           head.className = "calling-knack-chip-group-title";
           if (key === "any") {
-            head.textContent = "Any Calling";
+            head.textContent = GENERAL_CALLING_LABEL;
           } else {
             const rid = String(character.callingId || "").trim();
             head.textContent = rid

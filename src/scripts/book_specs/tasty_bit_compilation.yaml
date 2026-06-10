@@ -1,0 +1,17 @@
+book_id: tasty_bit_compilation
+filenames:
+  - "Scion_Tasty_Bit_Compilation_(Final_Download).pdf"
+output_path: "src/data/_extracted/tasty_bit_compilation.txt"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

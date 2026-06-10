@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit ``src/data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json`` (Titanic Knacks, Ch. 4).
+"""Emit Saints & Monsters Titanic Knacks audit JSON (Ch. 4); sm_* rows live in src/data/knacks.json.
 
 Transcribed from Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf text
 (data/_extracted/saints_monsters.txt). Re-run after re-extracting the PDF.
@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT / "src"
-OUT = SRC_DIR / "data" / "tables" / "knacks" / "20_Scion_Players_Guide_Saints_Monsters.json"
+OUT = ROOT / "json" / "saints_monsters" / "knacks.json"
 
 SM_SOURCE = (
     "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — "
@@ -370,7 +370,7 @@ def main() -> int:
     out_obj: dict = {
         "_meta": {
             "title": "Saints & Monsters — Titanic Knacks",
-            "role": "Merged into bundle.knacks from data/tables/knacks/*.json (see app/services/data_tables.py).",
+            "role": "Audit export; sm_* rows belong in src/data/knacks.json.",
             "sourcePdf": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf",
             "chapters": "Chapter Four — Titanic Scions (Knacks pp. 91–97).",
             "regenerate": "python3 scripts/build_knacks_saints_monsters.py",

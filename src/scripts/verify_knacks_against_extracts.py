@@ -77,7 +77,7 @@ def main() -> int:
                 continue
             name = (val.get("name") or "").strip()
             if not name:
-                all_bad.append(("tables/knacks", kid, name, "empty name"))
+                all_bad.append(("knacks.json", kid, name, "empty name"))
                 continue
             src = (val.get("source") or "").lower()
             if "community rules mirror" in src:
@@ -85,30 +85,30 @@ def main() -> int:
             if kid.startswith("mythos_"):
                 h, hns, lab = motm_n, motm_ns, "MotM extract"
                 if h is None or hns is None:
-                    all_bad.append(("tables/knacks", kid, name, "no MotM extract"))
+                    all_bad.append(("knacks.json", kid, name, "no MotM extract"))
                     continue
                 if not matches(h, hns, name):
-                    all_bad.append(("tables/knacks", kid, name, f"not in {lab}"))
+                    all_bad.append(("knacks.json", kid, name, f"not in {lab}"))
             elif kid.startswith("sm_"):
                 h, hns, lab = saints_n, saints_ns, "Saints & Monsters extract"
                 if h is None or hns is None:
-                    all_bad.append(("tables/knacks", kid, name, "no Saints extract"))
+                    all_bad.append(("knacks.json", kid, name, "no Saints extract"))
                     continue
                 if not matches(h, hns, name):
-                    all_bad.append(("tables/knacks", kid, name, f"not in {lab}"))
+                    all_bad.append(("knacks.json", kid, name, f"not in {lab}"))
             elif kid.startswith("tr_"):
                 h, hns, lab = titans_n, titans_ns, "Titans Rising extract"
                 if h is None or hns is None:
-                    all_bad.append(("tables/knacks", kid, name, "no Titans Rising extract"))
+                    all_bad.append(("knacks.json", kid, name, "no Titans Rising extract"))
                     continue
                 if not matches(h, hns, name):
-                    all_bad.append(("tables/knacks", kid, name, f"not in {lab}"))
+                    all_bad.append(("knacks.json", kid, name, f"not in {lab}"))
             else:
                 if core_n is None or core_ns is None:
-                    all_bad.append(("tables/knacks", kid, name, f"no {core_label}"))
+                    all_bad.append(("knacks.json", kid, name, f"no {core_label}"))
                     continue
                 if not matches(core_n, core_ns, name):
-                    all_bad.append(("tables/knacks", kid, name, f"not in {core_label}"))
+                    all_bad.append(("knacks.json", kid, name, f"not in {core_label}"))
 
     for rel, hay_n, hay_ns, lab in (
         ("data/dragonKnacks.json", dragon_n, dragon_ns, "Dragon extract"),

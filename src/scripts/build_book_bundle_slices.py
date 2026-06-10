@@ -1024,7 +1024,10 @@ def build_generic_book(pdf_path: Path) -> Path | None:
 
     # Try extracting each content type
     equipment = _extract_equipment_entries(pages, slug, pdf_name)
-    knacks = _extract_knack_entries(pages, slug, pdf_name)
+    # NOTE: Generic knack extraction disabled — too many false positives from
+    # NPC names, place names, and section headings. Books with knacks should
+    # get dedicated handlers in this script (like build_britannia_dragons_knacks).
+    knacks: dict[str, Any] = {}
     birthrights = _extract_birthright_entries(pages, slug, pdf_name)
     boons = _extract_boon_entries(pages, slug, pdf_name)
     paths = _extract_path_entries(pages, slug, pdf_name)

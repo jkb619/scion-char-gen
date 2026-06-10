@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 from app.config import DATA_DIR
 from app.services.book_bundles import merge_book_directory_into_bundle
-from app.services.data_tables import load_merged_table, table_fragment_dir
+from app.services.data_tables import load_merged_table
 
 
 def _stamp_patron_asset_skills_from_pantheon(pantheons: dict[str, Any]) -> None:
@@ -331,11 +331,6 @@ def save_table(name: str, data: dict[str, Any]) -> None:
         raise KeyError(name)
     if not isinstance(data, dict):
         raise TypeError("payload must be a JSON object")
-    if table_fragment_dir(name).is_dir() and any(table_fragment_dir(name).glob("*.json")):
-        raise NotImplementedError(
-            f"Table {name!r} is loaded from data/tables/{name}/*.json fragments; "
-            f"use a file editor or extend save_table to write the appropriate fragment."
-        )
     path = DATA_DIR / f"{name}.json"
     if name in ("birthrights", "tags", "equipment"):
         meta = data.get("_meta")

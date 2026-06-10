@@ -65,7 +65,7 @@ def _resolve_all_json_output_paths(spec: BookSpec) -> list[tuple[str, Path]]:
 
     Returns a list of (table_name, absolute_path) tuples from the spec's
     json_output_paths field. These paths correspond to the locations expected
-    by data_tables.py PRIMARY_FRAGMENT entries.
+    by data_tables.py monolith paths (src/data/<table>.json).
 
     If json_output_paths is not set, falls back to _resolve_json_output_path
     for backward compatibility with specs using .json output_path directly.

@@ -1,0 +1,17 @@
+book_id: realms_of_mystery
+filenames:
+  - "Realms_of_Mystery__Magic_(Final_Download).pdf"
+output_path: "src/data/_extracted/realms_of_mystery.txt"
+
+section_anchors:
+  - pattern: "TODO"
+    pattern_type: literal
+heading_patterns:
+  - regex: "TODO"
+    flags: ["MULTILINE"]
+expected_fields:
+  - "TODO"
+pipeline_stages:
+  - ingest
+  - extract
+  - validate

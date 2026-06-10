@@ -241,7 +241,7 @@ class TestValidate:
         assert report2.flagged == []
 
     def test_table_name_derived_from_output_path(self, tmp_path):
-        spec = _make_spec(output_path="src/data/tables/boons/boonPbMechanics.json")
+        spec = _make_spec(output_path="src/data/boonPbMechanics.json")
         entries = {"k": {"f": "v"}}
         report = validate(spec, entries, tmp_path)
 

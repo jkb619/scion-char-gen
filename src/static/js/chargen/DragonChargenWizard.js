@@ -16,6 +16,9 @@ import {
   knackAppliesToCallingsLine,
   heroCallingRowMatchesKnack,
   bundleKnackById,
+  knackRuleTier,
+  knackHeroBandSlotCost,
+  GENERAL_CALLING_LABEL,
 } from "../eligibility.js";
 import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
 import { dragonSpellChipHintEntity } from "../dragonSpellUi.js";
@@ -2016,10 +2019,9 @@ function dragonPathPhraseSnippet(d, pk, maxChars = 96) {
  * @param {Record<string, unknown>} k
  */
 function setKnackChipContents(chip, k) {
-  const kk = k?.knackKind;
   const name = typeof k?.name === "string" ? k.name : "";
   chip.textContent = "";
-  if (kk === "heir") {
+  if (k?.knackKind === "heir") {
     const inner = document.createElement("span");
     inner.className = "chip-knack-inner";
     const nm = document.createElement("span");
@@ -2033,10 +2035,7 @@ function setKnackChipContents(chip, k) {
     chip.appendChild(inner);
     return;
   }
-  if (kk !== "mortal" && kk !== "immortal") {
-    chip.textContent = name;
-    return;
-  }
+  const kt = knackRuleTier(k);
   const inner = document.createElement("span");
   inner.className = "chip-knack-inner";
   const nm = document.createElement("span");
@@ -2044,8 +2043,9 @@ function setKnackChipContents(chip, k) {
   nm.textContent = name;
   inner.appendChild(nm);
   const bd = document.createElement("span");
-  bd.className = kk === "mortal" ? "knack-kind-badge knack-kind-mortal" : "knack-kind-badge knack-kind-immortal";
-  bd.textContent = kk === "mortal" ? "Mortal" : "Immortal";
+  bd.className =
+    kt === "mortal" ? "knack-kind-badge knack-kind-mortal" : "knack-kind-badge knack-kind-immortal";
+  bd.textContent = kt === "mortal" ? "Mortal" : "Immortal";
   inner.appendChild(bd);
   chip.appendChild(inner);
 }
@@ -3032,7 +3032,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       if (slotBlocked) {
         let gateHint =
           "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack.";
-        if (k?.knackKind === "immortal") {
+        if (knackHeroBandSlotCost(k) === 2) {
           gateHint +=
             " On a two-dot Calling row, an Immortal uses both slots—if that row already has a Heroic Knack from the same Calling, clear it (or give that Calling three dots) before an Immortal can fit.";
         } else if (k?.knackKind === "heir") {
@@ -3085,7 +3085,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       const head = document.createElement("h3");
       head.className = "calling-knack-chip-group-title";
       if (key === "any") {
-        head.textContent = "Any Calling";
+        head.textContent = GENERAL_CALLING_LABEL;
       } else {
         const rid = String(shell.callingSlots?.[key]?.id || "").trim();
         head.textContent = rid

@@ -1,10 +1,10 @@
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { GENERAL_CALLING_LABEL } from "./eligibility.js";
 
 /**
  * Short label for the character sheet: where the Knack is grouped in the books.
  * Uses game Purview display names when `purviewAnyOf` gates the Knack; otherwise
- * Calling display name(s); `"general"` for any-Calling / undifferentiated lists
- * (e.g. Pandora’s Box general Heroic Knacks).
+ * Calling display name(s); {@link GENERAL_CALLING_LABEL} for PB General knack lists.
  *
  * @param {Record<string, unknown> | null | undefined} k
  * @param {{ callings?: Record<string, Record<string, unknown>>; purviews?: Record<string, unknown> }} bundle
@@ -12,7 +12,7 @@ import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
  * @returns {string}
  */
 export function knackSheetGroupLabel(k, bundle, pantheonId) {
-  if (!k || typeof k !== "object") return "general";
+  if (!k || typeof k !== "object") return GENERAL_CALLING_LABEL;
   const pant = String(pantheonId ?? "").trim();
 
   const pvAny = k.purviewAnyOf;
@@ -30,7 +30,7 @@ export function knackSheetGroupLabel(k, bundle, pantheonId) {
     if (names.length) return names.join(", ");
   }
 
-  if (k.callingsAny === true || k.calling === "any") return "general";
+  if (k.callingsAny === true || k.calling === "any") return GENERAL_CALLING_LABEL;
 
   const list = Array.isArray(k.callings) ? k.callings : null;
   const callings =
@@ -40,7 +40,7 @@ export function knackSheetGroupLabel(k, bundle, pantheonId) {
         ? [k.calling.trim()]
         : [];
 
-  if (callings.length === 0) return "general";
+  if (callings.length === 0) return GENERAL_CALLING_LABEL;
   if (callings.length === 1) {
     const cid = callings[0];
     const row = bundle?.callings?.[cid];

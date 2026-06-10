@@ -29,6 +29,20 @@ class HeadingPattern:
 
 
 @dataclass
+class CategoryConfig:
+    """Per-category extraction configuration within a Book Spec."""
+
+    output_path: str
+    section_anchors: list[SectionAnchor] = field(default_factory=list)
+    heading_pattern: HeadingPattern | None = None
+    expected_fields: list[str] = field(default_factory=list)
+    calling_map: dict[str, str] | None = None
+    dot_symbol: str | None = None
+    stat_block_pattern: str | None = None
+    tag_pattern: str | None = None
+
+
+@dataclass
 class BookSpec:
     """Declarative specification for a single PDF source book."""
 
@@ -44,17 +58,25 @@ class BookSpec:
     json_output_paths: dict[str, str] | None = None
     """Optional mapping of table/file names to output paths (relative to repo root).
 
-    Used to wire framework extraction output to the paths expected by
-    data_tables.py PRIMARY_FRAGMENT entries. For example:
+    Used to wire framework extraction output to monolith paths under src/data/. For example:
         json_output_paths:
-          boons: "src/data/tables/boons/00_SCION_Pandoras_Box_Revised.json"
-          purviews: "src/data/tables/purviews/00_SCION_Pandoras_Box_Revised.json"
+          boons: "src/data/boons.json"
+          purviews: "src/data/purviews.json"
           boonPbMechanics: "src/data/boonPbMechanics.json"
 
     When set, the CLI orchestrator writes structured JSON to each declared path
     after extraction completes. This keeps the wiring declarative in the spec
     rather than hard-coded in the CLI.
     """
+
+    book_title: str | None = None
+    """Human-readable title for the book (e.g., "Pandora's Box (Revised)")."""
+
+    book_slug: str | None = None
+    """Output slug for per-book bundle slices (e.g., "pandoras_box")."""
+
+    categories: dict[str, CategoryConfig] | None = None
+    """Per-category extraction configurations keyed by Game_Data_Category name."""
 
 
 @dataclass

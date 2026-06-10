@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""Generate Saints & Monsters supplemental JSON tables (run from repo root).
+"""Generate Saints & Monsters supplemental JSON (audit copies + epicenters).
 
-Outputs:
-  data/tables/purviews/15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json
-  data/tables/boons/20_Scion_Players_Guide_Saints_Monsters.json
-  data/epicenters.json
-  data/tables/knacks/20_Scion_Players_Guide_Saints_Monsters.json
+App data lives in src/data/{knacks,purviews,boons}.json monoliths. This script writes
+review copies under json/saints_monsters/ and updates epicenters.json:
 
   python3 src/scripts/integrate_saints_monsters_tables.py
 """
@@ -18,11 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT / "src"
 DATA_DIR = SRC_DIR / "data"
-TABLES = DATA_DIR / "tables"
+AUDIT_DIR = ROOT / "json" / "saints_monsters"
 SAINTS_SOURCE_PDF = "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf"
-KNACKS_SM_PATH = TABLES / "knacks" / "20_Scion_Players_Guide_Saints_Monsters.json"
-PURV_SM_PATH = TABLES / "purviews" / "15_Scion_Players_Guide_Saints_Monsters_Denizens_and_Magic.json"
-BOONS_SM_PATH = TABLES / "boons" / "20_Scion_Players_Guide_Saints_Monsters.json"
+KNACKS_SM_PATH = AUDIT_DIR / "knacks.json"
+PURV_SM_PATH = AUDIT_DIR / "purviews.json"
+BOONS_SM_PATH = AUDIT_DIR / "boons.json"
 
 
 def knack(kid, name, calling, tier_min, kind, desc, mech=None):
@@ -49,7 +46,7 @@ def main() -> int:
             if k == "_meta":
                 titanic["_meta"] = {
                     "title": "Saints & Monsters — Titanic + optional Callings Knacks",
-                    "role": "Merged into bundle.knacks from data/tables/knacks/*.json",
+                    "role": "Audit export; sm_* rows belong in src/data/knacks.json",
                     "sourcePdf": SAINTS_SOURCE_PDF,
                     "regenerate": "python3 src/scripts/integrate_saints_monsters_tables.py",
                 }
