@@ -398,6 +398,58 @@ export function mythosCallingTwinId(callingId) {
 }
 
 /**
+ * True when the character sheet uses an inverted MotM Calling (Cosmos, Destroyer, …).
+ * Only choosable on the Mythos line — use for knack gates when pantheon/parent fields are stale.
+ * @param {CharacterLike} character
+ */
+export function characterHasMotmInvertedCalling(character) {
+  const cid = String(character?.callingId ?? "").trim();
+  if (cid && isMythosInvertedTwinCallingId(cid)) return true;
+  if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
+    for (const s of character.callingSlots) {
+      const id = String(s?.id ?? "").trim();
+      if (id && isMythosInvertedTwinCallingId(id)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * True when the sheet uses a standard MotM twin Calling (Sage, Creator, …).
+ * @param {CharacterLike} character
+ */
+export function characterHasMotmStandardTwinCalling(character) {
+  const cid = String(character?.callingId ?? "").trim();
+  if (cid && isMythosStandardTwinCallingId(cid)) return true;
+  if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
+    for (const s of character.callingSlots) {
+      const id = String(s?.id ?? "").trim();
+      if (id && isMythosStandardTwinCallingId(id)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Pantheon id that owns `character.parentDeityId` (any patron row in bundle data).
+ * @param {CharacterLike} character
+ * @param {{ pantheons?: Record<string, { deities?: { id?: string }[]; titans?: { id?: string }[] }> }} [bundle]
+ * @returns {string}
+ */
+function parentDeityPantheonId(character, bundle) {
+  const patron = String(character?.parentDeityId ?? "").trim();
+  if (!patron || !bundle?.pantheons || typeof bundle.pantheons !== "object") return "";
+  for (const [pid, pant] of Object.entries(bundle.pantheons)) {
+    if (!pid || pid.startsWith("_") || !pant || typeof pant !== "object") continue;
+    for (const key of ["deities", "titans"]) {
+      const rows = Array.isArray(pant[key]) ? pant[key] : [];
+      if (rows.some((d) => d && String(d.id ?? "").trim() === patron)) return pid;
+    }
+  }
+  return "";
+}
+
+/**
  * Mythos pantheon active for MotM (explicit pantheon pick, or divine parent listed under `pantheons.mythos`).
  * @param {CharacterLike} character
  * @param {{ pantheons?: Record<string, { deities?: { id?: string }[] }> }} [bundle]
@@ -405,11 +457,9 @@ export function mythosCallingTwinId(callingId) {
 export function isMythosPantheonForCharacter(character, bundle) {
   const pid = String(character?.pantheonId ?? "").trim();
   if (pid === "mythos") return true;
-  const patron = String(character?.parentDeityId ?? "").trim();
-  if (!patron) return false;
-  const deities = bundle?.pantheons?.mythos?.deities;
-  if (!Array.isArray(deities)) return false;
-  return deities.some((d) => d && String(d.id ?? "").trim() === patron);
+  if (characterHasMotmInvertedCalling(character)) return true;
+  if (parentDeityPantheonId(character, bundle) === "mythos") return true;
+  return false;
 }
 
 /** Pantheon id for knack gates (infers `mythos` when parent is a Mythos deity). */
@@ -420,20 +470,36 @@ function characterPantheonIdForKnackGates(character, bundle) {
 }
 
 /**
- * MotM pp. 46–48: if a MotM knack lists one member of a pair, the twin Calling id also qualifies.
+ * MotM pp. 46–48: expand knack Calling ids with paired twins.
+ * Mythos pantheon: both sides of each pair (Sage↔Cosmos, …) on every knack row.
+ * mythos_* / pantheonAnyOf mythos rows always expand; non-Mythos inverted Callings reach the standard twin pool.
  * @param {Record<string, unknown>} knack
  * @param {string[]} list
+ * @param {CharacterLike} [character]
+ * @param {{ pantheons?: Record<string, { deities?: { id?: string }[] }> }} [bundle]
  */
-function expandMotmMythosKnackCallingIds(knack, list) {
+function expandMotmKnackAccessCallingIds(knack, list, character, bundle) {
   if (!Array.isArray(list) || !list.length) return list;
+  const out = new Set(list);
+  const mythosPan =
+    isMythosPantheonForCharacter(character, bundle) ||
+    characterHasMotmInvertedCalling(character) ||
+    (characterHasMotmStandardTwinCalling(character) && parentDeityPantheonId(character, bundle) === "mythos");
   const kid = String(knack?.id ?? "");
   const pant = Array.isArray(knack?.pantheonAnyOf) ? knack.pantheonAnyOf : [];
   const motmKnack = kid.startsWith("mythos_") || pant.includes("mythos");
-  if (!motmKnack) return list;
-  const out = new Set(list);
-  for (const cid of list) {
-    const t = mythosCallingTwinId(cid);
-    if (t) out.add(t);
+  if (motmKnack || mythosPan) {
+    for (const cid of list) {
+      const t = mythosCallingTwinId(cid);
+      if (t) out.add(t);
+    }
+  } else {
+    for (const cid of list) {
+      if (isMythosInvertedTwinCallingId(cid)) {
+        const t = mythosCallingTwinId(cid);
+        if (t) out.add(t);
+      }
+    }
   }
   return [...out];
 }
@@ -552,7 +618,7 @@ export function knackMayUsePendingHeroCallingRow(k, _character) {
 export function originCallingKnackChipGroupKey(k, character, bundle) {
   if (!k || typeof k !== "object") return "any";
   if (k.callingsAny === true || k.calling === "any") return "any";
-  const knTok = knackCallingTokensForRowMatch(k, character);
+  const knTok = knackCallingTokensForRowMatch(k, character, bundle);
   if (knTok === null || knTok.size === 0) return "any";
   const cid = String(character?.callingId ?? "").trim();
   if (cid) {
@@ -583,12 +649,12 @@ function knackRawCallingIdList(k) {
  * @param {CharacterLike} character
  * @returns {Set<string> | null} `null` = General Calling (all filled rows may pay).
  */
-export function knackCallingTokensForRowMatch(k, character) {
+export function knackCallingTokensForRowMatch(k, character, bundle) {
   if (!k || typeof k !== "object") return new Set();
   if (k.callingsAny === true || k.calling === "any") return null;
   const raw = knackRawCallingIdList(k);
   if (!raw.length) return new Set();
-  const expanded = expandMotmMythosKnackCallingIds(k, raw);
+  const expanded = expandMotmKnackAccessCallingIds(k, raw, character, bundle);
   return new Set(expanded);
 }
 
@@ -602,7 +668,7 @@ export function knackCallingTokensForRowMatch(k, character) {
  */
 export function motmInvertedKnackSubpoolKey(k, character, rowCallingId, knackId, bundle) {
   const cid = String(rowCallingId ?? character?.callingId ?? "").trim();
-  if (!cid || !isMythosPantheonForCharacter(character, bundle)) return null;
+  if (!cid) return null;
   const twin = mythosCallingTwinId(cid);
   if (!twin) return null;
   const invertedId = isMythosInvertedTwinCallingId(cid)
@@ -660,6 +726,40 @@ export function dedupeMotmTwinKnackSubpoolLists(inverted, standard, anchorCallin
 }
 
 /**
+ * Split a knack chip list into MotM standard vs inverted twin pools (Sage vs Cosmos, etc.).
+ * @param {[string, Record<string, unknown>][]} list
+ * @param {CharacterLike} character
+ * @param {string} [rowCallingId]
+ * @param {{ callings?: Record<string, unknown> }} [bundle]
+ * @returns {{ pair: NonNullable<ReturnType<typeof motmCallingPairForRow>>; rowCallingId: string; inverted: [string, Record<string, unknown>][]; standard: [string, Record<string, unknown>][]; other: [string, Record<string, unknown>][] } | null}
+ */
+export function splitMotmKnackEntriesBySubpool(list, character, rowCallingId, bundle) {
+  const cid = String(rowCallingId ?? character?.callingId ?? "").trim();
+  const pair = motmCallingPairForRow(cid, bundle);
+  if (!cid || !pair) return null;
+  /** @type {[string, Record<string, unknown>][]} */
+  const inverted = [];
+  /** @type {[string, Record<string, unknown>][]} */
+  const standard = [];
+  /** @type {[string, Record<string, unknown>][]} */
+  const other = [];
+  for (const entry of list) {
+    const sub = motmInvertedKnackSubpoolKey(entry[1], character, cid, entry[0], bundle);
+    if (sub === "inverted") inverted.push(entry);
+    else if (sub === "standard-twin") standard.push(entry);
+    else other.push(entry);
+  }
+  const deduped = dedupeMotmTwinKnackSubpoolLists(inverted, standard, cid);
+  return {
+    pair,
+    rowCallingId: cid,
+    inverted: deduped.inverted,
+    standard: deduped.standard,
+    other,
+  };
+}
+
+/**
  * Hero Calling rows: prefer a filled Calling row over General Calling or empty rows for multi-Calling Knacks.
  * @param {Record<string, unknown>} k
  * @param {CharacterLike} character
@@ -669,7 +769,7 @@ export function dedupeMotmTwinKnackSubpoolLists(inverted, standard, anchorCallin
 export function heroKnackChipBucketKey(k, character, bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return "any";
   const rowCount = character.callingSlots.length;
-  const tok = knackCallingTokensForRowMatch(k, character);
+  const tok = knackCallingTokensForRowMatch(k, character, bundle);
   if (tok === null) return "any";
   const raw = knackRawCallingIdList(k);
   const kid = String(k?.id ?? "").trim();
@@ -756,17 +856,55 @@ export function motmCallingPairForRow(callingId, bundle) {
  * @param {string} [anchorCallingId] — Calling on this row / “your Calling”; tags that side in the title.
  */
 export function motmKnackSubpoolSectionTitle(subKey, pair, anchorCallingId) {
+  return motmTwinKnackPoolSectionTitle(subKey, pair, anchorCallingId);
+}
+
+/**
+ * Peer section heading for a MotM knack pool (Sage vs Cosmos, etc.).
+ * @param {"inverted" | "standard-twin"} subKey
+ * @param {ReturnType<typeof motmCallingPairForRow>} pair
+ * @param {string} [anchorCallingId]
+ */
+export function motmTwinKnackPoolSectionTitle(subKey, pair, anchorCallingId) {
   if (!pair) return "";
   const anchor = String(anchorCallingId ?? pair.rowCallingId ?? "").trim();
-  if (subKey === "inverted") {
-    const tag = anchor === pair.invertedId ? "your Calling" : "MotM inverted";
-    return `Inverted — ${pair.invName} (${tag})`;
-  }
   if (subKey === "standard-twin") {
-    const tag = anchor === pair.standardId ? "your Calling" : "standard twin";
-    return `${pair.stdName} (${tag})`;
+    const yours = anchor === pair.standardId ? " (your Calling)" : "";
+    return `${pair.stdName}${yours}`;
+  }
+  if (subKey === "inverted") {
+    const yours = anchor === pair.invertedId ? " (your Calling)" : "";
+    return `${pair.invName}${yours}`;
   }
   return "";
+}
+
+/**
+ * One-line help under a MotM twin knack pool heading.
+ * @param {"inverted" | "standard-twin"} subKey
+ */
+export function motmTwinKnackPoolSectionHelp(subKey) {
+  if (subKey === "standard-twin") {
+    return "Standard Calling knacks from Scion: Origin / Pandora's Box.";
+  }
+  if (subKey === "inverted") {
+    return "Inverted Mythos knacks (Masks of the Mythos pp. 47–49).";
+  }
+  return "";
+}
+
+/**
+ * MotM twin knack pool display order: your Calling’s pool first, paired twin second.
+ * @param {string} [anchorCallingId] — Calling on this row / your Calling
+ * @param {ReturnType<typeof motmCallingPairForRow>} pair
+ * @returns {("standard-twin" | "inverted")[]}
+ */
+export function motmTwinKnackPoolOrder(anchorCallingId, pair) {
+  if (!pair) return ["standard-twin", "inverted"];
+  const anchor = String(anchorCallingId ?? pair.rowCallingId ?? "").trim();
+  if (anchor === pair.invertedId) return ["inverted", "standard-twin"];
+  if (anchor === pair.standardId) return ["standard-twin", "inverted"];
+  return ["standard-twin", "inverted"];
 }
 
 /**
@@ -801,7 +939,7 @@ export function knackAppliesToCallingsLine(k, bundle, character) {
   if (k.callingsAny === true || k.calling === "any") return `Applies to: ${GENERAL_CALLING_LABEL}.`;
   const raw = knackRawCallingIdList(k);
   if (!raw.length) return "";
-  const expanded = expandMotmMythosKnackCallingIds(k, raw);
+  const expanded = expandMotmKnackAccessCallingIds(k, raw, character, bundle);
   const callings = bundle?.callings || {};
   const names = [...new Set(expanded)]
     .map((id) => (callings[id] && typeof callings[id] === "object" ? String(callings[id].name || "").trim() : "") || id)
@@ -809,7 +947,7 @@ export function knackAppliesToCallingsLine(k, bundle, character) {
   if (!names.length) return "";
   let line = `Applies to: ${names.join(", ")}.`;
   const cid = String(character?.callingId ?? "").trim();
-  const mythosPan = String(character?.pantheonId ?? "").trim() === "mythos";
+  const mythosPan = isMythosPantheonForCharacter(character, bundle);
   const twin = mythosCallingTwinId(cid);
   if (
     cid &&
@@ -817,7 +955,7 @@ export function knackAppliesToCallingsLine(k, bundle, character) {
     twin &&
     (isMythosInvertedTwinCallingId(cid) || isMythosStandardTwinCallingId(cid))
   ) {
-    const sub = motmInvertedKnackSubpoolKey(k, character, cid);
+    const sub = motmInvertedKnackSubpoolKey(k, character, cid, undefined, bundle);
     const invertedId = isMythosInvertedTwinCallingId(cid) ? cid : twin;
     const standardId = isMythosStandardTwinCallingId(cid) ? cid : twin;
     const invName = (callings[invertedId] && String(callings[invertedId].name || "").trim()) || invertedId;
@@ -1034,7 +1172,7 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(slots)) return false;
   if (rowIdx < 0 || rowIdx >= slots.length) return false;
   const rowId = String(slots[rowIdx]?.id ?? "").trim();
-  const knTok = knackCallingTokensForRowMatch(k, character);
+  const knTok = knackCallingTokensForRowMatch(k, character, _bundle);
   /**
    * After Mortal→Hero, `initHeroCallingSlotsAfterVisitation` leaves rows 1–2 at 1 dot each with `id: ""`
    * until the Calling step picks Visitation Callings. Only row 0 has a Calling id, so without this rule
@@ -1344,7 +1482,7 @@ function motmInvertedChargenKnackAtOrigin(k, character, bundle) {
   if (!kid.startsWith("mythos_") && !pant.includes("mythos")) return false;
   const raw = knackRawCallingIdList(k);
   if (!raw.length) return false;
-  const expanded = expandMotmMythosKnackCallingIds(k, raw);
+  const expanded = expandMotmKnackAccessCallingIds(k, raw, character, bundle);
   const charCallings = mythosCharacterCallingIdsForKnacks(character, bundle);
   return expanded.some((kc) => typeof kc === "string" && charCallings.has(kc));
 }
@@ -1364,7 +1502,7 @@ export function knackEligible(k, character, _bundle) {
   if (!callingsAny) {
     let allowed = list || [];
     if (allowed.length) {
-      allowed = expandMotmMythosKnackCallingIds(k, allowed);
+      allowed = expandMotmKnackAccessCallingIds(k, allowed, character, _bundle);
       const charCallings = mythosCharacterCallingIdsForKnacks(character, _bundle);
       if (!allowed.some((kc) => typeof kc === "string" && charCallings.has(kc))) return false;
     }
@@ -1425,6 +1563,24 @@ export function knackEligible(k, character, _bundle) {
   }
 
   return true;
+}
+
+/**
+ * Origin Calling step: count knacks that pass gates and bucket to the selected Calling row.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} [bundle]
+ */
+export function countOriginSelectedCallingKnacks(character, bundle) {
+  let n = 0;
+  const table = bundle?.knacks;
+  if (!table || typeof table !== "object") return 0;
+  for (const [kid, k] of Object.entries(table)) {
+    if (kid.startsWith("_") || !k || typeof k !== "object") continue;
+    if (!knackEligible(k, character, bundle)) continue;
+    if (originCallingKnackChipGroupKey(k, character, bundle) !== "selected") continue;
+    n += 1;
+  }
+  return n;
 }
 
 /**

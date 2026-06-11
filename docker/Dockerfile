@@ -1,9 +1,6 @@
 # Scion Character Creator — FastAPI + static bundle (see src/app/main.py).
 FROM python:3.12-slim-bookworm
 
-ARG ASSET_VERSION=dev
-ENV ASSET_VERSION=${ASSET_VERSION}
-
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src \

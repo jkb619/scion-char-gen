@@ -21,9 +21,6 @@ AWS_DEFAULT_REGION := $(AWS_REGION)
 export AWS_DEFAULT_REGION
 
 IMAGE_TAG ?= latest
-# Git short SHA baked into the image at build (header upper-right + static ?v=). Override: make deploy ASSET_VERSION=…
-ASSET_VERSION ?= $(shell git -C "$(ROOT)" describe --always --dirty --abbrev=8 2>/dev/null || echo dev)
-export ASSET_VERSION
 DOCKER_BUILD_CONTEXT := .
 DOCKERFILE := docker/Dockerfile
 DOCKER_PUBLISH_PORT ?= 8000
@@ -68,7 +65,7 @@ help: ## Show targets
 info: ## Show Docker / AWS settings
 	@echo "$(GREEN)Configuration$(NC)"
 	@echo "  App name:          $(APP_NAME)"
-	@echo "  Site asset ver:    $(ASSET_VERSION)  (header upper-right after deploy)"
+	@echo "  Header version:    Lightsail image rev (e.g. 45) — set at deploy, shown upper-right"
 	@echo "  AWS account:       $(AWS_ACCOUNT_ID)"
 	@echo "  AWS region:        $(AWS_REGION)"
 	@echo "  Lightsail service: $(LIGHTSAIL_SERVICE)"

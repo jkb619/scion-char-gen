@@ -1213,6 +1213,21 @@ textarea.has-doc-hint:focus-visible {
   letter-spacing: 0.02em;
 }
 
+.calling-knack-motm-subpool-title--named {
+  font-size: 0.85rem;
+  font-weight: 750;
+  color: var(--text);
+}
+
+.calling-knack-motm-subpool-help {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+}
+
+.calling-knack-motm-twin-pool + .calling-knack-motm-twin-pool {
+  margin-top: 0.65rem;
+}
+
 .calling-visitation-hero-intro {
   margin: 0 0 0.4rem;
 }

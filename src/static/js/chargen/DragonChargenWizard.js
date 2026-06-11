@@ -3056,7 +3056,7 @@ export function renderDragonHeirStepInRoot(ctx) {
       const on = d.callingKnackIds.includes(kid);
       if (!baseOk && !on) continue;
       if (!on && finishingKnackSet.has(kid)) continue;
-      const tok = knackCallingTokensForRowMatch(k, shell);
+      const tok = knackCallingTokensForRowMatch(k, shell, bundle);
       let key = /** @type {number | "any"} */ ("any");
       if (tok !== null) {
         let placed = false;

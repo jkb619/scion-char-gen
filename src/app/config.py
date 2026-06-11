@@ -12,7 +12,7 @@ STATIC_DIR = SRC_DIR / "static"
 
 
 def _resolve_asset_version() -> str:
-    """Git short SHA for cache-bust + header label; override with ASSET_VERSION env (Docker build)."""
+    """Lightsail image rev (e.g. 45 from :scion-chargen.app.45) via ASSET_VERSION env at deploy; local fallback."""
     env = os.environ.get("ASSET_VERSION", "").strip()
     if env:
         return env

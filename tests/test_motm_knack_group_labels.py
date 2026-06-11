@@ -37,14 +37,30 @@ def motm_calling_pair_for_row(calling_id: str, callings: dict) -> dict | None:
     }
 
 
-def motm_knack_subpool_section_title(sub_key: str, pair: dict, anchor: str) -> str:
-    if sub_key == "inverted":
-        tag = "your Calling" if anchor == pair["invertedId"] else "MotM inverted"
-        return f"Inverted — {pair['invName']} ({tag})"
+def motm_twin_knack_pool_section_title(sub_key: str, pair: dict, anchor: str) -> str:
     if sub_key == "standard-twin":
-        tag = "your Calling" if anchor == pair["standardId"] else "standard twin"
-        return f"{pair['stdName']} ({tag})"
+        yours = " (your Calling)" if anchor == pair["standardId"] else ""
+        return f"{pair['stdName']}{yours}"
+    if sub_key == "inverted":
+        yours = " (your Calling)" if anchor == pair["invertedId"] else ""
+        return f"{pair['invName']}{yours}"
     return ""
+
+
+def motm_twin_knack_pool_order(anchor: str, pair: dict) -> list[str]:
+    if anchor == pair["invertedId"]:
+        return ["inverted", "standard-twin"]
+    if anchor == pair["standardId"]:
+        return ["standard-twin", "inverted"]
+    return ["standard-twin", "inverted"]
+
+
+def test_motm_twin_pool_order_puts_your_calling_first():
+    callings = json.loads(CALLINGS_PATH.read_text(encoding="utf-8"))
+    pair = motm_calling_pair_for_row("cosmos", callings)
+    assert pair is not None
+    assert motm_twin_knack_pool_order("cosmos", pair) == ["inverted", "standard-twin"]
+    assert motm_twin_knack_pool_order("sage", pair) == ["standard-twin", "inverted"]
 
 
 def test_cosmos_row_labels_inverted_as_yours():
@@ -53,5 +69,7 @@ def test_cosmos_row_labels_inverted_as_yours():
     assert pair is not None
     assert pair["invertedId"] == "cosmos"
     assert pair["standardId"] == "sage"
-    assert motm_knack_subpool_section_title("inverted", pair, "cosmos") == "Inverted — Cosmos (your Calling)"
-    assert motm_knack_subpool_section_title("standard-twin", pair, "cosmos") == "Sage (standard twin)"
+    assert motm_twin_knack_pool_section_title("inverted", pair, "cosmos") == "Cosmos (your Calling)"
+    assert motm_twin_knack_pool_section_title("standard-twin", pair, "cosmos") == "Sage"
+    assert motm_twin_knack_pool_section_title("standard-twin", pair, "sage") == "Sage (your Calling)"
+    assert motm_twin_knack_pool_section_title("inverted", pair, "sage") == "Cosmos"

@@ -32,6 +32,7 @@ import {
   heroCallingRowMatchesKnack,
   knackCallingTokensForRowMatch,
   originCallingKnackChipGroupKey,
+  countOriginSelectedCallingKnacks,
   knackRuleTier,
   knackTierBadgeClass,
   knackTierBadgeLabel,
@@ -52,10 +53,14 @@ import {
   isMythosStandardTwinCallingId,
   motmInvertedKnackSubpoolKey,
   dedupeMotmTwinKnackSubpoolLists,
+  splitMotmKnackEntriesBySubpool,
   heroKnackChipBucketKey,
   heroKnackChipPanelBucketKeys,
   motmCallingPairForRow,
   motmKnackSubpoolSectionTitle,
+  motmTwinKnackPoolSectionTitle,
+  motmTwinKnackPoolSectionHelp,
+  motmTwinKnackPoolOrder,
   motmCallingKnackGroupTitle,
   isSorcererLineTierId,
   isGeneralCallingKnack,
@@ -2299,8 +2304,25 @@ function ensureCallingSlotsForHero() {
   syncCallingAggregatesFromHeroSlots();
 }
 
+/** When a patron is set but pantheon was cleared, infer pantheon from bundle (MotM knack gates, Paths UI). */
+function syncPantheonFromParentDeity() {
+  if (String(character?.pantheonId ?? "").trim()) return;
+  const patron = String(character?.parentDeityId ?? "").trim();
+  if (!patron || !bundle?.pantheons) return;
+  const kind = String(character?.patronKind ?? "deity").trim() === "titan" ? "titans" : "deities";
+  for (const [pid, pant] of Object.entries(bundle.pantheons)) {
+    if (!pid || pid.startsWith("_") || !pant || typeof pant !== "object") continue;
+    const rows = Array.isArray(pant[kind]) ? pant[kind] : [];
+    if (rows.some((d) => d && String(d.id ?? "").trim() === patron)) {
+      character.pantheonId = pid;
+      return;
+    }
+  }
+}
+
 /** If the parent deity restricts Callings, ensure `character.callingId` is one of them. */
 function syncCallingToParentDeity() {
+  syncPantheonFromParentDeity();
   if (!bundle?.callings) return;
   const allowed = callingIdsAllowedForCharacter();
   if (heroUsesCallingSlots()) {
@@ -5757,8 +5779,63 @@ function appendMotmCallingRowHint(section, rid, pair) {
   const hint = document.createElement("p");
   hint.className = "help calling-knack-motm-row-hint";
   const cname = bundle.callings[rid]?.name || rid;
-  hint.textContent = `${cname} shares a MotM pair with ${pair.stdName} (standard) and ${pair.invName} (inverted). Knacks are grouped below by pool — inverted Mythos knacks vs standard ${pair.stdName} knacks.`;
+  hint.textContent = `${cname} shares a MotM pair with ${pair.stdName} (standard) and ${pair.invName} (inverted). Knacks are grouped below by Calling pool — ${pair.stdName} vs ${pair.invName}.`;
   section.appendChild(hint);
+}
+
+/**
+ * MotM paired Calling: two peer knack sections (e.g. Sage and Cosmos), each with its own heading.
+ * @param {HTMLElement} parent
+ * @param {NonNullable<ReturnType<typeof splitMotmKnackEntriesBySubpool>>} split
+ * @param {string} anchorCallingId
+ * @param {{ appendChip: (container: HTMLElement, kid: string, k: Record<string, unknown>) => void; budgetSuffix?: string }} opts
+ */
+function appendMotmTwinKnackPoolSections(parent, split, anchorCallingId, opts) {
+  const appendChip = opts.appendChip;
+  const poolItems = /** @type {Record<"standard-twin" | "inverted", [string, Record<string, unknown>][]>} */ ({
+    "standard-twin": split.standard,
+    inverted: split.inverted,
+  });
+  for (const subKey of motmTwinKnackPoolOrder(anchorCallingId, split.pair)) {
+    const items = poolItems[subKey];
+    if (!items.length) continue;
+    const section = document.createElement("div");
+    section.className = "calling-knack-chip-group calling-knack-motm-twin-pool";
+    const head = document.createElement("h3");
+    head.className = "calling-knack-chip-group-title";
+    let title = motmTwinKnackPoolSectionTitle(subKey, split.pair, anchorCallingId);
+    if (opts.budgetSuffix) title = `${title} — ${opts.budgetSuffix}`;
+    head.textContent = title;
+    section.appendChild(head);
+    const help = document.createElement("p");
+    help.className = "help";
+    help.textContent = motmTwinKnackPoolSectionHelp(subKey);
+    section.appendChild(help);
+    const chipWrap = document.createElement("div");
+    chipWrap.className = "calling-knack-chip-group-body";
+    const chips = document.createElement("div");
+    chips.className = "chips chips--calling-knack-subgroup";
+    for (const [kid, k] of items) appendChip(chips, kid, k);
+    chipWrap.appendChild(chips);
+    section.appendChild(chipWrap);
+    parent.appendChild(section);
+  }
+  if (split.other.length) {
+    const section = document.createElement("div");
+    section.className = "calling-knack-chip-group";
+    const head = document.createElement("h3");
+    head.className = "calling-knack-chip-group-title";
+    head.textContent = "Other Calling knacks";
+    section.appendChild(head);
+    const chipWrap = document.createElement("div");
+    chipWrap.className = "calling-knack-chip-group-body";
+    const chips = document.createElement("div");
+    chips.className = "chips chips--calling-knack-subgroup";
+    for (const [kid, k] of split.other) appendChip(chips, kid, k);
+    chipWrap.appendChild(chips);
+    section.appendChild(chipWrap);
+    parent.appendChild(section);
+  }
 }
 
 /**
@@ -5797,21 +5874,32 @@ function appendKnackChipsWithMotmSubpools(parent, list, rowCallingId, opts) {
     const sub = document.createElement("div");
     sub.className = "calling-knack-motm-subpool";
     const h4 = document.createElement("h4");
-    h4.className = "calling-knack-motm-subpool-title";
-    h4.textContent = motmKnackSubpoolSectionTitle(subKey, pair, cid);
+    h4.className = "calling-knack-motm-subpool-title calling-knack-motm-subpool-title--named";
+    h4.textContent = motmTwinKnackPoolSectionTitle(subKey, pair, cid);
     sub.appendChild(h4);
+    const subHelp = document.createElement("p");
+    subHelp.className = "help calling-knack-motm-subpool-help";
+    subHelp.textContent = motmTwinKnackPoolSectionHelp(subKey);
+    sub.appendChild(subHelp);
     const chips = document.createElement("div");
     chips.className = "chips chips--calling-knack-subgroup";
     for (const [kid, k] of items) appendChip(chips, kid, k);
     sub.appendChild(chips);
     parent.appendChild(sub);
   };
-  addSubpool("inverted", inverted);
-  addSubpool("standard-twin", standard);
+  for (const subKey of motmTwinKnackPoolOrder(cid, pair)) {
+    addSubpool(subKey, subKey === "inverted" ? inverted : standard);
+  }
   if (other.length) {
     const chips = document.createElement("div");
     chips.className = "chips chips--calling-knack-subgroup";
     for (const [kid, k] of other) appendChip(chips, kid, k);
+    parent.appendChild(chips);
+  }
+  if (!inverted.length && !standard.length && !other.length && list.length) {
+    const chips = document.createElement("div");
+    chips.className = "chips chips--calling-knack-subgroup";
+    for (const [kid, k] of list) appendChip(chips, kid, k);
     parent.appendChild(chips);
   }
 }
@@ -5960,6 +6048,15 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
     for (const key of order) {
       const list = buckets.get(key) || [];
       if (!list.length) continue;
+      if (key === "selected") {
+        const split = splitMotmKnackEntriesBySubpool(list, character, originCallingId, bundle);
+        if (split && (split.standard.length || split.inverted.length)) {
+          appendMotmTwinKnackPoolSections(knackSec, split, originCallingId, {
+            appendChip: (container, kid, k) => appendExpKnackChip(container, kid, k),
+          });
+          continue;
+        }
+      }
       const section = document.createElement("div");
       section.className = "calling-knack-chip-group";
       const head = document.createElement("h3");
@@ -6002,6 +6099,7 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
 }
 
 function renderCalling(root) {
+  syncPantheonFromParentDeity();
   syncCallingToParentDeity();
   if (heroUsesCallingSlotRows(character)) {
     healLockedKnackIdsFromTierAdvancement();
@@ -6544,6 +6642,24 @@ function renderCalling(root) {
     const order = /** @type {("selected" | "any")[]} */ (["selected", "any"]);
     for (const key of order) {
       const list = buckets.get(key) || [];
+      const cap = callingKnackSlotCap(character);
+      let used = 0;
+      for (const id of character.knackIds || []) {
+        used += knackRowBudgetCost(character, id, bundle);
+      }
+      if (key === "selected" && list.length > 0) {
+        const split = splitMotmKnackEntriesBySubpool(list, character, originCallingId, bundle);
+        if (split && (split.standard.length || split.inverted.length)) {
+          const budgetLine = document.createElement("p");
+          budgetLine.className = "help calling-knack-motm-budget";
+          budgetLine.textContent = `Calling knack budget: ${used}/${cap} knack points — pick one Knack from either pool below.`;
+          knackPanel.appendChild(budgetLine);
+          appendMotmTwinKnackPoolSections(knackPanel, split, originCallingId, {
+            appendChip: (container, kid, k) => appendKnackChip(container, kid, k),
+          });
+          continue;
+        }
+      }
       const section = document.createElement("div");
       section.className = "calling-knack-chip-group";
       const head = document.createElement("h3");
@@ -6551,11 +6667,6 @@ function renderCalling(root) {
       if (key === "any") {
         head.textContent = GENERAL_CALLING_LABEL;
       } else {
-        const cap = callingKnackSlotCap(character);
-        let used = 0;
-        for (const id of character.knackIds || []) {
-          used += knackRowBudgetCost(character, id, bundle);
-        }
         head.textContent = motmCallingKnackGroupTitle(originCallingId, bundle, {
           yourCalling: true,
           budgetSuffix: `${used}/${cap} knack points`,
@@ -6570,10 +6681,23 @@ function renderCalling(root) {
       if (list.length === 0) {
         const empty = document.createElement("p");
         empty.className = "help";
-        empty.textContent =
-          key === "selected" && originCallingId === "monster"
-            ? "Scion: Origin has no Mortal Monster Knack list — pick a different Calling for your one Origin Knack, or wait until Hero for Monster Knacks from Pandora's Box."
-            : "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
+        if (key === "selected" && originCallingId === "monster") {
+          empty.textContent =
+            "Scion: Origin has no Mortal Monster Knack list — pick a different Calling for your one Origin Knack, or wait until Hero for Monster Knacks from Pandora's Box.";
+        } else if (key === "selected" && originCallingId) {
+          const eligibleN = countOriginSelectedCallingKnacks(character, bundle);
+          const mythos = isMythosPantheonSelected();
+          const patron = String(character.parentDeityId || "").trim();
+          empty.textContent =
+            eligibleN > 0
+              ? "Knacks match your Calling in data but were filtered from this panel — try a hard refresh after deploy, or clear Finishing extra Knacks that shadow these picks."
+              : mythos || patron
+                ? `No Origin Knacks match ${bundle.callings[originCallingId]?.name || originCallingId} with your current Paths (Mythos/Cthulhu uses the Sage↔Cosmos paired pool). Confirm tier is Mortal/Origin and patron is set on Paths.`
+                : "Set Mythos pantheon and your divine parent on Paths first — Cosmos Knacks need the MotM Sage/Cosmos pair (Masks of the Mythos p. 46).";
+        } else {
+          empty.textContent =
+            "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
+        }
         chipWrap.appendChild(empty);
       } else if (key === "selected") {
         appendKnackChipsWithMotmSubpools(chipWrap, list, originCallingId || undefined, {
@@ -6610,6 +6734,15 @@ function renderCalling(root) {
       const order = /** @type {("selected" | "any")[]} */ (["selected", "any"]);
       for (const key of order) {
         const list = buckets.get(key) || [];
+        if (key === "selected" && list.length > 0) {
+          const split = splitMotmKnackEntriesBySubpool(list, character, originCallingId, bundle);
+          if (split && (split.standard.length || split.inverted.length)) {
+            appendMotmTwinKnackPoolSections(knackPanel, split, originCallingId, {
+              appendChip: (container, kid, k) => appendKnackChip(container, kid, k),
+            });
+            continue;
+          }
+        }
         const section = document.createElement("div");
         section.className = "calling-knack-chip-group";
         const head = document.createElement("h3");
@@ -8032,6 +8165,15 @@ function renderFinishing(root) {
         }
         for (const key of /** @type {("selected" | "any")[]} */ (["selected", "any"])) {
           const list = finBuckets.get(key) || [];
+          if (key === "selected" && list.length > 0) {
+            const split = splitMotmKnackEntriesBySubpool(list, character, originCallingId, bundle);
+            if (split && (split.standard.length || split.inverted.length)) {
+              appendMotmTwinKnackPoolSections(knBr, split, originCallingId, {
+                appendChip: (container, kid, k) => appendFinishingKnackChip(container, kid, k),
+              });
+              continue;
+            }
+          }
           const section = document.createElement("div");
           section.className = "calling-knack-chip-group finishing-extra-knack-group";
           const head = document.createElement("h3");
@@ -9826,9 +9968,15 @@ function normalizeCharacterStateAfterLoad() {
   }
   syncLegendToTier();
   character.patronKind = String(character.patronKind ?? "deity").trim().toLowerCase() === "titan" ? "titan" : "deity";
+  syncPantheonFromParentDeity();
   const pantNorm = bundle?.pantheons?.[character.pantheonId];
-  if (pantNorm && character.parentDeityId) {
-    const okPat = patronListForPantheon(pantNorm).some((d) => d && d.id === character.parentDeityId);
+  if (character.parentDeityId) {
+    let okPat = pantNorm && patronListForPantheon(pantNorm).some((d) => d && d.id === character.parentDeityId);
+    if (!okPat) {
+      syncPantheonFromParentDeity();
+      const pantRetry = bundle?.pantheons?.[character.pantheonId];
+      okPat = pantRetry && patronListForPantheon(pantRetry).some((d) => d && d.id === character.parentDeityId);
+    }
     if (!okPat) character.parentDeityId = "";
   }
   syncAwarenessWithPantheon();

@@ -20,15 +20,55 @@ MYTHOS_NORMAL = frozenset(MOTM_STANDARD_TO_INVERTED.keys())
 MYTHOS_UNPAIRED = frozenset(_CALLINGS_META.get("motmUnpairedCallings") or [])
 
 
+def character_has_motm_inverted_calling(character: dict) -> bool:
+    cid = (character.get("callingId") or "").strip()
+    if cid and is_inverted_twin(cid):
+        return True
+    slots = character.get("callingSlots")
+    if isinstance(slots, list):
+        for s in slots:
+            if isinstance(s, dict):
+                sid = (s.get("id") or "").strip()
+                if sid and is_inverted_twin(sid):
+                    return True
+    return False
+
+
+def parent_deity_pantheon_id(character: dict) -> str:
+    patron = (character.get("parentDeityId") or "").strip()
+    if not patron:
+        return ""
+    pantheons = json.loads(PANTHEONS_PATH.read_text(encoding="utf-8"))
+    for pid, pant in pantheons.items():
+        if not pid or pid.startswith("_") or not isinstance(pant, dict):
+            continue
+        for key in ("deities", "titans"):
+            rows = pant.get(key) or []
+            if any(isinstance(d, dict) and (d.get("id") or "").strip() == patron for d in rows):
+                return pid
+    return ""
+
+
+def character_has_motm_standard_twin_calling(character: dict) -> bool:
+    cid = (character.get("callingId") or "").strip()
+    if cid and is_standard_twin(cid):
+        return True
+    slots = character.get("callingSlots")
+    if isinstance(slots, list):
+        for s in slots:
+            if isinstance(s, dict):
+                sid = (s.get("id") or "").strip()
+                if sid and is_standard_twin(sid):
+                    return True
+    return False
+
+
 def is_mythos_for_character(character: dict) -> bool:
     if (character.get("pantheonId") or "").strip() == "mythos":
         return True
-    patron = (character.get("parentDeityId") or "").strip()
-    if not patron:
-        return False
-    pantheons = json.loads(PANTHEONS_PATH.read_text(encoding="utf-8"))
-    deities = pantheons.get("mythos", {}).get("deities") or []
-    return any(d.get("id") == patron for d in deities)
+    if character_has_motm_inverted_calling(character):
+        return True
+    return parent_deity_pantheon_id(character) == "mythos"
 
 
 def pantheon_id_for_knack_gates(character: dict) -> str:
@@ -63,18 +103,37 @@ def motm_knack_access_twin(calling_id: str, mythos_pantheon: bool) -> str | None
     return None
 
 
-def expand_motm(knack: dict, callings: list[str]) -> list[str]:
+def expand_motm_knack_access(knack: dict, callings: list[str], character: dict) -> list[str]:
+    mythos_pan = (
+        is_mythos_for_character(character)
+        or character_has_motm_inverted_calling(character)
+        or (
+            character_has_motm_standard_twin_calling(character)
+            and parent_deity_pantheon_id(character) == "mythos"
+        )
+    )
     kid = str(knack.get("id") or "")
     pant = knack.get("pantheonAnyOf") or []
     motm_knack = kid.startswith("mythos_") or "mythos" in pant
-    if not motm_knack:
-        return callings
     out = set(callings)
-    for cid in callings:
-        twin = mythos_twin(cid)
-        if twin:
-            out.add(twin)
+    if motm_knack or mythos_pan:
+        for cid in callings:
+            twin = mythos_twin(cid)
+            if twin:
+                out.add(twin)
+    else:
+        for cid in callings:
+            if is_inverted_twin(cid):
+                twin = mythos_twin(cid)
+                if twin:
+                    out.add(twin)
     return list(out)
+
+
+def expand_motm(knack: dict, callings: list[str], character: dict | None = None) -> list[str]:
+    if character is None:
+        character = {}
+    return expand_motm_knack_access(knack, callings, character)
 
 
 def knack_raw_calling_list(knack: dict) -> list[str]:
@@ -111,7 +170,7 @@ def knack_calling_tokens_for_row_match(knack: dict, character: dict) -> set[str]
     raw = knack_raw_calling_list(knack)
     if not raw:
         return set()
-    return set(expand_motm(knack, raw))
+    return set(expand_motm_knack_access(knack, raw, character))
 
 
 def origin_calling_knack_chip_group_key(knack: dict, character: dict) -> str:
@@ -158,7 +217,7 @@ def motm_inverted_chargen_knack_at_origin(knack: dict, character: dict) -> bool:
     raw = knack_raw_calling_list(knack)
     if not raw:
         return False
-    expanded = set(expand_motm(knack, raw))
+    expanded = set(expand_motm_knack_access(knack, raw, character))
     char_callings = set()
     cid = (character.get("callingId") or "").strip()
     if cid:
@@ -181,7 +240,7 @@ def knack_eligible(knack: dict, character: dict) -> bool:
     if knack.get("callingsAny") or knack.get("calling") == "any":
         pass
     else:
-        allowed = set(expand_motm(knack, knack_raw_calling_list(knack)))
+        allowed = set(expand_motm_knack_access(knack, knack_raw_calling_list(knack), character))
         char_callings = set()
         cid = (character.get("callingId") or "").strip()
         if cid:
@@ -215,7 +274,7 @@ def knack_eligible_mortal(knack: dict, character: dict) -> bool:
     if knack.get("callingsAny") or knack.get("calling") == "any":
         pass
     else:
-        allowed = set(expand_motm(knack, knack_raw_calling_list(knack)))
+        allowed = set(expand_motm_knack_access(knack, knack_raw_calling_list(knack), character))
         char_callings = set()
         cid = (character.get("callingId") or "").strip()
         if cid:
@@ -612,6 +671,36 @@ def test_sage_origin_mythos_subpool_includes_psychic_attack():
     assert len(standard) >= 7
 
 
+def test_sage_mythos_patron_without_pantheon_id_shows_inverted_knacks():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "mortal",
+        "callingId": "sage",
+        "pantheonId": "",
+        "parentDeityId": "greenishFlame",
+        "knackIds": [],
+    }
+    assert is_mythos_for_character(character)
+    assert knack_eligible_mortal(knacks["mythos_psychic_attack"], character)
+    sub = motm_inverted_knack_subpool_key(
+        knacks["mythos_psychic_attack"], character, "sage", "mythos_psychic_attack"
+    )
+    assert sub == "inverted"
+
+
+def test_greek_sage_does_not_get_mythos_inverted_knacks():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "mortal",
+        "callingId": "sage",
+        "pantheonId": "greek",
+        "parentDeityId": "zeus",
+        "knackIds": [],
+    }
+    assert not is_mythos_for_character(character)
+    assert not knack_eligible_mortal(knacks["mythos_psychic_attack"], character)
+
+
 def test_sage_origin_mythos_shows_inverted_cosmos_knacks():
     knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
     character = {
@@ -675,7 +764,7 @@ def test_origin_mortal_general_calling_knacks():
 
 def motm_inverted_knack_subpool_key(knack: dict, character: dict, row_calling_id: str, knack_id: str) -> str | None:
     cid = (row_calling_id or character.get("callingId") or "").strip()
-    if not cid or (character.get("pantheonId") or "").strip() != "mythos":
+    if not cid:
         return None
     twin = mythos_twin(cid)
     if not twin or (not is_inverted_twin(cid) and not is_standard_twin(cid)):
@@ -954,6 +1043,62 @@ def test_motm_cosmos_only_row_shows_twin_pool():
     psychic = knacks["mythos_psychic_attack"]
     assert hero_knack_chip_panel_bucket_keys(blockade, character) == [2]
     assert hero_knack_chip_panel_bucket_keys(psychic, character) == [2]
+
+
+def test_cosmos_motm_subpool_splits_sage_and_inverted():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "mortal",
+        "callingId": "cosmos",
+        "pantheonId": "mythos",
+        "knackIds": [],
+    }
+    inverted = []
+    standard = []
+    for kid, row in knacks.items():
+        if kid.startswith("_"):
+            continue
+        if not knack_eligible_mortal(row, character):
+            continue
+        if origin_calling_knack_chip_group_key(row, character) != "selected":
+            continue
+        sub = motm_inverted_knack_subpool_key(row, character, "cosmos", kid)
+        if sub == "inverted":
+            inverted.append(kid)
+        elif sub == "standard-twin":
+            standard.append(kid)
+    assert "mythos_psychic_attack" in inverted
+    assert len(standard) >= 7
+    assert all(kid.startswith("sage_") for kid in standard)
+
+
+def test_cosmos_calling_only_implies_mythos_for_sage_knacks():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "mortal",
+        "callingId": "cosmos",
+        "pantheonId": "",
+        "parentDeityId": "",
+        "knackIds": [],
+    }
+    assert is_mythos_for_character(character)
+    assert knack_eligible_mortal(knacks["sage_blockade_of_reason"], character)
+    assert knack_eligible_mortal(knacks["mythos_psychic_attack"], character)
+
+
+def test_sage_origin_knack_eligible_for_cosmos_via_knack_side_twin_expand():
+    """PB Sage Mortal rows list callings: [sage] only — Cosmos must match via MotM twin on the knack row."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "mortal",
+        "callingId": "cosmos",
+        "pantheonId": "mythos",
+        "parentDeityId": "cthulhu",
+        "knackIds": [],
+    }
+    sage_knack = knacks["sage_blockade_of_reason"]
+    assert "cosmos" in expand_motm_knack_access(sage_knack, ["sage"], character)
+    assert knack_eligible_mortal(sage_knack, character)
 
 
 def test_cthulhu_mortal_cosmos_knacks_without_explicit_pantheon():
