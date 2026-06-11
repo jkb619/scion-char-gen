@@ -1,0 +1,751 @@
+{
+  "_meta": {
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf pp. 154–175 (Dominion / Dominion Stunts)",
+    "note": "Regenerate: python3 src/scripts/extract_demigod_dominion_stunts.py",
+    "entryCount": 93
+  },
+  "artistry_dominion_lasting_record": {
+    "id": "artistry_dominion_lasting_record",
+    "purview": "artistry",
+    "name": "Lasting Record",
+    "successCost": "2s",
+    "description": "By applying the Demigod's art, the using character recreates some or all of an investigative scene. This allows the character to pause or suspend a complex investigation and return to it at any point in time later, without having to worry about clues or leads deteriorating due to time constraints.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "artistry_dominion_swelling_crescendo": {
+    "id": "artistry_dominion_swelling_crescendo",
+    "purview": "artistry",
+    "name": "Swelling Crescendo",
+    "successCost": "Variable",
+    "description": "Vibrant abstract art or beautiful resonant sound surrounds you, encouraging your allies to work harder and fight better. Each success spent on this stunt creates a Teamwork enhancement to one type of action of your choosing (attack rolls, crafting rolls, etc.).",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "artistry_dominion_visible_choir": {
+    "id": "artistry_dominion_visible_choir",
+    "purview": "artistry",
+    "name": "Visible Choir",
+    "successCost": "3s",
+    "description": "Create a condition of Glorious Art on yourself or another character, representing them weaving song, poesy, or oration as you act, turning the scene into a growing work of living art. Characters of lower Tier",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beasts_dominion_fluid_form": {
+    "id": "beasts_dominion_fluid_form",
+    "purview": "beasts",
+    "name": "Fluid Form",
+    "successCost": "1s or 3s",
+    "description": "If the user of the stunt is a Scion with the Beasts Purview, they may use this stunt to add an additional trait with Animal Aspect (Scion: Hero, pg. 241). For 3s, any other allied character may use this stunt in place of the Boon, taking on animal traits as noted.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beasts_dominion_the_world_s_army": {
+    "id": "beasts_dominion_the_world_s_army",
+    "purview": "beasts",
+    "name": "The World's Army",
+    "successCost": "variable",
+    "description": "Summon a Creature (as per the birthright) with a dot rating equal to the number of successes spent on this stunt. The summoned Creature aids you for the rest of the scene. If the same scion invokes this Stunt again, any Creatures previously summoned by this stunt leave. Any other characters in the scene using this Stunt summon additional Creatures.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beasts_dominion_wild_whispers": {
+    "id": "beasts_dominion_wild_whispers",
+    "purview": "beasts",
+    "name": "Wild Whispers",
+    "successCost": "1s",
+    "description": "During Procedural play, for the rest of the scene characters apply this stunt to use the Extra",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beauty_dominion_enthralling_appearance": {
+    "id": "beauty_dominion_enthralling_appearance",
+    "purview": "beauty",
+    "name": "Enthralling Appearance",
+    "successCost": "3s",
+    "description": "The Scion may impart their love of a target's beauteous qualities onto a target (usually the target of an attack action or a social action.) The target gains the Shocked by Praise Complication, equal to the stunt value. If the target does not buy off Shocked by Praise, they cannot attack the Scion who applied it without spending Tension, and counts as being +1 Attitude toward the character. If the target is afflicted with this condition from multiple sources, add +1 to the Complication's value; they are not cumulative.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beauty_dominion_fast_friends": {
+    "id": "beauty_dominion_fast_friends",
+    "purview": "beauty",
+    "name": "Fast Friends",
+    "successCost": "2s",
+    "description": "Characters using this Stunt rapidly forge relationships with others who are drawn to their compelling beauty. Following any Social action, characters utilizing this stunt create a temporary (positive or negative) Bond with a rating equal to the stunt cost simply by interacting with them. The Bond lasts until the end of the session or until the benefits are resolved, whichever comes first.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "beauty_dominion_skin_deep": {
+    "id": "beauty_dominion_skin_deep",
+    "purview": "beauty",
+    "name": "Skin Deep",
+    "successCost": "2s",
+    "description": "When resisting an Encourage Behavior or Encourage Belief roll, the using character may apply this Stunt to ignore any Complications that may be penalizing the roll. This does not buy off the Complication, simply ignores its negative effects temporarily.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "chaos_dominion_bacchanal": {
+    "id": "chaos_dominion_bacchanal",
+    "purview": "chaos",
+    "name": "Bacchanal",
+    "successCost": "3s",
+    "description": "Apply this stunt to any Encourage Behavior roll to convince any target of the same Tier or lower to upend the norms of mores of their society and behave in a wild, chaotic, and rebellious manner. As long as this stunt is applied to the action, the Difficulty is treated as 0, unless the target has innate protection from violent, chaotic, or wild emotions, in which case it defaults to a Clash of Wills. If the character using this Stunt is a Demigod, the Tier restriction does not apply.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "chaos_dominion_chaotic_revelry": {
+    "id": "chaos_dominion_chaotic_revelry",
+    "purview": "chaos",
+    "name": "Chaotic Revelry",
+    "successCost": "1s",
+    "description": "Apply to any action. You may spend dice to supplement this action from the Collateral pool as if you had spent Momentum. This does not remove the dice from the pool. Then, roll the current value of Collateral Pool immediately after this action resolves.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "chaos_dominion_endless_vexation": {
+    "id": "chaos_dominion_endless_vexation",
+    "purview": "chaos",
+    "name": "Endless Vexation",
+    "successCost": "3s",
+    "description": "After an attack or social roll, inflict the target with 1c “Endlessly Vexed.” Any character who doesn't buy off Endlessly Vexed suffers it as a condition, and is mired in a thousand petty entropies that increases the Difficulty of all rolled actions by 1 until they resolve it by using a Simple action to shake free of the chaotic influence.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "chaos_dominion_ruinous_wake": {
+    "id": "chaos_dominion_ruinous_wake",
+    "purview": "chaos",
+    "name": "Ruinous Wake",
+    "successCost": "1s",
+    "description": "After resolving a Movement action, leave gratuitous destruction and confusion in your wake: destroy a mundane object you passed by, despoil a mortal place, embarassingly disable a character of a Tier lower than you, etc. The Demigod controls shadow and light levels, banishing sight and obscuring anything they wish to be hidden. Those around them find themselves accustomed to darkness and do not fear what might be within it.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "darkness_dominion_dream_thief": {
+    "id": "darkness_dominion_dream_thief",
+    "purview": "darkness",
+    "name": "Dream Thief",
+    "successCost": "2s",
+    "description": "Target an enemy with an attack. Steal a bit of the targets last dream, and wrap it around yourself like a cloak. While in combat, gain the benefit of Heavy (1) Armor, which does not stack with any other armor.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "darkness_dominion_dreamlike_atmosphere": {
+    "id": "darkness_dominion_dreamlike_atmosphere",
+    "purview": "darkness",
+    "name": "Dreamlike Atmosphere",
+    "successCost": "2s",
+    "description": "Transform the field around you with a mystifying, dreamlike quality. Apply to any Intrigue action and increase or decrease the • Extend a dying person or animal's life by your Legend in days. • Kill anything trivial, instantly. • Protect the vulnerable from untimely death (children, elderly, terminally ill, immunocompromised).",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "darkness_dominion_from_the_weft_of_dreams": {
+    "id": "darkness_dominion_from_the_weft_of_dreams",
+    "purview": "darkness",
+    "name": "From the Weft of Dreams",
+    "successCost": "2s or 4s",
+    "description": "During Procedural play, the character using this Stunt may touch a target and sift through their dreams to investigate hidden information. For 2s, the character may always use the Additional Clue or Interpretation stunts to access information that could only come from the target's subconscious. For 4s, this extends to complex investigations, allowing characters to interpret data from dreams in instants, rather than over long periods of time.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "darkness_dominion_shadow_puppets": {
+    "id": "darkness_dominion_shadow_puppets",
+    "purview": "darkness",
+    "name": "Shadow Puppets",
+    "successCost": "3s",
+    "description": "When making any complex action, summon animated constructs from the shadows of people or things around you. These Shadow Puppets assist with whatever task you are attempting, regardless of the area of action. They count as Followers (4) with the following tags: Entourage or Consultant; Archetype (choose one other type), Group, Helpful, Defensive. These puppets last until the end of the session or until the complex action is complete, whichever happens first. Upon achieving dominion, the Demigod controls total power over death itself. Their friends and allies, too, no longer fear the call of death.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "death_dominion_bring_them_all_back_to_life": {
+    "id": "death_dominion_bring_them_all_back_to_life",
+    "purview": "death",
+    "name": "Bring Them All Back to Life",
+    "successCost": "3 or 5s",
+    "description": "Apply this Stunt to any Occult roll. If the character using this stunt is the Demigod with the Death purview or a Bandmate, it costs 3s. If the character is an allied SGC, this costs 5s. Instantly reanimate any and all corpses of trivial targets in the same range band. They rise from their graves as obedient undead Followers with the following tags: Heavy, Mob, Tough. If the Stunt user does not have the Death Purview, they also gain Unruly but do not benefit from an increased Follower rating. The Followers persist until the end of the session, at which point they return to their eternal sleep.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "death_dominion_chains_of_damnation": {
+    "id": "death_dominion_chains_of_damnation",
+    "purview": "death",
+    "name": "Chains of Damnation",
+    "successCost": "3s",
+    "description": "Apply to any Encourage Behavior roll. The target gains the complication Haunted by the Past with a rating equal to the user's Tier+1. Any time the target attempts to block Influence and does not buy off this Complication, they must give into the encouraged behavior, or be haunted by the disapproving and furious spirits of their past.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "death_dominion_enervating_aura": {
+    "id": "death_dominion_enervating_aura",
+    "purview": "death",
+    "name": "Enervating Aura",
+    "successCost": "2s or 4s",
+    "description": "Apply to any attack action. The target gains the Enervated condition. While they have this condition, all attacks targeting the character are treated as though they have the Brutal tag. For 4s, the condition worsens, preventing the character from healing until the condition resolves. Resolve Enervated when the character is Taken Out or takes damage from a Critical Hit stunt.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "death_dominion_the_reaper_smiles": {
+    "id": "death_dominion_the_reaper_smiles",
+    "purview": "death",
+    "name": "The Reaper Smiles",
+    "successCost": "3s",
+    "description": "The Scion creates a Smiling Death condition on themselves. In combat, they may resolve this after defending. Force the enemy to resolve their attack action as a mixed action, using the lower of Integrity or Occult, as the target must overcome their fear of death. In Procedural play, they may resolve it when they discover the identity of a killer, a murder weapon used, or similar terminal information and regain 1 Legend. Demigods with dominion over Deception command the concept of truth and lies. They bless their allies with gifted, silver tongues, and alter meaning simply by being present.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "deception_dominion_decoy": {
+    "id": "deception_dominion_decoy",
+    "purview": "deception",
+    "name": "Decoy",
+    "successCost": "variable",
+    "description": "This stunt may be used as a placeholder for any other Stunt, allowing the player (or the Storyguide) to declare “Decoy” instead. Spend a number of successes on this Stunt equal to the copied Stunt's cost. Decoyed stunts may be activated at any point in time later, as long as this Dominion Boon is active. Each character with access to this boon may only Decoy one stunt at a time. Storyguides may veto a decoy on any stunt they feel would ruin the clarity of play. A player cannot be coy about declaring Inflict Injury, for example, but could use Decoy to delay damaging an enemy until after the fight is over.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "deception_dominion_liar_s_eye": {
+    "id": "deception_dominion_liar_s_eye",
+    "purview": "deception",
+    "name": "Liar's Eye",
+    "successCost": "1s",
+    "description": "Until the end of the scene, characters using this stunt during Procedural play may apply the Q&A stunts and the Interpretation stunts to always recognizes attempts to disguise or conceal evidence. While this Dominion stunt is active, Storyguides should include these possibilities in any answer to questions posed with those stunts. • Produce up to a bucketful of soil, sand, pebbles, and stones. • Command rocks or a single large boulder to move. Catastrophic Success: The earth quakes and rejoices in your success which does not harm anything serious (unless the roll causes the collateral pool to empty) and furthers the result of your roll. The ground craters around you or crystals/pillars erupt nearby — these further your success if applicable but otherwise do not appear in places that would cause harm. Mortal Failure: Inanimate objects in the area turn to stone until the end of the scene. Metals revert to ore. Glass crumbles into sand. An earthquake destroys something nearby even if the collateral pool did not empty.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "deception_dominion_many_faced_deceiver": {
+    "id": "deception_dominion_many_faced_deceiver",
+    "purview": "deception",
+    "name": "Many-Faced Deceiver",
+    "successCost": "2+s",
+    "description": "The character using this stunt refuses to adhere to the truth of a single identity, sowing confusion and bewilderment when interacting with them. During any Intrigue roll, reset a character's Attitude toward them to 0. This Stunt's cost increases by 1 for every time it has been applied during the same scene.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "deception_dominion_that_was_never_always_me": {
+    "id": "deception_dominion_that_was_never_always_me",
+    "purview": "deception",
+    "name": "That Was Never Always Me",
+    "successCost": "3s",
+    "description": "The stunt user bends the truth around them, deflecting attention. As a Defense stunt, enemies cannot target or affect the character without spending 1 Tension until the start of their next Turn.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "earth_dominion_lingering_footsteps": {
+    "id": "earth_dominion_lingering_footsteps",
+    "purview": "earth",
+    "name": "Lingering Footsteps",
+    "successCost": "1s",
+    "description": "Apply this stunt to any Procedural roll. Until the end of the scene, the using character may apply the Interpretation and Q&A stunts by picking up trace information left behind in dust, dirt, grass, mud, sand, etc. — even if the characters involved did not come into contact with anything directly earthen, they still leave behind similar forensic evidence so long as this Stunt is in play.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "earth_dominion_people_made_of_stone": {
+    "id": "earth_dominion_people_made_of_stone",
+    "purview": "earth",
+    "name": "People Made of Stone",
+    "successCost": "1s or 3s",
+    "description": "As a Defensive Stunt in combat, characters may spend 1s to give themselves Soft (1) Armor if they do not already have a source of Armor against a single attack. Outside of combat, characters may spend 3s to automatically resolve any disease-related Complication as though they had successfully bought off the Complication.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "earth_dominion_raise_the_earthen_barrier": {
+    "id": "earth_dominion_raise_the_earthen_barrier",
+    "purview": "earth",
+    "name": "Raise the Earthen Barrier",
+    "successCost": "3s",
+    "description": "After any Defense roll, the Scion can create Cover for themselves or anyone else in their range band. This may be Heavy Cover for a single target, or Light for multiple. Reigning supreme over stones, dirt, and ore, the Demigod rules the dominion of Earth. Their overwhelming earthen power empowers their friends and compatriots, hardening skin and shaping majestic works from clay.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "earth_dominion_shaped_from_clay": {
+    "id": "earth_dominion_shaped_from_clay",
+    "purview": "earth",
+    "name": "Shaped from Clay",
+    "successCost": "3s",
+    "description": "When making a roll to aid with a crafting project using earth, stone, or metal this stunt adds a free milestone. Any ally may take advantage of this free milestone, though it may only apply once per scene. With expert control over their body's movements, a Demigod with dominion over Epic Dexterity moves faster than lighting and lighter than the wind itself. They spread this fleetness to their friends and allies.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicDexterity_dominion_appealing_grace": {
+    "id": "epicDexterity_dominion_appealing_grace",
+    "purview": "epicDexterity",
+    "name": "Appealing Grace",
+    "successCost": "1s",
+    "description": "Apply this stunt to any Encourage Behavior or Encourage Belief roll, allowing the using character to retroactively express what they wish to communicate exclusively through graceful, evocative body movements (such as feats of acrobatics or dancing, etc.).",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicDexterity_dominion_faster_than_yourself": {
+    "id": "epicDexterity_dominion_faster_than_yourself",
+    "purview": "epicDexterity",
+    "name": "Faster Than Yourself",
+    "successCost": "3s",
+    "description": "The character's supernal speed allows them to doublecheck and readjust their own progress on the fly. In action-adventure scenes, they may use this stunt to reduce any one Complication affecting a ranged attack, movement action, or chase action by 2, to a minimum of 0, for the duration of the scene. This does not count as buying off the Complication, but suppresses the result of failing to do so when this stunt is applied. When this stunt is applied to a Complex Action, they may negate a previously failed Interval.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicDexterity_dominion_untouchable_opponent": {
+    "id": "epicDexterity_dominion_untouchable_opponent",
+    "purview": "epicDexterity",
+    "name": "Untouchable Opponent",
+    "successCost": "4s",
+    "description": "As a defensive Stunt, after spending the successes, the using character declares themselves out of range of a single attack, regardless of its ranged Tags, and may appear anywhere within Medium range of their starting position. Characters who do not have the Epic Dexterity Purview may only use this Stunt once per fight. With dominion over Epic Stamina, the Demigod ascends to a new level of durability. She spreads her unstoppable vigor to her allies, granting her friends nigh invulnerability.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStamina_dominion_adamantine_flesh": {
+    "id": "epicStamina_dominion_adamantine_flesh",
+    "purview": "epicStamina",
+    "name": "Adamantine Flesh",
+    "successCost": "3s",
+    "description": "As a defensive stunt, the Scion shakes off damage and suffering on a truly impressive level, or grants similar invulnerability to her allies. For the remainder of the round in which this Stunt is applied, the difficulty of your opponent's Inflict Damage and Critical stunts increases by 3, which stacks with any armor or existing Defense bonuses.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStamina_dominion_impossible_vitality": {
+    "id": "epicStamina_dominion_impossible_vitality",
+    "purview": "epicStamina",
+    "name": "Impossible Vitality",
+    "successCost": "2s",
+    "description": "During any Complex Action, you may use this Stunt to resolve an Injury condition.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStamina_dominion_unstoppable_chatter": {
+    "id": "epicStamina_dominion_unstoppable_chatter",
+    "purview": "epicStamina",
+    "name": "Unstoppable Chatter",
+    "successCost": "4s",
+    "description": "You talk without ceasing, giving your social opponent no room to get a word in edgewise. Apply this Stunt when you block Influence against one Encourage Behavior or Encourage Belief action targeting you. That roll counts has having 0 successes. There's nothing a Demigod the dominion of Epic Strength can't lift, break, or throw. Her epic might inspires those around her to similar, impossible feats.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStamina_dominion_untiring": {
+    "id": "epicStamina_dominion_untiring",
+    "purview": "epicStamina",
+    "name": "Untiring",
+    "successCost": "2s",
+    "description": "During any extended Complex Action including crafting projects or procedurals, any character applying this stunt does not suffer increased Difficulty or Complications from continuing the action no matter how much in-game time passes and can do so without sleeping, eating, or resting.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStrength_dominion_applied_force": {
+    "id": "epicStrength_dominion_applied_force",
+    "purview": "epicStrength",
+    "name": "Applied Force",
+    "successCost": "1s",
+    "description": "When making an Encourage Behavior or Encourage Belief roll, until the end of the Scene characters applying this stunt may make both those actions with aggressive, forceful, or violent physical actions without any need to use their words. This applied force can be figurative or literal, as the player decides.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStrength_dominion_fastball_special": {
+    "id": "epicStrength_dominion_fastball_special",
+    "purview": "epicStrength",
+    "name": "Fastball Special",
+    "successCost": "2s",
+    "description": "In a Chase after any Skill roll, your opponent loses a successful Lap as they are knocked back or you toss a comrade closer to them.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStrength_dominion_outta_here": {
+    "id": "epicStrength_dominion_outta_here",
+    "purview": "epicStrength",
+    "name": "Outta Here",
+    "successCost": "3s",
+    "description": "When you hit things, they don't stick around. Apply this stunt after any thrown or close combat attack action. Move a target up to Medium range away.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "epicStrength_dominion_wrestle_the_truth": {
+    "id": "epicStrength_dominion_wrestle_the_truth",
+    "purview": "epicStrength",
+    "name": "Wrestle the Truth",
+    "successCost": "1s",
+    "description": "For the duration the scene, characters utilizing this Stunt can apply the Additional Clue and Interpretation Stunts during any Procedural action in which they have physically clashed with the result — anything from physically prying information from a tome, or wrestling with an online scholarly journal, etc. The undisputed master of life and growth, a Demigod with the Fertility Dominion changes the outcome of lives with a thought and a gesture. Her allies, too, gain the ability to command what thrives and what dies.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fertility_dominion_blossoming_connection": {
+    "id": "fertility_dominion_blossoming_connection",
+    "purview": "fertility",
+    "name": "Blossoming Connection",
+    "successCost": "0s",
+    "description": "When spending a roleplay scene establishing or fueling a Bond, by spending the success on this stunt, the characters may increase the final success total by 1.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fertility_dominion_the_ripe_and_ruin": {
+    "id": "fertility_dominion_the_ripe_and_ruin",
+    "purview": "fertility",
+    "name": "The Ripe and Ruin",
+    "successCost": "1s",
+    "description": "During Procedural Play, whenever the character uses the Extra Clue or Q&A stunts during Analysis or Survey actions to determine clues or information pertaining to a target's life (relatives, lineage, overall health, etc.) or death, they gain two additional clues or may ask two additional questions.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fertility_dominion_withering_curse": {
+    "id": "fertility_dominion_withering_curse",
+    "purview": "fertility",
+    "name": "Withering Curse",
+    "successCost": "3s",
+    "description": "Apply this stunt after any attack or social action. An opponent or enemy suffers a Withering Curse complication (1c) on all actions that oppose you. If they fail to buy it off, they lose a health box, and gain an additional Condition as well. You may choose to resolve this Condition on any enemies affected this way at any time. The Demigod burns with unchecked passion and heat, searing through everything around them. Their fires rage within their allies, transforming them into devastating forces of nature.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fire_dominion_blazing_trail": {
+    "id": "fire_dominion_blazing_trail",
+    "purview": "fire",
+    "name": "Blazing Trail",
+    "successCost": "3s",
+    "description": "You move trailing glorious fire. This stunt may be applied to any close combat attack following a Rush action. Your attack gains the Arcing, Aggravated, and Brutal tags.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fire_dominion_burnout": {
+    "id": "fire_dominion_burnout",
+    "purview": "fire",
+    "name": "Burnout",
+    "successCost": "3s",
+    "description": "This stunt may apply to any Chase roll. Immediately create a Hazard (5c) your opponents must deal with.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fire_dominion_excessive_heat": {
+    "id": "fire_dominion_excessive_heat",
+    "purview": "fire",
+    "name": "Excessive Heat",
+    "successCost": "3s",
+    "description": "When blocking Influence, character may use this stunt to work themselves into a passionate frenzy and ignore the effects of a single Encourage Behavior or Encourage Belief action. They must, however, follow this by acting to fiery extremes. Characters without the Fire Purview may only use this Stunt once per Scene.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "forge_dominion_incomparable_gift": {
+    "id": "forge_dominion_incomparable_gift",
+    "purview": "forge",
+    "name": "Incomparable Gift",
+    "successCost": "3s",
+    "description": "When making any Social roll, you produce a gift for another character; if they accept it, their Attitude toward you immediately moves two steps more positive. If they reject it, regain a point of Legend.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "forge_dominion_instant_armory": {
+    "id": "forge_dominion_instant_armory",
+    "purview": "forge",
+    "name": "Instant Armory",
+    "successCost": "3s",
+    "description": "In combat, after any relevant combat roll (including Initiative) produce and equip yourself or an ally with any mundane weapon, armor, or useful material good. If the weapon doesn't feature Scale (Such as an anti-material rifle for shooting a Rok) it gains an additional 1 Enhancement.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "forge_dominion_precise_calculations": {
+    "id": "forge_dominion_precise_calculations",
+    "purview": "forge",
+    "name": "Precise Calculations",
+    "successCost": "1s",
+    "description": "For the duration the scene, characters utilizing this Stunt can apply the Extra Clue and Player Inspiration Stunts without cost during any Procedural action in which they have observed a physical object(s), or applied mathematical calculations to determine the outcome of a situation. Possessed with incomparable luck, Demigods with dominion over Fortune make their own fate. Those around them are blessed with consistent good luck or cursed with dreadful misfortune. Master of physical creations and metals, a Demigod with Forge dominion creates wonders from scraps. Their presence transforms rank amateurs into peerless craftspeople. • Win at any game of chance against a trivial target or target of lower Tier.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fortune_dominion_fool_s_gambit": {
+    "id": "fortune_dominion_fool_s_gambit",
+    "purview": "fortune",
+    "name": "Fool's Gambit",
+    "successCost": "variable",
+    "description": "Willingly fail the roll. Add 1 Momentum to the pool for every success you would have gotten, to a maximum of the Momentum pool max (twice the number of players). You do not gain Momentum as an additional Consolation for this failure. This failure",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fortune_dominion_frozen_path": {
+    "id": "fortune_dominion_frozen_path",
+    "purview": "fortune",
+    "name": "Frozen Path",
+    "successCost": "variable",
+    "description": "During a Chase, use this stunt to ignore any Hazards with a rating of equal to or lower than the number of successes spent on this Stunt.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fortune_dominion_swimming_uphill": {
+    "id": "fortune_dominion_swimming_uphill",
+    "purview": "fortune",
+    "name": "Swimming Uphill",
+    "successCost": "3s",
+    "description": "After any Asset Skill roll targeting another character, apply the Anchor of Fate Condition to the target. For each time the target gains Anchor of Fate, the target number for their next roll increases by 1 to a maximum of TN 9. Anchor of Fate resolves once the target makes a roll with the increased TN.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "fortune_dominion_theft_of_luck": {
+    "id": "fortune_dominion_theft_of_luck",
+    "purview": "fortune",
+    "name": "Theft of Luck",
+    "successCost": "3s",
+    "description": "After any Asset Skill roll targeting another character, impose the Dreadful Misfortune Condition on the target. At any time after applying this condition, the player who applied it may choose to resolve it, and then target fails the next roll they make automatically, granting the character the successes that were rolled as Enhancement to their next action. Characters may not use this to target other friendly characters, or themselves. The Condition lasts until resolved or until the end of the session, whichever comes first. Sovereign of cold and snow, the Demigod rules supreme over subzero temperatures. Her friends and allies need not fear the breath of winter.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "general_dominion_gift_of_power": {
+    "id": "general_dominion_gift_of_power",
+    "purview": null,
+    "name": "Gift of Power",
+    "successCost": "2s",
+    "description": "Apply to any Path, Patheon, or Knack Skill roll. Grant one target within your perceptions of the same Tier or lower who does not share a Purview with you the benefits of any of your Innate Abilities. This gift of power lasts until the end of the scene.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "health_dominion_blood_and_sweat": {
+    "id": "health_dominion_blood_and_sweat",
+    "purview": "health",
+    "name": "Blood and Sweat",
+    "successCost": "3s",
+    "description": "The character utilizing this stunt pours some of their own vitality into their work. During a craft project, use this stunt on any applicable roll to gain an additional completed milestone.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "health_dominion_cold_as_ice": {
+    "id": "health_dominion_cold_as_ice",
+    "purview": "health",
+    "name": "Cold as Ice",
+    "successCost": "2s",
+    "description": "Too cold to feel anything, the character using this stunt may ignore the effects of any Shift Attitude action, or may use this Stunt to reset their Attitude to 0.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "health_dominion_girded_in_winter": {
+    "id": "health_dominion_girded_in_winter",
+    "purview": "health",
+    "name": "Girded in Winter",
+    "successCost": "3s",
+    "description": "As a defensive Stunt, gain Hard (3) Armor of ice and cold. When an enemy attack fills the last Injury that can be absorbed by the frost armor, the",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "health_dominion_shared_vitality": {
+    "id": "health_dominion_shared_vitality",
+    "purview": "health",
+    "name": "Shared Vitality",
+    "successCost": "3 or 5s",
+    "description": "Remove an Injury Condition from a friendly character in return for placing a Bruised Condition on yourself. As Stunt 5, place the Bruised Condition on an enemy character in the same range band as you instead.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "health_dominion_soothing_words": {
+    "id": "health_dominion_soothing_words",
+    "purview": "health",
+    "name": "Soothing Words",
+    "successCost": "3s",
+    "description": "Heal all ailments and maladies afflicting a target with nothing but words. If the target has a negative Attitude toward the character, set it to 0. If the target has a positive Attitude, increase it by 1. The Demigod knows the destination no matter what pathways she treads. Her wayfinding guides those around her, who never lose their way.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "journeys_dominion_calling_shotgun": {
+    "id": "journeys_dominion_calling_shotgun",
+    "purview": "journeys",
+    "name": "Calling Shotgun",
+    "successCost": "2s",
+    "description": "When making a movement action, rather than move as normal instead instantly move to any range band along with one consenting character in the current Field, whisked away by passing illusory vehicles.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "journeys_dominion_rendezvous": {
+    "id": "journeys_dominion_rendezvous",
+    "purview": "journeys",
+    "name": "Rendezvous",
+    "successCost": "2s",
+    "description": "At any time while the character is making a journey, following any applicable roll she may use this stunt to allow any number of Bandmates or allied characters to join her mid-trip, even if it's geographically or physically unlikely.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "journeys_dominion_take_the_wheel": {
+    "id": "journeys_dominion_take_the_wheel",
+    "purview": "journeys",
+    "name": "Take the Wheel",
+    "successCost": "1s",
+    "description": "When using an Encourage Behavior action to convince a target to partake on a journey or to take control, ownership, or leadership of something, the target cannot gain Enhancement to their opposed dice pool higher than +1. Demigods with dominion over the Moon purview command the pale, shifting light of the moon, illuminating dark places and controlling the movement of light and shadow. Their allies are driven to shift and change like the moon itself. • Fade in and out of the perceptions of trivial targets. Catastrophic Success: Soak everything in shifting light and shadow, casting the field into a moonlit night. If it would further your success, hidden things become visible and things in the open become concealed. Mortal Failure: Cause sudden uncontrollable change around you. People suddenly wear clothes for the wrong season, outfits transform into fashions from the wrong era, belongings on trivial targets become vacation, holiday, or offseason paraphernalia.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "moon_dominion_full_and_bright": {
+    "id": "moon_dominion_full_and_bright",
+    "purview": "moon",
+    "name": "Full and Bright",
+    "successCost": "4s",
+    "description": "This Stunt may be applied following any Social roll. Attitudes toward the Scion cannot be shifted negatively for the rest of the scene.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "moon_dominion_lunar_revelation": {
+    "id": "moon_dominion_lunar_revelation",
+    "purview": "moon",
+    "name": "Lunar Revelation",
+    "successCost": "1 or 3s",
+    "description": "Apply this stunt to any Read Attitude roll. By utilizing this stunt, exchange the cost of the Stunt for the Difficulty of the action; if the action would have a Difficulty less than 3, the cost is 1 instead.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "moon_dominion_penumbral_shift": {
+    "id": "moon_dominion_penumbral_shift",
+    "purview": "moon",
+    "name": "Penumbral Shift",
+    "successCost": "2s or 4s",
+    "description": "As a defensive stunt, the Scion becomes wrapped in moon shadow and shifting lights, a lunar cocoon making their foes sight and intentions slide off of them. At 2s, all rush actions targeting the Scion are considered automatically contested and at 4s, ranged attacks treat the Scion as one range band further away until the start of their next action. The Demigod commands law and order, from those of nations to those of physics. Their upright and just behavior inspires their friends and allies to behave in the same structured way.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "order_dominion_controlled_chaos": {
+    "id": "order_dominion_controlled_chaos",
+    "purview": "order",
+    "name": "Controlled Chaos",
+    "successCost": "variable",
+    "description": "For each success spent on this stunt, reduce the number of dice added to the collateral pool this Turn, one for one, to a minimum of 1.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "order_dominion_cooler_heads": {
+    "id": "order_dominion_cooler_heads",
+    "purview": "order",
+    "name": "Cooler Heads",
+    "successCost": "2s",
+    "description": "During a social scene, characters utilizing this Stunt can reset any Attitude to 0 or apply this Stunt to negate any single increase or decrease in Attitude.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "order_dominion_hierarchy_of_need": {
+    "id": "order_dominion_hierarchy_of_need",
+    "purview": "order",
+    "name": "Hierarchy of Need",
+    "successCost": "5s",
+    "description": "Apply to any roll. An ally of your choice may benefit from any Scale and Enhancement bonuses you possess for their next action.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "order_dominion_speed_limit": {
+    "id": "order_dominion_speed_limit",
+    "purview": "order",
+    "name": "Speed Limit",
+    "successCost": "2s",
+    "description": "During any Chase sequence, apply this stunt to any applicable roll, placing a 2c Complication of “Enforced Speed” on the opponent. The target cannot speed up or make wild maneuvers without buying off the Complication. If they do not, they must forfeit the lap or take an Injury. Emotions and feelings dance to the Demigod's words. Her followers and allies, too, gain full control over their passions. Mortal Failure: As the success, but the sudden mood shift causes chaos and disruption as the targets around you act in line with your mood. For example: a happy ally might decide right then and there to leave on vacation without warning, etc.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "passion_dominion_distracting_provocation": {
+    "id": "passion_dominion_distracting_provocation",
+    "purview": "passion",
+    "name": "Distracting Provocation",
+    "successCost": "2s",
+    "description": "As an attack stunt, the stunt user spits taunts and mocking phrases at the target, giving it the Provoked condition. While the target has the condition, it suffers +1 Difficulty to apply attack stunts as well as combat actions that might require focus. This resolves when the Provoked character inflicts an Injury upon the character who gave them the condition, or at the end of the scene, whichever comes first. The Difficulty increases for each instance of this Condition inflicted on the character, to a max of +3.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "passion_dominion_rousing_passion": {
+    "id": "passion_dominion_rousing_passion",
+    "purview": "passion",
+    "name": "Rousing Passion",
+    "successCost": "2s",
+    "description": "Until the end of the scene, the Scion gains the Roused condition. Whenever they spend successes from a Bond, they double the amount of enhancement they gain from it. The condition resolves at the end of the scene.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "passion_dominion_the_root_of_fury": {
+    "id": "passion_dominion_the_root_of_fury",
+    "purview": "passion",
+    "name": "The Root of Fury",
+    "successCost": "3s",
+    "description": "For the duration of the scene, the Q&A or Extra Clue stunts (chosen when this Dominion Stunt is put into play) have a cost of 0s so long as the clues and the questions asked pertain to the emotional states of characters involved in the scene, mystery, or investigation. Material wealth and currency multiply in the hands of a Demigod with dominion over Prosperity. The material fortunes of her friends and allies also find their monetary gains increased.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "prosperity_dominion_free_shipping": {
+    "id": "prosperity_dominion_free_shipping",
+    "purview": "prosperity",
+    "name": "Free Shipping!",
+    "successCost": "4s",
+    "description": "After any applicable Asset Skill roll, conjure forth any mortal good or service you might conceivably purchase with money, regardless of location or circumstances. If in a situation where mortal accouterments are not useful, gain Momentum.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "prosperity_dominion_payday": {
+    "id": "prosperity_dominion_payday",
+    "purview": "prosperity",
+    "name": "Payday!",
+    "successCost": "2s",
+    "description": "As a defensive stunt, the character using this stunt makes a display of wealth to tempt their enemies away, inflicting the Distracted by Money Complication with a rating of 2c. After any attack action in which an enemy does not buy off the complication, they must choose to use a non-damage Stunt against you.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "prosperity_dominion_solve_the_problem_with_money": {
+    "id": "prosperity_dominion_solve_the_problem_with_money",
+    "purview": "prosperity",
+    "name": "Solve the Problem with Money",
+    "successCost": "2s",
+    "description": "Apply this stunt to any Encourage Behavior roll. You generate exactly enough money or valuable goods to bribe or persuade a target, adding your Tier in Enhancement, regardless of how dangerous the request might be. Controlling the wind and clouds, the Demigod rules the skies. With her presence, she allows her allies to command storms and rain.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sky_dominion_defying_gravity": {
+    "id": "sky_dominion_defying_gravity",
+    "purview": "sky",
+    "name": "Defying Gravity",
+    "successCost": "0 or 1s",
+    "description": "When making a Movement action, the character may take flight, allowing them to make the movement vertical (which can ignore the effects of hazardous or severe terrain). If the Movement action is not contested or rolled, this Stunt has a cost of 0.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sky_dominion_loosed_thunderbolts": {
+    "id": "sky_dominion_loosed_thunderbolts",
+    "purview": "sky",
+    "name": "Loosed Thunderbolts",
+    "successCost": "1s",
+    "description": "Apply to any attack roll. The attack gains the Ranged (Short) and Arcing tags as characters hurl bits of storm and sky at their opponents.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sky_dominion_ominous_horizon": {
+    "id": "sky_dominion_ominous_horizon",
+    "purview": "sky",
+    "name": "Ominous Horizon",
+    "successCost": "2s",
+    "description": "After any social roll, set the Atmosphere to any value equal to or less than your Tier. Glittering with the light of the night sky, a Demigod with Dominion over Stars sees the World from above and grants revelations and visions to their friends and followers.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "stars_dominion_postcognition": {
+    "id": "stars_dominion_postcognition",
+    "purview": "stars",
+    "name": "Postcognition",
+    "successCost": "3s",
+    "description": "For the duration of the scene, the Q&A or Player Interpretation stunts (chosen when this Dominion Stunt is put into play) have a cost of 0s so long as the interpretations and the questions asked pertain to events that happened in the past, rather than the scene unfolding in the present.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "stars_dominion_sidereal_revelation": {
+    "id": "stars_dominion_sidereal_revelation",
+    "purview": "stars",
+    "name": "Sidereal Revelation",
+    "successCost": "3s",
+    "description": "Reveal celestial maps of all nearby enemies, as if sketched from above. This stunt may be applied after any combat roll. Until the end of the Turn, enemies cannot benefit from cover, mundane concealment, or stealth.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "stars_dominion_the_stars_align": {
+    "id": "stars_dominion_the_stars_align",
+    "purview": "stars",
+    "name": "The Stars Align",
+    "successCost": "variable",
+    "description": "After making an Encourage Belief or Shift Attitude action, choose another character present in the scene. They find themselves inexorably confronted with the argument: treat the new target as though they were the target of the original action with a number of successes equal to the successes spent on this stunt. Radiant and scorching, none shine brighter than a Demigod with dominion over the Sun Purview. By her presence alone, her friends and compatriots also shine with piercing inner light.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sun_dominion_midday_heat": {
+    "id": "sun_dominion_midday_heat",
+    "purview": "sun",
+    "name": "Midday Heat",
+    "successCost": "3s",
+    "description": "This is a Defensive Stunt, creating Complication 3. Enemies who don't buy off this complication and must make a Survival roll (or appropriate enemy pool roll) to avoid passing out; this may be done as part of a mixed action.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sun_dominion_noonday_glare": {
+    "id": "sun_dominion_noonday_glare",
+    "purview": "sun",
+    "name": "Noonday Glare",
+    "successCost": "3s",
+    "description": "In Intrigue, create Complication 3 on the opposed pools for the Encourage Behavior and Encourage Belief actions. Failing to buy off this Complication results in enemies averting their gaze and leaving your unbearable presence.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "sun_dominion_solar_retrocognition": {
+    "id": "sun_dominion_solar_retrocognition",
+    "purview": "sun",
+    "name": "Solar Retrocognition",
+    "successCost": "3s",
+    "description": "For the duration of the scene, the Q&A or Extra Clue stunts (chosen when this Dominion Stunt is put into play) have a cost of 0s so long as the clues and the questions asked pertain to reviewing the past as relevant to the position of the sun at the time of",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "war_dominion_only_war": {
+    "id": "war_dominion_only_war",
+    "purview": "war",
+    "name": "Only War",
+    "successCost": "3s",
+    "description": "As an Intrigue stunt, gain +1 Scale for attempts to Shift Atmosphere to make violent conflict the only outcome or Encourage Behavior to encourage warfare, violence, and unprovoked bloodshed.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "war_dominion_peacekeeping": {
+    "id": "war_dominion_peacekeeping",
+    "purview": "war",
+    "name": "Peacekeeping",
+    "successCost": "3s",
+    "description": "As an Intrigue stunt, gain +1 Scale for attempts to Shift Atmosphere to make violent conflict less desirable or Encourage Behavior to encourage the end of bloodshed or similar ends.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "war_dominion_violent_opportunist": {
+    "id": "war_dominion_violent_opportunist",
+    "purview": "war",
+    "name": "Violent Opportunist",
+    "successCost": "2s",
+    "description": "When applied to an attack roll, this stunt allows any enemy in the current Field to count as being in range of the supplemented attack, regardless of the distance between you, allowing you to take out a sniper with your sword or use a rocket launcher on a minotaur grappling you. Fluid and changing, Demigods with dominion over Water shift and flow like their namesake power. Those around them receive the ocean's blessing by virtue of the Demigod's presence.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "water_dominion_dowse_for_secrets": {
+    "id": "water_dominion_dowse_for_secrets",
+    "purview": "water",
+    "name": "Dowse for Secrets",
+    "successCost": "2s",
+    "description": "Rivulets of water seek out and expose secrets, in a Complex investigation, immediately resolve an additional milestone.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "water_dominion_inexorable_tide": {
+    "id": "water_dominion_inexorable_tide",
+    "purview": "water",
+    "name": "Inexorable Tide",
+    "successCost": "2s",
+    "description": "Apply to any attack roll. The targeted enemy reduces its Defense by 2.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "water_dominion_washed_out": {
+    "id": "water_dominion_washed_out",
+    "purview": "water",
+    "name": "Washed Out",
+    "successCost": "3s",
+    "description": "Make a number of 3c Water Hazard complications equal to the using character's Legend. Unresolved Water Hazard complications increase the targets next Chase rolls difficulty by 1 for each unresolved Water Hazard. Alternatively, create the same number of Water Hazards, which count as Field Complications with the same rating that count as severe terrain if not bought off. If the using character does not have a Legend rating, treat it as though it were 1. Primal and untamed, the Demigod controls with wilderness with godlike ease. Her friends and compatriots need not fear the hazards of nature or deprivation so long as she is present.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "wild_dominion_base_instinct": {
+    "id": "wild_dominion_base_instinct",
+    "purview": "wild",
+    "name": "Base Instinct",
+    "successCost": "2s",
+    "description": "Apply to any Procedural roll. Until the end of the Scene, the target gains an Animal Instinct condition with a rating equal to your Tier. On any action in which they do not buy off the complication, they cannot give into the duplicitousness of human nature, and furthers a Procedural as if they had been targeted with the Extra Clue or Interpretation stunts.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "wild_dominion_dandelion_banquet": {
+    "id": "wild_dominion_dandelion_banquet",
+    "purview": "wild",
+    "name": "Dandelion Banquet",
+    "successCost": "3s",
+    "description": "You feed yourself, your band, and any other allied characters with you on local edible foliage, which grows if none is present. This gives you enough sustenance for a day, and heals any Bruised Injury conditions you may have, but each character may only benefit from the use of Dandelion Banquet once per session.",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  },
+  "wild_dominion_lower_thought": {
+    "id": "wild_dominion_lower_thought",
+    "purview": "wild",
+    "name": "Lower Thought",
+    "successCost": "2s",
+    "description": "Apply to any Intrigue action. The target gains the Wild Mind condition. While under the effects of this condition, the target acts purely on reflex and instinct, granting +1 enhancement to all rolls to Encourage Behavior and Encourage Belief, as they cannot apply powerful reason. This Stunt may only target enemies of equal or lesser Tier. The condition resolves once the target has performed the encouraged behavior or believes whatever they have been told. of the god or goddess to whom they are directed, and it is no different for Scions, as they too are part of the heavenly hierarchy. Elevated above mortals, they are empowered to call directly upon the divine Authority of the Annuna, and as they climb that hierarchy may even gain the right to make those pronouncements themselves. This is particularly true of the machineries of civilization — not bureaucracies per se, which the Annuna do not trust, but in the reciprocity of power, privilege, and duty, the interaction of superior and inferior. All authority, after all, ultimately derives from the divine Authority of the Annuna, allowing their Scions to seize it for themselves as though they were born to it (which they were). Innate Power: When speaking or issuing instructions from a position of authority (which need not be official or even acknowledged by the Scion), Trivial characters cannot offer offense or leave without being given permission to do so, nor can their Attitude go negative within your presence. In addition, whe",
+    "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf — Dominion Stunts"
+  }
+}

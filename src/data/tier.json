@@ -18,7 +18,7 @@
     "typicalLegendRange": "2–4",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "review"],
     "patronPurviewSlotCount": 1,
-    "purviewsChargenNote": "Hero: one innate Purview from your divine parent’s list (Patron innate chips on this step) plus your pantheon’s Signature Purview (data: pantheons.json signaturePurviewId). Full Innate and Boon write-ups: Pandora’s Box (Revised). At Demigod+, patron slots and universals are on this step; Signature stays automatic — see the Demigod tier note.",
+    "purviewsChargenNote": "Hero: two innate Purviews — pantheon Signature (automatic) plus one patron innate from your divine parent’s list (Patron innate chips). Full Innate and Boon write-ups: Pandora’s Box (Revised). Demigod adds two more innate slots (four total); God keeps four innate and grows further via Boons and Dominion.",
     "source": "Scion_Hero_(Final_Download).pdf (Visitation / chargen flow); SCION_Pandoras_Box_(Revised_Download).pdf (Purviews, Boons, Knacks, Birthrights)"
   },
   "demigod": {
@@ -29,8 +29,8 @@
     "mechanicalEffects": "Follow Scion: Demigod chargen and advancement; this app’s JSON can be extended with Demigod-only Knacks/Boons entries.",
     "typicalLegendRange": "5–8",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "review"],
-    "patronPurviewSlotCount": 4,
-    "purviewsChargenNote": "Demigod: patron Purview slots from your parent’s list are on this step (panel above the chips). Standard universal Purviews are chips; your pantheon’s Signature Purview is automatic (not a chip). Other pantheons’ Specialty Purviews and Denizen Purviews stay off the list without a table grant (Scion: Demigod pp. 154–175, 171–175; Mythic Shards). Pandora’s Box (Revised) for Boon ladders.",
+    "patronPurviewSlotCount": 3,
+    "purviewsChargenNote": "Demigod: four innate Purviews total — automatic Signature plus three patron slots (Hero pick + two more at advancement). Each patron slot: parent’s list or any Purview you already hold (Birthrights, Relics, prior picks). Universal chips below for extras (Scion: Demigod; Mythic Shards pp. 154–175).",
     "source": "Scion_Demigod_Second_Edition_(Final_Download).pdf"
   },
   "god": {
@@ -41,8 +41,8 @@
     "mechanicalEffects": "Follow Scion: God character creation and mantle rules; extend data JSON with God-tier options as needed.",
     "typicalLegendRange": "8–10+",
     "wizardSteps": ["welcome", "concept", "paths", "skills", "attributes", "calling", "purviews", "birthrights", "boons", "review"],
-    "patronPurviewSlotCount": 4,
-    "purviewsChargenNote": "God: same Purview rules as Demigod — patron slots and universals on the Purviews step; pantheon Signature automatic. Scion: God + Mythic Shards for limits; Pandora’s Box (Revised) for Mantles and Boon ladders.",
+    "patronPurviewSlotCount": 3,
+    "purviewsChargenNote": "God (Legend 9+): four innate Purviews — automatic Signature plus three patron slots (same count as Demigod; no new innate slots at Apotheosis). Further Purviews grow without limit through Boons and Dominion in play; track them with universal chips below. Scion: God + Mythic Shards for Mantles and Dominion.",
     "source": "Scion_God_Second_Edition_(Final_Download).pdf"
   },
   "sorcerer": {

@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "source": "Scion_Origin_(Revised_Download).pdf p. 113 (Character Advancement); Scion_Hero_(Final_Download).pdf p. 185 (same table); Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf p. 87 (Boon / Sorcerer band)",
+    "note": "Costs are per purchase (one dot, one Knack, etc.). Prerequisites from the books still apply at the table."
+  },
+  "costs": {
+    "attribute": {
+      "id": "attribute",
+      "object": "Attribute",
+      "change": "Add one dot to a single Attribute",
+      "cost": 10
+    },
+    "birthright": {
+      "id": "birthright",
+      "object": "Birthright",
+      "change": "Add one dot in a new or existing Birthright",
+      "cost": 5
+    },
+    "favoredApproach": {
+      "id": "favoredApproach",
+      "object": "Favored Approach",
+      "change": "Change a character's Favored Approach",
+      "cost": 15
+    },
+    "skill": {
+      "id": "skill",
+      "object": "Skill",
+      "change": "Add one dot in a new or existing Skill",
+      "cost": 5
+    },
+    "knack": {
+      "id": "knack",
+      "object": "Knack",
+      "change": "Purchase a new Knack",
+      "cost": 10
+    },
+    "specialty": {
+      "id": "specialty",
+      "object": "Specialty",
+      "change": "Add a Specialty to a Skill",
+      "cost": 3
+    },
+    "boon": {
+      "id": "boon",
+      "object": "Purview / Boon",
+      "change": "Add a new Boon (Saints & Monsters heroic band)",
+      "cost": 10,
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf p. 87"
+    },
+    "technique": {
+      "id": "technique",
+      "object": "Technique",
+      "change": "Learn an additional Technique beyond natural Working gains",
+      "cost": 10,
+      "source": "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf ch. 3"
+    }
+  }
+}

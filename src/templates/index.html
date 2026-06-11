@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Character Creator</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260501" />
-    <link rel="stylesheet" href="/static/css/character-sheet.css?v=20260491" />
+    <link rel="stylesheet" href="/static/css/style.css?v={{ asset_version }}" />
+    <link rel="stylesheet" href="/static/css/character-sheet.css?v={{ asset_version }}" />
     <!-- Unregister stray service workers on local dev hosts; they can intercept /api/bundle so uvicorn never logs it. -->
     <script>
       (function () {
@@ -31,13 +31,14 @@
         <div class="brand-lockup">
           <img
             class="brand-logo"
-            src="/static/images/Scion%20Logo.png?v=1"
+            src="/static/images/Scion%20Logo.png?v={{ asset_version }}"
             alt=""
             decoding="async"
           />
           <h1 class="brand-title">Character Creator</h1>
         </div>
       </div>
+      <span class="site-header-version" title="Running asset build">{{ asset_version }}</span>
     </header>
 
     <nav class="app-main-tabs" id="app-main-tabs" aria-label="Application mode"></nav>
@@ -72,6 +73,6 @@
       window.__SCION_EMBEDDED_BUNDLE = true;
     </script>
     {% endif %}
-    <script type="module" src="/static/js/app.js?v=20260502"></script>
+    <script type="module" src="/static/js/app.js?v={{ asset_version }}"></script>
   </body>
 </html>

@@ -1,0 +1,25 @@
+{
+  "removedDuplicates": [
+    "tr_adv_enemy_of_my_enemy",
+    "tr_adv_my_misfortune_is_your_misfortune",
+    "tr_adv_perfectly_symmetrical_violence",
+    "tr_adv_pride_before_a_fall",
+    "tr_dest_it_all_ends_in_silence",
+    "tr_dest_sever_the_ties",
+    "tr_dest_what_you_fear_losing",
+    "tr_general_i_am_here",
+    "tr_general_monsters_united",
+    "tr_general_overwhelming_presence",
+    "tr_mon_face_of_fear",
+    "tr_prime_bending_the_world",
+    "tr_prime_none_grasp_the_wind",
+    "tr_prime_world_is_my_partner",
+    "tr_prime_world_provides",
+    "tr_tyr_compliance_is_rewarded",
+    "tr_tyr_the_last_word",
+    "tr_tyr_whom_do_you_serve"
+  ],
+  "migratedToDragonKnacks": [],
+  "remainingKnackCount": 918,
+  "dragonKnackCount": 77
+}

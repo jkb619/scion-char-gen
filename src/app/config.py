@@ -9,6 +9,9 @@ DATA_DIR = SRC_DIR / "data"
 TEMPLATES_DIR = SRC_DIR / "templates"
 STATIC_DIR = SRC_DIR / "static"
 
+# Bump when shipping static/template changes so browsers pick up new JS/CSS (shown in site header).
+ASSET_VERSION = "20260609"
+
 # Community “interactive” sheet PDFs (AcroForm). Override with env if your files live elsewhere.
 INTERACTIVE_SHEET_SCION_PDF = Path(
     os.environ.get(

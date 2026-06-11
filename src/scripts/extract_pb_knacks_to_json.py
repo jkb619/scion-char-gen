@@ -24,16 +24,76 @@ AUDIT_DIR = ROOT / "json" / "knacks"
 BOOK = "SCION_Pandoras_Box_(Revised_Download).pdf"
 ORIGIN_BOOK = "Scion_Origin_(Revised_Download).pdf"
 
-# Origin Mortal Knack lists: PB HEROIC rows reclassified to tier "mortal" in the app catalog.
-# Sage trio cross-cited in knacks.json → druid_keeper_of_knowledge (Origin p. 111).
+# Origin Mortal knack lists (Scion: Origin pp. 105–113). Catalog tier stays PB HEROIC; `originMortal` gates Origin.
 ORIGIN_MORTAL_KNACKS: dict[str, frozenset[str]] = {
-    # Origin p.105 (ANY): Mortal General Calling knacks
     "any": frozenset(
         {
             "aura_of_greatness",
             "born_to_be_kings",
             "scent_the_divine",
             "somebodys_watching_me",
+        }
+    ),
+    "creator": frozenset(
+        {
+            "innate_toolkit",
+            "perfect_rendition",
+            "reverse_engineer",
+            "flawlessly_platonic_ideal",
+            "the_unlimited_quartermaster",
+        }
+    ),
+    "guardian": frozenset(
+        {
+            "a_fortress",
+            "a_purpose",
+            "a_sentinel",
+            "a_talisman",
+            "a_vigil",
+            "a_warning",
+        }
+    ),
+    "healer": frozenset(
+        {
+            "the_bare_minimum",
+            "combat_medic",
+            "damage_conversion",
+            "doctors_kit",
+            "immunization_booster",
+            "surgeon_with_the_hands_of_god",
+            "with_a_glance",
+        }
+    ),
+    "hunter": frozenset(
+        {
+            "apex_predator",
+            "eyes_in_the_blinds",
+            "internal_compass",
+            "keen_eyed_predator",
+            "most_dangerous_prey",
+            "silence_in_the_woods",
+            "worrying_hound",
+        }
+    ),
+    "judge": frozenset(
+        {
+            "eye_for_an_eye",
+            "indisputable_analysis",
+            "lie_detector",
+            "objection",
+            "on_the_case",
+            "quick_study",
+            "the_truth_arises",
+        }
+    ),
+    "leader": frozenset(
+        {
+            "captain_of_industry",
+            "cloak_of_dread",
+            "good_listener",
+            "grand_entrance",
+            "lighthouse_of_society",
+            "perfect_poise",
         }
     ),
     "liminal": frozenset(
@@ -47,11 +107,48 @@ ORIGIN_MORTAL_KNACKS: dict[str, frozenset[str]] = {
             "unobtrusive_visitor",
         }
     ),
+    "lover": frozenset(
+        {
+            "fluid_appeal",
+            "i_am_a_fire",
+            "lovers_intuition",
+            "on_your_side",
+            "not_a_fighter",
+            "perfect_partner",
+            "soothing_presence",
+        }
+    ),
     "sage": frozenset(
         {
             "blockade_of_reason",
+            "master_of_the_world",
             "palace_of_memory",
             "presence_of_magic",
+            "office_hours",
+            "omniglot_translation",
+            "speed_reading",
+        }
+    ),
+    "trickster": frozenset(
+        {
+            "blather_and_skite",
+            "in_sheeps_clothing",
+            "light_fingered",
+            "rumor_miller",
+            "smoke_and_mirrors",
+            "takes_one_to_know_one",
+            "wasnt_me",
+        }
+    ),
+    "warrior": frozenset(
+        {
+            "the_biggest_threat",
+            "close_the_gap",
+            "death_by_teacup",
+            "enhanced_impact",
+            "master_of_weapons",
+            "trick_shot",
+            "tempered",
         }
     ),
 }
@@ -142,37 +239,65 @@ def normalize_tier_suffix(text: str) -> str:
     return re.sub(r"[^A-Z0-9]", "", text.upper())
 
 
-def catalog_tier(tier_label: str, description: str, calling: str, name_slug: str) -> str:
-    """Knack category: mortal | immortal (Hero p.223). PB HEROIC headers map to immortal, not a third tier."""
-    if name_slug in ORIGIN_MORTAL_KNACKS.get(calling, frozenset()):
-        return "mortal"
+def catalog_tier(tier_label: str, _description: str, _calling: str, _name_slug: str) -> str:
+    """PB knack band: heroic | immortal. Origin Mortal picks use `originMortal` on overlapping rows."""
     label = (tier_label or "immortal").lower()
     if label == "heroic":
-        low = description.lower()
-        if "pre-visitation" in low or "origin only" in low or "mortal knack" in low:
-            return "mortal"
+        return "heroic"
     if label == "mortal":
         return "mortal"
     return "immortal"
 
 
 def calling_slot_cost(section_tier: str, tier: str) -> int:
-    """Hero-band Calling dots per knack (Hero p.183–184): most immortal = 1; PB IMMORTAL section = 2."""
-    if tier == "mortal":
+    """Hero-band Calling dots per knack (Hero p.183–184): PB HEROIC = 1; PB IMMORTAL = 2."""
+    if tier in ("mortal", "heroic"):
         return 1
-    if (section_tier or "").lower() == "immortal":
+    if tier == "immortal" or (section_tier or "").lower() == "immortal":
         return 2
     return 1
 
 
+def knack_title_core(line: str) -> str:
+    """Strip trailing punctuation so OBJECTION! matches PB ALL-CAPS knack headings."""
+    return re.sub(r"[!?.…]+$", "", line.strip())
+
+
+def is_knack_title_line(line: str) -> bool:
+    core = knack_title_core(line)
+    return bool(core) and bool(CAPS_RE.match(core))
+
+
+def infer_catalog_tier_from_text(row: dict) -> str | None:
+    blob = " ".join(
+        str(row.get(key) or "")
+        for key in ("mechanicalEffects", "description", "name", "source")
+    ).lower()
+    if "immortal inverted" in blob or "two calling slot" in blob:
+        return "immortal"
+    if "heroic inverted" in blob:
+        return "heroic"
+    return None
+
+
 def normalize_knack_row(row: dict) -> dict:
-    """Ensure catalog rows use tier mortal|immortal and callingSlotCost 1|2."""
+    """PB catalog bands: heroic | immortal. Legacy `mortal` rows map to heroic unless immortal-tagged."""
     out = dict(row)
     raw_tier = str(out.get("tier") or "immortal").strip().lower()
     section = str(out.get("sectionTier") or raw_tier).strip().lower()
     if raw_tier == "heroic":
-        raw_tier = "immortal"
-    tier = "mortal" if raw_tier == "mortal" else "immortal"
+        tier = "heroic"
+    elif raw_tier == "immortal":
+        tier = "immortal"
+    elif raw_tier == "mortal":
+        inferred = infer_catalog_tier_from_text(out)
+        tier = inferred or "heroic"
+    else:
+        tier = "immortal"
+    if section == "immortal":
+        tier = "immortal"
+    elif section == "heroic" and tier != "immortal":
+        tier = "heroic"
     slot = out.get("callingSlotCost")
     if slot is None:
         slot = calling_slot_cost(section, tier)
@@ -380,7 +505,7 @@ def parse_text(text: str) -> list[dict]:
             current_tier = tier_override
             continue
 
-        if not CAPS_RE.match(line):
+        if not is_knack_title_line(line):
             if current_name:
                 current_body.append(line)
             continue
@@ -404,7 +529,7 @@ def parse_text(text: str) -> list[dict]:
             continue
 
         flush_knack()
-        current_name = line
+        current_name = knack_title_core(line)
         current_page = page_at[idx]
 
     flush_knack()
@@ -447,6 +572,11 @@ def to_app_entry(raw: dict, used_ids: set[str]) -> tuple[str, dict]:
         "mechanicalEffects": raw["mechanicalEffects"],
         "source": source,
     }
+    if (
+        slug in ORIGIN_MORTAL_KNACKS.get(calling, frozenset())
+        and str(section_tier).lower() == "heroic"
+    ):
+        entry["originMortal"] = True
     if calling == "any":
         entry["callingsAny"] = True
     else:
@@ -470,7 +600,7 @@ def build_app_catalog(knacks: list[dict], *, keep_supplements: bool) -> dict:
 
     for raw in knacks:
         kid, entry = to_app_entry(raw, used_ids)
-        catalog[kid] = entry
+        catalog[kid] = normalize_knack_row(entry)
 
     pb_count = sum(1 for k in catalog if not any(k.startswith(p) for p in SUPPLEMENT_PREFIXES))
     supplement_count = len(catalog) - pb_count
@@ -479,15 +609,16 @@ def build_app_catalog(knacks: list[dict], *, keep_supplements: bool) -> dict:
         "_meta": {
             "note": (
                 "Knacks parsed from Pandora's Box (Revised) Calling and Denizen chapters "
-                f"({pb_count} rows). Book (Hero p.223): knack categories are mortal | immortal only. "
-                "`callingSlotCost` 1|2 is the Hero-band dot cost (PB IMMORTAL section = 2)."
+                f"({pb_count} rows). PB bands: HEROIC | IMMORTAL. Origin Mortal picks use `originMortal` "
+                "on rows that also appear in PB HEROIC lists. `callingSlotCost` 2 = PB IMMORTAL at Hero."
             ),
             "eligibility": {
                 "callings": "Array of Calling ids, or omit / callingsAny true for General Calling (PB GENERAL).",
                 "callingsAny": "If true, General Calling — PB GENERAL knack pool (any Calling).",
-                "tier": "mortal | immortal (knack category). Origin shows mortal; Hero+ shows immortal.",
+                "tier": "heroic | immortal (PB HEROIC / IMMORTAL bands). Origin: originMortal on matching rows.",
+                "originMortal": "If true, also selectable at Origin (Scion: Origin Mortal knack lists).",
                 "callingSlotCost": (
-                    "Calling dots this knack spends at Hero tier: 1 (default) or 2 (PB IMMORTAL lists). "
+                    "Calling dots this knack spends at Hero tier: 1 (PB HEROIC) or 2 (PB IMMORTAL). "
                     "Demigod+ treat all as 1 dot in the UI."
                 ),
             },
@@ -589,6 +720,21 @@ def main() -> int:
     if supplement_count:
         print(f", {supplement_count} supplements kept)", end="")
     print(")")
+
+    import importlib.util
+
+    dedupe_path = ROOT / "src" / "scripts" / "deduplicate_and_tag_knacks.py"
+    spec = importlib.util.spec_from_file_location("deduplicate_and_tag_knacks", dedupe_path)
+    dedupe_mod = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(dedupe_mod)
+    dedupe_report = dedupe_mod.process(write=True, report_path=ROOT / "json" / "knacks_dedup_report.json")
+    print(
+        f"Dedup: removed {len(dedupe_report['removedDuplicates'])} duplicates, "
+        f"migrated {len(dedupe_report['migratedToDragonKnacks'])} draconic rows "
+        f"({dedupe_report['remainingKnackCount']} knacks, "
+        f"{dedupe_report['dragonKnackCount']} dragonKnacks)"
+    )
 
     if args.audit_dir:
         counts = write_audit_files(knacks)

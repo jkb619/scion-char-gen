@@ -9,7 +9,6 @@ import { wirePickerRowFilter, wireSortableTableColumns } from "../pickerTableUti
 import {
   knackEligible,
   knackEligibleForCallingStep,
-  knackSetWithinCallingSlots,
   knackIdsCallingSlotsUsed,
   syncHeroKnackSlotAssignments,
   knackCallingTokensForRowMatch,
@@ -17,9 +16,14 @@ import {
   heroCallingRowMatchesKnack,
   bundleKnackById,
   knackRuleTier,
-  knackHeroBandSlotCost,
+  knackTierBadgeClass,
+  knackTierBadgeLabel,
+  callingRowDotCap,
+  rowKnackPointsUsed,
+  knackPayingCallingRowLabel,
   GENERAL_CALLING_LABEL,
 } from "../eligibility.js";
+import { toggleHeroKnackWithRowPayment, knackPointCostLabel } from "../knackPayingRowPicker.js";
 import { originDefenseFromFinalAttrs, originMovementPoolDice, buildCharacterSheet } from "../characterSheet.js";
 import { dragonSpellChipHintEntity } from "../dragonSpellUi.js";
 import { downloadReviewSheetAsPdf } from "../reviewSheetPdf.js";
@@ -2043,9 +2047,8 @@ function setKnackChipContents(chip, k) {
   nm.textContent = name;
   inner.appendChild(nm);
   const bd = document.createElement("span");
-  bd.className =
-    kt === "mortal" ? "knack-kind-badge knack-kind-mortal" : "knack-kind-badge knack-kind-immortal";
-  bd.textContent = kt === "mortal" ? "Mortal" : "Immortal";
+  bd.className = knackTierBadgeClass(kt);
+  bd.textContent = knackTierBadgeLabel(kt);
   inner.appendChild(bd);
   chip.appendChild(inner);
 }
@@ -2991,8 +2994,8 @@ export function renderDragonHeirStepInRoot(ctx) {
       });
     const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
 
-    /** @param {HTMLElement} container */
-    function appendDragonCallingKnackChip(container, kid, k) {
+    /** @param {HTMLElement} container @param {number | null} [preferredRowIdx] */
+    function appendDragonCallingKnackChip(container, kid, k, preferredRowIdx = null) {
       const baseOk = knackEligible(k, shell, bundle);
       const eligible = knackEligibleForCallingStep(k, shell, bundle);
       const on = d.callingKnackIds.includes(kid);
@@ -3007,45 +3010,37 @@ export function renderDragonHeirStepInRoot(ctx) {
       chip.disabled = slotBlocked;
       if (!eligible && on) {
         chip.title = baseOk
-          ? "This Knack no longer fits your per-Calling Knack budgets on the three rows (each row’s dots cap that row’s Knacks; one Immortal uses two on a row with two+ dots; at most one Immortal overall). Adjust dots, Callings, or clear Knacks."
+          ? "This Knack no longer fits a Calling row budget (Heroic = 1 knack point, Immortal = 2; each Calling’s dots are that row’s point pool). Adjust dots, payor row, or clear Knacks."
           : "This Knack no longer matches your Calling, tier, or optional gates—remove it or adjust your character.";
       }
       setKnackChipContents(chip, k);
-      chip.addEventListener("click", () => {
+      chip.addEventListener("click", async () => {
         if (chip.disabled) return;
-        const set = new Set(d.callingKnackIds);
         const finSet = new Set(character.finishing?.finishingKnackIds || []);
-        if (set.has(kid)) set.delete(kid);
-        else if (eligible && !finSet.has(kid)) set.add(kid);
-        const next = [...set];
-        const shTry = { ...dragonKnackShell(character), knackIds: next };
-        if (!knackSetWithinCallingSlots(next, shTry, bundle)) return;
-        d.callingKnackIds = next;
-        const shSync = dragonKnackShell(character);
-        syncHeroKnackSlotAssignments(shSync, bundle);
-        d.callingKnackIds = [...(shSync.knackIds || [])];
-        d.knackSlotById = { ...shSync.knackSlotById };
+        if (finSet.has(kid)) return;
+        const sh = dragonKnackShell(character);
+        const changed = await toggleHeroKnackWithRowPayment(sh, bundle, kid, k, {
+          preferredRowIdx: preferredRowIdx != null ? preferredRowIdx : undefined,
+        });
+        if (!changed) return;
+        d.callingKnackIds = [...(sh.knackIds || [])];
+        d.knackSlotById = { ...(sh.knackSlotById || {}) };
         render();
       });
       const appliesLine = knackAppliesToCallingsLine(k, bundle);
-      applyGameDataHint(chip, k, appliesLine ? { prefix: appliesLine } : undefined);
+      const payLine = on ? knackPayingCallingRowLabel(shell, bundle, kid) : "";
+      const hintParts = [appliesLine, payLine].filter(Boolean);
+      applyGameDataHint(chip, k, hintParts.length ? { prefix: hintParts.join(" ") } : undefined);
       if (slotBlocked) {
-        let gateHint =
-          "You qualify for this Knack (Calling / tier / optional data gates), but none of your Calling rows can spend the Knack budget for it yet—each Heroic Knack needs one free dot on a matching row; one Immortal needs two free dots on a row with at least two dots, and you may only know one Immortal Knack.";
-        if (knackHeroBandSlotCost(k) === 2) {
-          gateHint +=
-            " On a two-dot Calling row, an Immortal uses both slots—if that row already has a Heroic Knack from the same Calling, clear it (or give that Calling three dots) before an Immortal can fit.";
-        } else if (k?.knackKind === "heir") {
-          gateHint += " Each Dragon Heir Calling Knack spends one dot on a matching Calling row.";
+        let gateHint = `You qualify for this Knack, but no Calling row has enough knack points left (Heroic ${knackPointCostLabel(k)}). Each row’s Calling dots are its point pool.`;
+        if (k?.knackKind === "heir") {
+          gateHint += " Each Dragon Heir Calling Knack spends one knack point on a matching Calling row.";
         }
         chip.title = chip.title ? `${chip.title}\n\n${gateHint}` : gateHint;
       }
-      if (on && shell.knackSlotById && shell.knackSlotById[kid] != null && Array.isArray(shell.callingSlots)) {
-        const ri = shell.knackSlotById[kid];
-        const rowId = String(shell.callingSlots[ri]?.id || "").trim();
-        const rowName = (rowId && bundle.callings[rowId] && bundle.callings[rowId].name) || rowId || `row ${ri + 1}`;
-        const payNote = `Charged to: ${rowName} (${ri + 1} of 3).`;
-        chip.title = chip.title ? `${chip.title}\n\n${payNote}` : payNote;
+      if (on) {
+        const payNote = knackPayingCallingRowLabel(shell, bundle, kid);
+        if (payNote) chip.title = chip.title ? `${chip.title}\n\n${payNote}` : payNote;
       }
       container.appendChild(chip);
     }
@@ -3088,15 +3083,32 @@ export function renderDragonHeirStepInRoot(ctx) {
         head.textContent = GENERAL_CALLING_LABEL;
       } else {
         const rid = String(shell.callingSlots?.[key]?.id || "").trim();
-        head.textContent = rid
-          ? `${bundle.callings[rid]?.name || rid} (Calling ${key + 1})`
+        const cname = rid ? bundle.callings[rid]?.name || rid : "";
+        const cap = callingRowDotCap(shell, key);
+        const used = rowKnackPointsUsed(
+          key,
+          shell.knackIds || [],
+          shell.knackSlotById || {},
+          bundle,
+          shell,
+        );
+        head.textContent = cname
+          ? `${cname} (Calling ${key + 1}) — ${used}/${cap} knack points`
           : `Calling ${key + 1} — pick a Calling above`;
       }
       section.appendChild(head);
+      if (key === "any") {
+        const genHelp = document.createElement("p");
+        genHelp.className = "help";
+        genHelp.textContent =
+          "General Calling knacks can be paid from any Calling row with enough knack points left—you’ll choose which pool when you pick one.";
+        section.appendChild(genHelp);
+      }
       const chipWrap = document.createElement("div");
       chipWrap.className = "chips chips--calling-knack-subgroup";
+      const prefRow = key === "any" ? null : key;
       for (const [kid, k] of list) {
-        appendDragonCallingKnackChip(chipWrap, kid, k);
+        appendDragonCallingKnackChip(chipWrap, kid, k, prefRow);
       }
       section.appendChild(chipWrap);
       knPanel.appendChild(section);

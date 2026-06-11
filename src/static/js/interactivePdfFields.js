@@ -11,6 +11,7 @@ import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purvi
 import { dragonSpellPdfEffectLine } from "./dragonSpellUi.js";
 import { applyFatebindingsToInteractivePdfFields } from "./fatebindingsSheet.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
+import { heroUsesCallingSlotRows, knackPayingCallingRowLabel } from "./eligibility.js";
 import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 
 const SKILL_ROW_IDS = [
@@ -157,7 +158,9 @@ export function buildScionInteractivePdfFields(data, bundle) {
       const k = bundle.knacks?.[id];
       const base = k?.name || id;
       if (k && typeof k === "object") {
-        knackNames.push(`${base} (${knackSheetGroupLabel(k, bundle, pantheonId)})`);
+        const paid = heroUsesCallingSlotRows(data) ? knackPayingCallingRowLabel(data, bundle, id) : "";
+        const group = paid || knackSheetGroupLabel(k, bundle, pantheonId);
+        knackNames.push(`${base} (${group})`);
       } else {
         knackNames.push(suffix ? `${base} (${suffix})` : base);
       }
@@ -330,7 +333,15 @@ export function buildDragonInteractivePdfFields(data, bundle) {
         bundle.dragonKnacks?.[kid]?.name ||
         kid;
       if (k && typeof k === "object") {
-        knackNames.push(`${base} (${knackSheetGroupLabel(k, bundle, dragonPantheon)})`);
+        const dragonShell = {
+          tier: "hero",
+          callingSlots: d.callingSlots,
+          knackSlotById: d.knackSlotById,
+          knackIds: d.callingKnackIds,
+        };
+        const paid = knackPayingCallingRowLabel(dragonShell, bundle, kid);
+        const group = paid || knackSheetGroupLabel(k, bundle, dragonPantheon);
+        knackNames.push(`${base} (${group})`);
       } else {
         knackNames.push(base);
       }

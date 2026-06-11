@@ -7,6 +7,7 @@ import { LEGEND_SHEET_DOT_COUNT } from "./characterSheetLegendPools.js";
 import { fillMcgFourPageLayout } from "./characterSheetMcgLayout.js";
 import { fillDragonFourPageLayout } from "./characterSheetDragonLayout.js";
 import { sheetFinalAttrsAfterFavored, sheetFinalSkillDots } from "./sheetExportAttrs.js";
+import { knackPayingCallingRowLabel } from "./eligibility.js";
 import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 
@@ -264,9 +265,17 @@ export function buildCharacterSheet(data, bundle, sheetHooks) {
       for (const id of ids || []) {
         const k = bundle?.knacks?.[id];
         const base = k?.name || id;
+        const paidFrom =
+          k && typeof k === "object" ? knackPayingCallingRowLabel(data, bundle, id) : "";
+        const group =
+          k && typeof k === "object"
+            ? paidFrom || knackSheetGroupLabel(k, bundle, pant)
+            : suffix || "";
         const title =
           k && typeof k === "object"
-            ? `${base} (${knackSheetGroupLabel(k, bundle, pant)})`
+            ? group
+              ? `${base} (${group})`
+              : base
             : suffix
               ? `${base} (${suffix})`
               : base;

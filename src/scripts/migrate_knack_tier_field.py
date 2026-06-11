@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize knack rows: tier mortal|immortal only; callingSlotCost 1|2."""
+"""Normalize knack rows: tier mortal|heroic|immortal; callingSlotCost 1|2."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ KNACKS = ROOT / "src" / "data" / "knacks.json"
 def main() -> int:
     data = json.loads(KNACKS.read_text(encoding="utf-8"))
     meta = data.get("_meta", {})
-    counts = {"mortal": 0, "immortal": 0, "slot1": 0, "slot2": 0}
+    counts = {"mortal": 0, "heroic": 0, "immortal": 0, "slot1": 0, "slot2": 0}
     out: dict = {"_meta": meta}
     for key, row in data.items():
         if key == "_meta" or not isinstance(row, dict):
@@ -31,15 +31,15 @@ def main() -> int:
             counts["slot1"] += 1
         out[key] = norm
     elig = out["_meta"].setdefault("eligibility", {})
-    elig["tier"] = "mortal | immortal (knack category). Origin shows mortal; Hero+ shows immortal."
+    elig["tier"] = "mortal | heroic | immortal. Origin: originMortal or mortal; Hero+: heroic and immortal."
+    elig["originMortal"] = "If true, also selectable at Origin (Scion: Origin Mortal knack lists)."
     elig["callingSlotCost"] = (
-        "Calling dots at Hero tier: 1 (default) or 2 (PB IMMORTAL lists). Demigod+ treat all as 1."
+        "Calling dots at Hero tier: 1 (PB HEROIC) or 2 (PB IMMORTAL). Demigod+ treat all as 1."
     )
     elig.pop("tierMin", None)
     elig.pop("knackKind", None)
     out["_meta"]["note"] = (
-        "Knack categories: mortal | immortal only (Hero p.223). "
-        "callingSlotCost encodes Hero-band 1- vs 2-dot knacks."
+        "PB knack bands: HEROIC | IMMORTAL. Origin Mortal picks use originMortal on overlapping rows."
     )
     KNACKS.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Wrote {len(out) - 1} knacks: {counts}")

@@ -16,7 +16,7 @@
       "liminal",
       "trickster"
     ],
-    "motmKnackAccess": "Mythos characters with an inverted Calling also qualify for standard twin Calling Knacks (MotM p. 46).",
+    "motmKnackAccess": "MotM paired Callings share knack pools (MotM ch. 2 Step Five, ch. 3 p. 46): inverted Callings qualify for the standard twin’s PB/Origin Knacks; on the Mythos pantheon, standard and inverted twins also qualify for each other’s inverted Mythos knacks (pp. 47–49). Applies to all seven pairs in motmInvertedPairs.",
     "denizenCallingIds": [
       "c_sith",
       "kitsune",

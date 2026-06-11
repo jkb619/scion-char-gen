@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.config import STATIC_DIR, TEMPLATES_DIR
+from app.config import ASSET_VERSION, STATIC_DIR, TEMPLATES_DIR
 from app.routers import game_data, interactive_pdf, review_sheet_pdf
 from app.services import game_data as game_data_service
 
@@ -44,7 +44,7 @@ def index(request: Request):
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"bundle_b64": bundle_b64},
+        {"bundle_b64": bundle_b64, "asset_version": ASSET_VERSION},
         headers={"Cache-Control": "no-store, max-age=0"},
     )
 

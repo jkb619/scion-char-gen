@@ -14,6 +14,7 @@ import { birthrightTagLabels } from "./birthrightTags.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
+import { sheetExperienceTotals } from "./experience.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
@@ -671,8 +672,9 @@ export function fillDragonFourPageLayout(el, api) {
   p2.appendChild(healthTrack);
 
   p2.appendChild(mcgSectionTitle("Experience"));
-  p2.appendChild(mcgLinedField("Total", ""));
-  p2.appendChild(mcgLinedField("Remaining", ""));
+  const xpSheet = sheetExperienceTotals(data);
+  p2.appendChild(mcgLinedField("Total", String(xpSheet.total)));
+  p2.appendChild(mcgLinedField("Remaining", String(xpSheet.remaining)));
   const spent = document.createElement("div");
   spent.className = "cs-mcg-write-block";
   const sl = document.createElement("span");

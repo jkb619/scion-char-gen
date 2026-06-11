@@ -21,6 +21,9 @@ AWS_DEFAULT_REGION := $(AWS_REGION)
 export AWS_DEFAULT_REGION
 
 IMAGE_TAG ?= latest
+# Matches the upper-right site header label (src/app/config.py → ASSET_VERSION).
+ASSET_VERSION := $(shell grep -E '^ASSET_VERSION = ' "$(ROOT)/src/app/config.py" | sed -E 's/^ASSET_VERSION = "([^"]+)".*/\1/')
+export ASSET_VERSION
 DOCKER_BUILD_CONTEXT := .
 DOCKERFILE := docker/Dockerfile
 DOCKER_PUBLISH_PORT ?= 8000
@@ -65,6 +68,7 @@ help: ## Show targets
 info: ## Show Docker / AWS settings
 	@echo "$(GREEN)Configuration$(NC)"
 	@echo "  App name:          $(APP_NAME)"
+	@echo "  Site asset ver:    $(ASSET_VERSION)  (header upper-right after deploy)"
 	@echo "  AWS account:       $(AWS_ACCOUNT_ID)"
 	@echo "  AWS region:        $(AWS_REGION)"
 	@echo "  Lightsail service: $(LIGHTSAIL_SERVICE)"

@@ -12,6 +12,7 @@ import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
+import { sheetExperienceTotals } from "./experience.js";
 
 /**
  * @param {HTMLElement} el — root `.character-sheet`
@@ -620,8 +621,9 @@ export function fillMcgFourPageLayout(el, api) {
   p2.appendChild(healthTrack);
 
   p2.appendChild(mcgSectionTitle("Experience"));
-  p2.appendChild(mcgLinedField("Total", ""));
-  p2.appendChild(mcgLinedField("Remaining", ""));
+  const xpSheet = sheetExperienceTotals(data);
+  p2.appendChild(mcgLinedField("Total", String(xpSheet.total)));
+  p2.appendChild(mcgLinedField("Remaining", String(xpSheet.remaining)));
   const spent = document.createElement("div");
   spent.className = "cs-mcg-write-block";
   const sl = document.createElement("span");

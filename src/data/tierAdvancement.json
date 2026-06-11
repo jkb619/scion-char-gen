@@ -11,7 +11,7 @@
       "At least one Calling must be one of your divine parent’s three Favored Callings (Hero pp. 172, 184).",
       "If your Scion already knows more than five Knacks (excluding Finishing Touches), take no further Knacks here (Hero p. 172).",
       "Spend up to seven dots of Birthrights in total (Hero p. 186); if you already spent some, spend the remainder now (p. 172).",
-      "Choose innate Purviews (Hero Step 7, p. 188).",
+      "Choose innate Purviews (Hero Step 7, p. 188): pantheon Signature (automatic) plus one patron innate from your divine parent’s list — two innate Purviews total.",
       "Assign Boons (Hero Step 8, p. 189).",
       "Set Legend in the app header when your chronicle calls for it (p. 172).",
       "Mythos pantheon (Masks of the Mythos): this app ships MotM patrons, virtues (Humanity / Nihilism), Signature Purview Arcane Calculus, and MotM Calling names in data — still use the book for Knacks/Boons tables, relics, Fatebindings, and other MotM-only rules when you advance.",
@@ -23,6 +23,7 @@
     "nextTier": "demigod",
     "source": "Scion: Demigod — Second Visitation / Apotheosis roadmap (e.g. pp. 16, 132); Legend milestones and Demigod traits are largely narrative until milestones complete (p. 16: until the first Apotheosis Milestone, many Hero vs Demigod distinctions still treat you as Hero-tier).",
     "checklist": [
+      "Demigod tier advancement: gain two more innate Purviews (Purviews step — parent list or any Purview you already hold via Birthrights, Relics, or prior choices; Hero patron innate carries forward).",
       "Legend and Calling dots continue to advance per Demigod (Legend trait effects, p. 132+): e.g. a new Boon per dot of Legend and a new Calling dot on each even-numbered Legend dot — work with your Storyguide to record what you’ve earned in play.",
       "The first Apotheosis Milestone often culminates in Legend 5 while still using Hero-tier distinctions for some rules (Demigod p. 16); raise Legend in the header when your table agrees — this wizard does not auto-fill Legend on tier advance.",
       "Resolve Mantles, Fatebindings, and Divine Deeds at the table (Demigod)."
@@ -32,6 +33,7 @@
     "nextTier": "god",
     "source": "Scion: God — Apotheosis and full Godhood (core book); Legend band for Gods is typically 8–10+ (tier overview; confirm in God).",
     "checklist": [
+      "God (Legend 9+): four innate Purviews (Signature + three patron slots) — no new innate slots at Apotheosis; further Purviews accrue through Boons and Dominion in play.",
       "Apotheosis completes: body of ichor, Mantles, and divine identity per Scion: God and your chronicle.",
       "Set Legend in the header to match God-tier play (often 8–10+); this wizard does not auto-fill Legend on tier advance."
     ]
@@ -86,6 +88,7 @@
     "nextTier": "demigod",
     "source": "Saints & Monsters — Titanic Apotheosis typically aligns with moving into Demigod-scale play; confirm milestones with your Storyguide.",
     "checklist": [
+      "Demigod tier advancement: gain two more innate Purviews (Purviews step — parent list or any Purview you already hold).",
       "Resolve Maelstrom Heart / Epicenter suppression and Collateral (or Tension alternate) per PDF.",
       "Update Calling dots, Knacks, Purviews, and Birthrights for Demigod when your table advances you.",
       "Raise Legend in the header when your chronicle agrees."

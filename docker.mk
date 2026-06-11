@@ -6,13 +6,17 @@ LIGHTSAIL_POWER   ?= nano
 
 build: ## Build the Docker image
 	@echo "$(GREEN)Building Docker image: $(APP_NAME):$(IMAGE_TAG)$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 	docker build -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 
 build-no-cache: ## Build the Docker image without cache
 	@echo "$(GREEN)Building Docker image (no cache): $(APP_NAME):$(IMAGE_TAG)$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 	docker build --no-cache -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 
 run-docker: ## Run the container locally (foreground, rm on exit)
 	@echo "$(GREEN)Running $(APP_NAME):$(IMAGE_TAG) on http://localhost:$(DOCKER_PUBLISH_PORT)$(NC)"
@@ -35,8 +39,9 @@ ls-push: ## Push Docker image to Lightsail
 
 ls-deploy: ## Deploy latest pushed image to Lightsail
 	@echo "$(GREEN)Deploying to Lightsail service $(LIGHTSAIL_SERVICE)...$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 	$(eval LATEST_IMAGE := $(shell aws lightsail get-container-images --service-name $(LIGHTSAIL_SERVICE) --region $(AWS_REGION) --query 'containerImages[0].image' --output text))
-	@echo "  Using image: $(LATEST_IMAGE)"
+	@echo "  Lightsail image: $(LATEST_IMAGE)"
 	aws lightsail create-container-service-deployment \
 		--service-name $(LIGHTSAIL_SERVICE) \
 		--region $(AWS_REGION) \
@@ -47,10 +52,12 @@ ls-deploy: ## Deploy latest pushed image to Lightsail
 
 deploy: ## Build, push, and deploy to Lightsail (full workflow)
 	@echo "$(GREEN)=== Full deploy: build → push → deploy ===$(NC)"
+	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 	$(MAKE) build
 	$(MAKE) ls-push
 	$(MAKE) ls-deploy
 	@echo "$(GREEN)=== Deploy complete! Run 'make ls-status' to monitor. ===$(NC)"
+	@echo "  Verify live site header shows version: $(ASSET_VERSION)"
 
 ls-status: ## Show Lightsail service status and URL
 	aws lightsail get-container-services \

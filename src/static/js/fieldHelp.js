@@ -115,8 +115,8 @@ export const HELP = {
     source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Masks of the Mythos / Deeds (confirm wording at table).",
   },
   "patron-purviews": {
-    example: "Demigod+ (deity line): patron Purview slots on the Purviews step — only from that parent’s list (slot count from tier data, default four); each Purview once — other slots’ picks are omitted from each pulldown.",
-    source: `${cite("origin", "Appendix 2 — patron Purviews per deity (reference)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}.`,
+    example: "Hero: 2 innate (Signature automatic + 1 patron). Demigod: +2 patron slots → 4 innate total. God (Legend 9+): same 4 innate; more Purviews via Boons/Dominion in play (chips below). Each patron slot: parent list or Purviews you already hold.",
+    source: `${cite("origin", "Appendix 2 — patron Purviews per deity (reference)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}; ${cite("demigod", "Demigod innate Purviews / tier advancement", "132+")}.`,
   },
 
   "path-rank-primary": {
@@ -169,8 +169,9 @@ export const HELP = {
     source: cite("origin", "Step Four: Attributes — Arena priority", "97–98"),
   },
   "fav-approach": {
-    example: "Force = direct power; Finesse = precision; Resilience = endurance — +2 dots (pre-cap) to each Attribute in that Approach.",
-    source: cite("origin", "Step Four: Attributes — Favored Approach", "97–98"),
+    example:
+      "Force = direct power; Finesse = precision; Resilience = endurance — +2 dots (pre-cap) to each Attribute in that Approach. Post-chargen Approach changes are on the Exp Leveling tab (15 XP).",
+    source: `${cite("origin", "Step Four: Attributes — Favored Approach", "97–98")}; ${cite("origin", "Experience — Favored Approach", "113")}.`,
   },
 
   "attr-might": {
@@ -216,7 +217,7 @@ export const HELP = {
   },
   "knack-select": {
     example:
-      "Hero: each dot in a Calling buys Knacks for that Calling; you may never know more Knacks than your total Calling dots across all three Callings. Hero-band: each Heroic Knack = one slot; at most one Immortal = two slots on a Calling row with two+ dots (Hero p.184). Demigod/God: Heroic and Immortal each = one slot against the same total Calling-dot pool; no separate Immortal count cap (Demigod pp.149–150). Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
+      "Hero three-row mode: each Calling’s dots are that row’s knack point pool (Heroic = 1 point, Immortal = 2). General Calling knacks prompt which row pays. Knacks chosen before tier advance lock in place—you may only add more, not swap them. Demigod/God: Heroic and Immortal each = one slot against the same total Calling-dot pool (Demigod pp.149–150). Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
     source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}; ${cite("demigod", "Knacks", "149–150")}.`,
   },
   "purview-select": {
@@ -224,12 +225,28 @@ export const HELP = {
     source: `${cite("origin", "Appendix 2 (Purviews listed per deity — reference)", "170–177")}; ${cite("hero", "Purviews, Boons, Marvels", "200+")}.`,
   },
   "birthrights-step": {
-    example: "Costs stack toward your tier cap: seven points at Hero (Birthrights step only; Finishing does not add a second pool), four at Mortal/Sorcerer Finishing, eleven for Demigod/God in this wizard.",
-    source: `${cite("hero", "Birthrights (Character Generation)", "186+")}; ${cite("hero", "Finishing Touches — Knacks vs Birthrights", "201+")}; Pandora’s Box (Revised) Birthright chapters.`,
+    example:
+      "Costs stack toward your tier cap: seven points at Hero (Birthrights step only; Finishing does not add a second pool), four at Mortal/Sorcerer Finishing, eleven for Demigod/God in this wizard. Extra Birthrights beyond the cap are bought on the Exp Leveling tab (5 XP each).",
+    source: `${cite("hero", "Birthrights (Character Generation)", "186+")}; ${cite("hero", "Finishing Touches — Knacks vs Birthrights", "201+")}; ${cite("origin", "Experience — Birthright", "113")}; Pandora’s Box (Revised) Birthright chapters.`,
+  },
+  "exp-leveling-step": {
+    example:
+      "After Review: enter unspent Experience, then buy Attributes, Skills, Specialties, Knacks, Boons, Birthrights, Techniques, or a Favored Approach change per the advancement table (Origin p. 113; Boons/Techniques also Saints & Monsters p. 87). Knacks bought here do not spend Calling dot budgets — pick those on the Callings tab.",
+    source: `${cite("origin", "Character Advancement", "113")}; ${cite("hero", "Experience", "185")}.`,
   },
   "boon-select": {
     example: "Boons appear only for Purviews you track: merged patron slots (Demigod+ on Purviews) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Hero, Titanic, and Heroic Sorcerer cap initial wizard picks at two; any other tier that has a Boons step in tier.json (Demigod, God, divine-band Sorcerer, …) lists all eligible Boons without that cap. Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
     source: `${cite("hero", "Purviews & Boons", "200+")}; ${cite("demigod", "Advanced Boons", "")}; ${cite("god", "God-tier Boons", "")}.`,
+  },
+  "dominion-boons-step": {
+    example:
+      "Demigod+ (Legend 5+): trade two Purview Boons in play for one Dominion Boon per Purview you hold — unlocks Dominion Stunts, Font of Miracles, imbued Marvels, and related divinity-dice themes for that Purview. Mark chips here; the two-for-one cost is not enforced in the wizard.",
+    source: `${cite("demigod", "Dominion", "154–155")}.`,
+  },
+  "dominion-stunts-step": {
+    example:
+      "Reference for stunts unlocked by Dominion Boons above. Full access is automatic per Purview; Gift of Power is general for all Demigods. Scene activation and success costs are handled at the table.",
+    source: `${cite("demigod", "Dominion Stunts", "156–175")}.`,
   },
 
   "fin-skill": {
