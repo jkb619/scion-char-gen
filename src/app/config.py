@@ -1,4 +1,5 @@
 import os
+import subprocess
 from pathlib import Path
 
 PACKAGE_DIR = Path(__file__).resolve().parent
@@ -9,8 +10,31 @@ DATA_DIR = SRC_DIR / "data"
 TEMPLATES_DIR = SRC_DIR / "templates"
 STATIC_DIR = SRC_DIR / "static"
 
-# Bump when shipping static/template changes so browsers pick up new JS/CSS (shown in site header).
-ASSET_VERSION = "20260609"
+
+def _resolve_asset_version() -> str:
+    """Git short SHA for cache-bust + header label; override with ASSET_VERSION env (Docker build)."""
+    env = os.environ.get("ASSET_VERSION", "").strip()
+    if env:
+        return env
+    try:
+        r = subprocess.run(
+            ["git", "describe", "--always", "--dirty", "--abbrev=8"],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=False,
+        )
+        if r.returncode == 0:
+            v = r.stdout.strip()
+            if v:
+                return v
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return "dev"
+
+
+ASSET_VERSION = _resolve_asset_version()
 
 # Community “interactive” sheet PDFs (AcroForm). Override with env if your files live elsewhere.
 INTERACTIVE_SHEET_SCION_PDF = Path(

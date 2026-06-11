@@ -21,8 +21,8 @@ AWS_DEFAULT_REGION := $(AWS_REGION)
 export AWS_DEFAULT_REGION
 
 IMAGE_TAG ?= latest
-# Matches the upper-right site header label (src/app/config.py → ASSET_VERSION).
-ASSET_VERSION := $(shell grep -E '^ASSET_VERSION = ' "$(ROOT)/src/app/config.py" | sed -E 's/^ASSET_VERSION = "([^"]+)".*/\1/')
+# Git short SHA baked into the image at build (header upper-right + static ?v=). Override: make deploy ASSET_VERSION=…
+ASSET_VERSION ?= $(shell git -C "$(ROOT)" describe --always --dirty --abbrev=8 2>/dev/null || echo dev)
 export ASSET_VERSION
 DOCKER_BUILD_CONTEXT := .
 DOCKERFILE := docker/Dockerfile

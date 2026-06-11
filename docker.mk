@@ -7,14 +7,14 @@ LIGHTSAIL_POWER   ?= nano
 build: ## Build the Docker image
 	@echo "$(GREEN)Building Docker image: $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
-	docker build -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
+	docker build --build-arg ASSET_VERSION=$(ASSET_VERSION) -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
 	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 
 build-no-cache: ## Build the Docker image without cache
 	@echo "$(GREEN)Building Docker image (no cache): $(APP_NAME):$(IMAGE_TAG)$(NC)"
 	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
-	docker build --no-cache -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
+	docker build --no-cache --build-arg ASSET_VERSION=$(ASSET_VERSION) -t $(APP_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(DOCKER_BUILD_CONTEXT)
 	@echo "$(GREEN)Docker image built successfully$(NC)"
 	@echo "  Site asset version (header upper-right): $(ASSET_VERSION)"
 
