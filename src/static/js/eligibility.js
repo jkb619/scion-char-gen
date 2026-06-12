@@ -122,6 +122,12 @@ export function knackHeroBandSlotCost(k) {
   return 1;
 }
 
+/** Hero-band tiers: Visitation layout (three Calling rows, five shared dots). Deity line uses Hero; Titan line uses Titanic. */
+export function isHeroBandCallingTierId(tierId) {
+  const t = normalizedTierIdEligibility(tierId);
+  return t === "hero" || t === "titanic" || t === "sorcerer_hero";
+}
+
 /** Demigod- and God-band tiers: deity line (Hero→Demigod→God), Titan line (Titanic→Demigod→God), Sorcerer divine band. */
 export function isPostHeroBandCallingTierId(tierId) {
   const t = normalizedTierIdEligibility(tierId);
@@ -145,7 +151,7 @@ export function maxWizardBoonPicksForTier(tierId, bundle) {
   const tierRow = bundle?.tier?.[t];
   const steps = tierRow && Array.isArray(tierRow.wizardSteps) ? tierRow.wizardSteps : null;
   if (steps && steps.includes("boons")) {
-    if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return MAX_HERO_BAND_WIZARD_BOON_PICKS;
+    if (isHeroBandCallingTierId(t)) return MAX_HERO_BAND_WIZARD_BOON_PICKS;
     return Number.POSITIVE_INFINITY;
   }
   if (isPostHeroBandCallingTierId(t)) return Number.POSITIVE_INFINITY;
@@ -159,6 +165,7 @@ export function maxWizardBoonPicksForTier(tierId, bundle) {
  */
 export function immortalKnackCostsTwoCallingSlots(tierId) {
   const t = normalizedTierIdEligibility(tierId);
+  /** Hero and Titanic (Titan line hero-band) share the double-slot Immortal Knack rule (Hero p.184). */
   return t === "hero" || t === "titanic";
 }
 
@@ -174,11 +181,9 @@ export const GENERAL_CALLING_LABEL = "General Calling";
  */
 export function heroUsesCallingSlotRows(character) {
   const t = normalizedTierIdEligibility(character?.tier);
-  if (t === "hero" || t === "titanic") return true;
-  const slots = character?.callingSlots;
-  if (Array.isArray(slots) && slots.length === HERO_STYLE_CALLING_SLOT_ROW_COUNT && isPostHeroBandCallingTierId(t)) {
-    return true;
-  }
+  if (isHeroBandCallingTierId(t)) return true;
+  /** Demigod / God (deity or Titan welcome line): same three-row Calling + per-row Knack UI as Hero/Titanic. */
+  if (isPostHeroBandCallingTierId(t)) return true;
   return false;
 }
 
@@ -744,6 +749,7 @@ export function splitMotmKnackEntriesBySubpool(list, character, rowCallingId, bu
   /** @type {[string, Record<string, unknown>][]} */
   const other = [];
   for (const entry of list) {
+    if (isGeneralCallingKnack(entry[1])) continue;
     const sub = motmInvertedKnackSubpoolKey(entry[1], character, cid, entry[0], bundle);
     if (sub === "inverted") inverted.push(entry);
     else if (sub === "standard-twin") standard.push(entry);

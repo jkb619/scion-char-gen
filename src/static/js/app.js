@@ -1,13 +1,20 @@
 import { isEntryVisibleForBooks } from "./bookFilter.js";
 import {
   experienceAdvancementTableRows,
+  experienceAttributeBumpCount,
+  experienceAttributeBumpsTotal,
   experienceCanAfford,
   experiencePointsAvailable,
   experiencePointsSpent,
   experiencePointsTotal,
   experiencePurchaseCost,
   experienceRefund,
+  experienceSkillBumpCount,
+  experienceSkillBumpsTotal,
   experienceSpend,
+  ensureExperienceAdvancementBumps,
+  recordExperienceAttributeBump,
+  recordExperienceSkillBump,
 } from "./experience.js";
 import { applyHint, applySkillSpecialtyHints, applyGameDataHint } from "./fieldHelp.js";
 import {
@@ -38,6 +45,7 @@ import {
   knackTierBadgeLabel,
   GENERAL_CALLING_LABEL,
   heroUsesCallingSlotRows,
+  isHeroBandCallingTierId,
   isPostHeroBandCallingTierId,
   maxWizardBoonPicksForTier,
   immortalKnackCostsTwoCallingSlots,
@@ -713,6 +721,10 @@ function defaultCharacter() {
     finishingBonusKnackIds: [],
     /** Exp Leveling Knack purchases — on the sheet but free against Calling knack budgets. */
     experienceKnackIds: [],
+    /** Per-attribute dots bought with Experience (post-chargen; excluded from Finishing / arena validation). */
+    experienceAttributeBumps: {},
+    /** Per-skill dots bought with Experience (post-chargen; excluded from Finishing / path validation). */
+    experienceSkillBumps: {},
     knackIds: [],
     purviewIds: [],
     /** Four slots, each `""` or a Purview id from the current divine parent’s list. */
@@ -1281,6 +1293,7 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
         btn.title = `Spend ${skillXpCost} Experience to raise ${skillMeta.name} to ${i}`;
         btn.addEventListener("click", () => {
           if (!experienceSpend(character, bundle, "skill")) return;
+          recordExperienceSkillBump(character, sid);
           character.skillDots[sid] = cur + 1;
           render();
         });
@@ -3073,14 +3086,31 @@ function attributeArenaSums(attrs) {
   return sums;
 }
 
-/** Pre–Favored dots from Finishing only in one arena (sum of current − Attributes-step snapshot per Attribute there). */
+/** XP Attribute dots in one arena (post-chargen; not counted toward Finishing or 6/4/2 pools). */
+function experienceArenaExtraDelta(arena) {
+  let d = 0;
+  for (const id of ARENAS[arena]) {
+    d += experienceAttributeBumpCount(character, id);
+  }
+  return d;
+}
+
+/** Pre–Favored chargen dots above the Attributes-step snapshot in one arena (Finishing only; excludes XP). */
 function finishingArenaExtraDelta(attrs, baseline, arena) {
   if (!baseline || typeof baseline !== "object") return 0;
   let d = 0;
   for (const id of ARENAS[arena]) {
-    d += Math.max(0, (attrs[id] ?? 1) - (baseline[id] ?? 1));
+    const total = Math.max(0, (attrs[id] ?? 1) - (baseline[id] ?? 1));
+    d += Math.max(0, total - experienceAttributeBumpCount(character, id));
   }
   return d;
+}
+
+/** Pre–Favored chargen bump on one Attribute above `attrBaseline` (Finishing only; excludes XP). */
+function chargenOnlyAttributeBump(attrId, attrs, baseline) {
+  if (!baseline || typeof baseline !== "object") return 0;
+  const total = Math.max(0, (attrs[attrId] ?? 1) - (baseline[attrId] ?? 1));
+  return Math.max(0, total - experienceAttributeBumpCount(character, attrId));
 }
 
 function arenaForAttribute(attrId) {
@@ -3167,6 +3197,7 @@ function renderFinalAttrDotRow(
         b.title = `Spend ${attrXpCost} Experience to raise ${label}`;
         b.addEventListener("click", () => {
           if (!experienceSpend(character, bundle, "attribute")) return;
+          if (attrMeta?.id) recordExperienceAttributeBump(character, attrMeta.id);
           onPickFinal(i);
         });
       } else {
@@ -3215,6 +3246,7 @@ function attrMinWhileNormalizingPools(attrId) {
  * allowed total includes Finishing bumps above that snapshot (Origin p. 98 — no arena restriction on that dot).
  */
 function normalizeCharacterAttributesToPools() {
+  if (postOriginMortalChargenLocked(character) || experienceAttributeBumpsTotal(character) > 0) return;
   ensureFinishingShape();
   const attrs = character.attributes;
   const baseLine = character.finishing.attrBaseline;
@@ -3230,7 +3262,9 @@ function normalizeCharacterAttributesToPools() {
     let sum = ids.reduce((s, id) => s + Math.max(0, (attrs[id] ?? 1) - 1), 0);
     while (true) {
       const cap =
-        pool + (baseIsObj && baseLine ? finishingArenaExtraDelta(attrs, baseLine, arena) : 0);
+        pool +
+        (baseIsObj && baseLine ? finishingArenaExtraDelta(attrs, baseLine, arena) : 0) +
+        experienceArenaExtraDelta(arena);
       if (sum <= cap) break;
       let hi = null;
       for (const id of ids) {
@@ -3279,7 +3313,8 @@ function attributeArenaPoolsSpendOk(attrs) {
     const s = sums[arena];
     const p = pools[arena];
     const finDelta = hasB ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
-    if (s < p || s > p + finDelta) return false;
+    const xpDelta = experienceArenaExtraDelta(arena);
+    if (s < p || s > p + finDelta + xpDelta) return false;
   }
   return true;
 }
@@ -3304,7 +3339,7 @@ function validateAttributes(attrs) {
   if (hasB) {
     for (const aid of Object.keys(baseline)) {
       if (String(aid).startsWith("_")) continue;
-      totalFinishingAttrBump += Math.max(0, (attrs[aid] ?? 1) - (baseline[aid] ?? 1));
+      totalFinishingAttrBump += chargenOnlyAttributeBump(aid, attrs, baseline);
     }
     const finAttrBudget = Math.max(0, Math.round(Number(character.finishing?.extraAttributeDots) || 0));
     if (totalFinishingAttrBump > finAttrBudget) {
@@ -3325,7 +3360,8 @@ function validateAttributes(attrs) {
       }
     }
     const finDelta = hasB ? finishingArenaExtraDelta(attrs, baseline, arena) : 0;
-    if (s > p + finDelta) {
+    const xpDelta = experienceArenaExtraDelta(arena);
+    if (s > p + finDelta + xpDelta) {
       msgs.push(
         `${arena} arena: at most ${p} extra dots from the Attributes step, plus up to ${finDelta} from your Finishing Attribute dot(s) in this arena (you have ${s}; Origin pp. 97–98).`,
       );
@@ -3559,7 +3595,10 @@ function ensureFinishingBaselines() {
 function finishingSkillDotsPlaced() {
   const b = character.finishing.skillBaseline;
   if (!b) return 0;
-  return skillIds().reduce((sum, id) => sum + Math.max(0, (character.skillDots[id] || 0) - (b[id] || 0)), 0);
+  return skillIds().reduce((sum, id) => {
+    const total = Math.max(0, (character.skillDots[id] || 0) - (b[id] || 0));
+    return sum + Math.max(0, total - experienceSkillBumpCount(character, id));
+  }, 0);
 }
 
 function finishingSkillDotsRemaining() {
@@ -3571,7 +3610,10 @@ function maxSkillFinishing(sid) {
   if (!b) return Math.min(5, character.skillDots[sid] || 0);
   const placedOthers = skillIds()
     .filter((id) => id !== sid)
-    .reduce((sum, id) => sum + Math.max(0, (character.skillDots[id] || 0) - (b[id] || 0)), 0);
+    .reduce((sum, id) => {
+      const total = Math.max(0, (character.skillDots[id] || 0) - (b[id] || 0));
+      return sum + Math.max(0, total - experienceSkillBumpCount(character, id));
+    }, 0);
   const cap = (b[sid] || 0) + Math.max(0, (character.finishing.extraSkillDots || 0) - placedOthers);
   return Math.min(5, cap);
 }
@@ -3579,10 +3621,10 @@ function maxSkillFinishing(sid) {
 function finishingAttrDotsPlaced() {
   const b = character.finishing.attrBaseline;
   if (!b) return 0;
-  return Object.keys(bundle.attributes).reduce(
-    (sum, id) => sum + Math.max(0, (character.attributes[id] ?? 1) - (b[id] ?? 1)),
-    0,
-  );
+  return Object.keys(bundle.attributes).reduce((sum, id) => {
+    if (String(id).startsWith("_")) return sum;
+    return sum + chargenOnlyAttributeBump(id, character.attributes, b);
+  }, 0);
 }
 
 function finishingAttrDotsRemaining() {
@@ -3606,7 +3648,7 @@ function maxAttrFinishing(attrId) {
   const b = character.finishing.attrBaseline;
   const placedOthers = Object.keys(bundle.attributes)
     .filter((oid) => oid !== attrId)
-    .reduce((s, oid) => s + Math.max(0, (attrs[oid] ?? 1) - (b[oid] ?? 1)), 0);
+    .reduce((s, oid) => s + chargenOnlyAttributeBump(oid, attrs, b), 0);
   const budget = character.finishing.extraAttributeDots || 0;
   const fromBudget = (b[attrId] ?? 1) + Math.max(0, budget - placedOthers);
   const fromLegend = maxPreFavoredUnderLegendCap(attrId, attrs);
@@ -3662,10 +3704,17 @@ function skillIdsMissingChargenSpecialties() {
   return out;
 }
 
+/** Skill dots from chargen only (Path + Finishing; excludes Experience purchases). */
+function chargenOnlySkillDots(sid) {
+  ensureSkillDots();
+  const cur = character.skillDots[sid] || 0;
+  return Math.max(0, cur - experienceSkillBumpCount(character, sid));
+}
+
 /** Free chargen Specialty still owed on this skill (Hero+ tiers without a Finishing step). */
 function skillNeedsFreeChargenSpecialty(sid) {
   ensureSkillDots();
-  return (character.skillDots[sid] || 0) >= 3 && !String(character.skillSpecialties?.[sid] || "").trim();
+  return chargenOnlySkillDots(sid) >= 3 && !String(character.skillSpecialties?.[sid] || "").trim();
 }
 
 /** @param {string} wherePhrase e.g. "before leaving Finishing" or "before continuing to Review" */
@@ -4391,6 +4440,63 @@ function renderAppMainTabs() {
   mk("equipment_data", "Equipment library");
 }
 
+function reconcileExperienceAttributeBumpsFromChargenOverflow() {
+  if (experienceAttributeBumpsTotal(character) > 0) return;
+  const baseline = character.finishing?.attrBaseline;
+  if (!baseline || typeof baseline !== "object" || !bundle?.attributes) return;
+  const finBudget = Math.max(0, Math.round(Number(character.finishing?.extraAttributeDots) || 0));
+  /** @type {Record<string, number>} */
+  const deltas = {};
+  let totalDelta = 0;
+  for (const id of Object.keys(bundle.attributes)) {
+    if (String(id).startsWith("_")) continue;
+    const d = Math.max(0, (character.attributes[id] ?? 1) - (baseline[id] ?? 1));
+    if (d > 0) {
+      deltas[id] = d;
+      totalDelta += d;
+    }
+  }
+  if (totalDelta <= finBudget) return;
+  ensureExperienceAdvancementBumps(character);
+  let finLeft = finBudget;
+  const ids = Object.keys(deltas).sort((a, b) => deltas[b] - deltas[a]);
+  for (const id of ids) {
+    const d = deltas[id];
+    const chargenFin = Math.min(d, finLeft);
+    finLeft -= chargenFin;
+    const xp = d - chargenFin;
+    if (xp > 0) character.experienceAttributeBumps[id] = xp;
+  }
+}
+
+function reconcileExperienceSkillBumpsFromChargenOverflow() {
+  if (experienceSkillBumpsTotal(character) > 0) return;
+  const baseline = character.finishing?.skillBaseline;
+  if (!baseline || typeof baseline !== "object") return;
+  const finBudget = Math.max(0, Math.round(Number(character.finishing?.extraSkillDots) || 0));
+  /** @type {Record<string, number>} */
+  const deltas = {};
+  let totalDelta = 0;
+  for (const sid of skillIds()) {
+    const d = Math.max(0, (character.skillDots[sid] || 0) - (baseline[sid] || 0));
+    if (d > 0) {
+      deltas[sid] = d;
+      totalDelta += d;
+    }
+  }
+  if (totalDelta <= finBudget) return;
+  ensureExperienceAdvancementBumps(character);
+  let finLeft = finBudget;
+  const ids = Object.keys(deltas).sort((a, b) => deltas[b] - deltas[a]);
+  for (const sid of ids) {
+    const d = deltas[sid];
+    const chargenFin = Math.min(d, finLeft);
+    finLeft -= chargenFin;
+    const xp = d - chargenFin;
+    if (xp > 0) character.experienceSkillBumps[sid] = xp;
+  }
+}
+
 function ensureExperienceShape() {
   const n = Math.round(Number(character.experiencePoints) || 0);
   character.experiencePoints = Number.isFinite(n) && n >= 0 ? n : 0;
@@ -4404,12 +4510,53 @@ function ensureExperienceShape() {
       ...new Set(character.experienceKnackIds.filter((id) => typeof id === "string" && id.trim() && main.has(id))),
     ];
   }
+  ensureExperienceAdvancementBumps(character);
+  reconcileExperienceAttributeBumpsFromChargenOverflow();
+  reconcileExperienceSkillBumpsFromChargenOverflow();
+  healSpuriousExperienceKnackIds();
+}
+
+/** Knack already taken on Calling / Finishing / tier carry — not an Experience purchase. */
+function knackOwnedFromPriorChargen(kid) {
+  const id = String(kid || "").trim();
+  if (!id) return false;
+  if ((character.finishing?.finishingKnackIds || []).includes(id)) return true;
+  if (finishingBonusKnackIdSet(character).has(id)) return true;
+  if ((character.knackIds || []).includes(id) && !experienceKnackIdSet(character).has(id)) return true;
+  return false;
+}
+
+/**
+ * Undo mistaken Exp purchases of knacks already on the sheet from chargen (refund XP, restore Finishing lists).
+ */
+function healSpuriousExperienceKnackIds() {
+  if (!Array.isArray(character.experienceKnackIds) || !character.experienceKnackIds.length) return;
+  if (!bundle?.knacks) return;
+  const finishing = new Set(character.finishing?.finishingKnackIds || []);
+  const bonus = finishingBonusKnackIdSet(character);
+  /** @type {string[]} */
+  const spurious = [];
+  for (const id of character.experienceKnackIds) {
+    if (finishing.has(id) || bonus.has(id)) spurious.push(id);
+  }
+  if (!spurious.length) return;
+  for (const id of spurious) {
+    const wasInFinishing = finishing.has(id);
+    removeExperienceKnackPickIfPresent(id);
+    experienceRefund(character, bundle, "knack");
+    if (wasInFinishing && (character.knackIds || []).includes(id)) {
+      character.knackIds = (character.knackIds || []).filter((x) => x !== id);
+    }
+  }
+  if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
 }
 
 /** @param {string} kid */
 function addExperienceKnackPick(kid) {
   const id = String(kid || "").trim();
-  if (!id || !experienceSpend(character, bundle, "knack")) return false;
+  if (!id || knackOwnedFromPriorChargen(id)) return false;
+  if (experienceKnackIdSet(character).has(id)) return true;
+  if (!experienceSpend(character, bundle, "knack")) return false;
   if (!(character.knackIds || []).includes(id)) {
     character.knackIds = [...(character.knackIds || []), id];
   }
@@ -5783,6 +5930,98 @@ function appendMotmCallingRowHint(section, rid, pair) {
   section.appendChild(hint);
 }
 
+/** Hero / Titanic / Demigod / God (deity or Titan line): three Calling rows with per-row MotM knack pools. */
+function useCallingKnackThreeRowBuckets() {
+  if (isOriginPlayTier(character.tier) || !heroUsesCallingSlotRows(character)) return false;
+  ensureCallingSlotsForHero();
+  return (
+    Array.isArray(character.callingSlots) && character.callingSlots.length === HERO_CALLING_ROW_COUNT
+  );
+}
+
+/** Knack already on the sheet (main list, Finishing hold, or locked from a prior tier). */
+function knackHeldOnCallingKnackPanel(kid) {
+  const id = String(kid || "").trim();
+  if (!id) return false;
+  if ((character.knackIds || []).includes(id)) return true;
+  if ((character.finishing?.finishingKnackIds || []).includes(id)) return true;
+  if (isKnackLocked(character, id)) return true;
+  return false;
+}
+
+/** Catalog rows plus any picks already on the character (so locked Origin knacks still render at Hero+). */
+function callingKnackPanelEntryList() {
+  const entries = Object.entries(bundle.knacks || {}).filter(
+    ([kid, k]) => !kid.startsWith("_") && isEntryVisibleForBooks(k, allowedBooks),
+  );
+  const seen = new Set(entries.map(([kid]) => kid));
+  const addHeld = (kid) => {
+    const id = String(kid || "").trim();
+    if (!id || id.startsWith("_") || seen.has(id)) return;
+    const k = bundle.knacks?.[id];
+    if (!k || typeof k !== "object") return;
+    entries.push([id, k]);
+    seen.add(id);
+  };
+  for (const kid of character.knackIds || []) addHeld(kid);
+  for (const kid of character.finishing?.finishingKnackIds || []) addHeld(kid);
+  for (const kid of knackLockedIdSet(character)) addHeld(kid);
+  entries.sort((a, b) => {
+    const na = String(a[1]?.name || a[0]);
+    const nb = String(b[1]?.name || b[0]);
+    const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
+    if (c !== 0) return c;
+    return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
+  });
+  return entries;
+}
+
+/**
+ * Ensure knacks assigned to (or owned on) this Hero Calling row appear even when tier gates hide them from the catalog pass.
+ * @param {[string, Record<string, unknown>][]} list
+ * @param {number | "any"} rowIdx
+ */
+function ensureHeldKnacksInCallingRowList(list, rowIdx) {
+  if (rowIdx === "any") return list;
+  const seen = new Set(list.map(([kid]) => kid));
+  const out = [...list];
+  for (const kid of new Set([...(character.knackIds || []), ...knackLockedIdSet(character)])) {
+    if (seen.has(kid) || !(character.knackIds || []).includes(kid)) continue;
+    const k = bundle.knacks?.[kid];
+    if (!k || typeof k !== "object") continue;
+    if (isGeneralCallingKnack(k)) continue;
+    let payRow = character.knackSlotById?.[kid];
+    if (payRow == null || !Number.isFinite(Number(payRow))) {
+      const bucket = heroKnackChipBucketKey(k, character, bundle);
+      payRow = bucket === "any" ? rowIdx : bucket;
+    }
+    if (payRow !== rowIdx) continue;
+    out.push([kid, k]);
+    seen.add(kid);
+  }
+  return out;
+}
+
+/**
+ * MotM rows: peer Cosmos / Sage sections (Origin-style); otherwise nested subpools or a flat chip list.
+ * @param {HTMLElement} parent
+ * @param {[string, Record<string, unknown>][]} list
+ * @param {string} rowCallingId
+ * @param {(container: HTMLElement, kid: string, k: Record<string, unknown>) => void} appendChipFn
+ */
+function appendCallingRowKnackPoolChips(parent, list, rowCallingId, appendChipFn) {
+  const cid = String(rowCallingId ?? "").trim();
+  const pair = isMythosPantheonSelected() && cid ? motmCallingPairForRow(cid, bundle) : null;
+  if (pair) {
+    const split = splitMotmKnackEntriesBySubpool(list, character, cid, bundle);
+    if (split && (split.inverted.length || split.standard.length || split.other.length)) {
+      appendMotmTwinKnackPoolSections(parent, split, cid, { appendChip: appendChipFn });
+      return;
+    }
+  }
+  appendKnackChipsWithMotmSubpools(parent, list, rowCallingId, { appendChip: appendChipFn });
+}
+
 /**
  * MotM paired Calling: two peer knack sections (e.g. Sage and Cosmos), each with its own heading.
  * @param {HTMLElement} parent
@@ -5820,21 +6059,12 @@ function appendMotmTwinKnackPoolSections(parent, split, anchorCallingId, opts) {
     section.appendChild(chipWrap);
     parent.appendChild(section);
   }
-  if (split.other.length) {
-    const section = document.createElement("div");
-    section.className = "calling-knack-chip-group";
-    const head = document.createElement("h3");
-    head.className = "calling-knack-chip-group-title";
-    head.textContent = "Other Calling knacks";
-    section.appendChild(head);
-    const chipWrap = document.createElement("div");
-    chipWrap.className = "calling-knack-chip-group-body";
+  const rowOther = split.other.filter(([, k]) => !isGeneralCallingKnack(k));
+  if (rowOther.length) {
     const chips = document.createElement("div");
     chips.className = "chips chips--calling-knack-subgroup";
-    for (const [kid, k] of split.other) appendChip(chips, kid, k);
-    chipWrap.appendChild(chips);
-    section.appendChild(chipWrap);
-    parent.appendChild(section);
+    for (const [kid, k] of rowOther) appendChip(chips, kid, k);
+    parent.appendChild(chips);
   }
 }
 
@@ -5846,8 +6076,11 @@ function appendMotmTwinKnackPoolSections(parent, split, anchorCallingId, opts) {
  */
 function appendKnackChipsWithMotmSubpools(parent, list, rowCallingId, opts) {
   const appendChip = opts.appendChip;
-  const cid = String(rowCallingId ?? character.callingId ?? "").trim();
-  const pair = isMythosPantheonSelected() ? motmCallingPairForRow(cid, bundle) : null;
+  const cid =
+    rowCallingId === undefined
+      ? String(character.callingId ?? "").trim()
+      : String(rowCallingId).trim();
+  const pair = isMythosPantheonSelected() && cid ? motmCallingPairForRow(cid, bundle) : null;
   if (!cid || !pair) {
     for (const [kid, k] of list) appendChip(parent, kid, k);
     return;
@@ -5890,13 +6123,14 @@ function appendKnackChipsWithMotmSubpools(parent, list, rowCallingId, opts) {
   for (const subKey of motmTwinKnackPoolOrder(cid, pair)) {
     addSubpool(subKey, subKey === "inverted" ? inverted : standard);
   }
-  if (other.length) {
+  const rowOther = other.filter(([, k]) => !isGeneralCallingKnack(k));
+  if (rowOther.length) {
     const chips = document.createElement("div");
     chips.className = "chips chips--calling-knack-subgroup";
-    for (const [kid, k] of other) appendChip(chips, kid, k);
+    for (const [kid, k] of rowOther) appendChip(chips, kid, k);
     parent.appendChild(chips);
   }
-  if (!inverted.length && !standard.length && !other.length && list.length) {
+  if (!inverted.length && !standard.length && !rowOther.length && list.length) {
     const chips = document.createElement("div");
     chips.className = "chips chips--calling-knack-subgroup";
     for (const [kid, k] of list) appendChip(chips, kid, k);
@@ -5912,12 +6146,14 @@ function appendKnackChipsWithMotmSubpools(parent, list, rowCallingId, opts) {
  */
 function appendExpLevelingKnackSections(knackSec, knackEntries) {
   const originCallingId = String(character.callingId || "").trim();
+  const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
   let knackXpCount = 0;
 
   /** @param {Record<string, unknown>} k */
   function expKnackOffered(kid, k) {
+    if (knackOwnedFromPriorChargen(kid)) return false;
     const experienceExtra = experienceKnackIdSet(character).has(kid);
-    const on = character.knackIds.includes(kid);
+    const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const knackXpBuy = baseOk && !eligible && !on && experienceCanAfford(character, bundle, "knack");
@@ -5926,18 +6162,19 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
 
   /** @param {HTMLElement} container */
   function appendExpKnackChip(container, kid, k) {
-    const on = character.knackIds.includes(kid);
-    const experienceExtra = on && experienceKnackIdSet(character).has(kid);
+    const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
+    const experienceExtra = experienceKnackIdSet(character).has(kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
-    const knackXpBuy = !on && baseOk && !eligible && experienceCanAfford(character, bundle, "knack");
+    const knackXpBuy =
+      !experienceExtra && !on && !knackOwnedFromPriorChargen(kid) && baseOk && !eligible && experienceCanAfford(character, bundle, "knack");
     const slotBlocked = !on && baseOk && !eligible && !knackXpBuy;
     const knackCost = experiencePurchaseCost(bundle, "knack") ?? 10;
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className =
       "chip" +
-      (on ? " on" : "") +
+      (on || experienceExtra ? " on" : "") +
       (experienceExtra ? " chip-knack-experience" : "") +
       (slotBlocked ? " chip-knack-slot-blocked" : "");
     chip.disabled = slotBlocked;
@@ -5971,10 +6208,7 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
     knackXpCount += 1;
   }
 
-  const useThreeRowKnackBuckets =
-    !isOriginPlayTier(character.tier) &&
-    Array.isArray(character.callingSlots) &&
-    character.callingSlots.length === HERO_CALLING_ROW_COUNT;
+  const useThreeRowKnackBuckets = useCallingKnackThreeRowBuckets();
 
   if (useThreeRowKnackBuckets) {
     /** @type {Map<number | "any", [string, Record<string, unknown>][]>} */
@@ -6020,7 +6254,7 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
       const chipWrap = document.createElement("div");
       chipWrap.className = "calling-knack-chip-group-body";
       const rowCallingId = key === "any" ? "" : String(character.callingSlots?.[key]?.id || "").trim();
-      appendKnackChipsWithMotmSubpools(chipWrap, list, rowCallingId || undefined, {
+      appendKnackChipsWithMotmSubpools(chipWrap, list, rowCallingId, {
         appendChip: (container, kid, k) => appendExpKnackChip(container, kid, k),
       });
       section.appendChild(chipWrap);
@@ -6175,13 +6409,16 @@ function renderCalling(root) {
         "The three Calling rows from Hero or Titanic Visitation (Deity- or Titan-line welcome) carry forward here at Demigod and God, and the same layout applies on Sorcerer divine-band tiers—sheet, export, and per-row Knack budgets. Update dots when your chronicle grants new Calling ratings.";
       visPanel.appendChild(dg);
     }
-    if (visTier === "hero") {
+    if (visTier === "hero" || visTier === "titanic") {
       const visP = document.createElement("div");
       visP.className = "help";
       const intro = document.createElement("p");
       intro.className = "calling-visitation-hero-intro";
+      const advanceLabel =
+        visTier === "titanic" ? "Advance to Titanic Scion" : "Advance to Hero";
+      const patronNoun = patronKindIsTitan() ? "Titan parent" : "divine parent";
       intro.innerHTML =
-        "If you are advancing from Mortal, use <strong>Review → Advance to Hero</strong> (not Finishing) to reach this step. <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (only its dots can move here); pick two new Callings in rows 2–3. New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots. <strong>Calling 1</strong>’s menu is your divine parent’s Calling list; <strong>Callings 2 and 3</strong> list the full Calling library.";
+        `If you are advancing from Mortal, use <strong>Review → ${advanceLabel}</strong> (not Finishing) to reach this step. <strong>Calling 1</strong> stays your <strong>Origin Calling</strong> (only its dots can move here); pick two new Callings in rows 2–3. New rows default to <strong>1 dot</strong> each until you assign all <strong>five</strong> dots across the three rows (each Calling keeps at least one). Your knack budget equals the sum of these dots. <strong>Calling 1</strong>’s menu is your ${patronNoun}’s Calling list; <strong>Callings 2 and 3</strong> list the full Calling library.`;
       visP.appendChild(intro);
       const rules = document.createElement("p");
       rules.className = "calling-visitation-hero-rules";
@@ -6191,7 +6428,7 @@ function renderCalling(root) {
       const ul = document.createElement("ul");
       ul.className = "calling-visitation-hero-list";
       const items = [
-        "One of your Callings must be one of your divine parent’s three, but the other two are free choice.",
+        `One of your Callings must be one of your ${patronNoun}’s three, but the other two are free choice.`,
         "Each Calling is associated with three Fatebinding roles (Hero p. 197).",
         "At Legend 2, 4, 6, 8, and 10 you gain an extra dot of Calling, which can be applied to any of your three chosen Callings as long as it does not take that Calling above five dots.",
       ];
@@ -6205,8 +6442,7 @@ function renderCalling(root) {
     }
     wrap.appendChild(visPanel);
     const lockPrimaryCallingSelect = visitationLocksPrimaryCallingChoice();
-    const maxCallingDotPool =
-      visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero" ? 5 : 15;
+    const maxCallingDotPool = isHeroBandCallingTierId(visTier) ? 5 : 15;
     for (let rowIdx = 0; rowIdx < HERO_CALLING_ROW_COUNT; rowIdx += 1) {
       const slot = character.callingSlots[rowIdx];
       const fieldH = document.createElement("div");
@@ -6252,7 +6488,7 @@ function renderCalling(root) {
         selH.addEventListener("change", () => {
           ensureCallingSlotsForHero();
           character.callingSlots[rowIdx].id = selH.value || "";
-          if (visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero") {
+          if (isHeroBandCallingTierId(visTier)) {
             rebalanceHeroCallingSlotDotsOverFive();
           }
           syncCallingAggregatesFromHeroSlots();
@@ -6290,7 +6526,7 @@ function renderCalling(root) {
           b.addEventListener("click", () => {
             ensureCallingSlotsForHero();
             character.callingSlots[rowIdx].dots = dotN;
-            if (visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero") {
+            if (isHeroBandCallingTierId(visTier)) {
               rebalanceHeroCallingSlotDotsOverFive();
             }
             syncCallingAggregatesFromHeroSlots();
@@ -6308,14 +6544,20 @@ function renderCalling(root) {
     wrap.appendChild(grid);
     const dotSumHero = character.callingSlots.reduce((a, s) => a + s.dots, 0);
     const missingCallingPick = character.callingSlots.some((s) => !String(s.id || "").trim());
-    const heroBandVis = visTier === "hero" || visTier === "titanic" || visTier === "sorcerer_hero";
+    const heroBandVis = isHeroBandCallingTierId(visTier);
+    const visitationBandLabel =
+      visTier === "titanic"
+        ? "Titanic Visitation"
+        : visTier === "sorcerer_hero"
+          ? "Heroic Sorcerer band"
+          : "Hero Visitation";
     if (heroBandVis && (dotSumHero < 5 || missingCallingPick)) {
       const wHero = document.createElement("p");
       wHero.className = "warn";
       wHero.textContent =
         (missingCallingPick ? "Pick a Calling in every row (three total). " : "") +
         (dotSumHero < 5
-          ? `Distribute all five Calling dots for Hero Visitation (currently ${dotSumHero} / 5 on the three rows).`
+          ? `Distribute all five Calling dots for ${visitationBandLabel} (currently ${dotSumHero} / 5 on the three rows).`
           : "");
       wrap.appendChild(wHero);
     }
@@ -6420,6 +6662,8 @@ function renderCalling(root) {
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
   knackPanel.innerHTML = `<h2>Knacks</h2>`;
+  reconcileLockedKnackIds(character, bundle);
+  if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
   const originCallingId = String(character.callingId || "").trim();
   const originTwinId = originCallingId ? mythosCallingTwinId(originCallingId) : null;
   if (
@@ -6439,26 +6683,15 @@ function renderCalling(root) {
   }
   const heroImmKnackSlots = immortalKnackCostsTwoCallingSlots(character.tier);
   const finishingKnackSet = new Set(character.finishing?.finishingKnackIds || []);
-  const knackEntries = Object.entries(bundle.knacks)
-    .filter(([kid, k]) => !kid.startsWith("_") && isEntryVisibleForBooks(k, allowedBooks))
-    .sort((a, b) => {
-      const na = String(a[1]?.name || a[0]);
-      const nb = String(b[1]?.name || b[0]);
-      const c = na.localeCompare(nb, undefined, { sensitivity: "base" });
-      if (c !== 0) return c;
-      return String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: "base" });
-    });
+  const knackEntries = callingKnackPanelEntryList();
 
-  /** Three Calling rows (Hero-style): group Knacks by row + “General Calling” even when tier id isn’t Hero (e.g. Demigod+). */
-  const useThreeRowKnackBuckets =
-    !isOriginPlayTier(character.tier) &&
-    Array.isArray(character.callingSlots) &&
-    character.callingSlots.length === HERO_CALLING_ROW_COUNT;
+  /** Three Calling rows (Hero / Titanic / Demigod / God): per-row knack pools including locked Origin picks. */
+  const useThreeRowKnackBuckets = useCallingKnackThreeRowBuckets();
 
   /** @param {HTMLElement} container */
   function appendKnackChip(container, kid, k, preferredRowIdx = null) {
-    const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
-    const locked = character.knackIds.includes(kid) && isKnackLocked(character, kid);
+    const on = knackHeldOnCallingKnackPanel(kid);
+    const locked = on && isKnackLocked(character, kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const finishingExtra = character.knackIds.includes(kid) && finishingBonusKnackIdSet(character).has(kid);
@@ -6563,9 +6796,8 @@ function renderCalling(root) {
       buckets.get(key).push(pair);
     };
     for (const [kid, k] of knackEntries) {
-      const baseOk = knackEligible(k, character, bundle);
-      const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
-      if (!baseOk && !selected) continue;
+      const held = knackHeldOnCallingKnackPanel(kid);
+      if (!knackEligibleOrLockedHeld(k, character, bundle) && !held) continue;
       for (const bucketKey of heroKnackChipPanelBucketKeys(k, character, bundle)) {
         pushBucket(bucketKey, [kid, k]);
       }
@@ -6615,9 +6847,10 @@ function renderCalling(root) {
       chipWrap.className = "calling-knack-chip-group-body";
       const rowCallingId = key === "any" ? "" : String(character.callingSlots?.[key]?.id || "").trim();
       const prefRow = key === "any" ? null : key;
-      appendKnackChipsWithMotmSubpools(chipWrap, list, rowCallingId || undefined, {
-        appendChip: (container, kid, k) => appendKnackChip(container, kid, k, prefRow),
-      });
+      const rowList = key === "any" ? list : ensureHeldKnacksInCallingRowList(list, key);
+      appendCallingRowKnackPoolChips(chipWrap, rowList, rowCallingId, (container, kid, k) =>
+        appendKnackChip(container, kid, k, prefRow),
+      );
       section.appendChild(chipWrap);
       knackPanel.appendChild(section);
     }
@@ -6631,9 +6864,8 @@ function renderCalling(root) {
       buckets.get(key).push(pair);
     };
     for (const [kid, k] of knackEntries) {
-      const baseOk = knackEligible(k, character, bundle);
-      const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
-      if (!baseOk && !selected) continue;
+      const held = knackHeldOnCallingKnackPanel(kid);
+      if (!knackEligibleOrLockedHeld(k, character, bundle) && !held) continue;
       /* Origin Calling step lists only the one Knack paid by Calling dots; Finishing extras stay on Finishing. */
       if (!character.knackIds.includes(kid) && finishingKnackSet.has(kid)) continue;
       const key = originCallingKnackChipGroupKey(k, character, bundle);
@@ -6715,6 +6947,7 @@ function renderCalling(root) {
   } else {
     const tierN = normalizedTierId(character.tier);
     if (isPostHeroBandCallingTierId(tierN)) {
+      /** Legacy single-column layout when three-row slots could not be initialized (should be rare). */
       /** @type {Map<"selected" | "any", [string, Record<string, unknown>][]>} */
       const buckets = new Map([
         ["selected", []],
@@ -6724,10 +6957,9 @@ function renderCalling(root) {
         buckets.get(key).push(pair);
       };
       for (const [kid, k] of knackEntries) {
-        const baseOk = knackEligible(k, character, bundle);
-        const on = character.knackIds.includes(kid);
-        if (!baseOk && !on) continue;
-        if (!on && finishingKnackSet.has(kid)) continue;
+        const held = knackHeldOnCallingKnackPanel(kid);
+        if (!knackEligibleOrLockedHeld(k, character, bundle) && !held) continue;
+        if (!character.knackIds.includes(kid) && finishingKnackSet.has(kid)) continue;
         const key = originCallingKnackChipGroupKey(k, character, bundle);
         pushBucket(key, [kid, k]);
       }
@@ -6767,9 +6999,9 @@ function renderCalling(root) {
               : "No Knacks in this group pass your current gates, or every match is already taken as an extra Finishing Knack — adjust Calling, clear picks on Finishing, or check tier / pantheon data.";
           chipWrap.appendChild(empty);
         } else if (key === "selected") {
-          appendKnackChipsWithMotmSubpools(chipWrap, list, originCallingId || undefined, {
-            appendChip: (container, kid, k) => appendKnackChip(container, kid, k),
-          });
+          appendCallingRowKnackPoolChips(chipWrap, list, originCallingId, (container, kid, k) =>
+            appendKnackChip(container, kid, k),
+          );
         } else {
           const chips = document.createElement("div");
           chips.className = "chips chips--calling-knack-subgroup";
@@ -6783,9 +7015,8 @@ function renderCalling(root) {
       const chips = document.createElement("div");
       chips.className = "chips";
       for (const [kid, k] of knackEntries) {
-        const baseOk = knackEligible(k, character, bundle);
-        const selected = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
-        if (!baseOk && !selected) continue;
+        const held = knackHeldOnCallingKnackPanel(kid);
+        if (!knackEligibleOrLockedHeld(k, character, bundle) && !held) continue;
         appendKnackChip(chips, kid, k);
       }
       knackPanel.appendChild(chips);
@@ -9263,6 +9494,8 @@ function buildExportObject() {
     experienceBirthrightsNamed: (character.experienceBirthrightPickIds || []).map(
       (id) => bundle.birthrights[id]?.name || id,
     ),
+    experienceAttributeBumps: { ...(character.experienceAttributeBumps || {}) },
+    experienceSkillBumps: { ...(character.experienceSkillBumps || {}) },
     finishing: (() => {
       const { fatebindingEditorIndex: _fbcUi, ...finRest } = character.finishing;
       return {
@@ -9749,6 +9982,30 @@ function importCharacterFromExportPayload(data) {
     experienceBirthrightPickIds: Array.isArray(data.experienceBirthrightPickIds)
       ? data.experienceBirthrightPickIds.filter((x) => typeof x === "string" && validBirthright.has(x))
       : [...base.experienceBirthrightPickIds],
+    experienceAttributeBumps: (() => {
+      const raw = data.experienceAttributeBumps;
+      if (!raw || typeof raw !== "object") return { ...base.experienceAttributeBumps };
+      /** @type {Record<string, number>} */
+      const out = {};
+      for (const [id, n] of Object.entries(raw)) {
+        if (String(id).startsWith("_") || !bundle.attributes?.[id]) continue;
+        const v = Math.round(Number(n) || 0);
+        if (Number.isFinite(v) && v > 0) out[id] = v;
+      }
+      return out;
+    })(),
+    experienceSkillBumps: (() => {
+      const raw = data.experienceSkillBumps;
+      if (!raw || typeof raw !== "object") return { ...base.experienceSkillBumps };
+      /** @type {Record<string, number>} */
+      const out = {};
+      for (const [id, n] of Object.entries(raw)) {
+        if (String(id).startsWith("_") || !bundle.skills?.[id]) continue;
+        const v = Math.round(Number(n) || 0);
+        if (Number.isFinite(v) && v > 0) out[id] = v;
+      }
+      return out;
+    })(),
     birthrightIds: Array.isArray(data.birthrightIds)
       ? data.birthrightIds.filter((x) => typeof x === "string" && validBirthright.has(x))
       : [...base.birthrightIds],

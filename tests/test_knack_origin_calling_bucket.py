@@ -984,8 +984,8 @@ def hero_knack_chip_panel_bucket_keys(knack: dict, character: dict) -> list:
     """Mirror eligibility.js heroKnackChipPanelBucketKeys."""
     primary = hero_knack_chip_bucket_key(knack, character)
     keys = {primary}
-    if primary == "any" or (character.get("pantheonId") or "").strip() != "mythos":
-        return list(keys)
+    if primary == "any" or not is_mythos_for_character(character):
+        return sorted(keys, key=lambda x: (1, x) if x == "any" else (0, x))
     slots = character.get("callingSlots") or []
     primary_row_id = (slots[primary].get("id") or "").strip()
     twin = mythos_twin(primary_row_id)
@@ -1099,6 +1099,163 @@ def test_sage_origin_knack_eligible_for_cosmos_via_knack_side_twin_expand():
     sage_knack = knacks["sage_blockade_of_reason"]
     assert "cosmos" in expand_motm_knack_access(sage_knack, ["sage"], character)
     assert knack_eligible_mortal(sage_knack, character)
+
+
+def is_hero_band_calling_tier_id(tier_id: str) -> bool:
+    """Mirror eligibility.js isHeroBandCallingTierId."""
+    t = (tier_id or "mortal").strip().lower()
+    return t in ("hero", "titanic", "sorcerer_hero")
+
+
+def hero_uses_calling_slot_rows(character: dict) -> bool:
+    """Mirror eligibility.js heroUsesCallingSlotRows (deity + Titan line)."""
+    tier = (character.get("tier") or "mortal").strip().lower()
+    if is_hero_band_calling_tier_id(tier):
+        return True
+    return tier in ("demigod", "god", "sorcerer_demigod", "sorcerer_god")
+
+
+def test_titanic_uses_calling_slot_rows():
+    assert hero_uses_calling_slot_rows({"tier": "titanic", "patronKind": "titan", "callingSlots": None})
+
+
+def test_demigod_and_god_always_use_calling_slot_rows():
+    for tier in ("demigod", "god", "sorcerer_demigod", "sorcerer_god"):
+        assert hero_uses_calling_slot_rows({"tier": tier, "callingSlots": None})
+
+
+def test_demigod_cosmos_locked_psychic_attack_buckets_to_primary_row():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "callingId": "cosmos",
+        "parentDeityId": "cthulhu",
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "callingSlots": [
+            {"id": "cosmos", "dots": 2},
+            {"id": "liminal", "dots": 1},
+            {"id": "monster", "dots": 1},
+        ],
+    }
+    row = knacks["mythos_psychic_attack"]
+    assert hero_uses_calling_slot_rows(character)
+    assert motm_inverted_knack_subpool_key(row, character, "cosmos", "mythos_psychic_attack") == "inverted"
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
+
+
+def test_god_cosmos_locked_psychic_attack_buckets_to_primary_row():
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "god",
+        "callingId": "cosmos",
+        "parentDeityId": "cthulhu",
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "callingSlots": [
+            {"id": "cosmos", "dots": 3},
+            {"id": "liminal", "dots": 2},
+            {"id": "monster", "dots": 2},
+        ],
+    }
+    row = knacks["mythos_psychic_attack"]
+    assert hero_uses_calling_slot_rows(character)
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
+
+
+def test_hero_cosmos_locked_psychic_attack_classifies_inverted_pool():
+    """Locked Origin Cosmos pick must land in the inverted (Cosmos) peer pool at Hero."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "hero",
+        "callingId": "cosmos",
+        "parentDeityId": "cthulhu",
+        "pantheonId": "",
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "callingSlots": [
+            {"id": "cosmos", "dots": 1},
+            {"id": "", "dots": 1},
+            {"id": "", "dots": 1},
+        ],
+    }
+    row = knacks["mythos_psychic_attack"]
+    assert is_mythos_for_character(character)
+    assert motm_inverted_knack_subpool_key(row, character, "cosmos", "mythos_psychic_attack") == "inverted"
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
+
+
+def test_titanic_cosmos_locked_psychic_attack_buckets_to_primary_row():
+    """Titan line hero-band: locked Origin Cosmos knack stays visible on row 0 at Titanic."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "titanic",
+        "patronKind": "titan",
+        "callingId": "cosmos",
+        "parentDeityId": "cthulhu",
+        "pantheonId": "",
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "callingSlots": [
+            {"id": "cosmos", "dots": 1},
+            {"id": "destroyer", "dots": 2},
+            {"id": "monster", "dots": 2},
+        ],
+    }
+    row = knacks["mythos_psychic_attack"]
+    assert hero_uses_calling_slot_rows(character)
+    assert motm_inverted_knack_subpool_key(row, character, "cosmos", "mythos_psychic_attack") == "inverted"
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
+
+
+def test_titan_line_demigod_destroyer_locked_mythos_knack_buckets_to_primary_row():
+    """Titan welcome line at Demigod: locked inverted Destroyer knack stays on the primary row."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "patronKind": "titan",
+        "callingId": "destroyer",
+        "parentDeityId": "titan_surtr",
+        "pantheonId": "aesir",
+        "knackIds": ["mythos_rust_and_decay"],
+        "lockedKnackIds": ["mythos_rust_and_decay"],
+        "knackSlotById": {"mythos_rust_and_decay": 0},
+        "callingSlots": [
+            {"id": "destroyer", "dots": 5},
+            {"id": "warrior", "dots": 5},
+            {"id": "tyrant", "dots": 5},
+        ],
+    }
+    row = knacks["mythos_rust_and_decay"]
+    assert hero_uses_calling_slot_rows(character)
+    assert motm_inverted_knack_subpool_key(row, character, "destroyer", "mythos_rust_and_decay") == "inverted"
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
+
+
+def test_titan_line_god_cosmos_locked_psychic_attack_buckets_to_primary_row():
+    """Titan line at God: same three-row locked MotM knack display as deity line."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "god",
+        "patronKind": "titan",
+        "callingId": "cosmos",
+        "parentDeityId": "cthulhu",
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "callingSlots": [
+            {"id": "cosmos", "dots": 5},
+            {"id": "destroyer", "dots": 5},
+            {"id": "monster", "dots": 5},
+        ],
+    }
+    row = knacks["mythos_psychic_attack"]
+    assert hero_uses_calling_slot_rows(character)
+    assert hero_knack_chip_panel_bucket_keys(row, character) == [0]
 
 
 def test_cthulhu_mortal_cosmos_knacks_without_explicit_pantheon():

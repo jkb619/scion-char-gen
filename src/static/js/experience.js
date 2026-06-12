@@ -107,3 +107,78 @@ export function experienceTableSummaryTitle(bundle) {
     })
     .join("; ");
 }
+
+/** @param {unknown} character */
+export function ensureExperienceAdvancementBumps(character) {
+  if (!character || typeof character !== "object") return;
+  const c = /** @type {{ experienceAttributeBumps?: Record<string, number>; experienceSkillBumps?: Record<string, number> }} */ (
+    character
+  );
+  if (!c.experienceAttributeBumps || typeof c.experienceAttributeBumps !== "object") {
+    c.experienceAttributeBumps = {};
+  }
+  if (!c.experienceSkillBumps || typeof c.experienceSkillBumps !== "object") {
+    c.experienceSkillBumps = {};
+  }
+}
+
+/** @param {unknown} character @param {string} attrId */
+export function experienceAttributeBumpCount(character, attrId) {
+  ensureExperienceAdvancementBumps(character);
+  const id = String(attrId || "").trim();
+  if (!id) return 0;
+  const n = Math.round(
+    Number(/** @type {{ experienceAttributeBumps?: Record<string, number> }} */ (character).experienceAttributeBumps?.[id]) ||
+      0,
+  );
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/** @param {unknown} character @param {string} skillId */
+export function experienceSkillBumpCount(character, skillId) {
+  ensureExperienceAdvancementBumps(character);
+  const id = String(skillId || "").trim();
+  if (!id) return 0;
+  const n = Math.round(
+    Number(/** @type {{ experienceSkillBumps?: Record<string, number> }} */ (character).experienceSkillBumps?.[id]) || 0,
+  );
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/** @param {unknown} character */
+export function experienceAttributeBumpsTotal(character) {
+  ensureExperienceAdvancementBumps(character);
+  const bumps = /** @type {{ experienceAttributeBumps?: Record<string, number> }} */ (character).experienceAttributeBumps;
+  return Object.values(bumps || {}).reduce((sum, n) => {
+    const v = Math.round(Number(n) || 0);
+    return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+  }, 0);
+}
+
+/** @param {unknown} character */
+export function experienceSkillBumpsTotal(character) {
+  ensureExperienceAdvancementBumps(character);
+  const bumps = /** @type {{ experienceSkillBumps?: Record<string, number> }} */ (character).experienceSkillBumps;
+  return Object.values(bumps || {}).reduce((sum, n) => {
+    const v = Math.round(Number(n) || 0);
+    return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+  }, 0);
+}
+
+/** @param {unknown} character @param {string} attrId */
+export function recordExperienceAttributeBump(character, attrId) {
+  ensureExperienceAdvancementBumps(character);
+  const id = String(attrId || "").trim();
+  if (!id) return;
+  /** @type {{ experienceAttributeBumps: Record<string, number> }} */ (character).experienceAttributeBumps[id] =
+    experienceAttributeBumpCount(character, id) + 1;
+}
+
+/** @param {unknown} character @param {string} skillId */
+export function recordExperienceSkillBump(character, skillId) {
+  ensureExperienceAdvancementBumps(character);
+  const id = String(skillId || "").trim();
+  if (!id) return;
+  /** @type {{ experienceSkillBumps: Record<string, number> }} */ (character).experienceSkillBumps[id] =
+    experienceSkillBumpCount(character, id) + 1;
+}
