@@ -12,7 +12,7 @@ import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
-import { sheetExperienceTotals } from "./experience.js";
+import { sheetExperienceSpentOnLines, sheetExperienceTotals } from "./experience.js";
 
 /**
  * @param {HTMLElement} el — root `.character-sheet`
@@ -630,9 +630,12 @@ export function fillMcgFourPageLayout(el, api) {
   sl.className = "cs-mcg-subhead";
   sl.textContent = "Spent on";
   spent.appendChild(sl);
-  for (let i = 0; i < 3; i += 1) {
+  const spentOnLines = sheetExperienceSpentOnLines(data, bundle);
+  const spentLineCount = Math.max(3, spentOnLines.length);
+  for (let i = 0; i < spentLineCount; i += 1) {
     const ln = document.createElement("div");
     ln.className = "cs-mcg-write-line";
+    ln.textContent = spentOnLines[i] || "";
     spent.appendChild(ln);
   }
   p2.appendChild(spent);
@@ -800,30 +803,5 @@ export function fillMcgFourPageLayout(el, api) {
       fbGrid.appendChild(blk);
     }
     p4.appendChild(fbGrid);
-  }
-
-  const fin = data.finishing || {};
-  const finBits = [];
-  if (fin.extraSkillDots != null && fin.extraSkillDots !== "")
-    finBits.push(`Extra skill dots (budget): ${fin.extraSkillDots}`);
-  if (fin.extraAttributeDots != null && fin.extraAttributeDots !== "")
-    finBits.push(`Extra attribute dots (budget): ${fin.extraAttributeDots}`);
-  finBits.push(
-    `Focus: ${fin.knackOrBirthright === "birthrights" ? "Birthright points" : "Extra Knacks"}`,
-  );
-  if (Array.isArray(fin.finishingKnacksNamed) && fin.finishingKnacksNamed.length) {
-    finBits.push(`Finishing knacks: ${fin.finishingKnacksNamed.join("; ")}`);
-  }
-  if (Array.isArray(fin.birthrightsNamed) && fin.birthrightsNamed.length) {
-    finBits.push(`Birthrights: ${fin.birthrightsNamed.join("; ")}`);
-  }
-  if (data.heroBirthrightDotsUnusedFromSeven != null) {
-    finBits.push(`Hero Birthright points unused (of 7): ${data.heroBirthrightDotsUnusedFromSeven}`);
-  }
-  if (finBits.length) {
-    const fx = document.createElement("div");
-    fx.className = "cs-mcg-finishing-strip";
-    fx.textContent = finBits.join(" · ");
-    p4.appendChild(fx);
   }
 }

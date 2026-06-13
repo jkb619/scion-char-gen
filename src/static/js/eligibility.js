@@ -1,6 +1,6 @@
 /**
  * Knack / Boon eligibility for chargen UI (data-driven gates in JSON + character state).
- * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number>; lockedKnackIds?: string[]; finishingBonusKnackIds?: string[]; experienceKnackIds?: string[]; dragonHeirCallingKnackShell?: boolean }} CharacterLike
+ * @typedef {{ tier?: string; callingId?: string; callingDots?: number; callingSlots?: { id?: string; dots?: number }[]; pantheonId?: string; parentDeityId?: string; patronKind?: string; purviewIds?: string[]; patronPurviewSlots?: string[]; mythosInnatePower?: { style?: string; awarenessPurviewId?: string; awarenessLocked?: boolean }; legendRating?: number; awarenessRating?: number; boonIds?: string[]; pathRank?: { primary?: string }; knackIds?: string[]; knackSlotById?: Record<string, number>; knackLockedRowBudgetCostById?: Record<string, number>; lockedKnackIds?: string[]; finishingBonusKnackIds?: string[]; experienceKnackIds?: string[]; dragonHeirCallingKnackShell?: boolean }} CharacterLike
  */
 
 const TIER_RANK = {
@@ -56,6 +56,12 @@ export function knackMatchesChargenLine(k, character) {
   if (!Array.isArray(lines) || lines.length === 0) return true;
   const cur = characterChargenLineForKnacks(character);
   if (lines.includes("any")) return cur === "deity" || cur === "titan";
+  /** MotM inverted knacks (`mythos_*`) apply on deity- and Titan-line Mythos Scions alike. */
+  const kid = String(k?.id ?? "").trim();
+  const pant = Array.isArray(k?.pantheonAnyOf) ? k.pantheonAnyOf : [];
+  if (kid.startsWith("mythos_") && pant.includes("mythos") && (cur === "deity" || cur === "titan")) {
+    return true;
+  }
   return lines.some((line) => typeof line === "string" && line.trim() === cur);
 }
 
@@ -81,6 +87,22 @@ export function knackOriginMortalPick(k) {
 }
 
 /**
+ * Pandora's Box GENERAL pool at the HEROIC band (`callingsAny` / any Calling) — selectable at Origin
+ * the same as Aura of Greatness; PB labels these Heroic General, not a separate post-Visitation list.
+ * @param {Record<string, unknown>} k
+ */
+export function knackHeroicGeneralPick(k) {
+  if (!k || typeof k !== "object") return false;
+  if (!isGeneralCallingKnack(k)) return false;
+  return knackRuleTier(k) === "heroic";
+}
+
+/** Origin / Mortal play tier: Origin Mortal Calling list or PB Heroic General pool. */
+export function knackOriginPlayHeroicPick(k) {
+  return knackOriginMortalPick(k) || knackHeroicGeneralPick(k);
+}
+
+/**
  * @param {"mortal" | "heroic" | "immortal"} tier
  * @returns {string}
  */
@@ -101,25 +123,12 @@ export function knackTierBadgeClass(tier) {
 }
 
 /**
- * Hero-band Calling-dot cost for a knack (Hero p.183–184). Uses `callingSlotCost` when present.
+ * Hero-band Calling-dot cost for a knack (Hero p.183–184): Immortal = 2, all other bands = 1.
  * @param {Record<string, unknown> | null | undefined} k
  * @returns {1 | 2}
  */
 export function knackHeroBandSlotCost(k) {
-  if (!k || typeof k !== "object") return 1;
-  const tier = knackRuleTier(k);
-  if (tier === "mortal" || tier === "heroic") return 1;
-  const raw = k.callingSlotCost;
-  if (raw != null) {
-    const n = Math.round(Number(raw));
-    if (n === 2) return 2;
-    return 1;
-  }
-  const kind = String(k.knackKind ?? "").trim().toLowerCase();
-  const tmin = String(k.tierMin ?? "").trim().toLowerCase();
-  if (kind === "immortal" && (tmin === "demigod" || tmin === "god")) return 2;
-  if (String(k.tier ?? "").trim().toLowerCase() === "immortal" && kind === "immortal") return 2;
-  return 1;
+  return knackPointCost(k);
 }
 
 /** Hero-band tiers: Visitation layout (three Calling rows, five shared dots). Deity line uses Hero; Titan line uses Titanic. */
@@ -568,17 +577,20 @@ export function knackPointCost(k) {
 
 /**
  * Calling-dot–equivalent cost per Knack.
- * Three Calling rows: Heroic = 1 point, Immortal = 2 points per row budget (row dots = point cap).
- * Single-Calling Hero-band: Immortal = 2 when `immortalKnackCostsTwoCallingSlots`. Post-Hero single row: 1.
+ * Three Calling rows + Hero-band: Immortal = 2, Heroic/Mortal = 1 (`knackPointCost`).
+ * Post-Hero single-row (no three-row layout): Immortal = 1.
  * @param {Record<string, unknown> | null} k
  * @param {{ tier?: string; callingSlots?: { dots?: number }[] } | null} [character]
  */
 export function knackCallingSlotCost(k, character) {
   if (!k || typeof k !== "object") return 1;
   if (knackRuleTier(k) === "mortal") return 1;
-  if (character && heroUsesCallingSlotRows(character)) return knackPointCost(k);
+  if (character && heroUsesCallingSlotRows(character)) {
+    if (!immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(k) === 2) return 1;
+    return knackPointCost(k);
+  }
   if (character?.tier != null && !immortalKnackCostsTwoCallingSlots(character.tier)) return 1;
-  return knackHeroBandSlotCost(k);
+  return knackPointCost(k);
 }
 
 function heroCallingSlotRowDots(character, rowIdx) {
@@ -1009,11 +1021,280 @@ export function finishingBonusKnackIdSet(character) {
   return new Set(raw.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")));
 }
 
+/**
+ * The single Origin Calling-dot Knack carried forward at Hero+ (not Finishing extras / Experience).
+ * @param {CharacterLike} character
+ * @returns {string | null}
+ */
+export function heroOriginCallingBudgetKnackId(character) {
+  const locked = knackLockedIdSet(character);
+  const fin = finishingBonusKnackIdSet(character);
+  const xp = new Set([...experienceKnackIdSet(character), ...carriedExperienceKnackIdSet(character)]);
+  for (const id of character.knackIds || []) {
+    if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
+    if (!locked.has(id)) continue;
+    if (fin.has(id) || xp.has(id)) continue;
+    return id;
+  }
+  return null;
+}
+
+/**
+ * Origin Finishing extras recorded on tier-advance log entries (union across advances).
+ * @param {CharacterLike} character
+ * @returns {Set<string>}
+ */
+export function carriedFinishingBonusKnackIdsFromTierLog(character) {
+  const out = new Set();
+  const log = character.tierAdvancementLog;
+  if (!Array.isArray(log)) return out;
+  for (const entry of log) {
+    const carried = entry?.carriedFinishingBonusKnackIds;
+    if (!Array.isArray(carried)) continue;
+    for (const id of carried) {
+      const kid = String(id ?? "").trim();
+      if (kid) out.add(kid);
+    }
+  }
+  return out;
+}
+
+/**
+ * Tier the character was on when a Knack was first carried forward (advance `fromTier`).
+ * @param {CharacterLike} character
+ * @param {string} knackId
+ * @returns {string | null}
+ */
+export function tierWhenKnackFirstCarriedForward(character, knackId) {
+  const kid = String(knackId ?? "").trim();
+  if (!kid) return null;
+  const log = character.tierAdvancementLog;
+  if (!Array.isArray(log)) return null;
+  const seen = new Set();
+  for (const entry of log) {
+    const carried = (entry?.carriedKnackIds || []).filter(
+      (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+    );
+    const set = new Set(carried);
+    if (!seen.has(kid) && set.has(kid)) return String(entry.fromTier ?? "").trim() || null;
+    for (const id of carried) seen.add(id);
+  }
+  return null;
+}
+
+/**
+ * Hero / Titanic band only: Origin may have several locked Knacks but only one spends Calling dots.
+ * @param {CharacterLike} character
+ */
+function isOriginThroughHeroBandTier(character) {
+  return tierRank(character.tier) <= 1;
+}
+
+/**
+ * Keep `finishingBonusKnackIds` aligned with tier-advance data.
+ * Hero-band: infer Origin Finishing extras (all locked Knacks except the one Origin budget pick).
+ * Demigod+: only tier-log / explicit ids — never re-tag later-tier chargen purchases as Finishing.
+ * @param {CharacterLike} character
+ * @returns {boolean}
+ */
+export function ensureFinishingBonusKnackIds(character) {
+  if (!Array.isArray(character.finishingBonusKnackIds)) character.finishingBonusKnackIds = [];
+  const locked = knackLockedIdSet(character);
+  const held = new Set(character.knackIds || []);
+  const xp = new Set([...experienceKnackIdSet(character), ...carriedExperienceKnackIdSet(character)]);
+  const logFin = carriedFinishingBonusKnackIdsFromTierLog(character);
+  let fin;
+  if (isOriginThroughHeroBandTier(character) && locked.size > 1) {
+    const lockedInOrder = (character.knackIds || []).filter(
+      (id) => typeof id === "string" && id.trim() && locked.has(id),
+    );
+    const budgetKnack = lockedInOrder.find((id) => !xp.has(id)) || lockedInOrder[0];
+    fin = new Set();
+    for (const id of lockedInOrder) {
+      if (id !== budgetKnack && !xp.has(id)) fin.add(id);
+    }
+  } else {
+    fin = new Set([...finishingBonusKnackIdSet(character), ...logFin]);
+    if (!logFin.size && !finishingBonusKnackIdSet(character).size && locked.size > 1) {
+      const lockedInOrder = (character.knackIds || []).filter(
+        (id) => typeof id === "string" && id.trim() && locked.has(id),
+      );
+      const budgetKnack = lockedInOrder.find((id) => !xp.has(id)) || lockedInOrder[0];
+      for (const id of lockedInOrder) {
+        if (id !== budgetKnack && !xp.has(id)) fin.add(id);
+      }
+    }
+  }
+  const next = [...fin].filter((id) => locked.has(id) && held.has(id));
+  const prev = finishingBonusKnackIdSet(character);
+  const changed = next.length !== prev.size || next.some((id) => !prev.has(id));
+  character.finishingBonusKnackIds = next;
+  return changed;
+}
+
+/**
+ * Record Calling-row knack point costs for Knacks about to lock at tier advance (old tier rules).
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @param {string} fromTier
+ */
+export function snapshotKnackRowBudgetCostsBeforeTierAdvance(character, bundle, fromTier) {
+  if (!character.knackLockedRowBudgetCostById || typeof character.knackLockedRowBudgetCostById !== "object") {
+    character.knackLockedRowBudgetCostById = {};
+  }
+  const map = character.knackLockedRowBudgetCostById;
+  const locked = knackLockedIdSet(character);
+  const charAtTier = { ...character, tier: fromTier };
+  for (const id of character.knackIds || []) {
+    if (typeof id !== "string" || !id.trim() || id.startsWith("_") || locked.has(id)) continue;
+    if (!knackCountsAgainstCallingRowBudget(character, id)) continue;
+    const cost = knackCallingSlotCost(bundleKnackById(id, bundle), charAtTier);
+    map[id] = cost === 2 ? 2 : 1;
+  }
+}
+
+/**
+ * Backfill locked Knack row-budget costs for saves that advanced before snapshots existed.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+export function snapshotMissingLockedKnackRowBudgetCosts(character, bundle) {
+  if (!character.knackLockedRowBudgetCostById || typeof character.knackLockedRowBudgetCostById !== "object") {
+    character.knackLockedRowBudgetCostById = {};
+  }
+  const map = character.knackLockedRowBudgetCostById;
+  const locked = knackLockedIdSet(character);
+  let changed = false;
+  for (const id of locked) {
+    if (map[id] != null && Number.isFinite(Number(map[id]))) continue;
+    if (!knackCountsAgainstCallingRowBudget(character, id)) continue;
+    if (!(character.knackIds || []).includes(id)) continue;
+    const tier = tierWhenKnackFirstCarriedForward(character, id) ?? character.tier;
+    const cost = knackCallingSlotCost(bundleKnackById(id, bundle), { ...character, tier });
+    map[id] = cost === 2 ? 2 : 1;
+    changed = true;
+  }
+  return changed;
+}
+
+/**
+ * Origin Mortal Calling-dot Knack pays from row 0 (primary Calling), not Visitation rows 1–2.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+export function pinLockedOriginBudgetKnackToPrimaryRow(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots) || !character.callingSlots.length) {
+    return false;
+  }
+  const originId = heroOriginCallingBudgetKnackId(character);
+  if (!originId) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  const cost = knackRowBudgetCost(character, originId, bundle);
+  const cap0 = callingRowDotCap(character, 0);
+  if (cost === 2 && cap0 < 2) return false;
+  const curRow = map[originId];
+  if (curRow != null && Number.isFinite(Number(curRow)) && Number(curRow) === 0) return false;
+  const trialMap = { ...map, [originId]: 0 };
+  if (rowKnackPointsUsed(0, character.knackIds || [], trialMap, bundle, character) > cap0) return false;
+  map[originId] = 0;
+  return true;
+}
+
 /** Exp Leveling purchases — on the sheet but free against Calling dot / row knack budgets. */
 export function experienceKnackIdSet(character) {
   const raw = character?.experienceKnackIds;
   if (!Array.isArray(raw)) return new Set();
   return new Set(raw.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")));
+}
+
+/**
+ * Origin / prior-tier Experience knack buys carried on `knackIds` after tier advance — still free
+ * against Hero Calling row knack budgets (no longer listed in `experienceKnackIds`).
+ */
+export function carriedExperienceKnackIdSet(character) {
+  const raw = character?.carriedExperienceKnackIds;
+  if (!Array.isArray(raw)) return new Set();
+  return new Set(raw.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")));
+}
+
+/**
+ * Finishing extras and Experience knacks do not spend row budget; at Hero+ they may not match any
+ * Visitation Calling row (Origin pick vs new rows). Allow any row for slot bookkeeping only.
+ * @param {CharacterLike} character
+ * @param {string} knackId
+ */
+export function knackRowAssignmentCallingExempt(character, knackId) {
+  const kid = String(knackId ?? "").trim();
+  if (!kid) return false;
+  if (finishingBonusKnackIdSet(character).has(kid)) return true;
+  if (experienceKnackIdSet(character).has(kid)) return true;
+  if (carriedExperienceKnackIdSet(character).has(kid)) return true;
+  return false;
+}
+
+/**
+ * After any tier advance (Origin→Hero, Hero→Demigod, Titanic→Demigod, etc.): XP knack picks
+ * carried forward stay on `knackIds` / `lockedKnackIds` only — not on Exp Leveling.
+ * @param {CharacterLike} character
+ * @param {string[]} carriedKnackIds
+ */
+export function settleExperienceKnacksAfterTierAdvance(character, carriedKnackIds) {
+  if (!character || typeof character !== "object") return;
+  if (!Array.isArray(character.experienceKnackIds) || !character.experienceKnackIds.length) return;
+  const carried = new Set(
+    (carriedKnackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+  );
+  if (!carried.size) return;
+  const xpCarriedForward = character.experienceKnackIds.filter((id) => carried.has(id));
+  if (!Array.isArray(character.carriedExperienceKnackIds)) character.carriedExperienceKnackIds = [];
+  if (xpCarriedForward.length) {
+    character.carriedExperienceKnackIds = [
+      ...new Set([...character.carriedExperienceKnackIds, ...xpCarriedForward]),
+    ];
+  }
+  character.experienceKnackIds = character.experienceKnackIds.filter((id) => !carried.has(id));
+}
+
+/**
+ * On load / ensureExperienceShape: drop locked or off-sheet ids from active Exp Leveling knack list.
+ * @param {CharacterLike} character
+ */
+export function settleLockedExperienceKnacks(character) {
+  if (!character || typeof character !== "object") return;
+  if (!Array.isArray(character.experienceKnackIds)) {
+    character.experienceKnackIds = [];
+    return;
+  }
+  const main = new Set(
+    (character.knackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+  );
+  const locked = knackLockedIdSet(character);
+  character.experienceKnackIds = [
+    ...new Set(
+      character.experienceKnackIds.filter(
+        (id) => typeof id === "string" && id.trim() && main.has(id) && !locked.has(id),
+      ),
+    ),
+  ];
+}
+
+/**
+ * Knack already on the sheet from chargen or locked after tier advance — not an Exp Leveling target.
+ * @param {CharacterLike} character
+ * @param {string} knackId
+ */
+export function knackOwnedFromPriorChargenPick(character, knackId) {
+  const id = String(knackId ?? "").trim();
+  if (!id) return false;
+  if ((character.finishing?.finishingKnackIds || []).includes(id)) return true;
+  if (finishingBonusKnackIdSet(character).has(id)) return true;
+  if (!(character.knackIds || []).includes(id)) return false;
+  if (!experienceKnackIdSet(character).has(id)) return true;
+  if (isKnackLocked(character, id)) return true;
+  return false;
 }
 
 /** @param {CharacterLike} character @param {string} knackId */
@@ -1022,6 +1303,7 @@ export function knackCountsAgainstCallingRowBudget(character, knackId) {
   if (!kid) return true;
   if (finishingBonusKnackIdSet(character).has(kid)) return false;
   if (experienceKnackIdSet(character).has(kid)) return false;
+  if (carriedExperienceKnackIdSet(character).has(kid)) return false;
   return true;
 }
 
@@ -1047,10 +1329,13 @@ export function lockKnacksAtTierAdvance(character) {
  * @param {CharacterLike} character
  * @returns {string | null}
  */
-function popLastUnlockedKnackId(knackIds, character) {
+function popLastUnlockedKnackId(knackIds, character, slotMap = null) {
   const arr = knackIds;
   for (let i = arr.length - 1; i >= 0; i -= 1) {
-    if (!isKnackLocked(character, arr[i])) return arr.splice(i, 1)[0];
+    const id = arr[i];
+    if (isKnackLocked(character, id)) continue;
+    if (slotMap && slotMap[id] != null) continue;
+    return arr.splice(i, 1)[0];
   }
   return null;
 }
@@ -1062,13 +1347,15 @@ export function isGeneralCallingKnack(k) {
   return knackRawCallingIdList(k).length === 0;
 }
 
-/** Dot budget for one Hero `callingSlots` row (also knack point cap for that Calling). */
+/** Dot budget for one Hero `callingSlots` row — equals that Calling’s dot rating (1–5). */
 export function callingRowDotCap(character, rowIdx) {
   return heroCallingSlotRowDots(character, rowIdx);
 }
 
 /**
  * Knack points already spent on a Calling row (from `knackSlotById` assignments).
+ * Uses {@link knackRowBudgetCost} so locked chargen picks keep their tier-of-purchase cost;
+ * Finishing extras and Experience knacks contribute 0.
  * @param {number} rowIdx
  * @param {string[]} knackIds
  * @param {Record<string, number>} slotMap
@@ -1076,13 +1363,138 @@ export function callingRowDotCap(character, rowIdx) {
  * @param {CharacterLike} character
  */
 export function rowKnackPointsUsed(rowIdx, knackIds, slotMap, bundle, character) {
+  const row = Number(rowIdx);
+  if (!Number.isFinite(row)) return 0;
   let used = 0;
   for (const id of knackIds || []) {
-    if (typeof id !== "string" || !id.trim() || slotMap[id] !== rowIdx) continue;
-    if (!knackCountsAgainstCallingRowBudget(character, id)) continue;
-    used += knackCallingSlotCost(bundleKnackById(id, bundle), character);
+    if (typeof id !== "string" || !id.trim()) continue;
+    if (Number(slotMap?.[id]) !== row) continue;
+    used += knackRowBudgetCost(character, id, bundle);
   }
   return used;
+}
+
+/**
+ * Hero-band Immortal knacks that already have a payer row (orphans in `knackIds` alone do not count).
+ * @param {string[]} knackIds
+ * @param {Record<string, number>} slotMap
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ */
+export function heavyImmortalKnackCountAssigned(knackIds, slotMap, bundle) {
+  let n = 0;
+  for (const id of knackIds || []) {
+    if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
+    const r = slotMap?.[id];
+    if (r == null || !Number.isFinite(Number(r))) continue;
+    const kn = bundleKnackById(id, bundle);
+    if (knackHeroBandSlotCost(kn) === 2) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Hero-band Immortal knacks already assigned to one Calling row (per-row cap, not global).
+ * @param {number} rowIdx
+ * @param {string[]} knackIds
+ * @param {Record<string, number>} slotMap
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ */
+export function heavyImmortalKnackCountAssignedOnRow(rowIdx, knackIds, slotMap, bundle) {
+  const row = Number(rowIdx);
+  if (!Number.isFinite(row)) return 0;
+  let n = 0;
+  for (const id of knackIds || []) {
+    if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
+    if (Number(slotMap?.[id]) !== row) continue;
+    const kn = bundleKnackById(id, bundle);
+    if (knackHeroBandSlotCost(kn) === 2) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Validate a single new or moved payer-row assignment (does not require every held Knack to be mapped yet).
+ * @param {string} knackId
+ * @param {number} rowIdx
+ * @param {string[]} knackIds
+ * @param {Record<string, number>} slotMap
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ */
+export function validateCommittedKnackRowAssignment(knackId, rowIdx, knackIds, slotMap, character, bundle) {
+  const id = String(knackId ?? "").trim();
+  const ri = Number(rowIdx);
+  if (!id || !Number.isFinite(ri) || ri < 0) return false;
+  const slots = character?.callingSlots;
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(slots) || ri >= slots.length) return false;
+  const kn = bundleKnackById(id, bundle);
+  if (!kn) return false;
+  if (!knackRowAssignmentCallingExempt(character, id) && !heroCallingRowMatchesKnack(ri, kn, character, bundle)) {
+    return false;
+  }
+  const cost = knackCallingSlotCost(kn, character);
+  const cap = callingRowDotCap(character, ri);
+  if (cost === 2 && cap < 2) return false;
+  if (immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(kn) === 2) {
+    const assignedOnRow = heavyImmortalKnackCountAssignedOnRow(ri, knackIds, slotMap, bundle);
+    if (assignedOnRow > 1) return false;
+  }
+  if (rowKnackPointsUsed(ri, knackIds, slotMap, bundle, character) > cap) return false;
+  return true;
+}
+
+/**
+ * Drop unlocked, non-exempt Knacks held in `knackIds` without a payer row (stale clicks / failed commits).
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+/**
+ * Hero Calling-step purchases with a payer row must not stay in Experience pools (budget-exempt).
+ * @param {CharacterLike} character
+ * @returns {boolean}
+ */
+export function stripRowPaidKnacksFromExperiencePools(character) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") return false;
+  const map = character.knackSlotById;
+  const rowPaid = (/** @type {string} */ id) => map[id] != null && Number.isFinite(Number(map[id]));
+  let changed = false;
+  if (Array.isArray(character.experienceKnackIds)) {
+    const next = character.experienceKnackIds.filter((id) => !rowPaid(id));
+    if (next.length !== character.experienceKnackIds.length) {
+      character.experienceKnackIds = next;
+      changed = true;
+    }
+  }
+  if (Array.isArray(character.carriedExperienceKnackIds)) {
+    const next = character.carriedExperienceKnackIds.filter((id) => !rowPaid(id));
+    if (next.length !== character.carriedExperienceKnackIds.length) {
+      character.carriedExperienceKnackIds = next;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+export function pruneOrphanUnmappedKnackPurchases(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  const held = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  let changed = false;
+  const next = held.filter((id) => {
+    if (isKnackLocked(character, id)) return true;
+    if (knackRowAssignmentCallingExempt(character, id)) return true;
+    if (map[id] != null && Number.isFinite(Number(map[id]))) return true;
+    changed = true;
+    delete map[id];
+    return false;
+  });
+  if (changed) character.knackIds = next;
+  return changed;
 }
 
 /**
@@ -1094,6 +1506,10 @@ export function rowKnackPointsUsed(rowIdx, knackIds, slotMap, bundle, character)
 export function knackRowBudgetCost(character, knackId, bundle) {
   const kid = String(knackId ?? "").trim();
   if (!kid || !knackCountsAgainstCallingRowBudget(character, kid)) return 0;
+  if (isKnackLocked(character, kid)) {
+    const snap = character.knackLockedRowBudgetCostById?.[kid];
+    if (snap != null && Number.isFinite(Number(snap))) return Number(snap) === 2 ? 2 : 1;
+  }
   return knackCallingSlotCost(bundleKnackById(kid, bundle), character);
 }
 
@@ -1111,7 +1527,13 @@ export function validateKnackSlotAssignments(knackIds, slotMap, character, bundl
     const r = slotMap[id];
     if (r == null || !Number.isFinite(r) || r < 0 || r >= slots.length) return false;
     const kn = bundleKnackById(id, bundle);
-    if (!kn || !heroCallingRowMatchesKnack(r, kn, character, bundle)) return false;
+    if (
+      !kn ||
+      (!knackRowAssignmentCallingExempt(character, id) &&
+        !heroCallingRowMatchesKnack(r, kn, character, bundle))
+    ) {
+      return false;
+    }
   }
   for (let ri = 0; ri < slots.length; ri += 1) {
     const cap = callingRowDotCap(character, ri);
@@ -1135,13 +1557,26 @@ export function callingRowsThatCanPayForKnack(k, character, bundle, knackIds, sl
   const kid = String(k?.id ?? "").trim();
   const cost = knackCallingSlotCost(k, character);
   const ids = (knackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
-  const map = slotMap && typeof slotMap === "object" ? slotMap : {};
+  const mapForCap =
+    slotMap && typeof slotMap === "object" ? { ...slotMap } : { ...(character.knackSlotById || {}) };
+  const omit = new Set(
+    [kid, excludeKnackId].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+  );
+  /** Knacks already on the character — never budget-solve the pick being evaluated (avoids double-counting its cost). */
+  const heldIds = ids.filter((id) => !omit.has(id));
+  /** Only count explicit payer rows — provisional solves blocked first picks on other Callings. */
+  const map = mapForCap;
   const out = [];
+  const heroImm = immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(k) === 2;
   for (let ri = 0; ri < character.callingSlots.length; ri += 1) {
     if (!heroCallingRowMatchesKnack(ri, k, character, bundle)) continue;
     const cap = callingRowDotCap(character, ri);
-    const usageIds = ids.filter((id) => id !== excludeKnackId);
-    const used = rowKnackPointsUsed(ri, usageIds, map, bundle, character);
+    if (cost === 2 && cap < 2) continue;
+    if (heroImm) {
+      const alreadyPaidHere = ids.includes(kid) && Number(mapForCap[kid]) === ri;
+      if (!alreadyPaidHere && heavyImmortalKnackCountAssignedOnRow(ri, ids, mapForCap, bundle) > 0) continue;
+    }
+    const used = rowKnackPointsUsed(ri, heldIds, map, bundle, character);
     if (used + cost <= cap) out.push(ri);
   }
   return out;
@@ -1164,7 +1599,7 @@ export function knackPayingCallingRowLabel(character, bundle, knackId) {
   const cap = callingRowDotCap(character, ri);
   const used = rowKnackPointsUsed(ri, character.knackIds || [], character.knackSlotById, bundle, character);
   const finExempt = finishingBonusKnackIdSet(character).has(kid);
-  const xpExempt = experienceKnackIdSet(character).has(kid);
+  const xpExempt = experienceKnackIdSet(character).has(kid) || carriedExperienceKnackIdSet(character).has(kid);
   const suffix = finExempt
     ? " — Finishing extra (no point cost)"
     : xpExempt
@@ -1198,7 +1633,7 @@ export function heroCallingRowMatchesKnack(rowIdx, k, character, _bundle) {
 
 /**
  * Assign each main Knack to a Calling row so each row’s spent cost ≤ that row’s dots (Hero `callingSlots`).
- * Hero-band: two-dot knacks only on rows with two+ dots; at most one two-dot knack in the list.
+ * Hero-band: two-dot knacks only on rows with two+ dots; at most one two-dot knack per Calling row.
  * Post-Hero: all immortal knacks cost one dot per row.
  * @param {string[]} knackIds
  * @param {CharacterLike} character
@@ -1221,27 +1656,194 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
   const slots = character.callingSlots;
   const rowCount = slots.length;
   const rowCaps = slots.map((_, i) => callingRowDotCap(character, i));
-  const n = ids.length;
 
-  function dfs(i, rowUsed, slotMap) {
-    if (i >= n) return { ...slotMap };
-    const kid = ids[i];
+  /** Keep explicit payer rows (e.g. just chosen in the Calling knack panel) when they still fit. */
+  /** @type {Record<string, number>} */
+  const pinned = {};
+  const rowUsed = rowCaps.map(() => 0);
+  const allHeld = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  for (const id of allHeld) {
+    if (ids.includes(id)) continue;
+    const r = existing[id];
+    if (r == null || !Number.isFinite(r) || r < 0 || r >= rowCount) continue;
+    if (!knackCountsAgainstCallingRowBudget(character, id)) continue;
+    rowUsed[r] += knackRowBudgetCost(character, id, bundle);
+  }
+  const originBudgetId = heroOriginCallingBudgetKnackId(character);
+  if (originBudgetId && ids.includes(originBudgetId) && existing[originBudgetId] == null) {
+    const cost = knackRowBudgetCost(character, originBudgetId, bundle);
+    if ((cost !== 2 || rowCaps[0] >= 2) && rowUsed[0] + cost <= rowCaps[0]) {
+      pinned[originBudgetId] = 0;
+      rowUsed[0] += cost;
+    }
+  }
+
+  /** @type {string[]} */
+  const freeIds = [];
+  for (const id of ids) {
+    if (pinned[id] != null) continue;
+    const r = existing[id];
+    if (r != null && Number.isFinite(r) && r >= 0 && r < rowCount) {
+      const kn = bundleKnackById(id, bundle);
+      if (kn) {
+        const cost = knackRowBudgetCost(character, id, bundle);
+        const callingExempt = knackRowAssignmentCallingExempt(character, id);
+        if (
+          (callingExempt || heroCallingRowMatchesKnack(r, kn, character, bundle)) &&
+          (cost !== 2 || rowCaps[r] >= 2) &&
+          rowUsed[r] + cost <= rowCaps[r]
+        ) {
+          pinned[id] = r;
+          rowUsed[r] += cost;
+          continue;
+        }
+      }
+    }
+    freeIds.push(id);
+  }
+  if (freeIds.length === 0) {
+    return validateKnackSlotAssignments(ids, pinned, character, bundle) ? pinned : null;
+  }
+
+  function dfsFree(i, slotMap) {
+    if (i >= freeIds.length) return { ...slotMap };
+    const kid = freeIds[i];
     const kn = bundleKnackById(kid, bundle);
     if (!kn) return null;
     const cost = knackRowBudgetCost(character, kid, bundle);
+    const callingExempt = knackRowAssignmentCallingExempt(character, kid);
     for (let r = 0; r < rowCount; r += 1) {
-      if (!heroCallingRowMatchesKnack(r, kn, character, bundle)) continue;
+      if (!callingExempt && !heroCallingRowMatchesKnack(r, kn, character, bundle)) continue;
+      if (cost === 2 && rowCaps[r] < 2) continue;
       if (rowUsed[r] + cost > rowCaps[r]) continue;
       rowUsed[r] += cost;
       slotMap[kid] = r;
-      const solved = dfs(i + 1, rowUsed, slotMap);
+      const solved = dfsFree(i + 1, slotMap);
       if (solved) return solved;
       rowUsed[r] -= cost;
       delete slotMap[kid];
     }
     return null;
   }
-  return dfs(0, rowCaps.map(() => 0), {});
+  const solvedFree = dfsFree(0, {});
+  if (!solvedFree) {
+    return Object.keys(pinned).length ? pinned : null;
+  }
+  return { ...pinned, ...solvedFree };
+}
+
+/**
+ * Assign only held Knacks that lack a payer row — never overwrites explicit player picks.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ */
+export function settleUnassignedHeldKnackSlots(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  const heldIds = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  const unassigned = heldIds.filter((id) => map[id] == null);
+  if (!unassigned.length) return;
+  /** Solve the full held list so row budgets account for every explicit payer row. */
+  const solved = solveHeroKnackSlotAssignment(heldIds, character, bundle);
+  if (!solved) return;
+  for (const id of unassigned) {
+    if (map[id] == null && solved[id] != null) map[id] = solved[id];
+  }
+}
+
+/**
+ * Assign payer rows for held Knacks that lack `knackSlotById` (e.g. after Origin→Hero merge).
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+export function repairUnmappedHeroKnackSlots(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  const heldIds = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  const orphans = heldIds.filter((id) => map[id] == null);
+  if (!orphans.length) return false;
+  const solved = solveHeroKnackSlotAssignment(heldIds, character, bundle);
+  if (!solved) return false;
+  let changed = false;
+  for (const id of orphans) {
+    if (solved[id] != null) {
+      map[id] = solved[id];
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+/**
+ * Before the Hero Calling knack shop: assign payer rows for carried-forward (locked) Knacks so row budgets are accurate.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ */
+export function seedHeroKnackRowAssignments(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const heldIds = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  if (!heldIds.length) return;
+  const map = character.knackSlotById;
+  const needs = heldIds.some((id) => map[id] == null);
+  if (!needs) return;
+  const solved = solveHeroKnackSlotAssignment(heldIds, character, bundle);
+  if (!solved) return;
+  for (const id of heldIds) {
+    if (map[id] != null && !isKnackLocked(character, id)) continue;
+    if (solved[id] != null) map[id] = solved[id];
+  }
+}
+
+/**
+ * Pin a held Knack to a Calling row when that row can afford it (explicit payer — no provisional solve).
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @param {string} kid
+ * @param {Record<string, unknown>} k
+ * @param {number} rowIdx
+ * @returns {boolean}
+ */
+/**
+ * Hero three-row UI: chip is “on” only when this Calling row pays for the Knack (not merely held in `knackIds`).
+ * @param {CharacterLike} character
+ * @param {string} knackId
+ * @param {number | null | undefined} rowIdx
+ * @returns {boolean}
+ */
+export function knackSelectedOnCallingRow(character, knackId, rowIdx) {
+  const id = String(knackId ?? "").trim();
+  if (!id) return false;
+  if (!(character.knackIds || []).includes(id)) return false;
+  if (rowIdx == null || !Number.isFinite(Number(rowIdx))) return true;
+  const pay = character.knackSlotById?.[id];
+  if (pay == null || !Number.isFinite(Number(pay))) return false;
+  return Number(pay) === Number(rowIdx);
+}
+
+export function pinHeldKnackToCallingRowIfAffordable(character, bundle, kid, k, rowIdx) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
+  const id = String(kid ?? "").trim();
+  const ri = Number(rowIdx);
+  if (!id || !Number.isFinite(ri) || ri < 0 || ri >= character.callingSlots.length) return false;
+  if (!(character.knackIds || []).includes(id)) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  const rows = callingRowsThatCanPayForKnack(k, character, bundle, character.knackIds || [], map, id);
+  if (!rows.includes(ri)) return false;
+  map[id] = ri;
+  return true;
 }
 
 /**
@@ -1266,16 +1868,53 @@ export function heroKnackSlotAssignmentExists(knackIds, character, bundle) {
  * @param {{ knacks?: Record<string, unknown> }} bundle
  */
 export function ensureHeroKnackSlotAssignments(character, bundle) {
-  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return;
+  settleUnassignedHeldKnackSlots(character, bundle);
+}
+
+/**
+ * Write a full, valid row assignment for locked / carried-forward Knacks so UI budgets match eligibility.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+/**
+ * Row assignment map for knack budget display — held knacks only, solved when needed.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {Record<string, number>}
+ */
+export function knackSlotMapForRowBudgetUi(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return {};
+  const heldIds = [...(character.knackIds || [])].filter(
+    (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
+  );
+  const map =
+    character.knackSlotById && typeof character.knackSlotById === "object" ? { ...character.knackSlotById } : {};
+  if (!heldIds.length) return map;
+  if (validateKnackSlotAssignments(heldIds, map, character, bundle)) return map;
+  const unassigned = heldIds.filter((id) => map[id] == null);
+  if (unassigned.length) {
+    const solved = solveHeroKnackSlotAssignment(unassigned, character, bundle);
+    if (solved) {
+      for (const id of unassigned) {
+        if (solved[id] != null) map[id] = solved[id];
+      }
+    }
+  }
+  return map;
+}
+
+export function persistHeroKnackSlotMapIfSolvable(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
   if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
   const ids = [...(character.knackIds || [])].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
-  if (!ids.length) return;
+  if (!ids.length) return true;
+  if (validateKnackSlotAssignments(ids, character.knackSlotById, character, bundle)) return true;
   const solved = solveHeroKnackSlotAssignment(ids, character, bundle);
-  if (!solved) return;
-  const map = character.knackSlotById;
-  for (const id of ids) {
-    if (solved[id] != null) map[id] = solved[id];
-  }
+  if (!solved || Object.keys(solved).length !== ids.length) return false;
+  if (!validateKnackSlotAssignments(ids, solved, character, bundle)) return false;
+  for (const id of ids) character.knackSlotById[id] = solved[id];
+  return true;
 }
 
 /**
@@ -1308,9 +1947,40 @@ export function syncHeroKnackSlotAssignments(character, bundle) {
   for (const key of Object.keys(map)) {
     if (!cur.includes(key)) delete map[key];
   }
+  if (validateKnackSlotAssignments(cur, map, character, bundle)) {
+    character.knackIds = cur;
+    return;
+  }
+  /** Full re-solve (Finishing / XP extras may sit on any row — see {@link knackRowAssignmentCallingExempt}). */
+  const solved = solveHeroKnackSlotAssignment(cur, character, bundle);
+  if (solved) {
+    for (const id of cur) {
+      if (solved[id] == null) continue;
+      if (map[id] != null && !isKnackLocked(character, id)) continue;
+      map[id] = solved[id];
+    }
+    if (validateKnackSlotAssignments(cur, map, character, bundle)) {
+      character.knackIds = cur;
+      return;
+    }
+  }
+  /** Assign locked / carried-forward Knacks to rows before pruning — empty `knackSlotById` blocks new picks. */
+  settleUnassignedHeldKnackSlots(character, bundle);
+  if (validateKnackSlotAssignments(cur, map, character, bundle)) {
+    character.knackIds = cur;
+    return;
+  }
   while (cur.length > 0 && !validateKnackSlotAssignments(cur, map, character, bundle)) {
-    const removed = popLastUnlockedKnackId(cur, character);
-    if (!removed) break;
+    const removed = popLastUnlockedKnackId(cur, character, map);
+    if (!removed) {
+      const solved = solveHeroKnackSlotAssignment(cur, character, bundle);
+      if (solved) {
+        for (const id of cur) {
+          if (solved[id] != null) map[id] = solved[id];
+        }
+      }
+      break;
+    }
     delete map[removed];
   }
   character.knackIds = cur;
@@ -1340,9 +2010,7 @@ export function knackIdsCallingSlotsUsed(knackIds, bundle, character) {
   let sum = 0;
   for (const id of knackIds || []) {
     if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
-    if (!knackCountsAgainstCallingRowBudget(character, id)) continue;
-    const kn = bundleKnackById(id, bundle);
-    sum += knackCallingSlotCost(kn, character);
+    sum += knackRowBudgetCost(character, id, bundle);
   }
   return sum;
 }
@@ -1391,8 +2059,10 @@ export function knackSetWithinCallingSlots(knackIds, character, bundle) {
 export function pruneKnackIdsToCallingSlotCap(knackIds, character, bundle) {
   const arr = [...(knackIds || [])].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
   if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
+    const map =
+      character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {};
     while (arr.length > 0 && solveHeroKnackSlotAssignment(arr, character, bundle) == null) {
-      if (!popLastUnlockedKnackId(arr, character)) break;
+      if (!popLastUnlockedKnackId(arr, character, map)) break;
     }
     return arr;
   }
@@ -1466,9 +2136,7 @@ export function knackEligibleForCallingStep(k, character, bundle) {
       if (lockedHeld) return true;
       return validateKnackSlotAssignments(cur, map, character, bundle);
     }
-    if (!callingRowsThatCanPayForKnack(k, character, bundle, [...cur, kid], map).length) return false;
-    const trial = solveHeroKnackSlotAssignment([...cur, kid], character, bundle);
-    return trial != null;
+    return callingRowsThatCanPayForKnack(k, character, bundle, [...cur, kid], map).length > 0;
   }
   if (cur.includes(kid)) return true;
   return knackSetWithinCallingSlots([...cur, kid], character, bundle);
@@ -1516,10 +2184,10 @@ export function knackEligible(k, character, _bundle) {
 
   const tr = tierRank(character.tier);
   const kt = knackRuleTier(k);
-  /** Origin: one Heroic knack (originMortal PB rows or MotM inverted Heroic on Mythos). No Immortal picks until Hero+. */
+  /** Origin: one Heroic knack (Origin Mortal list, PB Heroic General, or MotM inverted Heroic on Mythos). No Immortal until Hero+. */
   if (tr === 0) {
     if (kt === "immortal") return false;
-    if (kt !== "mortal" && !knackOriginMortalPick(k) && !motmInvertedChargenKnackAtOrigin(k, character, _bundle)) {
+    if (kt !== "mortal" && !knackOriginPlayHeroicPick(k) && !motmInvertedChargenKnackAtOrigin(k, character, _bundle)) {
       return false;
     }
   } else if (kt === "mortal") {
@@ -1555,8 +2223,9 @@ export function knackEligible(k, character, _bundle) {
     if (lr < leg) return false;
   }
 
-  /** Immortal knacks (2 points) need at least one Calling with 2+ dots (Hero p.184). */
-  if (knackPointCost(k) === 2) {
+  /** Two-point knacks need at least one Calling row rated 2+ (Hero p.184). */
+  const knackSlotCost = knackCallingSlotCost(k, character);
+  if (knackSlotCost === 2) {
     if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
       const anyWide = character.callingSlots.some((_, i) => callingRowDotCap(character, i) >= 2);
       if (!anyWide) return false;

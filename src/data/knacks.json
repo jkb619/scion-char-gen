@@ -4,8 +4,8 @@
     "eligibility": {
       "callings": "Array of Calling ids, or omit / callingsAny true for General Calling (PB GENERAL).",
       "callingsAny": "If true, General Calling — PB GENERAL knack pool (any Calling).",
-      "tier": "heroic | immortal (PB HEROIC / IMMORTAL bands). Origin: originMortal on matching rows.",
-      "originMortal": "If true, also selectable at Origin (Scion: Origin Mortal knack lists).",
+      "tier": "heroic | immortal (PB HEROIC / IMMORTAL bands). Origin: Heroic General (callingsAny + heroic) or originMortal Calling rows.",
+      "originMortal": "If true, on an Origin Mortal Calling knack list; all PB Heroic General rows also qualify at Origin via eligibility.",
       "callingSlotCost": "Calling dots this knack spends at Hero tier: 1 (PB HEROIC) or 2 (PB IMMORTAL). Demigod+ treat all as 1 dot in the UI.",
       "chargenLines": "Array of chargen line ids: any (deity+titan Scion), deity, titan, sorcerer, draconic (Dragon Heir — lives in dragonKnacks.json), denizen (NPC). Omit only on legacy rows; wizard filters by character line."
     },
@@ -33,6 +33,7 @@
     "tier": "heroic",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -52,6 +53,7 @@
     "tier": "immortal",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -225,6 +227,7 @@
     "tier": "heroic",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -244,6 +247,7 @@
     "tier": "immortal",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -299,6 +303,7 @@
     "tier": "heroic",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -318,6 +323,7 @@
     "tier": "immortal",
     "callingSlotCost": 1,
     "chargenLines": [
+      "deity",
       "titan"
     ]
   },
@@ -2626,8 +2632,9 @@
     "callingSlotCost": 1,
     "description": "The Gods may seem more distant, but they have not forgotten their Scions. Once per session, after receiving an Injury of any severity, you make a plea to the Gods for help, and they answer by granting hard armor (2 boxes) for the remainder of the session. The armor does not negate the initial damage received, cannot…",
     "mechanicalEffects": "The Gods may seem more distant, but they have not forgotten their Scions. Once per session, after receiving an Injury of any severity, you make a plea to the Gods for help, and they answer by granting hard armor (2 boxes) for the remainder of the session. The armor does not negate the initial damage received, cannot be repaired, and cannot be used if the character already has hard or soft armor.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]
@@ -2639,8 +2646,9 @@
     "callingSlotCost": 1,
     "description": "This Knack allows you to temporarily alter your Legend to resonate with one of your Callings at the expense of all others. The following changes occur when this Knack is activated: Your Calling associated with this Knack is set to 5 and all other more dots in Knacks alongside this one, for a total of 10, but they must…",
     "mechanicalEffects": "This Knack allows you to temporarily alter your Legend to resonate with one of your Callings at the expense of all others. The following changes occur when this Knack is activated: Your Calling associated with this Knack is set to 5 and all other more dots in Knacks alongside this one, for a total of 10, but they must be from the chosen Calling — no Universal, Path, or other Knacks. If your Legendary Title doesn’t reflect the Calling, Fate grants you a new one. Should you perform an Adoption Deed while this Knack is active, you may claim the title permanently. This can be done once per any given Call - ing. Attempts to perform anything that would be an Adoption Deed for a neglected Calling receive increased Difficulty equal to half of your Legend. The effects of this Knack last until the end of the Session in which it is activated. Characters who have not yet received their Visitation may not learn this Knack.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]
@@ -2652,8 +2660,9 @@
     "callingSlotCost": 1,
     "description": "Once per scene, you may unveil your full power to gain +2 Enhancement on a social roll to impress, threaten, intimidate, or overwhelm others. All characters in the scene who can sense the supernatural automatically intuit your Titanic nature, Legend rating, and pantheon. Trivial characters flee or freeze.",
     "mechanicalEffects": "Once per scene, you may unveil your full power to gain +2 Enhancement on a social roll to impress, threaten, intimidate, or overwhelm others. All characters in the scene who can sense the supernatural automatically intuit your Titanic nature, Legend rating, and pantheon. Trivial characters flee or freeze.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]
@@ -2665,8 +2674,9 @@
     "callingSlotCost": 1,
     "description": "You gain +2 Enhancement to Shift Atmosphere actions while performing and can spend 1 Momentum to automat - ically reset the Atmosphere to 0 before the roll, setting the mood for the entire room despite previous vibes.",
     "mechanicalEffects": "You gain +2 Enhancement to Shift Atmosphere actions while performing and can spend 1 Momentum to automat - ically reset the Atmosphere to 0 before the roll, setting the mood for the entire room despite previous vibes.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.25 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]
@@ -2678,8 +2688,9 @@
     "callingSlotCost": 1,
     "description": "Once per session, you may roll your Knack Skill to commune with the collective wisdom of their pantheon’s Titans. You may ask one of the following questions, plus another for each success: What here is Titanic in nature, or could be swayed to Titanic service? What would [a specific Titan] wish for me to do here? Who…",
     "mechanicalEffects": "Once per session, you may roll your Knack Skill to commune with the collective wisdom of their pantheon’s Titans. You may ask one of the following questions, plus another for each success: What here is Titanic in nature, or could be swayed to Titanic service? What would [a specific Titan] wish for me to do here? Who here hates or fears the Titans? How can I curry favor with my progenitor at this moment? You gain +2 Enhancement to a roll of your choice when you act on these answers during the same scene.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.26 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.26 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]
@@ -2691,8 +2702,9 @@
     "callingSlotCost": 1,
     "description": "When you wish, you can be heard and seen clearly despite any environmental Complications such as fog, low light, crowds, or noise. Characters suffer a Complication equal to your highest Titanic Calling to knowingly ignore or snub you; failing to buy it off knocks them prone with the sheer force of your presence.",
     "mechanicalEffects": "When you wish, you can be heard and seen clearly despite any environmental Complications such as fog, low light, crowds, or noise. Characters suffer a Complication equal to your highest Titanic Calling to knowingly ignore or snub you; failing to buy it off knocks them prone with the sheer force of your presence.",
-    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.26 (General Knacks)",
+    "source": "SCION_Pandoras_Box_(Revised_Download).pdf p.26 (General Knacks — Heroic General)",
     "callingsAny": true,
+    "originMortal": true,
     "chargenLines": [
       "any"
     ]

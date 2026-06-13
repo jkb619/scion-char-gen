@@ -14,7 +14,7 @@ import { birthrightTagLabels } from "./birthrightTags.js";
 import { purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
-import { sheetExperienceTotals } from "./experience.js";
+import { sheetExperienceSpentOnLines, sheetExperienceTotals } from "./experience.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { sheetFinalAttrsAfterFavored } from "./sheetExportAttrs.js";
 
@@ -681,9 +681,12 @@ export function fillDragonFourPageLayout(el, api) {
   sl.className = "cs-mcg-subhead";
   sl.textContent = "Spent on";
   spent.appendChild(sl);
-  for (let i = 0; i < 3; i += 1) {
+  const spentOnLines = sheetExperienceSpentOnLines(data, bundle);
+  const spentLineCount = Math.max(3, spentOnLines.length);
+  for (let i = 0; i < spentLineCount; i += 1) {
     const ln = document.createElement("div");
     ln.className = "cs-mcg-write-line";
+    ln.textContent = spentOnLines[i] || "";
     spent.appendChild(ln);
   }
   p2.appendChild(spent);

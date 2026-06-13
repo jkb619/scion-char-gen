@@ -18,6 +18,13 @@ import {
 } from "./experience.js";
 import { applyHint, applySkillSpecialtyHints, applyGameDataHint } from "./fieldHelp.js";
 import {
+  activateExpLevelingSession,
+  discardExpLevelingSession,
+  expLevelingSessionActive,
+  expLevelingSessionDirty,
+  resolveLeaveExpLevelingStep,
+} from "./expLevelingSession.js";
+import {
   buildCharacterSheet,
   buildVirtueSpectrumElement,
   originDefenseFromFinalAttrs,
@@ -33,6 +40,16 @@ import {
   knackEligibleForFinishingExtraKnack,
   knackFinishingPickIsValidHeld,
   pruneKnackIdsToCallingSlotCap,
+  settleUnassignedHeldKnackSlots,
+  repairUnmappedHeroKnackSlots,
+  pruneOrphanUnmappedKnackPurchases,
+  stripRowPaidKnacksFromExperiencePools,
+  ensureFinishingBonusKnackIds,
+  pinLockedOriginBudgetKnackToPrimaryRow,
+  snapshotKnackRowBudgetCostsBeforeTierAdvance,
+  snapshotMissingLockedKnackRowBudgetCosts,
+  seedHeroKnackRowAssignments,
+  knackSelectedOnCallingRow,
   syncHeroKnackSlotAssignments,
   ensureHeroKnackSlotAssignments,
   knackAppliesToCallingsLine,
@@ -73,6 +90,7 @@ import {
   isSorcererLineTierId,
   isGeneralCallingKnack,
   callingRowDotCap,
+  callingRowsThatCanPayForKnack,
   callingKnackSlotCap,
   knackIdsCallingSlotsUsed,
   rowKnackPointsUsed,
@@ -82,13 +100,18 @@ import {
   lockKnacksAtTierAdvance,
   knackLockedIdSet,
   finishingBonusKnackIdSet,
+  carriedExperienceKnackIdSet,
   experienceKnackIdSet,
   knackRowBudgetCost,
   knackEligibleOrLockedHeld,
   reconcileLockedKnackIds,
+  settleExperienceKnacksAfterTierAdvance,
+  settleLockedExperienceKnacks,
+  knackOwnedFromPriorChargenPick,
 } from "./eligibility.js";
 import {
   toggleHeroKnackWithRowPayment,
+  commitKnackToCallingRow,
   knackPointCostLabel,
   callingRowBudgetLine,
 } from "./knackPayingRowPicker.js";
@@ -715,12 +738,16 @@ function defaultCharacter() {
     callingSlots: null,
     /** Hero three-row mode: which Calling row (0–2) pays each Knack’s slot cost (`knackSlotById[knackId]`). */
     knackSlotById: {},
+    /** Locked Knack row-budget cost at tier advance (chargen spend carried forward; XP knacks omit this). */
+    knackLockedRowBudgetCostById: {},
     /** Knacks chosen before tier advance — cannot be deselected when picking additional Knacks. */
     lockedKnackIds: [],
     /** Origin Finishing extras merged at Hero+ — locked, but free against Calling row knack budgets. */
     finishingBonusKnackIds: [],
     /** Exp Leveling Knack purchases — on the sheet but free against Calling knack budgets. */
     experienceKnackIds: [],
+    /** Origin-tier XP knack buys carried after tier advance — still free against Hero row budgets. */
+    carriedExperienceKnackIds: [],
     /** Per-attribute dots bought with Experience (post-chargen; excluded from Finishing / arena validation). */
     experienceAttributeBumps: {},
     /** Per-skill dots bought with Experience (post-chargen; excluded from Finishing / path validation). */
@@ -736,6 +763,8 @@ function defaultCharacter() {
     experiencePoints: 0,
     /** XP spent via Exp Leveling (remaining + spent = total earned on sheet). */
     experiencePointsSpent: 0,
+    /** Human-readable Exp Leveling purchases for the review sheet “Spent on” block. */
+    experiencePurchaseLog: [],
     /** Birthright template ids purchased with Experience (5 XP each; not counted toward chargen point budget). */
     experienceBirthrightPickIds: [],
     birthrightIds: [],
@@ -1220,7 +1249,7 @@ function appendSkillRatingNameCell(tr, sid, skillMeta, val, opts) {
           character.skillSpecialties[sid] = specIn.value;
           return;
         }
-        if (!experienceSpend(character, bundle, "specialty")) return;
+        if (!experienceSpend(character, bundle, "specialty", `${skillMeta.name} specialty`)) return;
         character.skillSpecialties[sid] = specIn.value;
         render();
       };
@@ -1292,7 +1321,7 @@ function appendSkillRatingDotsCell(tr, sid, skillMeta, val, mode) {
       if (canRaise) {
         btn.title = `Spend ${skillXpCost} Experience to raise ${skillMeta.name} to ${i}`;
         btn.addEventListener("click", () => {
-          if (!experienceSpend(character, bundle, "skill")) return;
+          if (!experienceSpend(character, bundle, "skill", `${skillMeta.name} +1`)) return;
           recordExperienceSkillBump(character, sid);
           character.skillDots[sid] = cur + 1;
           render();
@@ -1926,11 +1955,14 @@ function toggleSorceryAdditionalTechnique(techniqueId) {
   const chargenForW = ids.filter((x) => techniqueWorkingOwner(x) === ownerW).length;
   const heroOnePerW = tierN !== "sorcerer" && chargenForW >= 1;
   const atChargenCap = tierN === "sorcerer" ? ids.length >= budget : heroOnePerW || ids.length >= budget;
+  const techniqueSpendLabel = `Technique: ${
+    def.additional.find((x) => x && x.id === tid)?.name || tid
+  }`;
   if (!atChargenCap) {
     if (tierN !== "sorcerer") ids = ids.filter((x) => techniqueWorkingOwner(x) !== ownerW);
     ids.push(tid);
     character.sorceryProfile.additionalTechniqueIds = ids;
-  } else if (experiencePurchasesEnabled() && experienceSpend(character, bundle, "technique")) {
+  } else if (experiencePurchasesEnabled() && experienceSpend(character, bundle, "technique", techniqueSpendLabel)) {
     character.sorceryProfile.experienceAdditionalTechniqueIds = [
       ...(character.sorceryProfile.experienceAdditionalTechniqueIds || []),
       tid,
@@ -3196,7 +3228,7 @@ function renderFinalAttrDotRow(
       if (xpRaise) {
         b.title = `Spend ${attrXpCost} Experience to raise ${label}`;
         b.addEventListener("click", () => {
-          if (!experienceSpend(character, bundle, "attribute")) return;
+          if (!experienceSpend(character, bundle, "attribute", `${label} +1`)) return;
           if (attrMeta?.id) recordExperienceAttributeBump(character, attrMeta.id);
           onPickFinal(i);
         });
@@ -4381,6 +4413,7 @@ function applyTierAdvancementFromBundle() {
       ...bonusBeforeMerge,
     ]),
   ];
+  snapshotKnackRowBudgetCostsBeforeTierAdvance(character, bundle, cur);
   character.tierAdvancementLog = [
     ...(Array.isArray(character.tierAdvancementLog) ? character.tierAdvancementLog : []),
     {
@@ -4412,6 +4445,7 @@ function applyTierAdvancementFromBundle() {
   reconcileLockedKnackIds(character, bundle);
   ensureHeroKnackSlotAssignments(character, bundle);
   lockKnacksAtTierAdvance(character);
+  settleExperienceKnacksAfterTierAdvance(character, carriedKnackIds);
   ensureFinishingShape();
   captureFinishingSkillBaseline();
   captureFinishingAttrBaseline({ bakeTierAdvance: true });
@@ -4504,26 +4538,20 @@ function ensureExperienceShape() {
   character.experiencePointsSpent = Number.isFinite(sp) && sp >= 0 ? sp : 0;
   if (!Array.isArray(character.experienceBirthrightPickIds)) character.experienceBirthrightPickIds = [];
   if (!Array.isArray(character.experienceKnackIds)) character.experienceKnackIds = [];
+  if (!Array.isArray(character.experiencePurchaseLog)) character.experiencePurchaseLog = [];
   else {
-    const main = new Set(character.knackIds || []);
-    character.experienceKnackIds = [
-      ...new Set(character.experienceKnackIds.filter((id) => typeof id === "string" && id.trim() && main.has(id))),
-    ];
+    character.experiencePurchaseLog = character.experiencePurchaseLog.filter((x) => typeof x === "string" && x.trim());
   }
+  settleLockedExperienceKnacks(character);
   ensureExperienceAdvancementBumps(character);
   reconcileExperienceAttributeBumpsFromChargenOverflow();
   reconcileExperienceSkillBumpsFromChargenOverflow();
   healSpuriousExperienceKnackIds();
 }
 
-/** Knack already taken on Calling / Finishing / tier carry — not an Experience purchase. */
+/** Knack already on the sheet from chargen or a prior tier — not an Experience purchase target. */
 function knackOwnedFromPriorChargen(kid) {
-  const id = String(kid || "").trim();
-  if (!id) return false;
-  if ((character.finishing?.finishingKnackIds || []).includes(id)) return true;
-  if (finishingBonusKnackIdSet(character).has(id)) return true;
-  if ((character.knackIds || []).includes(id) && !experienceKnackIdSet(character).has(id)) return true;
-  return false;
+  return knackOwnedFromPriorChargenPick(character, kid);
 }
 
 /**
@@ -4543,7 +4571,7 @@ function healSpuriousExperienceKnackIds() {
   for (const id of spurious) {
     const wasInFinishing = finishing.has(id);
     removeExperienceKnackPickIfPresent(id);
-    experienceRefund(character, bundle, "knack");
+    experienceRefund(character, bundle, "knack", bundle.knacks?.[id]?.name || id);
     if (wasInFinishing && (character.knackIds || []).includes(id)) {
       character.knackIds = (character.knackIds || []).filter((x) => x !== id);
     }
@@ -4556,7 +4584,7 @@ function addExperienceKnackPick(kid) {
   const id = String(kid || "").trim();
   if (!id || knackOwnedFromPriorChargen(id)) return false;
   if (experienceKnackIdSet(character).has(id)) return true;
-  if (!experienceSpend(character, bundle, "knack")) return false;
+  if (!experienceSpend(character, bundle, "knack", `Knack: ${bundle.knacks?.[id]?.name || id}`)) return false;
   if (!(character.knackIds || []).includes(id)) {
     character.knackIds = [...(character.knackIds || []), id];
   }
@@ -4579,7 +4607,7 @@ function removeExperienceKnackPick(kid) {
   if (isKnackLocked(character, id)) return false;
   character.knackIds = (character.knackIds || []).filter((x) => x !== id);
   removeExperienceKnackPickIfPresent(id);
-  experienceRefund(character, bundle, "knack");
+  experienceRefund(character, bundle, "knack", `Knack: ${bundle.knacks?.[id]?.name || id}`);
   if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
   return true;
 }
@@ -4605,7 +4633,10 @@ function tryAddBirthrightPick(bid) {
     addFinishingBirthright(bid);
     return true;
   }
-  if (experiencePurchasesEnabled() && experienceSpend(character, bundle, "birthright")) {
+  if (
+    experiencePurchasesEnabled() &&
+    experienceSpend(character, bundle, "birthright", `Birthright: ${bundle.birthrights?.[bid]?.name || bid}`)
+  ) {
     character.experienceBirthrightPickIds = [...character.experienceBirthrightPickIds, bid];
     return true;
   }
@@ -4813,6 +4844,14 @@ function renderNav() {
       const curIdx = stepIndex;
       const fromStep = stepsHere[curIdx] || "welcome";
       persistFromForm();
+      if (fromStep === "expLeveling" && idx !== curIdx) {
+        const leave = resolveLeaveExpLevelingStep(character);
+        if (!leave.proceed) {
+          render();
+          return;
+        }
+        character = leave.character;
+      }
       if (idx > curIdx) {
         if (isDragonHeirChargen(character)) {
           const dragBlock = dragonHeirStepLeaveBlockedReason(character, bundle, fromStep);
@@ -6338,9 +6377,25 @@ function renderCalling(root) {
   if (heroUsesCallingSlotRows(character)) {
     healLockedKnackIdsFromTierAdvancement();
     healExperienceKnackIdsFromMortalOverflow();
+    healCarriedExperienceKnackIds();
     healFinishingBonusKnackIds();
+    ensureFinishingBonusKnackIds(character);
+    snapshotMissingLockedKnackRowBudgetCosts(character, bundle);
     reconcileLockedKnackIds(character, bundle);
-    syncHeroKnackSlotAssignments(character, bundle);
+    if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+    const heldKnackSet = new Set(
+      (character.knackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+    );
+    for (const key of Object.keys(character.knackSlotById)) {
+      if (!heldKnackSet.has(key)) delete character.knackSlotById[key];
+    }
+    stripRowPaidKnacksFromExperiencePools(character);
+    pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
+    pruneOrphanUnmappedKnackPurchases(character, bundle);
+    seedHeroKnackRowAssignments(character, bundle);
+    pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
+    settleUnassignedHeldKnackSlots(character, bundle);
+    repairUnmappedHeroKnackSlots(character, bundle);
   }
   const wrap = document.createElement("div");
   const allowedCallingIds = callingIdsAllowedForCharacter();
@@ -6662,8 +6717,6 @@ function renderCalling(root) {
   const knackPanel = document.createElement("div");
   knackPanel.className = "panel calling-knacks-panel";
   knackPanel.innerHTML = `<h2>Knacks</h2>`;
-  reconcileLockedKnackIds(character, bundle);
-  if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
   const originCallingId = String(character.callingId || "").trim();
   const originTwinId = originCallingId ? mythosCallingTwinId(originCallingId) : null;
   if (
@@ -6690,15 +6743,43 @@ function renderCalling(root) {
 
   /** @param {HTMLElement} container */
   function appendKnackChip(container, kid, k, preferredRowIdx = null) {
-    const on = knackHeldOnCallingKnackPanel(kid);
-    const locked = on && isKnackLocked(character, kid);
+    const rowIdx =
+      preferredRowIdx != null && Number.isFinite(Number(preferredRowIdx)) ? Number(preferredRowIdx) : null;
+    const useRowPayment = heroUsesCallingSlotRows(character) && rowIdx != null;
+    const on = useRowPayment
+      ? knackSelectedOnCallingRow(character, kid, rowIdx)
+      : knackHeldOnCallingKnackPanel(kid);
+    const heldOnSheet = knackHeldOnCallingKnackPanel(kid);
+    const locked = heldOnSheet && isKnackLocked(character, kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const finishingExtra = character.knackIds.includes(kid) && finishingBonusKnackIdSet(character).has(kid);
-    const experienceExtra = character.knackIds.includes(kid) && experienceKnackIdSet(character).has(kid);
+    const experienceExtra =
+      character.knackIds.includes(kid) &&
+      (experienceKnackIdSet(character).has(kid) || carriedExperienceKnackIdSet(character).has(kid));
     const knackXpBuy =
       experiencePurchasesEnabled() && baseOk && !eligible && !on && experienceCanAfford(character, bundle, "knack");
-    const slotBlocked = baseOk && !eligible && !on && !knackXpBuy;
+    const slotMap =
+      character.knackSlotById && typeof character.knackSlotById === "object" ? { ...character.knackSlotById } : {};
+    const inMain = (character.knackIds || []).includes(kid);
+    const assignedPay = character.knackSlotById?.[kid];
+    const payCheckExclude =
+      inMain &&
+      (assignedPay == null || !Number.isFinite(Number(assignedPay)) || Number(assignedPay) === rowIdx)
+        ? kid
+        : undefined;
+    const payCheckIds = inMain ? character.knackIds || [] : [...(character.knackIds || []), kid];
+    if (useRowPayment && rowIdx != null && !inMain) slotMap[kid] = rowIdx;
+    const payRows =
+      useRowPayment && baseOk
+        ? callingRowsThatCanPayForKnack(k, character, bundle, payCheckIds, slotMap, payCheckExclude)
+        : [];
+    const canPayFromRow = useRowPayment && payRows.includes(rowIdx);
+    let slotBlocked = knackXpBuy ? false : !baseOk;
+    if (!on && !slotBlocked && !knackXpBuy) {
+      if (useRowPayment) slotBlocked = !canPayFromRow;
+      else slotBlocked = !eligible;
+    }
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className =
@@ -6742,10 +6823,13 @@ function renderCalling(root) {
         render();
         return;
       }
-      if (useThreeRowKnackBuckets && heroUsesCallingSlotRows(character)) {
-        const changed = await toggleHeroKnackWithRowPayment(character, bundle, kid, k, {
-          preferredRowIdx: preferredRowIdx != null ? preferredRowIdx : undefined,
-        });
+      if (heroUsesCallingSlotRows(character)) {
+        const rowIdx =
+          preferredRowIdx != null && Number.isFinite(Number(preferredRowIdx)) ? Number(preferredRowIdx) : null;
+        const changed =
+          rowIdx != null
+            ? commitKnackToCallingRow(character, bundle, kid, k, rowIdx)
+            : await toggleHeroKnackWithRowPayment(character, bundle, kid, k, {});
         if (changed) render();
         return;
       }
@@ -6759,7 +6843,6 @@ function renderCalling(root) {
         return;
       }
       character.knackIds = [...set];
-      if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
       render();
     });
     const appliesLine = knackAppliesToCallingsLine(k, bundle, character);
@@ -6802,6 +6885,8 @@ function renderCalling(root) {
         pushBucket(bucketKey, [kid, k]);
       }
     }
+    const knackBudgetMap =
+      character.knackSlotById && typeof character.knackSlotById === "object" ? { ...character.knackSlotById } : {};
     const order = /** @type {(number | "any")[]} */ ([0, 1, 2, "any"]);
     for (const key of order) {
       const list = buckets.get(key);
@@ -6818,7 +6903,7 @@ function renderCalling(root) {
         const used = rowKnackPointsUsed(
           key,
           character.knackIds || [],
-          character.knackSlotById || {},
+          knackBudgetMap,
           bundle,
           character,
         );
@@ -6905,6 +6990,13 @@ function renderCalling(root) {
         });
       }
       section.appendChild(head);
+      if (key === "any") {
+        const genHelp = document.createElement("p");
+        genHelp.className = "help";
+        genHelp.textContent =
+          "Pandora's Box Heroic General knacks (any Calling) — same pool at Origin and Hero; Immortal General knacks wait until Hero with a 2+ dot Calling row.";
+        section.appendChild(genHelp);
+      }
       if (key === "selected") {
         appendMotmCallingRowHint(section, originCallingId, motmCallingPairForRow(originCallingId, bundle));
       }
@@ -7907,7 +7999,13 @@ function renderBoons(root) {
       const set = new Set(character.boonIds);
       if (set.has(bid)) set.delete(bid);
       else if (eligible && (!Number.isFinite(boonCap) || set.size < boonCap)) set.add(bid);
-      else if (eligible && atBoonCap && experiencePurchasesEnabled() && experienceSpend(character, bundle, "boon")) set.add(bid);
+      else if (
+        eligible &&
+        atBoonCap &&
+        experiencePurchasesEnabled() &&
+        experienceSpend(character, bundle, "boon", `Boon: ${boonChipLabel}`)
+      )
+        set.add(bid);
       character.boonIds = [...set];
       render();
     });
@@ -8779,8 +8877,15 @@ function renderExpLeveling(root) {
   const poolHelp = document.createElement("p");
   poolHelp.className = "help";
   poolHelp.textContent =
-    "Enter unspent Experience earned in play. Purchases below deduct from this pool (Origin p. 113; Boons and Sorcerer Techniques also Saints & Monsters p. 87). Chargen tabs stay locked — advance your character here after Review.";
+    "Enter unspent Experience earned in play. Purchases on this step are previewed only — you can change your mind freely until you leave (Back or another tab), when you will be asked to save them. Chargen tabs stay locked — advance your character here after Review (Origin p. 113; Boons and Techniques also Saints & Monsters p. 87).";
   poolSec.appendChild(poolHelp);
+  if (expLevelingSessionDirty(character)) {
+    const draftNote = document.createElement("p");
+    draftNote.className = "help exp-leveling-draft-note";
+    draftNote.textContent =
+      "Unsaved Experience purchases on this step — leave via Back or another tab to save, or undo picks here before leaving.";
+    poolSec.appendChild(draftNote);
+  }
   const poolRow = document.createElement("div");
   poolRow.className = "exp-leveling-pool-row field";
   const poolLab = document.createElement("label");
@@ -8802,7 +8907,7 @@ function renderExpLeveling(root) {
   poolRow.appendChild(poolInp);
   const poolRem = document.createElement("span");
   poolRem.className = "help exp-leveling-pool-remainder";
-  poolRem.textContent = `${experiencePointsAvailable(character)} XP available`;
+  poolRem.textContent = `Total XP spent: ${experiencePointsSpent(character)}`;
   poolRow.appendChild(poolRem);
   poolSec.appendChild(poolRow);
 
@@ -8905,7 +9010,7 @@ function renderExpLeveling(root) {
     const prev = character.favoredApproach;
     const next = favSel.value;
     if (next === prev) return;
-    if (experienceSpend(character, bundle, "favoredApproach")) {
+    if (experienceSpend(character, bundle, "favoredApproach", `Favored Approach → ${next}`)) {
       character.favoredApproach = next;
       render();
     } else {
@@ -9016,7 +9121,7 @@ function renderExpLeveling(root) {
       chip.textContent = boonChipLabel;
       chip.title = `Spend ${experiencePurchaseCost(bundle, "boon")} Experience for this Boon`;
       chip.addEventListener("click", () => {
-        if (!experienceSpend(character, bundle, "boon")) return;
+        if (!experienceSpend(character, bundle, "boon", `Boon: ${boonChipLabel}`)) return;
         character.boonIds = [...character.boonIds, bid];
         render();
       });
@@ -9461,6 +9566,11 @@ function buildExportObject() {
             out.knackSlotById = {
               ...(character.knackSlotById && typeof character.knackSlotById === "object" ? character.knackSlotById : {}),
             };
+            out.knackLockedRowBudgetCostById = {
+              ...(character.knackLockedRowBudgetCostById && typeof character.knackLockedRowBudgetCostById === "object"
+                ? character.knackLockedRowBudgetCostById
+                : {}),
+            };
           }
           return out;
         })()),
@@ -9468,6 +9578,9 @@ function buildExportObject() {
     lockedKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.lockedKnackIds || [])],
     finishingBonusKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.finishingBonusKnackIds || [])],
     experienceKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.experienceKnackIds || [])],
+    carriedExperienceKnackIds: isSorcererLineTier(character.tier)
+      ? []
+      : [...(character.carriedExperienceKnackIds || [])],
     knacks: isSorcererLineTier(character.tier)
       ? []
       : character.knackIds.map((id) => bundle.knacks[id]?.name || id),
@@ -9490,6 +9603,7 @@ function buildExportObject() {
     experiencePointsRemaining: experiencePointsAvailable(character),
     experiencePointsSpent: experiencePointsSpent(character),
     experiencePointsTotal: experiencePointsTotal(character),
+    experiencePurchaseLog: [...(character.experiencePurchaseLog || [])],
     experienceBirthrightPickIds: [...(character.experienceBirthrightPickIds || [])],
     experienceBirthrightsNamed: (character.experienceBirthrightPickIds || []).map(
       (id) => bundle.birthrights[id]?.name || id,
@@ -9832,10 +9946,14 @@ function importCharacterFromExportPayload(data) {
   let experienceKnackIds = Array.isArray(data.experienceKnackIds)
     ? data.experienceKnackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [...base.experienceKnackIds];
+  let carriedExperienceKnackIds = Array.isArray(data.carriedExperienceKnackIds)
+    ? data.carriedExperienceKnackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
+    : [...base.carriedExperienceKnackIds];
   if (isSorcererLineTierId(tier)) {
     lockedKnackIds = [];
     finishingBonusKnackIds = [];
     experienceKnackIds = [];
+    carriedExperienceKnackIds = [];
   }
   /** Hero: optional row index per Knack id from export; normalized again in `syncHeroKnackSlotAssignments`. */
   const knackSlotById = {};
@@ -9844,6 +9962,14 @@ function importCharacterFromExportPayload(data) {
       if (!validKnack.has(knid) || !knackIds.includes(knid)) continue;
       const r = Math.round(Number(rv));
       if (Number.isFinite(r) && r >= 0 && r < 3) knackSlotById[knid] = r;
+    }
+  }
+  const knackLockedRowBudgetCostById = {};
+  if (callingSlots && data.knackLockedRowBudgetCostById && typeof data.knackLockedRowBudgetCostById === "object") {
+    for (const [knid, cv] of Object.entries(data.knackLockedRowBudgetCostById)) {
+      if (!validKnack.has(knid) || !knackIds.includes(knid)) continue;
+      const c = Math.round(Number(cv));
+      if (c === 1 || c === 2) knackLockedRowBudgetCostById[knid] = c;
     }
   }
   finBase.finishingKnackIds = finBase.finishingKnackIds.filter((id) => {
@@ -9961,7 +10087,9 @@ function importCharacterFromExportPayload(data) {
     lockedKnackIds,
     finishingBonusKnackIds,
     experienceKnackIds,
+    carriedExperienceKnackIds,
     knackSlotById: callingSlots ? knackSlotById : {},
+    knackLockedRowBudgetCostById: callingSlots ? knackLockedRowBudgetCostById : {},
     purviewIds,
     patronPurviewSlots,
     boonIds,
@@ -9979,6 +10107,9 @@ function importCharacterFromExportPayload(data) {
       const n = Math.round(Number(data.experiencePointsSpent) || 0);
       return Number.isFinite(n) && n >= 0 ? n : 0;
     })(),
+    experiencePurchaseLog: Array.isArray(data.experiencePurchaseLog)
+      ? data.experiencePurchaseLog.filter((x) => typeof x === "string" && x.trim())
+      : [...base.experiencePurchaseLog],
     experienceBirthrightPickIds: Array.isArray(data.experienceBirthrightPickIds)
       ? data.experienceBirthrightPickIds.filter((x) => typeof x === "string" && validBirthright.has(x))
       : [...base.experienceBirthrightPickIds],
@@ -10062,7 +10193,19 @@ function pruneStaleKnackIds() {
   reconcileLockedKnackIds(character, bundle);
   character.knackIds = pruneKnackIdsToCallingSlotCap(character.knackIds, character, bundle);
   ensureExperienceShape();
-  syncHeroKnackSlotAssignments(character, bundle);
+  if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
+    ensureFinishingBonusKnackIds(character);
+    snapshotMissingLockedKnackRowBudgetCosts(character, bundle);
+    stripRowPaidKnacksFromExperiencePools(character);
+    pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
+    pruneOrphanUnmappedKnackPurchases(character, bundle);
+    seedHeroKnackRowAssignments(character, bundle);
+    pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
+    settleUnassignedHeldKnackSlots(character, bundle);
+    repairUnmappedHeroKnackSlots(character, bundle);
+  } else {
+    syncHeroKnackSlotAssignments(character, bundle);
+  }
   if (character.finishing?.finishingKnackIds) {
     character.finishing.finishingKnackIds = character.finishing.finishingKnackIds.filter((id) => {
       const k = bundle.knacks[id];
@@ -10083,6 +10226,8 @@ function healExperienceKnackIdsFromMortalOverflow() {
   if (!Array.isArray(character.experienceKnackIds)) character.experienceKnackIds = [];
   if (character.experienceKnackIds.length) return;
   if (!bundle?.knacks) return;
+  /** Hero three-row Calling buys use `knackSlotById` — never infer them as Exp Leveling overflow. */
+  if (heroUsesCallingSlotRows(character)) return;
   const fin = finishingBonusKnackIdSet(character);
   const ids = character.knackIds || [];
   const budgetKnacks = [];
@@ -10102,6 +10247,34 @@ function healExperienceKnackIdsFromMortalOverflow() {
 }
 
 /**
+ * Hero+ saves advanced before `carriedExperienceKnackIds`: infer Origin XP knack buys that should not
+ * spend Visitation Calling row knack budgets.
+ */
+function healCarriedExperienceKnackIds() {
+  if (!Array.isArray(character.carriedExperienceKnackIds)) character.carriedExperienceKnackIds = [];
+  if (character.carriedExperienceKnackIds.length) return;
+  if (!bundle?.knacks || isOriginPlayTier(character.tier)) return;
+  const fin = finishingBonusKnackIdSet(character);
+  const locked = knackLockedIdSet(character);
+  const ids = character.knackIds || [];
+  const budgetKnacks = [];
+  /** @type {string[]} */
+  const xp = [];
+  for (const id of ids) {
+    if (fin.has(id)) continue;
+    const k = bundle.knacks[id];
+    if (!k) continue;
+    const trial = [...budgetKnacks, id];
+    if (knackIdsCallingSlotsUsed(trial, bundle, { ...character, tier: "mortal" }) <= 1) {
+      budgetKnacks.push(id);
+    } else if (locked.has(id)) {
+      xp.push(id);
+    }
+  }
+  if (xp.length) character.carriedExperienceKnackIds = [...new Set(xp)];
+}
+
+/**
  * Older Hero saves: infer Finishing extras (all locked Knacks except the first Calling-step pick).
  */
 function healFinishingBonusKnackIds() {
@@ -10113,7 +10286,7 @@ function healFinishingBonusKnackIds() {
   const lockedInOrder = ids.filter((id) => locked.has(id));
   if (lockedInOrder.length <= 1) return;
   const budgetKnack = lockedInOrder[0];
-  const xp = experienceKnackIdSet(character);
+  const xp = new Set([...experienceKnackIdSet(character), ...carriedExperienceKnackIdSet(character)]);
   character.finishingBonusKnackIds = lockedInOrder.filter((id) => id !== budgetKnack && !xp.has(id));
 }
 
@@ -10129,6 +10302,7 @@ function healLockedKnackIdsFromTierAdvancement() {
   if (knackLockedIdSet(character).size > 0) {
     character.lockedKnackIds = (character.lockedKnackIds || []).filter((id) => present.has(id));
     reconcileLockedKnackIds(character, bundle);
+    settleLockedExperienceKnacks(character);
     return;
   }
   if (isOriginPlayTier(character.tier)) return;
@@ -10147,10 +10321,12 @@ function healLockedKnackIdsFromTierAdvancement() {
       character.finishingBonusKnackIds = [...finBonus];
     }
     reconcileLockedKnackIds(character, bundle);
+    settleLockedExperienceKnacks(character);
     return;
   }
   character.lockedKnackIds = [...(character.knackIds || [])];
   reconcileLockedKnackIds(character, bundle);
+  settleLockedExperienceKnacks(character);
 }
 
 /**
@@ -10248,6 +10424,9 @@ function normalizeCharacterStateAfterLoad() {
   if (heroUsesCallingSlots()) {
     ensureCallingSlotsForHero();
     if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+    if (!character.knackLockedRowBudgetCostById || typeof character.knackLockedRowBudgetCostById !== "object") {
+      character.knackLockedRowBudgetCostById = {};
+    }
     reconcileLockedKnackIds(character, bundle);
     ensureHeroKnackSlotAssignments(character, bundle);
   } else character.callingSlots = null;
@@ -10718,6 +10897,11 @@ function render() {
   renderNav();
   const steps = stepDefsForTier(character.tier);
   const step = steps[stepIndex] || "welcome";
+  if (step === "expLeveling") {
+    character = activateExpLevelingSession(character);
+  } else if (expLevelingSessionActive()) {
+    character = discardExpLevelingSession() || character;
+  }
   if (isDragonHeirChargen(character) && dragonHeirPostConceptStepList(character).includes(step)) {
     ensureDragonShape(character, bundle);
     const dSteps = dragonHeirPostConceptStepList(character);
@@ -10775,6 +10959,11 @@ function render() {
     back.textContent = "Back";
     back.addEventListener("click", () => {
       persistFromForm();
+      if (step === "expLeveling") {
+        const leave = resolveLeaveExpLevelingStep(character);
+        if (!leave.proceed) return;
+        character = leave.character;
+      }
       stepIndex -= 1;
       render();
       scrollWizardStepIntoView();

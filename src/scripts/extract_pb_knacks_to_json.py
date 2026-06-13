@@ -24,12 +24,18 @@ AUDIT_DIR = ROOT / "json" / "knacks"
 BOOK = "SCION_Pandoras_Box_(Revised_Download).pdf"
 ORIGIN_BOOK = "Scion_Origin_(Revised_Download).pdf"
 
-# Origin Mortal knack lists (Scion: Origin pp. 105–113). Catalog tier stays PB HEROIC; `originMortal` gates Origin.
+# Origin Mortal knack lists (Scion: Origin pp. 105–113). PB Heroic General (calling any + HEROIC band) is always Origin-eligible.
 ORIGIN_MORTAL_KNACKS: dict[str, frozenset[str]] = {
     "any": frozenset(
         {
             "aura_of_greatness",
             "born_to_be_kings",
+            "desperate_entreaty",
+            "exemplar_of_the_calling",
+            "i_am_here",
+            "leave_it_all_out_there",
+            "monsters_united",
+            "overwhelming_presence",
             "scent_the_divine",
             "somebodys_watching_me",
         }
@@ -557,9 +563,14 @@ def to_app_entry(raw: dict, used_ids: set[str]) -> tuple[str, dict]:
     section_tier = raw.get("sectionTier") or raw.get("tier") or "immortal"
     tier = catalog_tier(section_tier, raw.get("description") or "", calling, slug)
     if slug in ORIGIN_MORTAL_KNACKS.get(calling, frozenset()):
-        if calling == "any":
+        if calling == "any" and slug in (
+            "aura_of_greatness",
+            "born_to_be_kings",
+            "scent_the_divine",
+            "somebodys_watching_me",
+        ):
             source = f"{ORIGIN_BOOK} — Mortal General Calling Knacks; also {source}"
-        else:
+        elif calling != "any":
             calling_label = calling.replace("_", " ").title()
             source = f"{ORIGIN_BOOK} — Mortal {calling_label} Knacks; also {source}"
 
@@ -572,9 +583,8 @@ def to_app_entry(raw: dict, used_ids: set[str]) -> tuple[str, dict]:
         "mechanicalEffects": raw["mechanicalEffects"],
         "source": source,
     }
-    if (
-        slug in ORIGIN_MORTAL_KNACKS.get(calling, frozenset())
-        and str(section_tier).lower() == "heroic"
+    if str(section_tier).lower() == "heroic" and (
+        calling == "any" or slug in ORIGIN_MORTAL_KNACKS.get(calling, frozenset())
     ):
         entry["originMortal"] = True
     if calling == "any":

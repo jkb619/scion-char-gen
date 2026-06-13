@@ -48,19 +48,41 @@ export function experienceCanAfford(character, bundle, key) {
   return experiencePointsAvailable(character) >= cost;
 }
 
+/** @param {unknown} character */
+function ensureExperiencePurchaseLog(character) {
+  if (!character || typeof character !== "object") return;
+  if (!Array.isArray(character.experiencePurchaseLog)) {
+    character.experiencePurchaseLog = [];
+    return;
+  }
+  character.experiencePurchaseLog = character.experiencePurchaseLog.filter((x) => typeof x === "string" && x.trim());
+}
+
+/** @param {Record<string, unknown> | null | undefined} bundle @param {string} key @param {unknown} [detail] */
+function experiencePurchaseLine(bundle, key, detail) {
+  const cost = experiencePurchaseCost(bundle, key);
+  const row = bundle?.experienceAdvancement?.costs?.[key];
+  const base = row?.change || row?.object || key;
+  const label = detail != null && String(detail).trim() ? String(detail).trim() : String(base);
+  return cost != null ? `${label} (${cost} XP)` : label;
+}
+
 /**
  * @param {unknown} character
  * @param {Record<string, unknown> | null | undefined} bundle
  * @param {string} key
+ * @param {unknown} [detail] — human-readable label for the review sheet “Spent on” block
  * @returns {boolean}
  */
-export function experienceSpend(character, bundle, key) {
+export function experienceSpend(character, bundle, key, detail) {
   const cost = experiencePurchaseCost(bundle, key);
   if (cost == null || !character || typeof character !== "object") return false;
   const cur = experiencePointsAvailable(character);
   if (cur < cost) return false;
   /** @type {{ experiencePoints?: number; experiencePointsSpent?: number }} */ (character).experiencePoints = cur - cost;
   character.experiencePointsSpent = experiencePointsSpent(character) + cost;
+  ensureExperiencePurchaseLog(character);
+  character.experiencePurchaseLog.push(experiencePurchaseLine(bundle, key, detail));
   return true;
 }
 
@@ -69,15 +91,120 @@ export function experienceSpend(character, bundle, key) {
  * @param {unknown} character
  * @param {Record<string, unknown> | null | undefined} bundle
  * @param {string} key
+ * @param {unknown} [detail] — same label passed to `experienceSpend` when possible
  * @returns {boolean}
  */
-export function experienceRefund(character, bundle, key) {
+export function experienceRefund(character, bundle, key, detail) {
   const cost = experiencePurchaseCost(bundle, key);
   if (cost == null || !character || typeof character !== "object") return false;
   /** @type {{ experiencePoints?: number; experiencePointsSpent?: number }} */ (character).experiencePoints =
     experiencePointsAvailable(character) + cost;
   character.experiencePointsSpent = Math.max(0, experiencePointsSpent(character) - cost);
+  ensureExperiencePurchaseLog(character);
+  const log = character.experiencePurchaseLog;
+  const needle = detail != null ? String(detail).trim() : "";
+  if (needle) {
+    for (let i = log.length - 1; i >= 0; i -= 1) {
+      if (log[i].includes(needle)) {
+        log.splice(i, 1);
+        break;
+      }
+    }
+  } else {
+    const fallback = experiencePurchaseLine(bundle, key, "");
+    for (let i = log.length - 1; i >= 0; i -= 1) {
+      if (log[i] === fallback) {
+        log.splice(i, 1);
+        break;
+      }
+    }
+  }
   return true;
+}
+
+/** @param {Record<string, unknown> | null | undefined} bundle @param {string} techniqueId */
+function sorceryTechniqueNameFromBundle(bundle, techniqueId) {
+  const tid = String(techniqueId || "").trim();
+  if (!tid) return "";
+  const table = bundle?.saintsMonsters?.sorcererTechniquesByWorking;
+  if (!table || typeof table !== "object") return tid;
+  for (const def of Object.values(table)) {
+    if (!def || typeof def !== "object") continue;
+    const extra = Array.isArray(def.additional) ? def.additional : [];
+    for (const t of extra) {
+      if (t && t.id === tid && t.name) return String(t.name);
+    }
+  }
+  return tid;
+}
+
+/** @param {unknown} data @param {Record<string, unknown> | null | undefined} bundle */
+function rebuildExperienceSpentOnLines(data, bundle) {
+  /** @type {string[]} */
+  const lines = [];
+
+  const attrCost = experiencePurchaseCost(bundle, "attribute");
+  for (const [id, n] of Object.entries(data?.experienceAttributeBumps || {})) {
+    const count = Math.round(Number(n) || 0);
+    if (count <= 0) continue;
+    const name = bundle?.attributes?.[id]?.name || id;
+    const each = attrCost ?? 10;
+    lines.push(`${name} +${count} (${count * each} XP)`);
+  }
+
+  const skillCost = experiencePurchaseCost(bundle, "skill");
+  for (const [id, n] of Object.entries(data?.experienceSkillBumps || {})) {
+    const count = Math.round(Number(n) || 0);
+    if (count <= 0) continue;
+    const name = bundle?.skills?.[id]?.name || id;
+    const each = skillCost ?? 5;
+    lines.push(`${name} +${count} (${count * each} XP)`);
+  }
+
+  const knackCost = experiencePurchaseCost(bundle, "knack");
+  for (const id of data?.experienceKnackIds || []) {
+    const name = bundle?.knacks?.[id]?.name || id;
+    lines.push(`Knack: ${name} (${knackCost ?? 10} XP)`);
+  }
+
+  const brCost = experiencePurchaseCost(bundle, "birthright");
+  for (const name of data?.experienceBirthrightsNamed || []) {
+    lines.push(`Birthright: ${name} (${brCost ?? 5} XP)`);
+  }
+
+  const techCost = experiencePurchaseCost(bundle, "technique");
+  const techIds = data?.sorceryProfile?.experienceAdditionalTechniqueIds || [];
+  for (const tid of techIds) {
+    const name = sorceryTechniqueNameFromBundle(bundle, tid);
+    lines.push(`Technique: ${name} (${techCost ?? 10} XP)`);
+  }
+
+  const spent = sheetExperienceTotals(data).spent;
+  const loggedXp = lines.reduce((sum, line) => {
+    const m = line.match(/\((\d+) XP\)$/);
+    return sum + (m ? Number(m[1]) : 0);
+  }, 0);
+  if (!lines.length && spent > 0) {
+    lines.push(`${spent} XP spent (purchase details not recorded)`);
+  } else if (spent > loggedXp) {
+    lines.push(`Other purchases (${spent - loggedXp} XP)`);
+  }
+
+  return lines;
+}
+
+/**
+ * Review sheet “Spent on” lines from export data.
+ * @param {unknown} data
+ * @param {Record<string, unknown> | null | undefined} [bundle]
+ * @returns {string[]}
+ */
+export function sheetExperienceSpentOnLines(data, bundle) {
+  const log = data?.experiencePurchaseLog;
+  if (Array.isArray(log) && log.some((x) => typeof x === "string" && x.trim())) {
+    return log.filter((x) => typeof x === "string" && x.trim());
+  }
+  return rebuildExperienceSpentOnLines(data, bundle);
 }
 
 /** @param {Record<string, unknown> | null | undefined} bundle */

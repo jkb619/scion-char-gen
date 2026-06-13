@@ -5,8 +5,10 @@ import {
   isKnackLocked,
   knackCallingSlotCost,
   knackPointCost,
+  pinHeldKnackToCallingRowIfAffordable,
   rowKnackPointsUsed,
-  syncHeroKnackSlotAssignments,
+  settleUnassignedHeldKnackSlots,
+  validateCommittedKnackRowAssignment,
 } from "./eligibility.js";
 
 /**
@@ -16,9 +18,11 @@ import {
  * @param {string[]} knackIds
  * @param {Record<string, number>} slotMap
  */
-export function callingRowBudgetLine(rowIdx, character, bundle, knackIds, slotMap) {
+export function callingRowBudgetLine(rowIdx, character, bundle, knackIds, slotMap, payingKnackId) {
   const cap = callingRowDotCap(character, rowIdx);
-  const used = rowKnackPointsUsed(rowIdx, knackIds, slotMap, bundle, character);
+  const omit = String(payingKnackId ?? "").trim();
+  const heldIds = (knackIds || []).filter((id) => id !== omit);
+  const used = rowKnackPointsUsed(rowIdx, heldIds, slotMap, bundle, character);
   const rowId = String(character.callingSlots?.[rowIdx]?.id ?? "").trim();
   const name = (rowId && bundle?.callings?.[rowId]?.name) || rowId || `Calling ${rowIdx + 1}`;
   return `${name}: ${used}/${cap} knack points`;
@@ -75,7 +79,7 @@ export function pickKnackPayingCallingRow(opts) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "chip knack-pay-picker-option";
-      btn.textContent = callingRowBudgetLine(ri, character, bundle, proposedKnackIds, slotMap);
+      btn.textContent = callingRowBudgetLine(ri, character, bundle, proposedKnackIds, slotMap, knack?.id);
       btn.addEventListener("click", () => finish(ri));
       list.appendChild(btn);
     }
@@ -106,6 +110,59 @@ export function knackPointCostLabel(knack) {
 }
 
 /**
+ * Buy or clear a Knack paid from a specific Calling row (Hero three-row Calling tab).
+ * Assigns `knackSlotById` immediately — does not rely on a later solver pass.
+ * @param {Record<string, unknown>} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @param {string} kid
+ * @param {Record<string, unknown>} k
+ * @param {number} rowIdx
+ * @returns {boolean}
+ */
+export function commitKnackToCallingRow(character, bundle, kid, k, rowIdx) {
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const id = String(kid ?? "").trim();
+  const ri = Number(rowIdx);
+  if (!id || !Number.isFinite(ri)) return false;
+  if (isKnackLocked(character, id)) return false;
+
+  const inList = (character.knackIds || []).includes(id);
+  const curPay = character.knackSlotById[id];
+
+  if (inList && Number(curPay) === ri) {
+    character.knackIds = (character.knackIds || []).filter((x) => x !== id);
+    delete character.knackSlotById[id];
+    if (Array.isArray(character.experienceKnackIds)) {
+      character.experienceKnackIds = character.experienceKnackIds.filter((x) => x !== id);
+    }
+    settleUnassignedHeldKnackSlots(character, bundle);
+    return true;
+  }
+
+  const prevIds = [...(character.knackIds || [])];
+  const prevPay = character.knackSlotById[id];
+  const proposed = inList ? prevIds : [...prevIds, id];
+  const proposedMap = { ...character.knackSlotById, [id]: ri };
+
+  character.knackIds = proposed;
+  character.knackSlotById[id] = ri;
+
+  if (!validateCommittedKnackRowAssignment(id, ri, proposed, proposedMap, character, bundle)) {
+    character.knackIds = prevIds;
+    if (prevPay == null) delete character.knackSlotById[id];
+    else character.knackSlotById[id] = prevPay;
+    return false;
+  }
+  if (Array.isArray(character.experienceKnackIds)) {
+    character.experienceKnackIds = character.experienceKnackIds.filter((x) => x !== id);
+  }
+  if (Array.isArray(character.carriedExperienceKnackIds)) {
+    character.carriedExperienceKnackIds = character.carriedExperienceKnackIds.filter((x) => x !== id);
+  }
+  return true;
+}
+
+/**
  * Toggle a main-list Knack on/off with per-Calling row payment (Hero three-row mode).
  * @param {Record<string, unknown>} character
  * @param {{ knacks?: Record<string, unknown> }} bundle
@@ -121,13 +178,23 @@ export async function toggleHeroKnackWithRowPayment(character, bundle, kid, k, o
 
   if (set.has(kid)) {
     if (isKnackLocked(character, kid)) return false;
+    const pref =
+      preferredRowIdx != null && Number.isFinite(Number(preferredRowIdx)) ? Number(preferredRowIdx) : null;
+    /** Held without a payer row: assign to this Calling section instead of toggling off. */
+    if (pref != null && character.knackSlotById[kid] == null) {
+      if (pinHeldKnackToCallingRowIfAffordable(character, bundle, kid, k, pref)) {
+        settleUnassignedHeldKnackSlots(character, bundle);
+        character.knackSlotById[kid] = pref;
+        return true;
+      }
+    }
     set.delete(kid);
     delete character.knackSlotById[kid];
     if (Array.isArray(character.experienceKnackIds)) {
       character.experienceKnackIds = character.experienceKnackIds.filter((x) => x !== kid);
     }
     character.knackIds = [...set];
-    syncHeroKnackSlotAssignments(character, bundle);
+    settleUnassignedHeldKnackSlots(character, bundle);
     return true;
   }
 
@@ -138,7 +205,8 @@ export async function toggleHeroKnackWithRowPayment(character, bundle, kid, k, o
 
   let payRow = null;
   const pref = preferredRowIdx != null ? Number(preferredRowIdx) : null;
-  if (pref != null && Number.isFinite(pref) && rows.includes(pref)) {
+  if (pref != null && Number.isFinite(pref)) {
+    if (!rows.includes(pref)) return false;
     payRow = pref;
   } else if (isGeneralCallingKnack(k) || rows.length > 1) {
     payRow = await pickKnackPayingCallingRow({
@@ -149,13 +217,20 @@ export async function toggleHeroKnackWithRowPayment(character, bundle, kid, k, o
       proposedKnackIds: next,
       slotMap: map,
     });
-  } else {
+  } else if (rows.length === 1) {
     payRow = rows[0];
   }
   if (payRow == null) return false;
 
   map[kid] = payRow;
   character.knackIds = next;
-  syncHeroKnackSlotAssignments(character, bundle);
+  settleUnassignedHeldKnackSlots(character, bundle);
+  character.knackSlotById[kid] = payRow;
+  if (Array.isArray(character.experienceKnackIds)) {
+    character.experienceKnackIds = character.experienceKnackIds.filter((x) => x !== kid);
+  }
+  if (Array.isArray(character.carriedExperienceKnackIds)) {
+    character.carriedExperienceKnackIds = character.carriedExperienceKnackIds.filter((x) => x !== kid);
+  }
   return true;
 }

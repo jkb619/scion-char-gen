@@ -207,6 +207,16 @@ def knack_origin_mortal_pick(knack: dict) -> bool:
     return knack.get("originMortal") is True
 
 
+def knack_heroic_general_pick(knack: dict) -> bool:
+    if knack.get("callingsAny") or knack.get("calling") == "any":
+        return knack_rule_tier(knack) == "heroic"
+    return False
+
+
+def knack_origin_play_heroic_pick(knack: dict) -> bool:
+    return knack_origin_mortal_pick(knack) or knack_heroic_general_pick(knack)
+
+
 def motm_inverted_chargen_knack_at_origin(knack: dict, character: dict) -> bool:
     if not is_mythos_for_character(character):
         return False
@@ -236,20 +246,40 @@ def tier_rank(tier: str | None) -> int:
     return 0 if t in ("mortal", "origin") else 1
 
 
+def mythos_character_calling_ids_for_knacks(character: dict) -> set[str]:
+    """Mirror eligibility.js mythosCharacterCallingIdsForKnacks."""
+    out: set[str] = set()
+    slots = character.get("callingSlots")
+    if isinstance(slots, list) and slots:
+        for s in slots:
+            if isinstance(s, dict):
+                sid = (s.get("id") or "").strip()
+                if sid:
+                    out.add(sid)
+        if not out:
+            cid = (character.get("callingId") or "").strip()
+            if cid:
+                out.add(cid)
+    else:
+        cid = (character.get("callingId") or "").strip()
+        if cid:
+            out.add(cid)
+    mythos_pan = is_mythos_for_character(character)
+    extras: set[str] = set()
+    for cid in out:
+        twin = motm_knack_access_twin(cid, mythos_pan)
+        if twin:
+            extras.add(twin)
+    out.update(extras)
+    return out
+
+
 def knack_eligible(knack: dict, character: dict) -> bool:
     if knack.get("callingsAny") or knack.get("calling") == "any":
         pass
     else:
         allowed = set(expand_motm_knack_access(knack, knack_raw_calling_list(knack), character))
-        char_callings = set()
-        cid = (character.get("callingId") or "").strip()
-        if cid:
-            char_callings.add(cid)
-        mythos_pan = is_mythos_for_character(character)
-        for c in list(char_callings):
-            twin = motm_knack_access_twin(c, mythos_pan)
-            if twin:
-                char_callings.add(twin)
+        char_callings = mythos_character_calling_ids_for_knacks(character)
         if allowed and not (allowed & char_callings):
             return False
     tr = tier_rank(character.get("tier"))
@@ -257,7 +287,7 @@ def knack_eligible(knack: dict, character: dict) -> bool:
     if tr == 0:
         if kt == "immortal":
             return False
-        if kt != "mortal" and not knack_origin_mortal_pick(knack):
+        if kt != "mortal" and not knack_origin_play_heroic_pick(knack):
             if not motm_inverted_chargen_knack_at_origin(knack, character):
                 return False
     elif kt == "mortal":
@@ -289,7 +319,7 @@ def knack_eligible_mortal(knack: dict, character: dict) -> bool:
     kt = knack_rule_tier(knack)
     if kt == "immortal":
         return False
-    if kt != "mortal" and not knack_origin_mortal_pick(knack):
+    if kt != "mortal" and not knack_origin_play_heroic_pick(knack):
         if not motm_inverted_chargen_knack_at_origin(knack, character):
             return False
     pant = knack.get("pantheonAnyOf")
@@ -298,6 +328,28 @@ def knack_eligible_mortal(knack: dict, character: dict) -> bool:
         if not pg or pg not in pant:
             return False
     return True
+
+
+def test_pb_heroic_general_knacks_eligible_at_origin():
+    """PB Heroic General (callingsAny + heroic) — same Origin pool as Aura of Greatness."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {"tier": "mortal", "callingId": "guardian", "pantheonId": "greek", "knackIds": []}
+    heroic_general = [
+        "desperateEntreaty",
+        "exemplarOfTheCalling",
+        "iAmHere",
+        "leaveItAllOutThere",
+        "monstersUnited",
+        "overwhelmingPresence",
+    ]
+    for kid in heroic_general:
+        k = knacks[kid]
+        assert knack_heroic_general_pick(k), kid
+        assert knack_eligible_mortal(k, character), kid
+        assert origin_calling_knack_chip_group_key(k, character) == "any", kid
+    elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
+    assert "export function knackHeroicGeneralPick" in elig
+    assert "export function knackOriginPlayHeroicPick" in elig
 
 
 def test_mythos_psychic_attack_buckets_to_cosmos_not_general():
@@ -1304,6 +1356,28 @@ def test_cthulhu_patron_callings_do_not_add_sage():
             mapped.append(cid)
     assert "cosmos" in mapped
     assert "sage" not in mapped
+
+
+def test_mythos_destroyer_inverted_eligible_at_hero_deity_line():
+    """Deity-line Hero with Destroyer row sees MotM inverted (Destroyer) knacks, not only Creator PB pool."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    rusty = knacks["mythos_rust_and_decay"]
+    assert rusty["chargenLines"] == ["deity", "titan"]
+    character = {
+        "tier": "hero",
+        "patronKind": "deity",
+        "parentDeityId": "cthulhu",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 1},
+            {"id": "defiler", "dots": 2},
+            {"id": "destroyer", "dots": 2},
+        ],
+        "knackIds": [],
+    }
+    assert knack_eligible(rusty, character)
+    assert motm_inverted_knack_subpool_key(rusty, character, "destroyer", "mythos_rust_and_decay") == "inverted"
+    assert hero_knack_chip_panel_bucket_keys(rusty, character) == [2]
 
 
 def test_knacks_json_uses_tier_not_tier_min():

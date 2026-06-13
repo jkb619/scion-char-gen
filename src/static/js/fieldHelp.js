@@ -231,7 +231,7 @@ export const HELP = {
   },
   "exp-leveling-step": {
     example:
-      "After Review: enter unspent Experience, then buy Attributes, Skills, Specialties, Knacks, Boons, Birthrights, Techniques, or a Favored Approach change per the advancement table (Origin p. 113; Boons/Techniques also Saints & Monsters p. 87). Knacks bought here do not spend Calling dot budgets — pick those on the Callings tab.",
+      "After Review: enter unspent Experience, then buy Attributes, Skills, Specialties, Knacks, Boons, Birthrights, Techniques, or a Favored Approach change per the advancement table (Origin p. 113; Boons/Techniques also Saints & Monsters p. 87). Purchases are previewed on this step until you leave (Back or another tab); you will be prompted to save when leaving. Knacks bought here do not spend Calling dot budgets — pick those on the Callings tab.",
     source: `${cite("origin", "Character Advancement", "113")}; ${cite("hero", "Experience", "185")}.`,
   },
   "boon-select": {
