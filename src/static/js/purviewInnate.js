@@ -3,6 +3,8 @@
  * @typedef {{ key: string; label: string; body: string }} PurviewInnateBlock
  */
 
+const PURVIEW_LADDER_PLACEHOLDER = "Standard Purview ladder (up to 12 Boons) per tier and Legend.";
+
 /**
  * Standard innate body text (bundle fallbacks match character sheet / wizard).
  * @param {{ purviews?: Record<string, Record<string, unknown>> }} bundle
@@ -16,8 +18,8 @@ export function purviewStandardInnateText(bundle, purviewId) {
   const curated = typeof pv.purviewInnateSummary === "string" && pv.purviewInnateSummary.trim();
   if (curated) return curated;
   const mech = typeof pv.mechanicalEffects === "string" && pv.mechanicalEffects.trim();
-  if (mech) return mech;
-  return "See Pandora’s Box (Revised) for this Purview’s standard Innate Power (and Scion: Hero where PB points there).";
+  if (mech && mech !== PURVIEW_LADDER_PLACEHOLDER) return mech;
+  return "See Pandora’s Box (Revised) for this Purview’s Innate Power (and Scion: Hero where PB points there).";
 }
 
 /**

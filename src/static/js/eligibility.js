@@ -576,9 +576,9 @@ export function knackPointCost(k) {
 }
 
 /**
- * Calling-dot–equivalent cost per Knack.
- * Three Calling rows + Hero-band: Immortal = 2, Heroic/Mortal = 1 (`knackPointCost`).
- * Post-Hero single-row (no three-row layout): Immortal = 1.
+ * Calling-dot–equivalent cost per Knack against a three-row knack point pool.
+ * Heroic/Mortal = 1; Immortal = 2 (`knackPointCost`) on every tier that uses `callingSlots` rows.
+ * Legacy single-row Calling (no three-row layout): Demigod+ Immortal = 1.
  * @param {Record<string, unknown> | null} k
  * @param {{ tier?: string; callingSlots?: { dots?: number }[] } | null} [character]
  */
@@ -586,7 +586,6 @@ export function knackCallingSlotCost(k, character) {
   if (!k || typeof k !== "object") return 1;
   if (knackRuleTier(k) === "mortal") return 1;
   if (character && heroUsesCallingSlotRows(character)) {
-    if (!immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(k) === 2) return 1;
     return knackPointCost(k);
   }
   if (character?.tier != null && !immortalKnackCostsTwoCallingSlots(character.tier)) return 1;
@@ -1179,7 +1178,24 @@ export function snapshotMissingLockedKnackRowBudgetCosts(character, bundle) {
 }
 
 /**
- * Origin Mortal Calling-dot Knack pays from row 0 (primary Calling), not Visitation rows 1–2.
+ * Calling row index for the Origin Mortal Calling (`callingId`), defaulting to row 0.
+ * @param {CharacterLike} character
+ * @returns {number}
+ */
+export function heroOriginCallingRowIndex(character) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots) || !character.callingSlots.length) {
+    return 0;
+  }
+  const originCalling = String(character.callingId || "").trim();
+  if (!originCalling) return 0;
+  for (let i = 0; i < character.callingSlots.length; i += 1) {
+    if (String(character.callingSlots[i]?.id || "").trim() === originCalling) return i;
+  }
+  return 0;
+}
+
+/**
+ * Origin Mortal Calling-dot Knack pays from the row matching `callingId` (usually row 0 after Visitation).
  * @param {CharacterLike} character
  * @param {{ knacks?: Record<string, unknown> }} bundle
  * @returns {boolean}
@@ -1192,14 +1208,15 @@ export function pinLockedOriginBudgetKnackToPrimaryRow(character, bundle) {
   if (!originId) return false;
   if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
   const map = character.knackSlotById;
+  const targetRow = heroOriginCallingRowIndex(character);
   const cost = knackRowBudgetCost(character, originId, bundle);
-  const cap0 = callingRowDotCap(character, 0);
-  if (cost === 2 && cap0 < 2) return false;
+  const cap = callingRowDotCap(character, targetRow);
+  if (cost === 2 && cap < 2) return false;
   const curRow = map[originId];
-  if (curRow != null && Number.isFinite(Number(curRow)) && Number(curRow) === 0) return false;
-  const trialMap = { ...map, [originId]: 0 };
-  if (rowKnackPointsUsed(0, character.knackIds || [], trialMap, bundle, character) > cap0) return false;
-  map[originId] = 0;
+  if (curRow != null && Number.isFinite(Number(curRow)) && Number(curRow) === targetRow) return false;
+  const trialMap = { ...map, [originId]: targetRow };
+  if (rowKnackPointsUsed(targetRow, character.knackIds || [], trialMap, bundle, character) > cap) return false;
+  map[originId] = targetRow;
   return true;
 }
 
@@ -1557,8 +1574,10 @@ export function callingRowsThatCanPayForKnack(k, character, bundle, knackIds, sl
   const kid = String(k?.id ?? "").trim();
   const cost = knackCallingSlotCost(k, character);
   const ids = (knackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
-  const mapForCap =
-    slotMap && typeof slotMap === "object" ? { ...slotMap } : { ...(character.knackSlotById || {}) };
+  const mapForCap = {
+    ...knackSlotMapForRowBudgetUi(character, bundle),
+    ...(slotMap && typeof slotMap === "object" ? slotMap : {}),
+  };
   const omit = new Set(
     [kid, excludeKnackId].filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
   );
@@ -1672,11 +1691,12 @@ export function solveHeroKnackSlotAssignment(knackIds, character, bundle) {
     rowUsed[r] += knackRowBudgetCost(character, id, bundle);
   }
   const originBudgetId = heroOriginCallingBudgetKnackId(character);
+  const originRow = heroOriginCallingRowIndex(character);
   if (originBudgetId && ids.includes(originBudgetId) && existing[originBudgetId] == null) {
     const cost = knackRowBudgetCost(character, originBudgetId, bundle);
-    if ((cost !== 2 || rowCaps[0] >= 2) && rowUsed[0] + cost <= rowCaps[0]) {
-      pinned[originBudgetId] = 0;
-      rowUsed[0] += cost;
+    if ((cost !== 2 || rowCaps[originRow] >= 2) && rowUsed[originRow] + cost <= rowCaps[originRow]) {
+      pinned[originBudgetId] = originRow;
+      rowUsed[originRow] += cost;
     }
   }
 
@@ -1885,6 +1905,7 @@ export function ensureHeroKnackSlotAssignments(character, bundle) {
  */
 export function knackSlotMapForRowBudgetUi(character, bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return {};
+  pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
   const heldIds = [...(character.knackIds || [])].filter(
     (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
   );

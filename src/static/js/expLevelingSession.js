@@ -12,6 +12,9 @@ let baselineJson = null;
 const LEAVE_CONFIRM_MESSAGE =
   "Leave Exp Leveling?\n\nYour Experience purchases will be saved and applied to your character.";
 
+const RESET_CONFIRM_MESSAGE =
+  "Reset all Experience purchases on this step?\n\nYour character will return to how it was when you first opened Exp Leveling.";
+
 /**
  * @param {Record<string, unknown>} char
  */
@@ -30,6 +33,7 @@ function pickExpLevelingFields(char) {
         ? { ...char.experienceSkillBumps }
         : {},
     experienceKnackIds: Array.isArray(char.experienceKnackIds) ? [...char.experienceKnackIds] : [],
+    experienceBoonIds: Array.isArray(char.experienceBoonIds) ? [...char.experienceBoonIds] : [],
     experienceBirthrightPickIds: Array.isArray(char.experienceBirthrightPickIds)
       ? [...char.experienceBirthrightPickIds]
       : [],
@@ -42,6 +46,15 @@ function pickExpLevelingFields(char) {
     knackSlotById:
       char.knackSlotById && typeof char.knackSlotById === "object" ? { ...char.knackSlotById } : {},
     boonIds: Array.isArray(char.boonIds) ? [...char.boonIds] : [],
+    dominionBoonPurviewIds: Array.isArray(char.dominionBoonPurviewIds) ? [...char.dominionBoonPurviewIds] : [],
+    dominionBoonForgoneByPurview:
+      char.dominionBoonForgoneByPurview && typeof char.dominionBoonForgoneByPurview === "object"
+        ? { ...char.dominionBoonForgoneByPurview }
+        : {},
+    dominionBoonForgoneXpByPurview:
+      char.dominionBoonForgoneXpByPurview && typeof char.dominionBoonForgoneXpByPurview === "object"
+        ? { ...char.dominionBoonForgoneXpByPurview }
+        : {},
     sorceryProfile: sp && typeof sp === "object"
       ? {
           additionalTechniqueIds: Array.isArray(sp.additionalTechniqueIds) ? [...sp.additionalTechniqueIds] : [],
@@ -71,6 +84,7 @@ function applyPickedToCharacter(target, picked) {
   target.experienceAttributeBumps = { ...picked.experienceAttributeBumps };
   target.experienceSkillBumps = { ...picked.experienceSkillBumps };
   target.experienceKnackIds = [...picked.experienceKnackIds];
+  target.experienceBoonIds = [...picked.experienceBoonIds];
   target.experienceBirthrightPickIds = [...picked.experienceBirthrightPickIds];
   target.attributes = { ...picked.attributes };
   target.favoredApproach = picked.favoredApproach;
@@ -79,6 +93,9 @@ function applyPickedToCharacter(target, picked) {
   target.knackIds = [...picked.knackIds];
   target.knackSlotById = { ...picked.knackSlotById };
   target.boonIds = [...picked.boonIds];
+  target.dominionBoonPurviewIds = [...picked.dominionBoonPurviewIds];
+  target.dominionBoonForgoneByPurview = { ...picked.dominionBoonForgoneByPurview };
+  target.dominionBoonForgoneXpByPurview = { ...picked.dominionBoonForgoneXpByPurview };
   if (picked.sorceryProfile) {
     if (!target.sorceryProfile || typeof target.sorceryProfile !== "object") target.sorceryProfile = {};
     target.sorceryProfile.additionalTechniqueIds = [...picked.sorceryProfile.additionalTechniqueIds];
@@ -110,6 +127,20 @@ export function activateExpLevelingSession(currentCharacter) {
 export function expLevelingSessionDirty(draftCharacter) {
   if (!restoreTarget || baselineJson == null) return false;
   return expLevelingSnapshotJson(draftCharacter) !== baselineJson;
+}
+
+/**
+ * Restore the draft clone to the snapshot from when Exp Leveling was first opened.
+ * @param {Record<string, unknown>} draftCharacter
+ * @returns {boolean}
+ */
+export function resetExpLevelingSession(draftCharacter) {
+  if (!restoreTarget || baselineJson == null) return false;
+  if (!expLevelingSessionDirty(draftCharacter)) return false;
+  /** @type {ReturnType<typeof pickExpLevelingFields>} */
+  const picked = JSON.parse(baselineJson);
+  applyPickedToCharacter(draftCharacter, picked);
+  return true;
 }
 
 /**
@@ -148,4 +179,4 @@ export function resolveLeaveExpLevelingStep(draftCharacter) {
   return { proceed: true, character: commitExpLevelingSession(draftCharacter) };
 }
 
-export { LEAVE_CONFIRM_MESSAGE };
+export { LEAVE_CONFIRM_MESSAGE, RESET_CONFIRM_MESSAGE };

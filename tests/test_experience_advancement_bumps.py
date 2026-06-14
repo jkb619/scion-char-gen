@@ -69,6 +69,43 @@ def test_calling_knack_panel_includes_held_knacks():
     assert "if (isPostHeroBandCallingTierId(t)) return true" in elig
 
 
+def test_apply_path_math_preserves_xp_skill_dots_without_baseline():
+    """Hero+ tiers null skillBaseline; nav attention must not wipe XP skill purchases."""
+    text = APP_JS.read_text(encoding="utf-8")
+    start = text.index("function applyPathMathToSkillDots()")
+    block = text[start : start + 2200]
+    assert "experienceSkillBumpCount(character, sid)" in block
+    assert "abovePath" in block
+    assert "po + abovePath" in block
+    assert "chargenBump + xp" in block
+    # Old bug: else branch assigned pathOnly only and dropped XP bumps.
+    assert "character.skillDots[sid] = pathOnly[sid] ?? 0" not in block
+
+
+def test_tier_advance_carries_experience_knacks_and_attr_display():
+    text = APP_JS.read_text(encoding="utf-8")
+    start = text.index("function applyTierAdvancementFromBundle()")
+    block = text[start : start + 3200]
+    assert "character.experienceKnackIds" in block
+    assert "captureAttrBaselineAfterTierAdvanceExcludingXp()" in block
+    assert "settleUnassignedHeldKnackSlots(character, bundle)" in block
+    assert "repairUnmappedHeroKnackSlots(character, bundle)" in block
+    assert "lockKnacksAtTierAdvance(character)" in block
+    lock_idx = block.index("lockKnacksAtTierAdvance(character)")
+    ensure_idx = block.index("ensureHeroKnackSlotAssignments(character, bundle)")
+    assert lock_idx < ensure_idx
+    assert "function attributesDisplayPreFavoredForAttributesTab()" in text
+    assert "attributesDisplayPreFavoredForAttributesTab()" in text
+    disp = text.split("function attributesDisplayPreFavoredForAttributesTab()")[1][:500]
+    assert "!isOriginPlayTier(character.tier)" in disp
+    assert "character.attributes[id]" in disp
+    lock_fn = text.split("function postOriginMortalChargenLocked(character)")[1][:500]
+    assert "tierAdvancementLog" in lock_fn
+    assert "!attrLocked && isOriginPlayTier(character.tier)) normalizeCharacterAttributesToPools()" in text
+    assert "if (attrLocked) maxFinal = Math.max(maxFinal, finalVal)" in text
+    assert "experienceArenaExtraDelta(arena)" in text.split("function maxAttrRatingForArena(attrId, attrs)")[1][:600]
+
+
 def test_exp_knacks_exclude_prior_chargen_picks():
     text = APP_JS.read_text(encoding="utf-8")
     elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")

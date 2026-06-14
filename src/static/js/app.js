@@ -22,6 +22,8 @@ import {
   discardExpLevelingSession,
   expLevelingSessionActive,
   expLevelingSessionDirty,
+  RESET_CONFIRM_MESSAGE,
+  resetExpLevelingSession,
   resolveLeaveExpLevelingStep,
 } from "./expLevelingSession.js";
 import {
@@ -94,6 +96,7 @@ import {
   callingKnackSlotCap,
   knackIdsCallingSlotsUsed,
   rowKnackPointsUsed,
+  knackSlotMapForRowBudgetUi,
   knackPayingCallingRowLabel,
   knackPointCost,
   isKnackLocked,
@@ -134,6 +137,33 @@ import {
 import { appendFatebindingsFinishingEditor } from "./fatebindingsFinishingEditor.js";
 import { appendFinishingExtendedNotesPanel } from "./finishingExtendedNotesPanel.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
+import {
+  buildDominionStuntExportFromCharacter,
+  dominionStuntPurviewKeysForExport,
+  dominionStuntsGroupedByPurview,
+  tierSupportsDominionStunts,
+} from "./dominionStuntsExport.js";
+import {
+  applyDominionMarkPayment,
+  boonBudgetSnapshot,
+  clearDominionMarkPayment,
+  dominionForgoneBoonIds,
+  dominionMarkPaymentOptions,
+  experienceBoonIdSet,
+  legendBoonSlotsRemaining,
+  legendBoonSlotsUsed,
+  pruneDominionForgoneMaps,
+  sacrificableBoonIds,
+  DOMINION_BOON_FORGONE_COST,
+} from "./boonBudget.js";
+import {
+  dominionBoonLedgerSummary,
+  legendBookMinForTier,
+  legendDotMaxForTier,
+  legendTraitBoonPurchasesFromRating,
+  legendTraitEffectsSummary,
+  tierUsesLegendTraitEffects,
+} from "./legendTrait.js";
 import { createBookSourceFilterPanel } from "./bookSourceFilter.js";
 import { detectConflicts } from "./bookConflictDetection.js";
 import { showConflictModal } from "./bookConflictModal.js";
@@ -443,38 +473,9 @@ function wizardIncludesFinishingTouchesStep(tierId) {
   return isOriginPlayTier(tierId);
 }
 
-/** Max Legend dots on the track per tier (sheet / UI). */
-const LEGEND_DOT_MAX = {
-  mortal: 1,
-  hero: 4,
-  demigod: 8,
-  god: 12,
-  sorcerer: 1,
-  sorcerer_hero: 4,
-  sorcerer_demigod: 8,
-  sorcerer_god: 12,
-  titanic: 4,
-};
+/** Max Legend dots on the track per tier — see `legendTrait.js` (`LEGEND_DOT_MAX_BY_TIER`). */
 
-function legendDotMaxForTier(tierId) {
-  const t = normalizedTierId(tierId);
-  return LEGEND_DOT_MAX[t] ?? 1;
-}
-
-/**
- * Typical minimum Legend to **be** that tier (core progression); advisory only — this app does not gate tier on Legend.
- * @param {string} [tierId]
- */
-function legendBookMinForTier(tierId) {
-  const t = normalizedTierId(tierId);
-  if (t === "mortal" || t === "sorcerer") return 0;
-  if (t === "hero" || t === "titanic" || t === "sorcerer_hero") return 1;
-  if (t === "demigod" || t === "sorcerer_demigod") return 4;
-  if (t === "god" || t === "sorcerer_god") return 8;
-  return 0;
-}
-
-/** Clamp stored Legend to the sheet track (15); not tier-gated — chronicles may run higher Legend at any tier. */
+/** Clamp stored Legend to the sheet track (15); chronicles may exceed tier advisory max. */
 function clampLegendRating(value, _tierId) {
   const max = LEGEND_SHEET_DOT_COUNT;
   const n = Math.round(Number(value));
@@ -547,22 +548,25 @@ function syncAwarenessWithPantheon() {
  */
 function buildLegendDotTrack(value, tierId, interactive) {
   const trackDots = LEGEND_SHEET_DOT_COUNT;
+  const tierCap = legendDotMaxForTier(tierId);
   const v = clampLegendRating(value, tierId);
   const wrap = document.createElement("span");
   wrap.className = "legend-dot-track legend-dot-track-dense legend-dot-track--header-sheet";
   wrap.setAttribute("role", interactive ? "radiogroup" : "img");
-  wrap.setAttribute("aria-label", `Legend ${v} of ${trackDots}`);
+  wrap.setAttribute("aria-label", `Legend ${v} of ${tierCap} (max this tier; ${trackDots} dots on sheet)`);
   for (let i = 1; i <= trackDots; i += 1) {
     const d = document.createElement("span");
-    d.className = "legend-dot" + (i <= v ? " on" : "");
+    const beyond = i > tierCap;
+    d.className = "legend-dot" + (i <= v ? " on" : "") + (beyond ? " legend-dot--beyond-tier-cap" : "");
     d.setAttribute("aria-hidden", "true");
     if (interactive) {
-      d.tabIndex = 0;
+      d.tabIndex = beyond ? -1 : 0;
       d.addEventListener("click", () => {
         const maxT = LEGEND_SHEET_DOT_COUNT;
         const cur = clampLegendRating(character.legendRating ?? 0, character.tier);
-        if (cur === i) character.legendRating = Math.max(0, i - 1);
-        else character.legendRating = Math.min(i, maxT);
+        const target = Math.min(i, maxT);
+        if (cur === target) character.legendRating = Math.max(0, target - 1);
+        else character.legendRating = target;
         syncLegendToTier();
         render();
       });
@@ -746,6 +750,7 @@ function defaultCharacter() {
     finishingBonusKnackIds: [],
     /** Exp Leveling Knack purchases — on the sheet but free against Calling knack budgets. */
     experienceKnackIds: [],
+    experienceBoonIds: [],
     /** Origin-tier XP knack buys carried after tier advance — still free against Hero row budgets. */
     carriedExperienceKnackIds: [],
     /** Per-attribute dots bought with Experience (post-chargen; excluded from Finishing / arena validation). */
@@ -759,6 +764,10 @@ function defaultCharacter() {
     boonIds: [],
     /** Purview ids where the character purchased a Dominion Boon (Demigod+; costs two Boon slots per Purview in play). */
     dominionBoonPurviewIds: [],
+    /** Per-Purview ids of two sheet Boons forgone when Dominion was paid with existing picks (not Legend reserve). */
+    dominionBoonForgoneByPurview: {},
+    /** Subset of dominionBoonForgoneByPurview ids that were bought with Experience. */
+    dominionBoonForgoneXpByPurview: {},
     /** Unspent Experience (Origin p. 113); purchases deduct from this pool. */
     experiencePoints: 0,
     /** XP spent via Exp Leveling (remaining + spent = total earned on sheet). */
@@ -1560,12 +1569,18 @@ function applyPathMathToSkillDots() {
   if (oldBaseline) {
     for (const sid of skillIds()) {
       const po = pathOnly[sid] ?? 0;
+      const xp = experienceSkillBumpCount(character, sid);
+      const chargenBump = Math.max(0, (bumps[sid] || 0) - xp);
       character.finishing.skillBaseline[sid] = po;
-      character.skillDots[sid] = Math.max(0, Math.min(5, po + (bumps[sid] || 0)));
+      character.skillDots[sid] = Math.max(0, Math.min(5, po + chargenBump + xp));
     }
   } else {
     for (const sid of skillIds()) {
-      character.skillDots[sid] = pathOnly[sid] ?? 0;
+      const po = pathOnly[sid] ?? 0;
+      const cur = character.skillDots[sid] || 0;
+      // Hero+ clears skillBaseline; keep Finishing carryover and Experience bumps above Path totals.
+      const abovePath = Math.max(0, cur - po);
+      character.skillDots[sid] = Math.max(0, Math.min(5, po + abovePath));
     }
   }
   for (const sid of skillIds()) {
@@ -2633,19 +2648,16 @@ function purviewStandardInnateSummary(purviewId) {
 /**
  * @param {HTMLElement} container
  * @param {string} purviewId
- * @param {{ includeGrantedNote?: boolean }} [opts]
  */
-function appendPurviewInnateDetails(container, purviewId, opts) {
-  const includeGrantedNote = opts?.includeGrantedNote !== false;
+function appendPurviewInnateDetails(container, purviewId) {
   const mythos = isMythosPantheonSelected();
   const titanic = normalizedTierId(character.tier) === "titanic";
-  const blocks = purviewInnateBlocks(bundle, purviewId, { mythosPantheon: mythos, titanicTier: titanic });
-  if (includeGrantedNote) {
-    const note = document.createElement("p");
-    note.className = "purview-innate-granted-note";
-    note.textContent = "Purview innate — not a Boon.";
-    container.appendChild(note);
-  }
+  const pid = String(purviewId ?? "").trim();
+  const onParentList = patronPurviewOptionIds().includes(pid);
+  const blocks = purviewInnateBlocks(bundle, pid, {
+    mythosPantheon: mythos && onParentList,
+    titanicTier: titanic,
+  });
   for (const bl of blocks) {
     const wrap = document.createElement("div");
     wrap.className = "purview-innate-block";
@@ -3082,7 +3094,7 @@ function renderPatronPurviewPanel(mount) {
     if (slotPid) {
       const innateBox = document.createElement("div");
       innateBox.className = "patron-purview-innate-desc";
-      appendPurviewInnateDetails(innateBox, slotPid, { includeGrantedNote: false });
+      appendPurviewInnateDetails(innateBox, slotPid);
       field.appendChild(innateBox);
     }
     grid.appendChild(field);
@@ -3166,12 +3178,13 @@ function maxAttrRatingForArena(attrId, attrs) {
     baseline && typeof baseline === "object"
       ? finishingArenaExtraDelta(character.attributes, baseline, arena)
       : 0;
+  const xpD = !isOriginPlayTier(character.tier) ? experienceArenaExtraDelta(arena) : 0;
   let others = 0;
   for (const oid of ARENAS[arena]) {
     if (oid === attrId) continue;
     others += Math.max(0, (attrs[oid] ?? 1) - 1);
   }
-  return Math.max(1, Math.min(5, 1 + pool + finD - others));
+  return Math.max(1, Math.min(5, 1 + pool + finD + xpD - others));
 }
 
 /** Max dots after Favored Approach (+2 to approach Attributes, cap 5) for UI and clicking. */
@@ -3252,6 +3265,7 @@ function postOriginMortalChargenLocked(character) {
   if (isDragonHeirChargen(character)) return dragonHeirAttributesCoreLayoutLocked(character);
   const t = normalizedTierId(character.tier);
   if (t === "mortal" || t === "sorcerer") return false;
+  if (Array.isArray(character.tierAdvancementLog) && character.tierAdvancementLog.length > 0) return true;
   // At higher tiers, lock only if path skills have already been configured
   const ps = character.pathSkills;
   if (!ps || typeof ps !== "object") return false;
@@ -3278,6 +3292,7 @@ function attrMinWhileNormalizingPools(attrId) {
  * allowed total includes Finishing bumps above that snapshot (Origin p. 98 — no arena restriction on that dot).
  */
 function normalizeCharacterAttributesToPools() {
+  if (!isOriginPlayTier(character.tier)) return;
   if (postOriginMortalChargenLocked(character) || experienceAttributeBumpsTotal(character) > 0) return;
   ensureFinishingShape();
   const attrs = character.attributes;
@@ -3555,6 +3570,26 @@ function captureFinishingAttrBaseline(options = {}) {
 }
 
 /**
+ * After tier advance on Hero+ (no Finishing step): snapshot pre–Favored ratings for pool math,
+ * excluding Experience Attribute bumps (they stay in `character.attributes` only).
+ */
+function captureAttrBaselineAfterTierAdvanceExcludingXp() {
+  if (wizardIncludesFinishingTouchesStep(character.tier)) {
+    captureFinishingAttrBaseline({ bakeTierAdvance: true });
+    return;
+  }
+  ensureFinishingShape();
+  const o = {};
+  for (const id of Object.keys(bundle.attributes)) {
+    if (String(id).startsWith("_")) continue;
+    const cur = Math.max(1, Math.min(5, Math.round(Number(character.attributes[id] ?? 1))));
+    const xp = experienceAttributeBumpCount(character, id);
+    o[id] = Math.max(1, Math.min(5, cur - xp));
+  }
+  character.finishing.attrBaseline = o;
+}
+
+/**
  * If tier advance once copied full `attributes` into `attrBaseline`, Finishing dot(s) sit inside the “snapshot” and
  * `finishingAttrDotsPlaced()` is 0 because baseline === attributes. Drop baseline only (highest rating per overfull
  * arena) until each arena matches its 6/4/2 pool so validation and Mental-dot UI match again.
@@ -3723,6 +3758,19 @@ function attributesStepPreFavoredForAttributesTab() {
     o[id] = character.attributes[id] ?? 1;
   }
   return o;
+}
+
+/** Attributes tab display: Hero+ shows full stored ratings (arena + Finishing + Experience), not the Attributes-step snapshot. */
+function attributesDisplayPreFavoredForAttributesTab() {
+  if (!isOriginPlayTier(character.tier)) {
+    const o = {};
+    for (const id of Object.keys(bundle.attributes)) {
+      if (String(id).startsWith("_")) continue;
+      o[id] = character.attributes[id] ?? 1;
+    }
+    return o;
+  }
+  return attributesStepPreFavoredForAttributesTab();
 }
 
 /** Skill ids at 3+ dots missing a chargen Specialty (Finishing / Review gate). */
@@ -4161,15 +4209,15 @@ function finishingKnackOrBirthrightPanelGateInvalid() {
   return finishingBirthrightPointsUsed() !== 4;
 }
 
-const DOMINION_STUNT_TIER_IDS = new Set(["demigod", "god", "sorcerer_demigod", "sorcerer_god"]);
-
-/** @param {string} [tierId] */
-function tierSupportsDominionStunts(tierId) {
-  return DOMINION_STUNT_TIER_IDS.has(normalizedTierId(tierId ?? character.tier));
-}
 
 function ensureDominionShape() {
   if (!Array.isArray(character.dominionBoonPurviewIds)) character.dominionBoonPurviewIds = [];
+  if (!character.dominionBoonForgoneByPurview || typeof character.dominionBoonForgoneByPurview !== "object") {
+    character.dominionBoonForgoneByPurview = {};
+  }
+  if (!character.dominionBoonForgoneXpByPurview || typeof character.dominionBoonForgoneXpByPurview !== "object") {
+    character.dominionBoonForgoneXpByPurview = {};
+  }
   delete character.dominionStuntActiveIds;
 }
 
@@ -4177,26 +4225,218 @@ function pruneDominionState() {
   if (!bundle || !tierSupportsDominionStunts(character.tier)) {
     ensureDominionShape();
     character.dominionBoonPurviewIds = [];
+    character.dominionBoonForgoneByPurview = {};
+    character.dominionBoonForgoneXpByPurview = {};
     return;
   }
   ensureDominionShape();
   const held = characterPurviewIdSet(character, bundle);
-  character.dominionBoonPurviewIds = character.dominionBoonPurviewIds.filter((id) => held.has(id));
+  const validBoons = new Set(Object.keys(bundle.boons || {}).filter((k) => !k.startsWith("_")));
+  pruneDominionForgoneMaps(character, held, validBoons);
+  character.dominionBoonPurviewIds = (character.dominionBoonPurviewIds || []).filter((id) => held.has(id));
 }
 
-/** @returns {Map<string, object[]>} */
-function dominionStuntsGroupedByPurview() {
-  const map = new Map();
-  for (const [sid, row] of Object.entries(bundle.dominionStunts || {})) {
-    if (sid.startsWith("_") || !row || typeof row !== "object") continue;
-    const pv = row.purview || "_general";
-    if (!map.has(pv)) map.set(pv, []);
-    map.get(pv).push({ id: sid, ...row });
+/** @type {string | null} */
+let dominionSacrificePickerPurviewId = null;
+
+/** @type {Set<string>} */
+let dominionSacrificePickIds = new Set();
+
+function closeDominionSacrificePicker() {
+  dominionSacrificePickerPurviewId = null;
+  dominionSacrificePickIds = new Set();
+}
+
+function openDominionSacrificePicker(purviewId) {
+  dominionSacrificePickerPurviewId = String(purviewId || "").trim() || null;
+  dominionSacrificePickIds = new Set();
+}
+
+/**
+ * Dominion Boon marking UI (chargen Dominion step + Exp Leveling).
+ * @param {HTMLElement} wrap
+ * @param {{ compact?: boolean }} [opts]
+ */
+function appendDominionBoonMarkingUi(wrap, opts = {}) {
+  pruneDominionState();
+  const compact = Boolean(opts.compact);
+  const heldPurviews = [...characterPurviewIdSet(character, bundle)].sort((a, b) =>
+    purviewDisplayNameForPantheon(a, bundle, character.pantheonId).localeCompare(
+      purviewDisplayNameForPantheon(b, bundle, character.pantheonId),
+    ),
+  );
+
+  if (compact) {
+    const pickHelp = document.createElement("p");
+    pickHelp.className = "help";
+    pickHelp.textContent =
+      "Trade two Boons from the same Purview (including Experience purchases above) for Dominion there, or reserve two Legend Boon purchases when your Legend budget has room.";
+    wrap.appendChild(pickHelp);
+  } else if (!opts.skipIntro) {
+    const pickHelp = document.createElement("p");
+    pickHelp.className = "help";
+    pickHelp.textContent =
+      "Mark each Purview where you hold Dominion. Pay with two Boons from that Purview (including Experience-bought) or reserve two Legend Boon purchases when slots remain.";
+    wrap.appendChild(pickHelp);
   }
-  for (const rows of map.values()) {
-    rows.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+
+  if (heldPurviews.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "help";
+    empty.innerHTML = compact
+      ? "No Purviews in scope — set Purviews on the Purviews step first."
+      : "No Purviews in scope yet — set patron innate slots and Purview chips on the <strong>Purviews</strong> step, then return here.";
+    wrap.appendChild(empty);
+    return;
   }
-  return map;
+
+  const domChips = document.createElement("div");
+  domChips.className = "chips dominion-boon-chips";
+  for (const pid of heldPurviews) {
+    const on = (character.dominionBoonPurviewIds || []).includes(pid);
+    const label = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId);
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip" + (on ? " on" : "");
+    chip.textContent = on ? `Dominion: ${label}` : label;
+    const forgone = dominionForgoneBoonIds(character, pid);
+    if (on && forgone.length === DOMINION_BOON_FORGONE_COST) {
+      const names = forgone
+        .map((id) => boonDisplayLabel(bundle.boons?.[id], bundle, character.pantheonId) || id)
+        .join(", ");
+      chip.title = `Dominion in ${label} — paid by forgoing: ${names}. Click to remove and restore those Boons.`;
+    } else if (on) {
+      chip.title = `Dominion in ${label} — paid with two reserved Legend Boon purchases. Click to remove mark.`;
+    } else {
+      chip.title = `Mark Dominion in ${label} — costs two Purview Boons (forgo picks or reserve Legend purchases).`;
+    }
+    chip.addEventListener("click", () => {
+      ensureDominionShape();
+      if ((character.dominionBoonPurviewIds || []).includes(pid)) {
+        clearDominionMarkPayment(character, pid);
+        if (dominionSacrificePickerPurviewId === pid) closeDominionSacrificePicker();
+        pruneDominionState();
+        render();
+        return;
+      }
+      const payOpts = dominionMarkPaymentOptions(character, pid, null, bundle);
+      if (!payOpts.canMark) {
+        const rem = legendBoonSlotsRemaining(character) ?? 0;
+        window.alert(
+          `Dominion in ${label} costs two Purview Boons from ${label}. At Legend ${character.legendRating ?? 0}, only ${rem} Legend purchase${rem === 1 ? "" : "s"} remain and you have fewer than two ${label} Boons to forgo — pick more Boons in that Purview, raise Legend, or buy with Experience first.`,
+        );
+        return;
+      }
+      if (payOpts.canReserveLegend && payOpts.sacrificableCount < DOMINION_BOON_FORGONE_COST) {
+        if (applyDominionMarkPayment(character, pid, { reserveLegend: true }, bundle)) {
+          pruneDominionState();
+          render();
+        }
+        return;
+      }
+      openDominionSacrificePicker(pid);
+      render();
+    });
+    const pvHead = bundle.purviews?.[pid];
+    if (pvHead && typeof pvHead === "object") {
+      applyGameDataHint(chip, { ...pvHead, name: label });
+    }
+    domChips.appendChild(chip);
+  }
+  wrap.appendChild(domChips);
+
+  if (dominionSacrificePickerPurviewId && heldPurviews.includes(dominionSacrificePickerPurviewId)) {
+    const pid = dominionSacrificePickerPurviewId;
+    const label = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId);
+    const panel = document.createElement("div");
+    panel.className = "panel dominion-sacrifice-picker";
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", `Forgo Boons for Dominion in ${label}`);
+    const h = document.createElement("h4");
+    h.textContent = `Forgo 2 Boons for Dominion: ${label}`;
+    panel.appendChild(h);
+    const help = document.createElement("p");
+    help.className = "help";
+    help.textContent =
+      `Select exactly two Boons from ${label} on your sheet to remove in exchange for this Dominion Boon. Both must belong to this Purview. Experience-bought Boons can be chosen; XP is not refunded.`;
+    panel.appendChild(help);
+    const candidates = sacrificableBoonIds(character, pid, bundle);
+    for (const id of [...dominionSacrificePickIds]) {
+      if (!candidates.includes(id)) dominionSacrificePickIds.delete(id);
+    }
+    if (candidates.length < DOMINION_BOON_FORGONE_COST) {
+      const empty = document.createElement("p");
+      empty.className = "help";
+      empty.textContent = `Not enough Boons from ${label} on your sheet to forgo — pick or buy more Boons in that Purview first.`;
+      panel.appendChild(empty);
+    } else {
+      const chips = document.createElement("div");
+      chips.className = "chips";
+      for (const bid of candidates) {
+        const b = bundle.boons?.[bid];
+        const selected = dominionSacrificePickIds.has(bid);
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip" + (selected ? " on" : "") + (experienceBoonIdSet(character).has(bid) ? " chip-knack-experience" : "");
+        const boonChipLabel = boonDisplayLabel(b, bundle, character.pantheonId);
+        chip.textContent = boonChipLabel;
+        chip.addEventListener("click", () => {
+          if (dominionSacrificePickIds.has(bid)) dominionSacrificePickIds.delete(bid);
+          else if (dominionSacrificePickIds.size < DOMINION_BOON_FORGONE_COST) dominionSacrificePickIds.add(bid);
+          render();
+        });
+        applyGameDataHint(chip, { ...b, name: boonChipLabel });
+        chips.appendChild(chip);
+      }
+      panel.appendChild(chips);
+    }
+    const actions = document.createElement("div");
+    actions.className = "dominion-sacrifice-picker-actions";
+    const confirmBtn = document.createElement("button");
+    confirmBtn.type = "button";
+    confirmBtn.className = "btn";
+    confirmBtn.textContent = "Confirm Dominion (forgo 2 Boons)";
+    const picked = [...dominionSacrificePickIds];
+    const sacrificeOk = dominionMarkPaymentOptions(character, pid, picked, bundle).canSacrifice;
+    confirmBtn.disabled = picked.length !== DOMINION_BOON_FORGONE_COST || !sacrificeOk;
+    confirmBtn.addEventListener("click", () => {
+      if (!applyDominionMarkPayment(character, pid, { forgoneBoonIds: picked }, bundle)) {
+        window.alert(`Those Boons cannot pay for Dominion in ${label} — pick two Boons from ${label}, or raise Legend.`);
+        return;
+      }
+      closeDominionSacrificePicker();
+      pruneDominionState();
+      render();
+    });
+    actions.appendChild(confirmBtn);
+    const payOpts = dominionMarkPaymentOptions(character, pid, null, bundle);
+    if (payOpts.canReserveLegend) {
+      const reserveBtn = document.createElement("button");
+      reserveBtn.type = "button";
+      reserveBtn.className = "btn secondary";
+      reserveBtn.textContent = "Reserve 2 Legend purchases instead";
+      reserveBtn.title = "Keep your Boons on the sheet; Dominion counts against your Legend Boon budget.";
+      reserveBtn.addEventListener("click", () => {
+        if (applyDominionMarkPayment(character, pid, { reserveLegend: true }, bundle)) {
+          closeDominionSacrificePicker();
+          pruneDominionState();
+          render();
+        }
+      });
+      actions.appendChild(reserveBtn);
+    }
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn secondary";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", () => {
+      closeDominionSacrificePicker();
+      render();
+    });
+    actions.appendChild(cancelBtn);
+    panel.appendChild(actions);
+    wrap.appendChild(panel);
+  }
 }
 
 /** Remove Boon ids that no longer exist in the loaded bundle (e.g. after regenerating boons.json). */
@@ -4209,8 +4449,24 @@ function pruneStaleBoonIds() {
     const b = tbl[id];
     return !boonIsPurviewInnateAutomaticGrant(b, bundle);
   });
-  const boonCap = maxWizardBoonPicksForTier(character.tier, bundle);
-  if (Number.isFinite(boonCap) && ids.length > boonCap) ids = ids.slice(0, boonCap);
+  character.experienceBoonIds = (character.experienceBoonIds || []).filter((id) => ids.includes(id));
+  const budget = boonBudgetSnapshot(character, bundle);
+  if (budget.usesLegendBudget) {
+    const xp = experienceBoonIdSet(character);
+    while (ids.some((id) => !xp.has(id)) && legendBoonSlotsUsed({ ...character, boonIds: ids }) > (budget.legendTotal ?? 0)) {
+      let removed = false;
+      for (let i = ids.length - 1; i >= 0; i -= 1) {
+        if (!xp.has(ids[i])) {
+          ids.splice(i, 1);
+          removed = true;
+          break;
+        }
+      }
+      if (!removed) break;
+    }
+  } else if (Number.isFinite(budget.heroCap) && ids.length > budget.heroCap) {
+    ids = ids.slice(0, budget.heroCap);
+  }
   character.boonIds = ids;
 }
 
@@ -4407,9 +4663,16 @@ function applyTierAdvancementFromBundle() {
   const bonusBeforeMerge = [...new Set((character.finishing?.finishingKnackIds || []).filter(
     (id) => typeof id === "string" && id.trim() && !id.startsWith("_"),
   ))];
+  for (const id of character.experienceKnackIds || []) {
+    if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
+    if (!(character.knackIds || []).includes(id)) {
+      character.knackIds = [...(character.knackIds || []), id];
+    }
+  }
   const carriedKnackIds = [
     ...new Set([
       ...(character.knackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+      ...(character.experienceKnackIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
       ...bonusBeforeMerge,
     ]),
   ];
@@ -4443,12 +4706,14 @@ function applyTierAdvancementFromBundle() {
   mergeFinishingBonusKnacksIntoMainKnackList();
   if (normalizedTierId(cur) === "mortal") healExperienceKnackIdsFromMortalOverflow();
   reconcileLockedKnackIds(character, bundle);
-  ensureHeroKnackSlotAssignments(character, bundle);
   lockKnacksAtTierAdvance(character);
   settleExperienceKnacksAfterTierAdvance(character, carriedKnackIds);
+  ensureHeroKnackSlotAssignments(character, bundle);
+  settleUnassignedHeldKnackSlots(character, bundle);
+  repairUnmappedHeroKnackSlots(character, bundle);
   ensureFinishingShape();
   captureFinishingSkillBaseline();
-  captureFinishingAttrBaseline({ bakeTierAdvance: true });
+  captureAttrBaselineAfterTierAdvanceExcludingXp();
   return { oldTier: cur, newTier: next };
 }
 
@@ -4538,6 +4803,7 @@ function ensureExperienceShape() {
   character.experiencePointsSpent = Number.isFinite(sp) && sp >= 0 ? sp : 0;
   if (!Array.isArray(character.experienceBirthrightPickIds)) character.experienceBirthrightPickIds = [];
   if (!Array.isArray(character.experienceKnackIds)) character.experienceKnackIds = [];
+  if (!Array.isArray(character.experienceBoonIds)) character.experienceBoonIds = [];
   if (!Array.isArray(character.experiencePurchaseLog)) character.experiencePurchaseLog = [];
   else {
     character.experiencePurchaseLog = character.experiencePurchaseLog.filter((x) => typeof x === "string" && x.trim());
@@ -4609,6 +4875,38 @@ function removeExperienceKnackPick(kid) {
   removeExperienceKnackPickIfPresent(id);
   experienceRefund(character, bundle, "knack", `Knack: ${bundle.knacks?.[id]?.name || id}`);
   if (heroUsesCallingSlotRows(character)) syncHeroKnackSlotAssignments(character, bundle);
+  return true;
+}
+
+/** @param {string} bid */
+function addExperienceBoonPick(bid) {
+  const id = String(bid || "").trim();
+  if (!id) return false;
+  if (experienceBoonIdSet(character).has(id)) return true;
+  const label = boonDisplayLabel(bundle.boons?.[id], bundle, character.pantheonId) || id;
+  if (!experienceSpend(character, bundle, "boon", `Boon: ${label}`)) return false;
+  if (!(character.boonIds || []).includes(id)) {
+    character.boonIds = [...(character.boonIds || []), id];
+  }
+  character.experienceBoonIds = [...new Set([...(character.experienceBoonIds || []), id])];
+  return true;
+}
+
+/** @param {string} bid */
+function removeExperienceBoonPickIfPresent(bid) {
+  const id = String(bid || "").trim();
+  if (!id) return;
+  character.experienceBoonIds = (character.experienceBoonIds || []).filter((x) => x !== id);
+}
+
+/** @param {string} bid @returns {boolean} */
+function removeExperienceBoonPick(bid) {
+  const id = String(bid || "").trim();
+  if (!id || !experienceBoonIdSet(character).has(id)) return false;
+  const label = boonDisplayLabel(bundle.boons?.[id], bundle, character.pantheonId) || id;
+  character.boonIds = (character.boonIds || []).filter((x) => x !== id);
+  removeExperienceBoonPickIfPresent(id);
+  experienceRefund(character, bundle, "boon", `Boon: ${label}`);
   return true;
 }
 
@@ -4793,9 +5091,10 @@ function updateHeaderTierDisplay() {
   const legReq = document.createElement("span");
   legReq.className = "header-legend-req";
   const legMin = legendBookMinForTier(character.tier);
-  legReq.textContent = legMin === 0 ? "0+ this tier" : `${legMin}+ this tier`;
+  const legMax = legendDotMaxForTier(character.tier);
+  legReq.textContent = legMin === 0 ? `0+ · max ${legMax}` : `${legMin}+ · max ${legMax}`;
   legReq.title =
-    "Typical minimum Legend to qualify as this tier in the core line: Mortal 0+, Hero 1+, Demigod 4+, God 8+. Your Storyguide may vary; this app does not block tier changes based on Legend.";
+    "Typical Legend band for this tier (Demigod p. 132): one Purview Boon purchase per Legend dot; one Calling dot on each even Legend dot. Max is advisory — your Storyguide may vary.";
   legRow.appendChild(legReq);
   el.appendChild(legRow);
 
@@ -5804,8 +6103,8 @@ function renderAttributes(root) {
   wrap.appendChild(favField);
   applyHint(document.getElementById("fav-approach"), "fav-approach");
 
-  if (!attrLocked) normalizeCharacterAttributesToPools();
-  const base = attributesStepPreFavoredForAttributesTab();
+  if (!attrLocked && isOriginPlayTier(character.tier)) normalizeCharacterAttributesToPools();
+  const base = attributesDisplayPreFavoredForAttributesTab();
   const msgs = validateAttributes(base);
   const poolsOk = attributeArenaPoolsSpendOk(base);
   const msgBox = document.createElement("div");
@@ -5823,8 +6122,9 @@ function renderAttributes(root) {
     sub.innerHTML = `<h2>${arena} (${arenaPools()[arena]} dots beyond base 1 each)</h2>`;
     for (const id of ARENAS[arena]) {
       const meta = bundle.attributes[id];
-      const maxFinal = maxFinalRatingForAttr(id, base);
+      let maxFinal = maxFinalRatingForAttr(id, base);
       const finalVal = finalDisplay[id] ?? 1;
+      if (attrLocked) maxFinal = Math.max(maxFinal, finalVal);
       const baseFloor = { ...base, [id]: 1 };
       const minFinalDisplay = Math.min(applyFavoredApproach(baseFloor)[id] ?? 1, maxFinal);
       sub.appendChild(
@@ -6759,8 +7059,7 @@ function renderCalling(root) {
       (experienceKnackIdSet(character).has(kid) || carriedExperienceKnackIdSet(character).has(kid));
     const knackXpBuy =
       experiencePurchasesEnabled() && baseOk && !eligible && !on && experienceCanAfford(character, bundle, "knack");
-    const slotMap =
-      character.knackSlotById && typeof character.knackSlotById === "object" ? { ...character.knackSlotById } : {};
+    let slotMap = knackSlotMapForRowBudgetUi(character, bundle);
     const inMain = (character.knackIds || []).includes(kid);
     const assignedPay = character.knackSlotById?.[kid];
     const payCheckExclude =
@@ -6769,15 +7068,16 @@ function renderCalling(root) {
         ? kid
         : undefined;
     const payCheckIds = inMain ? character.knackIds || [] : [...(character.knackIds || []), kid];
-    if (useRowPayment && rowIdx != null && !inMain) slotMap[kid] = rowIdx;
+    if (useRowPayment && rowIdx != null && !inMain) slotMap = { ...slotMap, [kid]: rowIdx };
     const payRows =
-      useRowPayment && baseOk
+      baseOk && heroUsesCallingSlotRows(character)
         ? callingRowsThatCanPayForKnack(k, character, bundle, payCheckIds, slotMap, payCheckExclude)
         : [];
     const canPayFromRow = useRowPayment && payRows.includes(rowIdx);
+    const canPayAnyRow = payRows.length > 0;
     let slotBlocked = knackXpBuy ? false : !baseOk;
     if (!on && !slotBlocked && !knackXpBuy) {
-      if (useRowPayment) slotBlocked = !canPayFromRow;
+      if (heroUsesCallingSlotRows(character)) slotBlocked = useRowPayment ? !canPayFromRow : !canPayAnyRow;
       else slotBlocked = !eligible;
     }
     const chip = document.createElement("button");
@@ -6885,8 +7185,7 @@ function renderCalling(root) {
         pushBucket(bucketKey, [kid, k]);
       }
     }
-    const knackBudgetMap =
-      character.knackSlotById && typeof character.knackSlotById === "object" ? { ...character.knackSlotById } : {};
+    const knackBudgetMap = knackSlotMapForRowBudgetUi(character, bundle);
     const order = /** @type {(number | "any")[]} */ ([0, 1, 2, "any"]);
     for (const key of order) {
       const list = buckets.get(key);
@@ -7898,10 +8197,18 @@ function renderBoons(root) {
 
   const capHelp = document.createElement("p");
   capHelp.className = "help";
-  const boonCap = maxWizardBoonPicksForTier(character.tier, bundle);
-  capHelp.textContent = Number.isFinite(boonCap)
-    ? `You may select up to ${boonCap} Boons from the lists below. Purview Innate powers are granted with each Purview you hold — they are not Boons and do not use a slot here. After ${boonCap} Boons are chosen, other options are hidden until you remove a pick.`
-    : "Select Boons from the lists below for each Purview you track. Purview Innate powers are granted with each Purview you hold — they are not Boons. At this tier (Demigod, God, or other advanced line in tier.json) the wizard does not cap how many Boons you list — Legend and Marvel budgets stay with your Storyguide and the books.";
+  const boonBudget = boonBudgetSnapshot(character, bundle);
+  if (boonBudget.usesLegendBudget) {
+    const domForgone = (boonBudget.legendUsed ?? 0) - boonBudget.nonXpBoonCount;
+    const domNote =
+      domForgone > 0 ? ` (${domForgone} reserved for Dominion Boons)` : "";
+    capHelp.innerHTML = `Demigod+ <strong>Legend Boon budget</strong> (p. 132): <strong>${boonBudget.legendUsed ?? 0} / ${boonBudget.legendTotal ?? 0}</strong> Purview Boon purchases used${domNote} — one per Legend dot; Dominion marks cost two each. Set <strong>Legend</strong> in the header to raise your budget. When Legend slots are full, use <strong>Exp Leveling</strong> or buy with Experience here if enabled. Purview Innates are not Boons.`;
+  } else if (boonBudget.heroCap != null) {
+    capHelp.textContent = `You may select up to ${boonBudget.heroCap} Boons from the lists below. Purview Innate powers are granted with each Purview you hold — they are not Boons and do not use a slot here. After ${boonBudget.heroCap} Boons are chosen, other options are hidden until you remove a pick or buy with Experience.`;
+  } else {
+    capHelp.textContent =
+      "Select Boons from the lists below for each Purview you track. Purview Innate powers are granted with each Purview you hold — they are not Boons.";
+  }
   wrap.appendChild(capHelp);
 
   const boonLeaveBlock =
@@ -7933,16 +8240,24 @@ function renderBoons(root) {
   let lastPurview = null;
   let chips = null;
   let anyShown = false;
-  const atBoonCap = Number.isFinite(boonCap) && (character.boonIds || []).length >= boonCap;
+  const atFreeCap = boonBudget.atFreeCap;
 
   for (const [bid, b] of entries) {
     if (boonIsPurviewInnateAutomaticGrant(b, bundle)) continue;
     if (!isEntryVisibleForBooks(b, allowedBooks)) continue;
     const eligible = boonEligible(b, character, bundle);
     const on = character.boonIds.includes(bid);
+    const isXpBoon = experienceBoonIdSet(character).has(bid);
     const boonXpBuy =
-      experiencePurchasesEnabled() && !on && eligible && atBoonCap && experienceCanAfford(character, bundle, "boon");
-    if (!on && (!eligible || (atBoonCap && !boonXpBuy))) continue;
+      experiencePurchasesEnabled() && !on && eligible && atFreeCap && experienceCanAfford(character, bundle, "boon");
+    const canFreeAdd =
+      eligible &&
+      !atFreeCap &&
+      (boonBudget.usesLegendBudget
+        ? (legendBoonSlotsRemaining(character) ?? 0) > 0
+        : boonBudget.heroCap == null || (character.boonIds || []).length < boonBudget.heroCap);
+    const slotBlocked = !on && !boonXpBuy && !canFreeAdd && eligible;
+    if (!on && (!eligible || (atFreeCap && !boonXpBuy))) continue;
     anyShown = true;
     const primaryPv = boonPrimaryPurview(b);
     if (primaryPv !== lastPurview) {
@@ -7965,7 +8280,6 @@ function renderBoons(root) {
         "See Pandora’s Box (Revised) for this Purview’s standard Innate Power (Hero where PB cross-references it).";
       const innP = document.createElement("p");
       innP.className = "help boon-purview-innate-callout";
-      innP.appendChild(document.createTextNode("Purview innate (not a Boon): "));
       if (innateName) {
         const sn = document.createElement("strong");
         sn.textContent = innateName;
@@ -7985,10 +8299,17 @@ function renderBoons(root) {
     chip.className =
       "chip" +
       (on ? " on" : "") +
+      (isXpBoon && on ? " chip-knack-experience" : "") +
       (boonXpBuy ? " chip-experience-unlock" : "") +
+      (slotBlocked ? " chip-knack-slot-blocked" : "") +
       (!eligible && on ? " chip-unqualified" : "");
+    chip.disabled = slotBlocked;
     if (boonXpBuy) {
       chip.title = `Spend ${experiencePurchaseCost(bundle, "boon")} Experience for an extra Boon (Saints & Monsters p. 87)`;
+    } else if (slotBlocked) {
+      chip.title = boonBudget.usesLegendBudget
+        ? "No Legend Boon purchases left — raise Legend in the header, free a pick, or buy with Experience."
+        : "Boon cap reached — remove a pick or buy with Experience.";
     } else if (!eligible && on) {
       chip.title =
         "This Boon no longer matches your Purviews, tier, or prerequisite chain—remove it or adjust your character.";
@@ -7996,18 +8317,24 @@ function renderBoons(root) {
     const boonChipLabel = boonDisplayLabel(b, bundle, character.pantheonId);
     chip.textContent = boonChipLabel;
     chip.addEventListener("click", () => {
-      const set = new Set(character.boonIds);
-      if (set.has(bid)) set.delete(bid);
-      else if (eligible && (!Number.isFinite(boonCap) || set.size < boonCap)) set.add(bid);
-      else if (
-        eligible &&
-        atBoonCap &&
-        experiencePurchasesEnabled() &&
-        experienceSpend(character, bundle, "boon", `Boon: ${boonChipLabel}`)
-      )
-        set.add(bid);
-      character.boonIds = [...set];
-      render();
+      if (character.boonIds.includes(bid)) {
+        if (experienceBoonIdSet(character).has(bid)) removeExperienceBoonPick(bid);
+        else character.boonIds = (character.boonIds || []).filter((x) => x !== bid);
+        render();
+        return;
+      }
+      if (boonXpBuy) {
+        if (addExperienceBoonPick(bid)) render();
+        return;
+      }
+      const budgetNow = boonBudgetSnapshot(character, bundle);
+      const canAdd = budgetNow.usesLegendBudget
+        ? (legendBoonSlotsRemaining(character) ?? 0) > 0
+        : budgetNow.heroCap == null || (character.boonIds || []).length < budgetNow.heroCap;
+      if (eligible && canAdd) {
+        character.boonIds = [...(character.boonIds || []), bid];
+        render();
+      }
     });
     applyGameDataHint(chip, { ...b, name: boonChipLabel });
     chips.appendChild(chip);
@@ -8063,51 +8390,25 @@ function renderDominionBoons(root) {
   const pickHelp = document.createElement("p");
   pickHelp.className = "help";
   pickHelp.textContent =
-    "Mark each Purview where you have purchased a Dominion Boon. The wizard does not enforce the two-Boon-for-one trade — confirm costs and timing with your Storyguide.";
+    "Mark each Purview where you have purchased a Dominion Boon. Pay with two Boons from that Purview or reserve two Legend Boon purchases.";
   wrap.appendChild(pickHelp);
 
-  const heldPurviews = [...characterPurviewIdSet(character, bundle)].sort((a, b) =>
-    purviewDisplayNameForPantheon(a, bundle, character.pantheonId).localeCompare(
-      purviewDisplayNameForPantheon(b, bundle, character.pantheonId),
-    ),
-  );
-
-  if (heldPurviews.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "help";
-    empty.innerHTML =
-      "No Purviews in scope yet — set patron innate slots and Purview chips on the <strong>Purviews</strong> step, then return here.";
-    wrap.appendChild(empty);
-  } else {
-    const domChips = document.createElement("div");
-    domChips.className = "chips dominion-boon-chips";
-    for (const pid of heldPurviews) {
-      const on = (character.dominionBoonPurviewIds || []).includes(pid);
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "chip" + (on ? " on" : "");
-      const label = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId);
-      chip.textContent = on ? `Dominion: ${label}` : label;
-      chip.title = on
-        ? `Dominion Boon in ${label} (remove)`
-        : `Mark Dominion Boon in ${label} (costs two Purview Boons in play)`;
-      chip.addEventListener("click", () => {
-        ensureDominionShape();
-        const set = new Set(character.dominionBoonPurviewIds);
-        if (set.has(pid)) set.delete(pid);
-        else set.add(pid);
-        character.dominionBoonPurviewIds = [...set];
-        pruneDominionState();
-        render();
-      });
-      const pvHead = bundle.purviews?.[pid];
-      if (pvHead && typeof pvHead === "object") {
-        applyGameDataHint(chip, { ...pvHead, name: label });
-      }
-      domChips.appendChild(chip);
-    }
-    wrap.appendChild(domChips);
+  const legFx = legendTraitEffectsSummary(character.legendRating ?? 0, character.tier);
+  if (legFx) {
+    const legP = document.createElement("p");
+    legP.className = "help";
+    legP.innerHTML = `<strong>Legend ${legFx.legendRating} (max ${legFx.maxLegend} this tier):</strong> ${legFx.boonPurchasesFromLegend} Purview Boon purchase${legFx.boonPurchasesFromLegend === 1 ? "" : "s"} from Legend dots; ${legFx.callingDotsFromEvenLegend} Calling dot${legFx.callingDotsFromEvenLegend === 1 ? "" : "s"} from even Legend dots (Demigod p. 132).`;
+    wrap.appendChild(legP);
   }
+  const domLedger = dominionBoonLedgerSummary(character.dominionBoonPurviewIds, character.tier);
+  if (domLedger && domLedger.dominionPurviewCount > 0) {
+    const domP = document.createElement("p");
+    domP.className = "help";
+    domP.textContent = domLedger.summary;
+    wrap.appendChild(domP);
+  }
+
+  appendDominionBoonMarkingUi(wrap, { skipIntro: true });
 
   const panelEl = panel("Dominion Boons", wrap);
   applyHint(panelEl, "dominion-boons-step");
@@ -8121,18 +8422,21 @@ function renderDominionStunts(root) {
   const intro = document.createElement("p");
   intro.className = "help";
   intro.innerHTML =
-    "<strong>Scion: Demigod pp. 156–157 — Dominion Stunts:</strong> once you hold a Dominion Boon in a Purview, you and allied characters gain the <strong>full</strong> stunt list for that Purview (reference below). Declare which stunts are <strong>active for the scene</strong> at scene start or when rolling Initiative; most cost <strong>successes</strong> (1–5) from a relevant roll rather than Legend. Only one copy of each stunt may be active in the Band at a time; overlapping Purviews grant +1 Enhancement per Scion (max +3). <strong>Gift of Power</strong> is general for all Demigods.";
+    "<strong>Scion: Demigod pp. 156–157 — Dominion Stunts:</strong> once you hold a <strong>Dominion Boon</strong> in a Purview (two Purview Boons forgone in play), you and allied characters gain the <strong>full</strong> stunt list for that Purview (reference below). Declare which stunts are <strong>active for the scene</strong> at scene start or when rolling Initiative; most cost <strong>successes</strong> (1–5) from a relevant roll rather than Legend. Only one copy of each stunt may be active in the Band at a time; overlapping Purviews grant +1 Enhancement per Scion (max +3). <strong>Gift of Power</strong> (General) appears once you hold any Dominion Boon.";
   wrap.appendChild(intro);
 
-  const heldPurviews = [...characterPurviewIdSet(character, bundle)].sort((a, b) =>
-    purviewDisplayNameForPantheon(a, bundle, character.pantheonId).localeCompare(
-      purviewDisplayNameForPantheon(b, bundle, character.pantheonId),
-    ),
+  const grouped = dominionStuntsGroupedByPurview(bundle);
+  const showPurviews = dominionStuntPurviewKeysForExport(
+    {
+      tier: character.tier,
+      tierId: character.tier,
+      pantheonId: character.pantheonId,
+      purviews: character.purviewIds,
+      patronPurviewSlots: character.patronPurviewSlots,
+      dominionBoonPurviewIds: character.dominionBoonPurviewIds,
+    },
+    bundle,
   );
-
-  const grouped = dominionStuntsGroupedByPurview();
-  const dominionMarked = new Set(character.dominionBoonPurviewIds || []);
-  const showPurviews = ["_general", ...heldPurviews.filter((pid) => dominionMarked.has(pid))];
   let anyStunts = false;
 
   for (const pvKey of showPurviews) {
@@ -8183,7 +8487,7 @@ function renderDominionStunts(root) {
     const none = document.createElement("p");
     none.className = "help";
     none.textContent =
-      "Mark at least one Dominion Boon in the section above to see that Purview's stunt reference list (Gift of Power appears under General for all Demigods).";
+      "Mark at least one Dominion Boon above (trade two Purview Boons in play for Dominion over that Purview) to unlock that Purview's stunt reference list. Gift of Power appears under General once you hold any Dominion Boon.";
     wrap.appendChild(none);
   }
 
@@ -8879,13 +9183,28 @@ function renderExpLeveling(root) {
   poolHelp.textContent =
     "Enter unspent Experience earned in play. Purchases on this step are previewed only — you can change your mind freely until you leave (Back or another tab), when you will be asked to save them. Chargen tabs stay locked — advance your character here after Review (Origin p. 113; Boons and Techniques also Saints & Monsters p. 87).";
   poolSec.appendChild(poolHelp);
+  const poolActions = document.createElement("div");
+  poolActions.className = "exp-leveling-pool-actions";
   if (expLevelingSessionDirty(character)) {
     const draftNote = document.createElement("p");
     draftNote.className = "help exp-leveling-draft-note";
     draftNote.textContent =
-      "Unsaved Experience purchases on this step — leave via Back or another tab to save, or undo picks here before leaving.";
-    poolSec.appendChild(draftNote);
+      "Unsaved Experience purchases on this step — leave via Back or another tab to save, or use Reset to undo everything from this visit.";
+    poolActions.appendChild(draftNote);
   }
+  const resetBtn = document.createElement("button");
+  resetBtn.type = "button";
+  resetBtn.className = "btn secondary exp-leveling-reset-btn";
+  resetBtn.textContent = "Reset";
+  resetBtn.disabled = !expLevelingSessionDirty(character);
+  resetBtn.title = "Undo all Experience purchases made since you opened Exp Leveling.";
+  resetBtn.addEventListener("click", () => {
+    if (!expLevelingSessionDirty(character)) return;
+    if (!window.confirm(RESET_CONFIRM_MESSAGE)) return;
+    if (resetExpLevelingSession(character)) render();
+  });
+  poolActions.appendChild(resetBtn);
+  poolSec.appendChild(poolActions);
   const poolRow = document.createElement("div");
   poolRow.className = "exp-leveling-pool-row field";
   const poolLab = document.createElement("label");
@@ -9079,12 +9398,14 @@ function renderExpLeveling(root) {
     boonSec.innerHTML = `<h2>Boons (${experiencePurchaseCost(bundle, "boon") ?? 10} XP each)</h2>`;
     const boonHelp = document.createElement("p");
     boonHelp.className = "help";
-    const boonCap = maxWizardBoonPicksForTier(character.tier, bundle);
-    boonHelp.textContent = Number.isFinite(boonCap)
-      ? `When your chargen Boon cap (${boonCap}) is full, eligible Boons below can be bought with Experience.`
-      : "Eligible Boons you have not taken appear below for Experience purchase when your table uses caps.";
+    const boonBudget = boonBudgetSnapshot(character, bundle);
+    boonHelp.textContent = boonBudget.usesLegendBudget
+      ? `When your Legend Boon budget (${boonBudget.legendUsed ?? 0} / ${boonBudget.legendTotal ?? 0}) is full, eligible Boons below can be bought with Experience.`
+      : boonBudget.heroCap != null
+        ? `When your chargen Boon cap (${boonBudget.heroCap}) is full, eligible Boons below can be bought with Experience.`
+        : "Eligible Boons you have not taken appear below for Experience purchase when your table uses caps.";
     boonSec.appendChild(boonHelp);
-    const atBoonCap = Number.isFinite(boonCap) && (character.boonIds || []).length >= boonCap;
+    const atFreeCap = boonBudget.atFreeCap;
     let boonXpCount = 0;
     const boonEntries = Object.entries(bundle.boons || {})
       .filter(([bid]) => !bid.startsWith("_"))
@@ -9100,7 +9421,7 @@ function renderExpLeveling(root) {
       if (!isEntryVisibleForBooks(b, allowedBooks)) continue;
       const eligible = boonEligible(b, character, bundle);
       const on = character.boonIds.includes(bid);
-      const boonXpBuy = !on && eligible && atBoonCap && experienceCanAfford(character, bundle, "boon");
+      const boonXpBuy = !on && eligible && atFreeCap && experienceCanAfford(character, bundle, "boon");
       if (!boonXpBuy) continue;
       boonXpCount += 1;
       const primaryPv = boonPrimaryPurview(b);
@@ -9121,9 +9442,7 @@ function renderExpLeveling(root) {
       chip.textContent = boonChipLabel;
       chip.title = `Spend ${experiencePurchaseCost(bundle, "boon")} Experience for this Boon`;
       chip.addEventListener("click", () => {
-        if (!experienceSpend(character, bundle, "boon", `Boon: ${boonChipLabel}`)) return;
-        character.boonIds = [...character.boonIds, bid];
-        render();
+        if (addExperienceBoonPick(bid)) render();
       });
       applyGameDataHint(chip, { ...b, name: boonChipLabel });
       pvChips.appendChild(chip);
@@ -9131,14 +9450,26 @@ function renderExpLeveling(root) {
     if (boonXpCount === 0) {
       const empty = document.createElement("p");
       empty.className = "help";
-      empty.textContent = Number.isFinite(boonCap)
-        ? atBoonCap
+      empty.textContent = boonBudget.usesLegendBudget
+        ? atFreeCap
           ? "No affordable eligible Boons at your current XP — raise Experience or adjust Purviews."
-          : `Chargen Boon cap not reached (${(character.boonIds || []).length} / ${boonCap}) — pick free Boons on the Boons tab first.`
-        : "No Boons currently listed for Experience purchase.";
+          : `Legend Boon budget not full (${boonBudget.legendUsed ?? 0} / ${boonBudget.legendTotal ?? 0}) — pick free Boons on the Boons tab first.`
+        : boonBudget.heroCap != null
+          ? atFreeCap
+            ? "No affordable eligible Boons at your current XP — raise Experience or adjust Purviews."
+            : `Chargen Boon cap not reached (${boonBudget.totalBoonCount} / ${boonBudget.heroCap}) — pick free Boons on the Boons tab first.`
+          : "No Boons currently listed for Experience purchase.";
       boonSec.appendChild(empty);
     }
     wrap.appendChild(boonSec);
+  }
+
+  if (tierSupportsDominionStunts(character.tier)) {
+    const domSec = document.createElement("section");
+    domSec.className = "panel exp-leveling-dominion-panel";
+    domSec.innerHTML = "<h2>Dominion Boons (forgo 2 Boons each)</h2>";
+    appendDominionBoonMarkingUi(domSec, { compact: true });
+    wrap.appendChild(domSec);
   }
 
   const brSec = document.createElement("section");
@@ -9482,7 +9813,10 @@ function buildExportObject() {
     tierName: tierMeta?.name || character.tier,
     tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
     legendRating: character.legendRating ?? 0,
+    maxLegend: legendDotMaxForTier(character.tier),
     legendDotMax: LEGEND_SHEET_DOT_COUNT,
+    legendTraitEffects: legendTraitEffectsSummary(character.legendRating ?? 0, character.tier),
+    dominionBoonLedger: dominionBoonLedgerSummary(character.dominionBoonPurviewIds, character.tier),
     legendPoolDotSpentSlots: padPoolSlotArray(
       character.legendPoolDotSpentSlots || [],
       Math.max(LEGEND_SHEET_DOT_COUNT, legendDotMaxForTier(character.tier)),
@@ -9578,6 +9912,9 @@ function buildExportObject() {
     lockedKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.lockedKnackIds || [])],
     finishingBonusKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.finishingBonusKnackIds || [])],
     experienceKnackIds: isSorcererLineTier(character.tier) ? [] : [...(character.experienceKnackIds || [])],
+    experienceBoonIds: [...(character.experienceBoonIds || [])].filter(
+      (id) => typeof id === "string" && id.trim() && (character.boonIds || []).includes(id),
+    ),
     carriedExperienceKnackIds: isSorcererLineTier(character.tier)
       ? []
       : [...(character.carriedExperienceKnackIds || [])],
@@ -9599,6 +9936,22 @@ function buildExportObject() {
     dominionBoonPurviewIds: tierSupportsDominionStunts(character.tier)
       ? [...(character.dominionBoonPurviewIds || [])]
       : [],
+    dominionBoonForgoneByPurview: tierSupportsDominionStunts(character.tier)
+      ? { ...(character.dominionBoonForgoneByPurview || {}) }
+      : {},
+    dominionBoonForgoneXpByPurview: tierSupportsDominionStunts(character.tier)
+      ? { ...(character.dominionBoonForgoneXpByPurview || {}) }
+      : {},
+    boonBudget: boonBudgetSnapshot(character, bundle),
+    ...(function dominionStuntFieldsForExport() {
+      if (!tierSupportsDominionStunts(character.tier)) return {};
+      const snap = buildDominionStuntExportFromCharacter(character, bundle);
+      if (!snap.flat.length) return {};
+      return {
+        dominionStunts: snap.flat,
+        dominionStuntGroups: snap.groups,
+      };
+    })(),
     experiencePoints: experiencePointsAvailable(character),
     experiencePointsRemaining: experiencePointsAvailable(character),
     experiencePointsSpent: experiencePointsSpent(character),
@@ -9843,6 +10196,7 @@ function importCharacterFromExportPayload(data) {
   const validBoon = new Set(Object.keys(bundle.boons || {}).filter((k) => !k.startsWith("_")));
   const validKnack = new Set(Object.keys(bundle.knacks || {}).filter((k) => !k.startsWith("_")));
   const validBirthright = new Set(Object.keys(bundle.birthrights || {}).filter((k) => !k.startsWith("_")));
+  const legendRatingRaw = Math.max(0, Math.min(LEGEND_SHEET_DOT_COUNT, Math.round(Number(data.legendRating) || 0)));
   let boonIds = Array.isArray(data.boons)
     ? data.boons.filter((x) => typeof x === "string" && !x.startsWith("_") && validBoon.has(x))
     : [];
@@ -9851,7 +10205,39 @@ function importCharacterFromExportPayload(data) {
     return !bb || !boonIsPurviewInnateAutomaticGrant(bb, bundle);
   });
   const importBoonCap = maxWizardBoonPicksForTier(tier, bundle);
-  if (Number.isFinite(importBoonCap) && boonIds.length > importBoonCap) boonIds = boonIds.slice(0, importBoonCap);
+  let experienceBoonIds = Array.isArray(data.experienceBoonIds)
+    ? data.experienceBoonIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validBoon.has(x))
+    : [...(base.experienceBoonIds || [])];
+  experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
+  if (tierUsesLegendTraitEffects(tier)) {
+    const importCtx = {
+      tier,
+      legendRating: legendRatingRaw,
+      boonIds,
+      dominionBoonPurviewIds: Array.isArray(data.dominionBoonPurviewIds) ? data.dominionBoonPurviewIds : [],
+      experienceBoonIds,
+    };
+    const xp = experienceBoonIdSet(importCtx);
+    const total = legendTraitBoonPurchasesFromRating(legendRatingRaw);
+    while (
+      boonIds.some((id) => !xp.has(id)) &&
+      legendBoonSlotsUsed({ ...importCtx, boonIds }) > total
+    ) {
+      let removed = false;
+      for (let i = boonIds.length - 1; i >= 0; i -= 1) {
+        if (!xp.has(boonIds[i])) {
+          boonIds.splice(i, 1);
+          removed = true;
+          break;
+        }
+      }
+      if (!removed) break;
+    }
+    experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
+  } else if (Number.isFinite(importBoonCap) && boonIds.length > importBoonCap) {
+    boonIds = boonIds.slice(0, importBoonCap);
+    experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
+  }
   let knackIds = Array.isArray(data.knackIds)
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
     : [];
@@ -9870,7 +10256,6 @@ function importCharacterFromExportPayload(data) {
       }
     }
   }
-  const legendRatingRaw = Math.max(0, Math.min(LEGEND_SHEET_DOT_COUNT, Math.round(Number(data.legendRating) || 0)));
   const legendRating = lineageEarly === "dragonHeir" ? 0 : legendRatingRaw;
 
   let awarenessRating = 1;
@@ -10087,6 +10472,7 @@ function importCharacterFromExportPayload(data) {
     lockedKnackIds,
     finishingBonusKnackIds,
     experienceKnackIds,
+    experienceBoonIds,
     carriedExperienceKnackIds,
     knackSlotById: callingSlots ? knackSlotById : {},
     knackLockedRowBudgetCostById: callingSlots ? knackLockedRowBudgetCostById : {},
@@ -10098,6 +10484,40 @@ function importCharacterFromExportPayload(data) {
       const raw = Array.isArray(data.dominionBoonPurviewIds) ? data.dominionBoonPurviewIds : [];
       const validPv = new Set(Object.keys(bundle.purviews || {}).filter((k) => !k.startsWith("_")));
       return raw.filter((id) => typeof id === "string" && validPv.has(id));
+    })(),
+    dominionBoonForgoneByPurview: (() => {
+      if (!tierSupportsDominionStunts(tier)) return {};
+      const raw =
+        data.dominionBoonForgoneByPurview && typeof data.dominionBoonForgoneByPurview === "object"
+          ? data.dominionBoonForgoneByPurview
+          : {};
+      const validPvForgone = new Set(Object.keys(bundle.purviews || {}).filter((k) => !k.startsWith("_")));
+      /** @type {Record<string, string[]>} */
+      const out = {};
+      for (const [pid, ids] of Object.entries(raw)) {
+        if (typeof pid !== "string" || !validPvForgone.has(pid)) continue;
+        if (!Array.isArray(ids)) continue;
+        const clean = ids.filter((id) => typeof id === "string" && validBoon.has(id));
+        if (clean.length) out[pid] = clean;
+      }
+      return out;
+    })(),
+    dominionBoonForgoneXpByPurview: (() => {
+      if (!tierSupportsDominionStunts(tier)) return {};
+      const raw =
+        data.dominionBoonForgoneXpByPurview && typeof data.dominionBoonForgoneXpByPurview === "object"
+          ? data.dominionBoonForgoneXpByPurview
+          : {};
+      const validPvForgone = new Set(Object.keys(bundle.purviews || {}).filter((k) => !k.startsWith("_")));
+      /** @type {Record<string, string[]>} */
+      const out = {};
+      for (const [pid, ids] of Object.entries(raw)) {
+        if (typeof pid !== "string" || !validPvForgone.has(pid)) continue;
+        if (!Array.isArray(ids)) continue;
+        const clean = ids.filter((id) => typeof id === "string" && validBoon.has(id));
+        if (clean.length) out[pid] = clean;
+      }
+      return out;
     })(),
     experiencePoints: (() => {
       const n = Math.round(Number(data.experiencePoints) || 0);

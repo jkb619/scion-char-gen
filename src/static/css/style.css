@@ -232,6 +232,20 @@ body > * {
   gap: 0.65rem 1rem;
 }
 
+.exp-leveling-pool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.exp-leveling-pool-actions .exp-leveling-draft-note {
+  margin: 0;
+  flex: 1 1 12rem;
+}
+
 .exp-leveling-points-input {
   width: 6rem;
   max-width: 100%;

@@ -217,7 +217,7 @@ export const HELP = {
   },
   "knack-select": {
     example:
-      "Hero three-row mode: each Calling’s dots are that row’s knack point pool (Heroic = 1 point, Immortal = 2). General Calling knacks prompt which row pays. Knacks chosen before tier advance lock in place—you may only add more, not swap them. Demigod/God: Heroic and Immortal each = one slot against the same total Calling-dot pool (Demigod pp.149–150). Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
+      "Three-row Calling mode (Hero / Titanic / Demigod / God): each Calling’s dots are that row’s knack point pool (Heroic = 1 point, Immortal = 2). General Calling knacks prompt which row pays. Knacks chosen before tier advance lock in place—you may only add more, not swap them. Origin: one Mortal Knack only. Finishing “extra Knacks” do not spend Calling dots.",
     source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}; ${cite("demigod", "Knacks", "149–150")}.`,
   },
   "purview-select": {
@@ -235,17 +235,17 @@ export const HELP = {
     source: `${cite("origin", "Character Advancement", "113")}; ${cite("hero", "Experience", "185")}.`,
   },
   "boon-select": {
-    example: "Boons appear only for Purviews you track: merged patron slots (Demigod+ on Purviews) plus sheet Purviews; Mythos also counts a draft Awareness Purview from the Purviews step when it matches your parent’s list (unless a different patron chip is selected). Hero, Titanic, and Heroic Sorcerer cap initial wizard picks at two; any other tier that has a Boons step in tier.json (Demigod, God, divine-band Sorcerer, …) lists all eligible Boons without that cap. Innate summaries under a heading are reference only — the Boon chips here are the selectable catalog entries in this app.",
+    example: "Hero: up to two Boons at chargen. Demigod+: one Purview Boon purchase per Legend dot (set Legend in the header). Dominion marks cost two Boons — forgo two picks you already hold (including Experience-bought Boons) or reserve two Legend purchases. When Legend slots are full, buy extra Boons with Experience on Exp Leveling. Purview Innates are not Boons.",
     source: `${cite("hero", "Purviews & Boons", "200+")}; ${cite("demigod", "Advanced Boons", "")}; ${cite("god", "God-tier Boons", "")}.`,
   },
   "dominion-boons-step": {
     example:
-      "Demigod+ (Legend 5+): trade two Purview Boons in play for one Dominion Boon per Purview you hold — unlocks Dominion Stunts, Font of Miracles, imbued Marvels, and related divinity-dice themes for that Purview. Mark chips here; the two-for-one cost is not enforced in the wizard.",
-    source: `${cite("demigod", "Dominion", "154–155")}.`,
+      "Demigod+ (Legend 5+): trade two Purview Boons from the same Purview for one Dominion Boon there — forgo two sheet picks from that Purview (including Experience-bought) or reserve two Legend purchases.",
+    source: `${cite("demigod", "Dominion", "154–155")}; ${cite("demigod", "Legend trait effects", "132")}.`,
   },
   "dominion-stunts-step": {
     example:
-      "Reference for stunts unlocked by Dominion Boons above. Full access is automatic per Purview; Gift of Power is general for all Demigods. Scene activation and success costs are handled at the table.",
+      "Reference for stunts unlocked by Dominion Boons you mark above. Nothing lists until at least one Dominion Boon is recorded. Per-Purview stunts require Dominion in that Purview; Gift of Power (General) lists once you hold any Dominion Boon. Scene activation and success costs are handled at the table.",
     source: `${cite("demigod", "Dominion Stunts", "156–175")}.`,
   },
 

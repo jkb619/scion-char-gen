@@ -365,8 +365,10 @@ def test_sync_preserves_explicit_unlocked_row_picks():
 
 def test_three_row_slot_cost_immortal_two_heroic_one():
     elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
-    assert "heroUsesCallingSlotRows(character)" in elig
-    assert "!immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(k) === 2) return 1" in elig
+    fn = elig.split("export function knackCallingSlotCost(k, character)")[1].split("export function")[0]
+    assert "heroUsesCallingSlotRows(character)" in fn
+    assert "return knackPointCost(k)" in fn
+    assert "!immortalKnackCostsTwoCallingSlots(character.tier) && knackPointCost(k) === 2) return 1" not in fn
     assert "export function persistHeroKnackSlotMapIfSolvable" in elig
     assert "return knackPointCost(k)" in elig.split("export function knackHeroBandSlotCost")[1][:120]
     knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
@@ -388,8 +390,9 @@ def test_per_row_slot_blocked_uses_calling_rows_that_can_pay():
     render_calling = app.split("function renderCalling(root)")[1].split("function renderFinishing")[0]
     assert "callingRowsThatCanPayForKnack" in render_calling
     assert "canPayFromRow" in render_calling
+    assert "canPayAnyRow" in render_calling
     assert "!on && !slotBlocked" in render_calling
-    assert "character.knackSlotById" in render_calling.split("knackBudgetMap")[1][:200]
+    assert "knackSlotMapForRowBudgetUi(character, bundle)" in render_calling.split("knackBudgetMap")[1][:200]
 
 
 def test_corruptor_defiler_motm_picks_charge_each_row():
@@ -853,3 +856,65 @@ def test_hero_click_uses_commit_when_calling_row_index_set():
     assert "if (heroUsesCallingSlotRows(character))" in append
     assert "commitKnackToCallingRow(character, bundle, kid, k, rowIdx)" in append
     assert "useThreeRowKnackBuckets && heroUsesCallingSlotRows" not in append
+
+
+def test_origin_heroic_knack_counts_against_cosmos_row_budget():
+    """Origin heroic (1 pt) on Cosmos must spend row budget so Immortal (2 pts) cannot fit on 2 dots."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
+    app = (ROOT / "src" / "static" / "js" / "app.js").read_text(encoding="utf-8")
+    assert "export function heroOriginCallingRowIndex" in elig
+    assert "pinLockedOriginBudgetKnackToPrimaryRow(character, bundle)" in elig.split(
+        "export function knackSlotMapForRowBudgetUi"
+    )[1][:400]
+    assert "knackSlotMapForRowBudgetUi(character, bundle)" in elig.split("export function callingRowsThatCanPayForKnack")[1][
+        :500
+    ]
+    render_calling = app.split("function renderCalling(root)")[1].split("function renderFinishing")[0]
+    assert "const knackBudgetMap = knackSlotMapForRowBudgetUi(character, bundle)" in render_calling
+    character = {
+        "tier": "hero",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 2},
+            {"id": "sage", "dots": 1},
+            {"id": "liminal", "dots": 1},
+        ],
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {},
+        "knackLockedRowBudgetCostById": {"mythos_psychic_attack": 1},
+    }
+    cosmos_row = 0
+    slot_map = dict(character["knackSlotById"])
+    slot_map["mythos_psychic_attack"] = cosmos_row
+    used = row_points_used_coerced(cosmos_row, character["knackIds"], slot_map, knacks, character)
+    assert used == 1
+    cap = row_dots(character, cosmos_row)
+    assert cap == 2
+    immortal_cost = knack_point_cost(knacks["mythos_infinite_knowledge"])
+    assert immortal_cost == 2
+    assert used + immortal_cost > cap
+
+
+def test_demigod_cosmos_two_dots_one_heroic_only_one_slot_left():
+    """Demigod three-row: Immortal knacks cost 2 points — one heroic from Origin leaves no room for Immortal."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 2},
+            {"id": "corruptor", "dots": 1},
+            {"id": "defiler", "dots": 1},
+        ],
+        "knackIds": ["mythos_psychic_attack"],
+        "lockedKnackIds": ["mythos_psychic_attack"],
+        "knackSlotById": {"mythos_psychic_attack": 0},
+        "knackLockedRowBudgetCostById": {"mythos_psychic_attack": 1},
+    }
+    used = row_points_used_coerced(0, character["knackIds"], character["knackSlotById"], knacks, character)
+    assert used == 1
+    assert row_dots(character, 0) == 2
+    assert used + 1 <= 2
+    assert used + 2 > 2

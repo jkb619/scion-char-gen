@@ -13,6 +13,8 @@ import { birthrightTagLabels } from "./birthrightTags.js";
 import { nonEmptyFatebindingRowsForSheet } from "./fatebindingsSheet.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 import { sheetExperienceSpentOnLines, sheetExperienceTotals } from "./experience.js";
+import { buildDominionStuntExportPayload } from "./dominionStuntsExport.js";
+import { legendTraitEffectsSummary } from "./legendTrait.js";
 
 /**
  * @param {HTMLElement} el — root `.character-sheet`
@@ -436,6 +438,15 @@ export function fillMcgFourPageLayout(el, api) {
   appendLegendAwarenessDotsWithPools(legDotsCell, lv, legendMax, "Legend", legendPoolCtx);
   legBlock.appendChild(legL);
   legBlock.appendChild(legDotsCell);
+  const legFx = legendTraitEffectsSummary(lv, data.tier ?? data.tierId);
+  if (legFx) {
+    const legMeta = document.createElement("div");
+    legMeta.className = "cs-mcg-legend-trait-meta";
+    legMeta.appendChild(mcgLinedField("Max Legend", String(legFx.maxLegend)));
+    legMeta.appendChild(mcgLinedField("Boon purchases", String(legFx.boonPurchasesFromLegend)));
+    legMeta.appendChild(mcgLinedField("Calling dots (even Legend)", String(legFx.callingDotsFromEvenLegend)));
+    legBlock.appendChild(legMeta);
+  }
   legStack.appendChild(legBlock);
   rightCol.appendChild(legStack);
   rightCol.appendChild(mcgLinedField("Omen", ""));
@@ -729,6 +740,53 @@ export function fillMcgFourPageLayout(el, api) {
   if (boonWrap.children.length > 0) {
     p3.appendChild(mcgSectionTitle("Boons"));
     p3.appendChild(boonWrap);
+  }
+
+  const dominionSnap = buildDominionStuntExportPayload(data, bundle);
+  const domLedger =
+    data.dominionBoonLedger && typeof data.dominionBoonLedger === "object" ? data.dominionBoonLedger : null;
+  if (domLedger && domLedger.dominionPurviewCount > 0) {
+    p3.appendChild(mcgSectionTitle("Dominion Boons"));
+    const domNote = document.createElement("div");
+    domNote.className = "cs-mcg-write-block";
+    const domLine = document.createElement("div");
+    domLine.className = "cs-mcg-write-line cs-mcg-write-line--desc";
+    domLine.textContent = String(domLedger.summary || domLedger.note || "").trim();
+    domNote.appendChild(domLine);
+    p3.appendChild(domNote);
+  }
+  if (dominionSnap.groups.length > 0) {
+    p3.appendChild(mcgSectionTitle("Dominion Stunts"));
+    const domWrap = document.createElement("div");
+    domWrap.className = "cs-mcg-dominion-stunt-wrap";
+    for (const grp of dominionSnap.groups) {
+      const sub = document.createElement("div");
+      sub.className = "cs-mcg-dominion-stunt-purview";
+      const subH = document.createElement("div");
+      subH.className = "cs-mcg-dominion-stunt-purview-title";
+      subH.textContent = grp.purviewName;
+      sub.appendChild(subH);
+      const grid = document.createElement("div");
+      grid.className = "cs-mcg-dominion-stunt-grid";
+      for (const stunt of grp.stunts) {
+        const blk = document.createElement("div");
+        blk.className = "cs-mcg-dominion-stunt-block";
+        const head = document.createElement("div");
+        head.className = "cs-mcg-dominion-stunt-head";
+        const nm = document.createElement("span");
+        nm.textContent = stunt.successCost ? `${stunt.name} (${stunt.successCost})` : stunt.name;
+        head.appendChild(nm);
+        blk.appendChild(head);
+        const note = document.createElement("div");
+        note.className = "cs-mcg-dominion-stunt-note";
+        note.textContent = (stunt.description || "").slice(0, 900);
+        blk.appendChild(note);
+        grid.appendChild(blk);
+      }
+      sub.appendChild(grid);
+      domWrap.appendChild(sub);
+    }
+    p3.appendChild(domWrap);
   }
 
   /* —— Page 4 —— */

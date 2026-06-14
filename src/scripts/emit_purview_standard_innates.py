@@ -94,11 +94,25 @@ INNATES: dict[str, dict[str, str]] = {
             + CITE
         )
     },
+    "epicCharisma": {
+        "purviewInnateSummary": (
+            "Even when people don’t like you, it somehow works to your advantage. Once per scene, you may gain "
+            "Momentum and improve someone’s Attitude toward you by one shift as a Consolation on any failed Presence "
+            "or Manipulation roll. — Mysteries of the World; Pandora’s Box (Revised), Epic Charisma Purview."
+        )
+    },
+    "epicPerception": {
+        "purviewInnateSummary": (
+            "You are immune to all mundane attempts at surprise. In any combat with a surprise round, you "
+            "automatically get a turn during that round without a roll unless the source of the ambush is supernatural, "
+            "in which case you may Clash to notice it. — Mysteries of the World; Pandora’s Box (Revised), Epic Perception Purview."
+        )
+    },
     "epicDexterity": {
         "purviewInnateSummary": (
-            "You gain +1 Enhancement on rolls using Dexterity where speed, coordination, or precision apply, and once per scene "
-            "you may waive a single Complication on a Defense roll tied to agility, as the table interprets your tier limits."
-            + CITE
+            "So long as you continue to move toward a destination, you walk, run, or leap with effortless grace. "
+            "Any surfaces solid or liquid hold your weight as if you weighed no more than a feather, and you may "
+            "effortlessly scale or descend vertical surfaces without a handhold. — Scion: Hero; Pandora’s Box (Revised)."
         )
     },
     "epicStamina": {
@@ -109,8 +123,8 @@ INNATES: dict[str, dict[str, str]] = {
     },
     "epicStrength": {
         "purviewInnateSummary": (
-            "You gain +1 Enhancement on Might-based rolls where raw power or lifting applies, and you may waive one Complication "
-            "per scene caused by sheer bulk or weight when carrying or hefting objects, subject to Storyguide limits." + CITE
+            "You have +1 Scale for purposes of lifting, breaking, or carrying large objects. You can use Might "
+            "in place of Presence for intimidation, seduction, or building Bonds of camaraderie." + CITE
         )
     },
     "fertility": {
