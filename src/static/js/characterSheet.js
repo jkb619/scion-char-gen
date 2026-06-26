@@ -11,14 +11,15 @@ import { knackPayingCallingRowLabel } from "./eligibility.js";
 import { knackSheetGroupLabel } from "./knackSheetGroupLabel.js";
 import { formatGameDataSourceForDisplay } from "./sourceDisplayForUi.js";
 
-/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). Bubbles stay empty for at-table Legend rating. */
-function sheetLegendDotTrackReadOnly(_filledRatingIgnored, max) {
+/** Read-only Legend dot row for print / non-Review sheets (may be fewer than sheet pool columns). */
+function sheetLegendDotTrackReadOnly(filledRating, max) {
   const wrap = document.createElement("span");
   wrap.className = "cs-dot-track cs-legend-dot-track" + (max > 6 ? " cs-legend-dot-track-dense" : "");
   const cap = Math.max(1, Math.min(20, Math.round(Number(max) || 1)));
+  const v = Math.max(0, Math.round(Number(filledRating) || 0));
   for (let i = 1; i <= cap; i += 1) {
     const d = document.createElement("span");
-    d.className = "cs-dot";
+    d.className = "cs-dot" + (i <= v ? " on" : "");
     d.setAttribute("aria-hidden", "true");
     wrap.appendChild(d);
   }
@@ -175,6 +176,8 @@ export function buildVirtueSpectrumElement(slice, bundle, interactive, onSpectru
  *   getAwarenessPoolSpentAt: (idx: number) => boolean;
  *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
  *   onLegendDotClick?: (dotIndex1Based: number) => void;
+ *   onAwarenessDotClick?: (dotIndex1Based: number) => void;
+   onAwarenessDotClick?: (dotIndex1Based: number) => void;
  *   getInheritancePoolSpentAt?: (idx: number) => boolean;
  *   setInheritancePoolSpentAt?: (idx: number, v: boolean) => void;
  *   onInheritancePoolDotClick?: (dotIndex1Based: number) => void;

@@ -1,4 +1,4 @@
-/** Legend row on Review sheets: fixed dot + pool checkbox columns (community four-pager style). Legend *rating* is not filled on the bubbles (pencil at table); pool-spent checkboxes still track play. */
+/** Legend row on Review sheets: fixed dot + pool checkbox columns (community four-pager style). Rating fills dots; pool checkboxes track imbued/spent at the table. */
 export const LEGEND_SHEET_DOT_COUNT = 15;
 
 /** Dragon Heir Inheritance pool row: one column per point up to milestone cap (Scion: Dragon — Inheritance costs, pp. 150–151). */
@@ -12,6 +12,7 @@ export const DRAGON_INHERITANCE_POOL_SHEET_DOT_COUNT = 10;
  *   getAwarenessPoolSpentAt: (idx: number) => boolean;
  *   setAwarenessPoolSpentAt: (idx: number, v: boolean) => void;
  *   onLegendDotClick?: (dotIndex1Based: number) => void;
+ *   onAwarenessDotClick?: (dotIndex1Based: number) => void;
  * }}
  */
 function isFullSheetHooks(h) {
@@ -26,10 +27,10 @@ function isFullSheetHooks(h) {
 }
 
 /**
- * Legend and Mythos Awareness: **15** pool columns on the four-pager (same as community sheet); rating not filled on dots (table/pencil).
+ * Legend and Mythos Awareness: **15** pool columns on the four-pager (same as community sheet).
  * @param {HTMLElement} cell
- * @param {number|string|undefined} filled — ignored for dot fill on sheet (Legend + Awareness); pool hooks still receive indices 0..14
- * @param {number} cap — unused for column count for Legend/Awareness (always {@link LEGEND_SHEET_DOT_COUNT})
+ * @param {number|string|undefined} filled — Legend or Awareness rating (fills dots 1..rating)
+ * @param {number} cap — tier advisory max (dots above this get a muted “beyond tier cap” style)
  * @param {"Legend" | "Awareness"} kind
  * @param {{
  *   sheetHooks: object | null | undefined;
@@ -38,11 +39,10 @@ function isFullSheetHooks(h) {
  * }} ctx
  */
 export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx) {
-  void filled;
-  void cap;
-  const { sheetHooks } = ctx;
-  /* This helper is only used for four-pager Legend + Mythos Awareness rows; both use 15 sheet columns (community PDF). */
   const c = LEGEND_SHEET_DOT_COUNT;
+  const tierCap = Math.max(1, Math.min(c, Math.round(Number(cap) || c)));
+  const rating = Math.max(0, Math.round(Number(filled) || 0));
+  const { sheetHooks } = ctx;
   const hooks = isFullSheetHooks(sheetHooks) ? sheetHooks : null;
 
   if (!hooks) {
@@ -52,7 +52,7 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
       const col = document.createElement("div");
       col.className = "cs-mcg-legend-pool-col";
       const dot = document.createElement("span");
-      dot.className = "cs-dot";
+      dot.className = "cs-dot" + (i <= rating ? " on" : "") + (i > tierCap ? " cs-dot--beyond-tier-cap" : "");
       dot.setAttribute("aria-hidden", "true");
       col.appendChild(dot);
       const lab = document.createElement("label");
@@ -73,21 +73,28 @@ export function appendLegendAwarenessDotsWithPools(cell, filled, cap, kind, ctx)
     return;
   }
 
-  /* Same as Legend row: empty rating bubbles; pool spent at table via checkboxes (+ pencil for rating). */
   const track = document.createElement("div");
   track.className = "cs-mcg-legend-pool-track cs-mcg-legend-pool-track--dense";
   for (let i = 1; i <= c; i += 1) {
     const col = document.createElement("div");
     col.className = "cs-mcg-legend-pool-col";
+    const beyond = i > tierCap;
     const dot = document.createElement("span");
-    dot.className = "cs-dot";
+    dot.className = "cs-dot" + (i <= rating ? " on" : "") + (beyond ? " cs-dot--beyond-tier-cap" : "");
     dot.setAttribute("aria-hidden", "true");
     if (kind === "Legend" && typeof hooks.onLegendDotClick === "function") {
-      dot.tabIndex = 0;
+      dot.tabIndex = beyond ? -1 : 0;
       dot.style.cursor = "pointer";
       dot.addEventListener("click", (e) => {
         e.preventDefault();
         hooks.onLegendDotClick(i);
+      });
+    } else if (kind === "Awareness" && typeof hooks.onAwarenessDotClick === "function") {
+      dot.tabIndex = beyond ? -1 : 0;
+      dot.style.cursor = "pointer";
+      dot.addEventListener("click", (e) => {
+        e.preventDefault();
+        hooks.onAwarenessDotClick(i);
       });
     }
     col.appendChild(dot);

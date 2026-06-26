@@ -9985,6 +9985,15 @@ function renderReview(root) {
           syncLegendToTier();
           render();
         },
+        onAwarenessDotClick: (i) => {
+          const maxA = awarenessDotMaxForTier(character.tier);
+          const cur = clampAwarenessRating(character.awarenessRating ?? 1, character.tier);
+          const target = Math.min(i, maxA);
+          if (cur === target) character.awarenessRating = Math.max(1, target - 1);
+          else character.awarenessRating = target;
+          syncAwarenessWithPantheon();
+          render();
+        },
         getAwarenessPoolSpentAt: (idx) => {
           ensureLegendAwarenessPoolSlotArrays();
           return !!(character.awarenessPoolDotSpentSlots && character.awarenessPoolDotSpentSlots[idx]);
