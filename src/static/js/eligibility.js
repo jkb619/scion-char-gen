@@ -250,6 +250,16 @@ export function characterPurviewIdSet(character, bundle) {
   for (const s of character.patronPurviewSlots || []) {
     if (typeof s === "string" && s.trim()) out.add(s.trim());
   }
+  const tierNorm = normalizedTierIdEligibility(character?.tier);
+  if (isHeroBandCallingTierId(tierNorm) || tierNorm === "titanic") {
+    const pantId = String(character?.pantheonId ?? "").trim();
+    const pant = pantId && bundle?.pantheons?.[pantId];
+    const sig =
+      pant && typeof pant === "object" && typeof pant.signaturePurviewId === "string"
+        ? pant.signaturePurviewId.trim()
+        : "";
+    if (sig) out.add(sig);
+  }
   const mi = character.mythosInnatePower;
   if (mi && typeof mi === "object") {
     const ap = String(mi.awarenessPurviewId || "").trim();
@@ -265,6 +275,22 @@ export function characterPurviewIdSet(character, bundle) {
     }
   }
   return out;
+}
+
+/**
+ * @param {Record<string, unknown>} b
+ * @param {{ masksOfTheMythos?: { mythosAwarenessBoonByPurview?: Record<string, string> } }} [bundle]
+ * @returns {string | null} catalog Purview id when this row is MotM's Awareness Boon for that Purview
+ */
+export function mythosAwarenessCatalogPurviewForBoon(b, bundle) {
+  const bid = String(b?.id ?? "").trim();
+  if (!bid) return null;
+  const catalog = bundle?.masksOfTheMythos?.mythosAwarenessBoonByPurview;
+  if (!catalog || typeof catalog !== "object") return null;
+  for (const [pv, mappedId] of Object.entries(catalog)) {
+    if (String(mappedId ?? "").trim() === bid) return String(pv).trim() || null;
+  }
+  return null;
 }
 
 /**
@@ -1461,13 +1487,8 @@ export function validateCommittedKnackRowAssignment(knackId, rowIdx, knackIds, s
 }
 
 /**
- * Drop unlocked, non-exempt Knacks held in `knackIds` without a payer row (stale clicks / failed commits).
- * @param {CharacterLike} character
- * @param {{ knacks?: Record<string, unknown> }} bundle
- * @returns {boolean}
- */
-/**
  * Hero Calling-step purchases with a payer row must not stay in Experience pools (budget-exempt).
+ * Row-assigned Experience / carried-Experience knacks keep their pool tags — assignment is display only.
  * @param {CharacterLike} character
  * @returns {boolean}
  */
@@ -1475,17 +1496,22 @@ export function stripRowPaidKnacksFromExperiencePools(character) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
   if (!character.knackSlotById || typeof character.knackSlotById !== "object") return false;
   const map = character.knackSlotById;
-  const rowPaid = (/** @type {string} */ id) => map[id] != null && Number.isFinite(Number(map[id]));
+  const xpPoolIds = new Set([...experienceKnackIdSet(character), ...carriedExperienceKnackIdSet(character)]);
+  const rowPaidCallingBudget = (/** @type {string} */ id) => {
+    if (map[id] == null || !Number.isFinite(Number(map[id]))) return false;
+    if (xpPoolIds.has(id)) return false;
+    return true;
+  };
   let changed = false;
   if (Array.isArray(character.experienceKnackIds)) {
-    const next = character.experienceKnackIds.filter((id) => !rowPaid(id));
+    const next = character.experienceKnackIds.filter((id) => !rowPaidCallingBudget(id));
     if (next.length !== character.experienceKnackIds.length) {
       character.experienceKnackIds = next;
       changed = true;
     }
   }
   if (Array.isArray(character.carriedExperienceKnackIds)) {
-    const next = character.carriedExperienceKnackIds.filter((id) => !rowPaid(id));
+    const next = character.carriedExperienceKnackIds.filter((id) => !rowPaidCallingBudget(id));
     if (next.length !== character.carriedExperienceKnackIds.length) {
       character.carriedExperienceKnackIds = next;
       changed = true;
@@ -1494,6 +1520,96 @@ export function stripRowPaidKnacksFromExperiencePools(character) {
   return changed;
 }
 
+/**
+ * Older saves: `stripRowPaidKnacksFromExperiencePools` cleared XP pool tags when row assignments were
+ * written for display. Re-tag from `experiencePurchaseLog` Knack lines when the pick is still on the sheet.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+export function reassertExperienceKnackPoolTags(character, bundle) {
+  if (!character || typeof character !== "object" || !bundle?.knacks) return false;
+  const log = character.experiencePurchaseLog;
+  if (!Array.isArray(log) || !log.length) return false;
+  /** @type {Set<string>} */
+  const knackLogNames = new Set();
+  for (const line of log) {
+    if (typeof line !== "string" || !line.trim()) continue;
+    const m = line.match(/^Knack:\s*(.+?)\s*\(\d+\s*XP\)$/);
+    if (m) knackLogNames.add(m[1].trim());
+  }
+  if (!knackLogNames.size) return false;
+  const xpTagged = new Set([...experienceKnackIdSet(character), ...carriedExperienceKnackIdSet(character)]);
+  const fin = finishingBonusKnackIdSet(character);
+  let changed = false;
+  for (const id of character.knackIds || []) {
+    if (typeof id !== "string" || !id.trim() || xpTagged.has(id) || fin.has(id)) continue;
+    const name = String(bundle.knacks[id]?.name || "").trim();
+    if (!name || !knackLogNames.has(name)) continue;
+    if (isKnackLocked(character, id)) {
+      if (!Array.isArray(character.carriedExperienceKnackIds)) character.carriedExperienceKnackIds = [];
+      if (!carriedExperienceKnackIdSet(character).has(id)) {
+        character.carriedExperienceKnackIds.push(id);
+        changed = true;
+      }
+    } else {
+      if (!Array.isArray(character.experienceKnackIds)) character.experienceKnackIds = [];
+      if (!experienceKnackIdSet(character).has(id)) {
+        character.experienceKnackIds.push(id);
+        changed = true;
+      }
+    }
+  }
+  if (changed) {
+    character.carriedExperienceKnackIds = [...new Set(character.carriedExperienceKnackIds || [])];
+    character.experienceKnackIds = [...new Set(character.experienceKnackIds || [])];
+  }
+  return changed;
+}
+
+/**
+ * Re-home held Knacks whose payer row does not match the knack's Calling pool (MotM twin rows, etc.).
+ * Fixes saves that parked knacks on the Origin Cosmos row when they belong on Corruptor (Guardian), etc.
+ * Experience / carried-Experience knacks keep 0 budget cost after the move.
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
+export function repairMisassignedKnackCallingRows(character, bundle) {
+  if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
+  if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
+  const map = character.knackSlotById;
+  let changed = false;
+  for (const id of character.knackIds || []) {
+    const kn = bundleKnackById(id, bundle);
+    if (!kn) continue;
+    const cur = map[id];
+    if (cur != null && Number.isFinite(Number(cur)) && heroCallingRowMatchesKnack(Number(cur), kn, character, bundle)) {
+      continue;
+    }
+    for (let ri = 0; ri < character.callingSlots.length; ri += 1) {
+      if (!heroCallingRowMatchesKnack(ri, kn, character, bundle)) continue;
+      if (map[id] !== ri) {
+        map[id] = ri;
+        changed = true;
+      }
+      break;
+    }
+  }
+  return changed;
+}
+
+/** @deprecated Use {@link repairMisassignedKnackCallingRows}; kept for existing imports. */
+export function repairExperienceKnackCallingRows(character, bundle) {
+  return repairMisassignedKnackCallingRows(character, bundle);
+}
+
+/**
+ * Drop unlocked, non-exempt Knacks held in `knackIds` without a payer row (stale clicks / failed commits).
+ * @param {CharacterLike} character
+ * @param {{ knacks?: Record<string, unknown> }} bundle
+ * @returns {boolean}
+ */
 export function pruneOrphanUnmappedKnackPurchases(character, bundle) {
   if (!heroUsesCallingSlotRows(character) || !Array.isArray(character.callingSlots)) return false;
   if (!character.knackSlotById || typeof character.knackSlotById !== "object") character.knackSlotById = {};
@@ -2345,11 +2461,20 @@ export function boonEligible(b, character, bundle) {
   for (const pv of gateIds) {
     if (bundle?.purviews && !bundle.purviews[pv]) return false;
   }
-  const set = characterPurviewIdSet(character, bundle);
-  if (!gateIds.some((id) => set.has(id))) return false;
+
+  const tierNorm = normalizedTierIdEligibility(character.tier);
+  const mythosHeroAwareness =
+    String(character.pantheonId || "").trim() === "mythos" && isHeroBandCallingTierId(tierNorm);
+  const catalogPv = mythosHeroAwareness ? mythosAwarenessCatalogPurviewForBoon(b, bundle) : null;
+  const purviewSet = characterPurviewIdSet(character, bundle);
+  if (catalogPv) {
+    if (!purviewSet.has(catalogPv)) return false;
+  } else if (!gateIds.some((id) => purviewSet.has(id))) {
+    return false;
+  }
 
   const tr = tierRank(character.tier);
-  const tMin = b.tierMin != null ? tierRank(b.tierMin) : tierRank("hero");
+  const tMin = catalogPv ? tierRank("hero") : b.tierMin != null ? tierRank(b.tierMin) : tierRank("hero");
   const tMax = b.tierMax != null ? tierRank(b.tierMax) : 3;
   if (tr < tMin || tr > tMax) return false;
 

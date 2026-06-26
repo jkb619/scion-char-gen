@@ -115,7 +115,7 @@ export const HELP = {
     source: "Scion_Players_Guide__Saints__Monsters_(Final_Download).pdf — Masks of the Mythos / Deeds (confirm wording at table).",
   },
   "patron-purviews": {
-    example: "Hero: 2 innate (Signature automatic + 1 patron). Demigod: +2 patron slots → 4 innate total. God (Legend 9+): same 4 innate; more Purviews via Boons/Dominion in play (chips below). Each patron slot: parent list or Purviews you already hold.",
+    example: "Hero: 2 innate (Signature automatic + 1 patron). Demigod: +2 patron slots → 4 innate total. Patron dropdowns list only your divine parent's Purviews (e.g. MotM Appendix); chips below track extras.",
     source: `${cite("origin", "Appendix 2 — patron Purviews per deity (reference)", "170–177")}; ${cite("hero", "Visitation / Purviews from your divine parent", "182+")}; ${cite("demigod", "Demigod innate Purviews / tier advancement", "132+")}.`,
   },
 
@@ -221,7 +221,7 @@ export const HELP = {
     source: `${cite("origin", "Knacks at Origin", "98–99")}; ${cite("hero", "Heroic Knacks / higher-tier options", "201+")}; ${cite("demigod", "Knacks", "149–150")}.`,
   },
   "purview-select": {
-    example: "At Hero/Titanic: one innate Purview from the parent list (chips on this step) plus the pantheon Signature Purview from pantheons.json; Demigod+ uses patron slots above the chips and can add more Purviews (e.g. Relics).",
+    example: "At Hero/Titanic: one innate Purview from the parent list (chips on this step) plus the pantheon Signature Purview. Demigod+: patron slots above and the same parent-list Purviews in the chips below (innate slot picks hide from chips until you change the slot); universal Purviews and extras via chips too.",
     source: `${cite("origin", "Appendix 2 (Purviews listed per deity — reference)", "170–177")}; ${cite("hero", "Purviews, Boons, Marvels", "200+")}.`,
   },
   "birthrights-step": {

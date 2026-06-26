@@ -69,6 +69,18 @@ def test_calling_knack_panel_includes_held_knacks():
     assert "if (isPostHeroBandCallingTierId(t)) return true" in elig
 
 
+def test_exp_leveling_knacks_split_motm_inversion_pools():
+    """Exp Leveling knack purchase mirrors Callings tab MotM standard vs inverted sections."""
+    text = APP_JS.read_text(encoding="utf-8")
+    start = text.index("function appendExpLevelingKnackSections")
+    end = text.index("function renderCalling(root)", start)
+    block = text[start:end]
+    assert "appendCallingRowKnackPoolChips(chipWrap, list, rowCallingId" in block
+    assert "appendCallingRowKnackPoolChips(chipWrap, list, originCallingId" in block
+    assert "appendMotmTwinKnackPoolSections(knackSec, split, originCallingId" in block
+    assert "appendKnackChipsWithMotmSubpools(chipWrap, list" not in block
+
+
 def test_apply_path_math_preserves_xp_skill_dots_without_baseline():
     """Hero+ tiers null skillBaseline; nav attention must not wipe XP skill purchases."""
     text = APP_JS.read_text(encoding="utf-8")

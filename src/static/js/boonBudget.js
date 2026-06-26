@@ -19,6 +19,45 @@ export function experienceBoonIdSet(character) {
 }
 
 /** @param {unknown} character */
+export function boonLockedIdSet(character) {
+  const raw = character?.lockedBoonIds;
+  if (!Array.isArray(raw)) return new Set();
+  return new Set(raw.filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")));
+}
+
+/** @param {unknown} character @param {string} boonId */
+export function isBoonLocked(character, boonId) {
+  const id = String(boonId ?? "").trim();
+  return Boolean(id && boonLockedIdSet(character).has(id));
+}
+
+/**
+ * Demigod+ Legend Boon budget: XP buys and Boons locked at tier advance (Hero picks, etc.) do not consume Legend slots.
+ * @param {unknown} character
+ * @param {string} boonId
+ */
+export function boonCountsAgainstLegendBudget(character, boonId) {
+  const id = String(boonId ?? "").trim();
+  if (!id) return true;
+  if (experienceBoonIdSet(character).has(id)) return false;
+  if (isBoonLocked(character, id)) return false;
+  return true;
+}
+
+/**
+ * Snapshot current Boon picks into `lockedBoonIds` (cumulative across advances).
+ * @param {unknown} character
+ */
+export function lockBoonsAtTierAdvance(character) {
+  if (!character || typeof character !== "object") return;
+  const locked = boonLockedIdSet(character);
+  for (const id of character.boonIds || []) {
+    if (typeof id === "string" && id.trim() && !id.startsWith("_")) locked.add(id);
+  }
+  character.lockedBoonIds = [...locked];
+}
+
+/** @param {unknown} character */
 export function ensureDominionForgoneShape(character) {
   if (!character || typeof character !== "object") return;
   if (!character.dominionBoonForgoneByPurview || typeof character.dominionBoonForgoneByPurview !== "object") {
@@ -64,8 +103,7 @@ export function dominionLegendPurchaseCostForMark(character, purviewId) {
   const forgone = dominionForgoneBoonIds(character, purviewId);
   if (forgone.length < DOMINION_BOON_FORGONE_COST) return DOMINION_BOON_FORGONE_COST;
   const xpForgone = new Set(dominionForgoneXpBoonIds(character, purviewId));
-  const legendForgone = forgone.filter((id) => !xpForgone.has(id)).length;
-  return Math.min(DOMINION_BOON_FORGONE_COST, legendForgone);
+  return Math.max(0, DOMINION_BOON_FORGONE_COST - xpForgone.size);
 }
 
 /**
@@ -148,7 +186,7 @@ export function projectedLegendBoonSlotsUsedAfterDominionMark(character, purview
   for (const domPid of marked) {
     if (domPid === pid && forgone.length === DOMINION_BOON_FORGONE_COST) {
       const xpF = new Set(forgone.filter((id) => xp.has(id)));
-      domCost += Math.min(DOMINION_BOON_FORGONE_COST, forgone.length - xpF.size);
+      domCost += Math.max(0, DOMINION_BOON_FORGONE_COST - xpF.size);
     } else if (domPid === pid && reserveLegend) {
       domCost += DOMINION_BOON_FORGONE_COST;
     } else {
@@ -209,11 +247,10 @@ export function dominionMarkPaymentOptions(character, purviewId, forgoneBoonIds 
  * @param {unknown} character
  */
 export function legendBoonSlotsUsed(character) {
-  const xp = experienceBoonIdSet(character);
   let boons = 0;
   for (const id of character?.boonIds || []) {
     if (typeof id !== "string" || !id.trim() || id.startsWith("_")) continue;
-    if (!xp.has(id)) boons += 1;
+    if (boonCountsAgainstLegendBudget(character, id)) boons += 1;
   }
   let domCost = 0;
   for (const pid of character?.dominionBoonPurviewIds || []) {
@@ -259,8 +296,7 @@ export function legendBoonSlotsRemaining(character) {
  */
 export function boonBudgetSnapshot(character, bundle) {
   const ids = (character?.boonIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_"));
-  const xp = experienceBoonIdSet(character);
-  const nonXp = ids.filter((id) => !xp.has(id)).length;
+  const nonXp = ids.filter((id) => boonCountsAgainstLegendBudget(character, id)).length;
   const heroCap = maxWizardBoonPicksForTier(character?.tier, bundle);
   if (tierUsesLegendTraitEffects(character?.tier)) {
     const legendTotal = legendBoonBudgetTotal(character) ?? 0;

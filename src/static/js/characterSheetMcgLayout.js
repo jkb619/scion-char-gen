@@ -6,7 +6,7 @@
 
 import { appendLegendAwarenessDotsWithPools } from "./characterSheetLegendPools.js";
 import { sheetDescriptionLinesForDisplay, sheetMultilineSixWriteLines } from "./sheetDescriptionLines.js";
-import { mergedPurviewIdsForSheet } from "./purviewDisplayName.js";
+import { mergedPurviewIdsForSheet, purviewChargenBreakdown, purviewDisplayNameForPantheon, purviewTrackingRoleLabel } from "./purviewDisplayName.js";
 import { boonPrimaryPurview, isSorcererLineTierId } from "./eligibility.js";
 import { boonTrackedMechanicalFields } from "./boonMechanicalParse.js";
 import { birthrightTagLabels } from "./birthrightTags.js";
@@ -696,18 +696,55 @@ export function fillMcgFourPageLayout(el, api) {
   p3.appendChild(nk);
 
   const purIds = mergedPurviewIdsForSheet(data).slice(0, 6);
+  const pvBreakdown = purviewChargenBreakdown(data, bundle);
   if (purIds.length > 0) {
     p3.appendChild(mcgSectionTitle("Purviews"));
+    if (pvBreakdown.demigodInnateReminder) {
+      const innateWarn = document.createElement("p");
+      innateWarn.className = "help warn cs-mcg-purview-innate-reminder";
+      innateWarn.textContent = pvBreakdown.demigodInnateReminder;
+      p3.appendChild(innateWarn);
+    }
+    if (pvBreakdown.innatePurviewIds.length > 0) {
+      const innateSum = document.createElement("p");
+      innateSum.className = "help cs-mcg-purview-innate-summary";
+      const sigName = pvBreakdown.signaturePurviewId
+        ? purviewDisplayNameForPantheon(pvBreakdown.signaturePurviewId, bundle, data.pantheonId)
+        : "";
+      const slotNames = pvBreakdown.patronInnateSlotPurviewIds.map((pid) =>
+        purviewDisplayNameForPantheon(pid, bundle, data.pantheonId),
+      );
+      innateSum.textContent = [
+        sigName ? `Signature (innate): ${sigName}` : "",
+        slotNames.length
+          ? `Patron innate slots: ${slotNames.join(", ")} (${pvBreakdown.patronInnateSlotsFilled}/${pvBreakdown.patronInnateSlotLimit ?? "?"})`
+          : pvBreakdown.patronInnateSlotLimit != null
+            ? `Patron innate slots: none filled (${pvBreakdown.patronInnateSlotsFilled}/${pvBreakdown.patronInnateSlotLimit})`
+            : "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      p3.appendChild(innateSum);
+    }
+    if (pvBreakdown.dominionBoonPurviewIds.length > 0) {
+      const domNote = document.createElement("p");
+      domNote.className = "help cs-mcg-purview-dominion-note";
+      domNote.textContent =
+        "Dominion Boons are not innate Purviews — they cost two regular Boon purchases each (Demigod pp. 154–155).";
+      p3.appendChild(domNote);
+    }
     const pvWrap = document.createElement("div");
     pvWrap.className = "cs-mcg-purview-grid";
     const nameFor = (pid) => purviewDisplayNameForPantheon(pid, bundle, data.pantheonId);
     const titanicSheet = tierKeyNorm === "titanic";
+    const dominionMarked = new Set(pvBreakdown.dominionBoonPurviewIds);
     for (const pid of purIds) {
       const blk = document.createElement("div");
       blk.className = "cs-mcg-purview-block";
       const lines = document.createElement("div");
       lines.className = "cs-mcg-purview-lines";
       lines.appendChild(mcgLinedField("Name", nameFor(pid)));
+      lines.appendChild(mcgLinedField("Tracked as", purviewTrackingRoleLabel(pid, pvBreakdown)));
       lines.appendChild(
         mcgLinedField(
           "Source",
@@ -718,7 +755,9 @@ export function fillMcgFourPageLayout(el, api) {
       const innateLines = blocks.map((b) => `${b.label}: ${b.body}`).join("\n");
       lines.appendChild(mcgLinedFieldInnatePower(innateLines));
       blk.appendChild(lines);
-      blk.appendChild(mcgCheckboxRow(["Dominion"]));
+      if (dominionMarked.has(pid)) {
+        blk.appendChild(mcgCheckboxRow(["Dominion"]));
+      }
       pvWrap.appendChild(blk);
     }
     p3.appendChild(pvWrap);

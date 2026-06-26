@@ -834,6 +834,56 @@ def test_experience_knack_on_row_does_not_spend_calling_budget():
     assert row_points_used_coerced(2, character["knackIds"], character["knackSlotById"], knacks, character) == 0
 
 
+def test_strip_row_paid_preserves_experience_pool_tags():
+    """Row assignment for display must not clear experienceKnackIds / carriedExperienceKnackIds."""
+    elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
+    fn = elig.split("export function stripRowPaidKnacksFromExperiencePools")[1].split("export function reassertExperienceKnackPoolTags")[0]
+    assert "xpPoolIds" in fn
+    assert "if (xpPoolIds.has(id)) return false" in fn
+    render = (ROOT / "src" / "static" / "js" / "app.js").read_text(encoding="utf-8").split("function renderCalling(root)")[1][:1400]
+    assert "reassertExperienceKnackPoolTags(character, bundle)" in render
+    assert render.index("reassertExperienceKnackPoolTags") < render.index("stripRowPaidKnacksFromExperiencePools")
+
+
+def test_demigod_row_budget_excludes_carried_experience_knacks():
+    """Cosmos 3 dots: XP-carried knacks on the row must not inflate the used count."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 3},
+            {"id": "sage", "dots": 2},
+            {"id": "liminal", "dots": 1},
+        ],
+        "knackIds": [
+            "mythos_psychic_attack",
+            "sage_blockade_of_reason",
+            "auraOfGreatness",
+            "mythos_spread_disease",
+            "mythos_puppet_show",
+        ],
+        "lockedKnackIds": ["mythos_spread_disease", "mythos_puppet_show"],
+        "knackSlotById": {
+            "mythos_psychic_attack": 0,
+            "sage_blockade_of_reason": 0,
+            "auraOfGreatness": 0,
+            "mythos_spread_disease": 0,
+            "mythos_puppet_show": 0,
+        },
+        "knackLockedRowBudgetCostById": {
+            "mythos_spread_disease": 1,
+            "mythos_puppet_show": 2,
+        },
+        "carriedExperienceKnackIds": ["mythos_spread_disease", "mythos_puppet_show"],
+    }
+    cosmos_row = 0
+    used = row_points_used_coerced(cosmos_row, character["knackIds"], character["knackSlotById"], knacks, character)
+    assert used == 3
+    stripped = {**character, "carriedExperienceKnackIds": []}
+    assert row_points_used_coerced(cosmos_row, stripped["knackIds"], stripped["knackSlotById"], knacks, stripped) == 6
+
+
 def test_heal_mortal_overflow_skips_hero_three_row_calling_buys():
     """Calling-step Immortal buys must not be mis-tagged as Experience (budget-exempt) knacks."""
     app = (ROOT / "src" / "static" / "js" / "app.js").read_text(encoding="utf-8")
@@ -918,3 +968,170 @@ def test_demigod_cosmos_two_dots_one_heroic_only_one_slot_left():
     assert row_dots(character, 0) == 2
     assert used + 1 <= 2
     assert used + 2 > 2
+
+
+MYTHOS_CALLING_TWIN = {
+    "guardian": "corruptor",
+    "corruptor": "guardian",
+    "sage": "cosmos",
+    "cosmos": "sage",
+}
+
+
+def _knack_row_match_tokens(knack: dict) -> set[str] | None:
+    raw = knack.get("callings") or []
+    if not raw:
+        return None
+    out: set[str] = set()
+    for c in raw:
+        cid = str(c).strip()
+        if not cid:
+            continue
+        out.add(cid)
+        twin = MYTHOS_CALLING_TWIN.get(cid)
+        if twin:
+            out.add(twin)
+    return out
+
+
+def _hero_calling_row_matches_knack(row_calling_id: str, knack: dict) -> bool:
+    kn_tok = _knack_row_match_tokens(knack)
+    if kn_tok is None:
+        return True
+    row_id = str(row_calling_id or "").strip()
+    if not row_id:
+        return True
+    row_tok = {row_id}
+    twin = MYTHOS_CALLING_TWIN.get(row_id)
+    if twin:
+        row_tok.add(twin)
+    return bool(kn_tok & row_tok)
+
+
+def repair_misassigned_knack_calling_rows(character: dict, knacks: dict) -> bool:
+    """Mirrors repairMisassignedKnackCallingRows in eligibility.js."""
+    slots = character.get("callingSlots") or []
+    smap = character.setdefault("knackSlotById", {})
+    changed = False
+    for kid in character.get("knackIds") or []:
+        kn = knacks.get(kid)
+        if not kn:
+            continue
+        cur = smap.get(kid)
+        if cur is not None and _hero_calling_row_matches_knack(slots[cur].get("id") or "", kn):
+            continue
+        for ri, slot in enumerate(slots):
+            if not _hero_calling_row_matches_knack(slot.get("id") or "", kn):
+                continue
+            if smap.get(kid) != ri:
+                smap[kid] = ri
+                changed = True
+            break
+    return changed
+
+
+def repair_experience_knack_calling_rows(character: dict, knacks: dict) -> bool:
+    """Mirrors repairExperienceKnackCallingRows (alias for repairMisassignedKnackCallingRows)."""
+    return repair_misassigned_knack_calling_rows(character, knacks)
+
+
+def test_repair_experience_knack_calling_rows_wired_in_calling_heal():
+    elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
+    app = (ROOT / "src" / "static" / "js" / "app.js").read_text(encoding="utf-8")
+    assert "export function repairMisassignedKnackCallingRows" in elig
+    render_calling = app.split("function renderCalling(root)")[1].split("function renderFinishing")[0]
+    assert "repairMisassignedKnackCallingRows(character, bundle)" in render_calling
+    append = render_calling.split("function appendKnackChip(container, kid, k, preferredRowIdx = null)")[1].split(
+        "const appliesLine = knackAppliesToCallingsLine"
+    )[0]
+    assert "const heldOnOtherRow =" in append
+    click_block = append.split("chip.addEventListener(\"click\"")[1].split("const appliesLine")[0]
+    assert "pinHeldKnackToCallingRowIfAffordable(character, bundle, kid, k, clickRow)" in click_block
+    assert "experienceKnackIdSet(character).has(kid) || carriedExperienceKnackIdSet(character).has(kid)" not in click_block
+    assert "knackXpBuy && addExperienceKnackPick(kid)" in click_block
+
+
+def test_guardian_xp_knack_moves_from_cosmos_to_corruptor_row():
+    """Repro: Demigod Mythos — By Your Side (XP) parked on Cosmos row 0 shows in Corruptor Guardian pool."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 3},
+            {"id": "corruptor", "dots": 4},
+            {"id": "defiler", "dots": 4},
+        ],
+        "knackIds": [
+            "mythos_psychic_attack",
+            "guardian_by_your_side",
+            "mythos_puppet_show",
+        ],
+        "lockedKnackIds": [
+            "mythos_psychic_attack",
+            "guardian_by_your_side",
+            "mythos_puppet_show",
+        ],
+        "knackSlotById": {
+            "mythos_psychic_attack": 0,
+            "guardian_by_your_side": 0,
+            "mythos_puppet_show": 1,
+        },
+        "carriedExperienceKnackIds": ["guardian_by_your_side"],
+        "experiencePurchaseLog": ["Knack: By Your Side (10 XP)"],
+    }
+    assert character["knackSlotById"]["guardian_by_your_side"] == 0
+    assert not _hero_calling_row_matches_knack("cosmos", knacks["guardian_by_your_side"])
+    assert _hero_calling_row_matches_knack("corruptor", knacks["guardian_by_your_side"])
+    assert repair_misassigned_knack_calling_rows(character, knacks)
+    assert character["knackSlotById"]["guardian_by_your_side"] == 1
+    corruptor_used = row_points_used_coerced(
+        1, character["knackIds"], character["knackSlotById"], knacks, character
+    )
+    assert corruptor_used == 2
+    cosmos_used = row_points_used_coerced(0, character["knackIds"], character["knackSlotById"], knacks, character)
+    assert cosmos_used == 1
+
+
+def test_guardian_locked_knack_moves_from_cosmos_to_corruptor_row():
+    """Locked Calling-budget Guardian knack parked on Cosmos row is re-homed to Corruptor."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 3},
+            {"id": "corruptor", "dots": 3},
+            {"id": "defiler", "dots": 3},
+        ],
+        "knackIds": ["guardian_by_your_side"],
+        "lockedKnackIds": ["guardian_by_your_side"],
+        "knackSlotById": {"guardian_by_your_side": 0},
+    }
+    assert not _hero_calling_row_matches_knack("cosmos", knacks["guardian_by_your_side"])
+    assert repair_misassigned_knack_calling_rows(character, knacks)
+    assert character["knackSlotById"]["guardian_by_your_side"] == 1
+
+
+def test_fresh_guardian_by_your_side_fits_corruptor_row_budget():
+    """Immortal Guardian knack (2 points) fits a 3-dot Corruptor row at Demigod."""
+    knacks = json.loads(KNACKS_PATH.read_text(encoding="utf-8"))
+    character = {
+        "tier": "demigod",
+        "pantheonId": "mythos",
+        "callingId": "cosmos",
+        "callingSlots": [
+            {"id": "cosmos", "dots": 3},
+            {"id": "corruptor", "dots": 3},
+            {"id": "defiler", "dots": 3},
+        ],
+        "knackIds": [],
+        "knackSlotById": {},
+    }
+    kn = knacks["guardian_by_your_side"]
+    assert _hero_calling_row_matches_knack("corruptor", kn)
+    cap = row_dots(character, 1)
+    cost = knack_point_cost(kn)
+    assert cost == 2
+    assert cost <= cap
+

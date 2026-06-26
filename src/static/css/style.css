@@ -976,6 +976,11 @@ textarea.has-doc-hint:focus-visible {
   font-size: 1.1rem;
 }
 
+.review-save-status {
+  flex: 1 1 100%;
+  margin: 0.15rem 0 0;
+}
+
 /* Attributes step: Defense + Movement dice side by side, compact */
 .attributes-derived-row {
   display: grid;

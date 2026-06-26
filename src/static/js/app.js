@@ -46,6 +46,9 @@ import {
   repairUnmappedHeroKnackSlots,
   pruneOrphanUnmappedKnackPurchases,
   stripRowPaidKnacksFromExperiencePools,
+  reassertExperienceKnackPoolTags,
+  repairExperienceKnackCallingRows,
+  repairMisassignedKnackCallingRows,
   ensureFinishingBonusKnackIds,
   pinLockedOriginBudgetKnackToPrimaryRow,
   snapshotKnackRowBudgetCostsBeforeTierAdvance,
@@ -111,6 +114,7 @@ import {
   settleExperienceKnacksAfterTierAdvance,
   settleLockedExperienceKnacks,
   knackOwnedFromPriorChargenPick,
+  pinHeldKnackToCallingRowIfAffordable,
 } from "./eligibility.js";
 import {
   toggleHeroKnackWithRowPayment,
@@ -120,7 +124,7 @@ import {
 } from "./knackPayingRowPicker.js";
 import { boonDisplayLabel } from "./boonLabels.js";
 import { birthrightTagIds, birthrightTagLabels } from "./birthrightTags.js";
-import { mergedPurviewIdsForSheet, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
+import { mergedPurviewIdsForSheet, purviewChargenBreakdown, purviewDisplayNameForPantheon } from "./purviewDisplayName.js";
 import { purviewInnateBlocks, purviewStandardInnateText } from "./purviewInnate.js";
 import { apiUrl } from "./apiBase.js";
 import { wirePickerRowFilter, wireSortableTableColumns } from "./pickerTableUtils.js";
@@ -138,6 +142,13 @@ import { appendFatebindingsFinishingEditor } from "./fatebindingsFinishingEditor
 import { appendFinishingExtendedNotesPanel } from "./finishingExtendedNotesPanel.js";
 import { downloadReviewSheetAsPdf } from "./reviewSheetPdf.js";
 import {
+  buildSavePayload,
+  downloadCharacterSaveJson,
+  parseSavePayload,
+  saveCharacterJsonToLocalStorage,
+  summarizeLocalSave,
+} from "./characterSave.js";
+import {
   buildDominionStuntExportFromCharacter,
   dominionStuntPurviewKeysForExport,
   dominionStuntsGroupedByPurview,
@@ -146,12 +157,16 @@ import {
 import {
   applyDominionMarkPayment,
   boonBudgetSnapshot,
+  boonCountsAgainstLegendBudget,
+  boonLockedIdSet,
   clearDominionMarkPayment,
   dominionForgoneBoonIds,
   dominionMarkPaymentOptions,
   experienceBoonIdSet,
+  isBoonLocked,
   legendBoonSlotsRemaining,
   legendBoonSlotsUsed,
+  lockBoonsAtTierAdvance,
   pruneDominionForgoneMaps,
   sacrificableBoonIds,
   DOMINION_BOON_FORGONE_COST,
@@ -751,6 +766,8 @@ function defaultCharacter() {
     /** Exp Leveling Knack purchases — on the sheet but free against Calling knack budgets. */
     experienceKnackIds: [],
     experienceBoonIds: [],
+    /** Hero+ Boon picks locked at tier advance — free against Demigod+ Legend Boon budget. */
+    lockedBoonIds: [],
     /** Origin-tier XP knack buys carried after tier advance — still free against Hero row budgets. */
     carriedExperienceKnackIds: [],
     /** Per-attribute dots bought with Experience (post-chargen; excluded from Finishing / arena validation). */
@@ -2810,11 +2827,28 @@ function characterPurviewsAlreadyAccessible() {
 /** Demigod+ innate slot options: parent list plus Purviews the character already holds. */
 function patronPurviewSlotOptionIds() {
   const parent = patronPurviewOptionIds();
-  const have = characterPurviewsAlreadyAccessible();
+  const parentSet = new Set(parent);
+  const have = characterPurviewsAlreadyAccessible().filter((id) => !parentSet.has(id));
   const merged = new Set([...parent, ...have]);
   return [...merged]
     .filter((id) => bundle.purviews?.[id] && typeof bundle.purviews[id] === "object")
     .sort((a, b) => purviewLabel(a).localeCompare(purviewLabel(b), undefined, { sensitivity: "base" }));
+}
+
+/** Drop patron slot picks that are not on the current divine parent's Purview list. */
+function prunePatronPurviewSlotsToParentList() {
+  ensurePatronPurviewSlots();
+  const allowed = new Set(patronPurviewOptionIds());
+  if (allowed.size === 0) return;
+  const lim = patronPurviewSlotLimitForCharacter();
+  let changed = false;
+  character.patronPurviewSlots = character.patronPurviewSlots.map((s, i) => {
+    if (i >= lim) return "";
+    if (!s || allowed.has(s)) return s;
+    changed = true;
+    return "";
+  });
+  if (changed) syncPurviewIdsFromPatronSlots();
 }
 
 /**
@@ -2915,7 +2949,7 @@ function hydratePatronPurviewSlotsFromPurviewIds() {
   ensurePatronPurviewSlots();
   const lim = patronPurviewSlotLimitForCharacter();
   const slotCap = lim <= 0 ? 0 : Math.min(PATRON_PURVIEW_SLOT_COUNT, lim);
-  const allowed = new Set(patronPurviewSlotOptionIds());
+  const allowed = new Set(patronPurviewOptionIds());
   if (slotCap === 0) {
     character.patronPurviewSlots = Array(PATRON_PURVIEW_SLOT_COUNT).fill("");
     return;
@@ -2977,8 +3011,7 @@ function syncPurviewIdsFromPatronSlots() {
 /** After pantheon / divine parent change: drop invalid patron picks and re-merge `purviewIds`. */
 function onPatronPurviewContextChange() {
   ensurePatronPurviewSlots();
-  const allowed = new Set(patronPurviewSlotOptionIds());
-  character.patronPurviewSlots = character.patronPurviewSlots.map((s) => (allowed.has(s) ? s : ""));
+  prunePatronPurviewSlotsToParentList();
   hydratePatronPurviewSlotsFromPurviewIds();
   syncPurviewIdsFromPatronSlots();
   restrictDemigodGodPurviewExtrasToLegal();
@@ -2987,9 +3020,13 @@ function onPatronPurviewContextChange() {
 function commitPatronPurviewSlotChange(slotIndex, newVal) {
   ensurePatronPurviewSlots();
   const slots = [...character.patronPurviewSlots];
-  const old = slots[slotIndex];
-  if (newVal === old) return;
-  slots[slotIndex] = newVal;
+  const old = slots[slotIndex] || "";
+  const next = newVal || "";
+  if (next === old) return;
+  if (old) {
+    character.purviewIds = (character.purviewIds || []).filter((id) => id !== old);
+  }
+  slots[slotIndex] = next;
   character.patronPurviewSlots = slots;
   syncPurviewIdsFromPatronSlots();
   render();
@@ -2999,13 +3036,13 @@ function renderPatronPurviewPanel(mount) {
   if (!mount) return;
   mount.innerHTML = "";
   ensurePatronPurviewSlots();
+  prunePatronPurviewSlotsToParentList();
   const panel = document.createElement("div");
   panel.className = "panel patron-purviews-panel";
   const h = document.createElement("h2");
   h.textContent = "Patron Purviews (parent)";
   panel.appendChild(h);
   const parentOpts = patronPurviewOptionIds();
-  const opts = patronPurviewSlotOptionIds();
   const deity = selectedDeityEntity();
   if (!deity) {
     const p = document.createElement("p");
@@ -3017,7 +3054,7 @@ function renderPatronPurviewPanel(mount) {
     applyHint(panel, "patron-purviews");
     return;
   }
-  if (parentOpts.length === 0 && opts.length === 0) {
+  if (parentOpts.length === 0) {
     const p = document.createElement("p");
     p.className = "help";
     p.textContent = isMythosPantheonSelected()
@@ -3053,7 +3090,7 @@ function renderPatronPurviewPanel(mount) {
     const bandNote = isGodBand
       ? "<strong>four innate Purviews</strong> total (Signature + three patron slots) — same as Demigod; at God, further Purviews grow through <strong>Boons and Dominion</strong> in play (track with chips below)"
       : "<strong>four innate Purviews</strong> total (Signature + three patron slots: Hero pick + two more at Demigod advancement)";
-    intro.innerHTML = `Assign <strong>${slotLim}</strong> patron innate slot(s) for ${bandNote}. Each may be any Purview your <strong>divine parent</strong> possesses or any Purview you <strong>already hold</strong> (Birthrights, Relics, prior picks).`;
+    intro.innerHTML = `Assign <strong>${slotLim}</strong> patron innate slot(s) for ${bandNote}. Each dropdown lists only Purviews from your <strong>divine parent</strong> (MotM / Origin Appendix 2). Track other Purviews you hold via chips below or Birthrights.`;
   }
   panel.appendChild(intro);
   const grid = document.createElement("div");
@@ -3074,7 +3111,7 @@ function renderPatronPurviewPanel(mount) {
     const takenElsewhere = new Set(
       character.patronPurviewSlots.map((v, j) => (j !== i && v ? v : null)).filter(Boolean),
     );
-    for (const pid of opts) {
+    for (const pid of parentOpts) {
       if (takenElsewhere.has(pid) && pid !== curSlot) continue;
       const pv = bundle.purviews?.[pid];
       if (pv && !isEntryVisibleForBooks(pv, allowedBooks)) continue;
@@ -4452,11 +4489,16 @@ function pruneStaleBoonIds() {
   character.experienceBoonIds = (character.experienceBoonIds || []).filter((id) => ids.includes(id));
   const budget = boonBudgetSnapshot(character, bundle);
   if (budget.usesLegendBudget) {
-    const xp = experienceBoonIdSet(character);
-    while (ids.some((id) => !xp.has(id)) && legendBoonSlotsUsed({ ...character, boonIds: ids }) > (budget.legendTotal ?? 0)) {
+    const total = budget.legendTotal ?? 0;
+    while (
+      ids.some((id) => boonCountsAgainstLegendBudget(character, id)) &&
+      legendBoonSlotsUsed({ ...character, boonIds: ids }) > total
+    ) {
       let removed = false;
       for (let i = ids.length - 1; i >= 0; i -= 1) {
-        if (!xp.has(ids[i])) {
+        const id = ids[i];
+        if (isBoonLocked(character, id)) continue;
+        if (boonCountsAgainstLegendBudget(character, id)) {
           ids.splice(i, 1);
           removed = true;
           break;
@@ -4464,8 +4506,12 @@ function pruneStaleBoonIds() {
       }
       if (!removed) break;
     }
-  } else if (Number.isFinite(budget.heroCap) && ids.length > budget.heroCap) {
-    ids = ids.slice(0, budget.heroCap);
+  } else if (Number.isFinite(budget.heroCap)) {
+    const locked = boonLockedIdSet(character);
+    const lockedOnSheet = ids.filter((id) => locked.has(id));
+    const rest = ids.filter((id) => !locked.has(id));
+    const room = Math.max(0, budget.heroCap - lockedOnSheet.length);
+    ids = [...lockedOnSheet, ...rest.slice(0, room)];
   }
   character.boonIds = ids;
 }
@@ -4676,6 +4722,11 @@ function applyTierAdvancementFromBundle() {
       ...bonusBeforeMerge,
     ]),
   ];
+  const carriedBoonIds = [
+    ...new Set(
+      (character.boonIds || []).filter((id) => typeof id === "string" && id.trim() && !id.startsWith("_")),
+    ),
+  ];
   snapshotKnackRowBudgetCostsBeforeTierAdvance(character, bundle, cur);
   character.tierAdvancementLog = [
     ...(Array.isArray(character.tierAdvancementLog) ? character.tierAdvancementLog : []),
@@ -4687,6 +4738,7 @@ function applyTierAdvancementFromBundle() {
       checklist: Array.isArray(adv.checklist) ? [...adv.checklist] : [],
       carriedKnackIds: carriedKnackIds.length ? [...carriedKnackIds] : [],
       carriedFinishingBonusKnackIds: bonusBeforeMerge.length ? [...bonusBeforeMerge] : [],
+      carriedBoonIds: carriedBoonIds.length ? [...carriedBoonIds] : [],
     },
   ];
   character.tier = next;
@@ -4698,6 +4750,9 @@ function applyTierAdvancementFromBundle() {
   if (carriedKnackIds.length) {
     character.lockedKnackIds = [...new Set([...(character.lockedKnackIds || []), ...carriedKnackIds])];
   }
+  if (carriedBoonIds.length) {
+    character.lockedBoonIds = [...new Set([...(character.lockedBoonIds || []), ...carriedBoonIds])];
+  }
   if (bonusBeforeMerge.length) {
     character.finishingBonusKnackIds = [
       ...new Set([...(character.finishingBonusKnackIds || []), ...bonusBeforeMerge]),
@@ -4707,6 +4762,7 @@ function applyTierAdvancementFromBundle() {
   if (normalizedTierId(cur) === "mortal") healExperienceKnackIdsFromMortalOverflow();
   reconcileLockedKnackIds(character, bundle);
   lockKnacksAtTierAdvance(character);
+  lockBoonsAtTierAdvance(character);
   settleExperienceKnacksAfterTierAdvance(character, carriedKnackIds);
   ensureHeroKnackSlotAssignments(character, bundle);
   settleUnassignedHeldKnackSlots(character, bundle);
@@ -5365,6 +5421,7 @@ function renderWelcome(root) {
     "Pick a line, then tier (Mortal/Origin through God on Deity, Titanic on Titan, Mortal- through God-band on Sorcerer). Dragon Heir picks Inheritance 1–10 (True Dragon at 10). Sorcerer uses Saints & Monsters ch. 3 tiers in data/tier.json. Dragon uses the shared Origin spine and the same wizard tabs after Concept (Paths through Review), with Dragon-specific Callings, Magic, and Birthrights steps.";
   tierPick.appendChild(trHelp);
   body.appendChild(tierPick);
+
   const intro = document.createElement("div");
   const srcWelcome = formatGameDataSourceForDisplay(String(t?.source || ""));
   intro.innerHTML = `<p class="help">${t?.description || ""}</p>
@@ -6593,9 +6650,9 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
       const chipWrap = document.createElement("div");
       chipWrap.className = "calling-knack-chip-group-body";
       const rowCallingId = key === "any" ? "" : String(character.callingSlots?.[key]?.id || "").trim();
-      appendKnackChipsWithMotmSubpools(chipWrap, list, rowCallingId, {
-        appendChip: (container, kid, k) => appendExpKnackChip(container, kid, k),
-      });
+      appendCallingRowKnackPoolChips(chipWrap, list, rowCallingId, (container, kid, k) =>
+        appendExpKnackChip(container, kid, k),
+      );
       section.appendChild(chipWrap);
       knackSec.appendChild(section);
     }
@@ -6646,9 +6703,9 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
       const chipWrap = document.createElement("div");
       chipWrap.className = "calling-knack-chip-group-body";
       if (key === "selected") {
-        appendKnackChipsWithMotmSubpools(chipWrap, list, originCallingId || undefined, {
-          appendChip: (container, kid, k) => appendExpKnackChip(container, kid, k),
-        });
+        appendCallingRowKnackPoolChips(chipWrap, list, originCallingId, (container, kid, k) =>
+          appendExpKnackChip(container, kid, k),
+        );
       } else {
         const chips = document.createElement("div");
         chips.className = "chips chips--calling-knack-subgroup";
@@ -6689,6 +6746,8 @@ function renderCalling(root) {
     for (const key of Object.keys(character.knackSlotById)) {
       if (!heldKnackSet.has(key)) delete character.knackSlotById[key];
     }
+    reassertExperienceKnackPoolTags(character, bundle);
+    repairMisassignedKnackCallingRows(character, bundle);
     stripRowPaidKnacksFromExperiencePools(character);
     pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
     pruneOrphanUnmappedKnackPurchases(character, bundle);
@@ -7069,17 +7128,26 @@ function renderCalling(root) {
         : undefined;
     const payCheckIds = inMain ? character.knackIds || [] : [...(character.knackIds || []), kid];
     if (useRowPayment && rowIdx != null && !inMain) slotMap = { ...slotMap, [kid]: rowIdx };
+    const paidRow =
+      assignedPay != null && Number.isFinite(Number(assignedPay)) ? Number(assignedPay) : null;
+    const heldOnOtherRow = useRowPayment && inMain && paidRow != null && paidRow !== rowIdx;
     const payRows =
       baseOk && heroUsesCallingSlotRows(character)
         ? callingRowsThatCanPayForKnack(k, character, bundle, payCheckIds, slotMap, payCheckExclude)
         : [];
     const canPayFromRow = useRowPayment && payRows.includes(rowIdx);
     const canPayAnyRow = payRows.length > 0;
+    const canRepinLockedToRow =
+      locked &&
+      inMain &&
+      rowIdx != null &&
+      payRows.includes(rowIdx);
     let slotBlocked = knackXpBuy ? false : !baseOk;
     if (!on && !slotBlocked && !knackXpBuy) {
       if (heroUsesCallingSlotRows(character)) slotBlocked = useRowPayment ? !canPayFromRow : !canPayAnyRow;
       else slotBlocked = !eligible;
     }
+    if (heldOnOtherRow && !canRepinLockedToRow) slotBlocked = true;
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className =
@@ -7116,7 +7184,16 @@ function renderCalling(root) {
       const finSet = new Set(character.finishing.finishingKnackIds);
       const inMain = character.knackIds.includes(kid);
       const inFin = finSet.has(kid);
-      if (inMain && isKnackLocked(character, kid)) return;
+      if (inMain && isKnackLocked(character, kid)) {
+        if (heroUsesCallingSlotRows(character)) {
+          const clickRow =
+            preferredRowIdx != null && Number.isFinite(Number(preferredRowIdx)) ? Number(preferredRowIdx) : null;
+          if (clickRow != null && pinHeldKnackToCallingRowIfAffordable(character, bundle, kid, k, clickRow)) {
+            render();
+          }
+        }
+        return;
+      }
       if (inFin) {
         finSet.delete(kid);
         character.finishing.finishingKnackIds = [...finSet];
@@ -7124,6 +7201,10 @@ function renderCalling(root) {
         return;
       }
       if (heroUsesCallingSlotRows(character)) {
+        if (knackXpBuy && addExperienceKnackPick(kid)) {
+          render();
+          return;
+        }
         const rowIdx =
           preferredRowIdx != null && Number.isFinite(Number(preferredRowIdx)) ? Number(preferredRowIdx) : null;
         const changed =
@@ -7152,7 +7233,19 @@ function renderCalling(root) {
         : "";
     const hintParts = [appliesLine, payLine].filter(Boolean);
     applyGameDataHint(chip, k, hintParts.length ? { prefix: hintParts.join(" ") } : undefined);
-    if (slotBlocked) {
+    if (heldOnOtherRow) {
+      const otherRowId = String(character.callingSlots[paidRow]?.id ?? "").trim();
+      const otherName =
+        (otherRowId && bundle?.callings?.[otherRowId]?.name) || otherRowId || `Calling ${paidRow + 1}`;
+      const poolNote = experienceExtra
+        ? " (Experience purchase)"
+        : finishingExtra
+          ? " (Finishing extra)"
+          : "";
+      const otherHint = `Already on your sheet — assigned to ${otherName}${poolNote}.`;
+      chip.title = chip.title ? `${chip.title}\n\n${otherHint}` : otherHint;
+    }
+    if (slotBlocked && !heldOnOtherRow) {
       const gateHint = useThreeRowKnackBuckets
         ? `You qualify for this Knack, but no Calling row has enough knack points left (Heroic ${knackPointCostLabel(k)}). Each row’s Calling dots are its point pool.`
         : "You qualify for this Knack, but your Calling knack budget is full—clear a pick first (Origin: one Heroic knack from Calling dots).";
@@ -7427,6 +7520,7 @@ function renderCalling(root) {
 
 function renderPurviews(root) {
   ensurePatronPurviewSlots();
+  prunePatronPurviewSlotsToParentList();
   restrictHeroPurviewsToPatronList();
   restrictDemigodGodPurviewExtrasToLegal();
   const tierNorm = normalizedTierId(character.tier);
@@ -7557,6 +7651,16 @@ function renderPurviews(root) {
     patronSlotsMount.className = "purviews-patron-slots-mount";
     renderPatronPurviewPanel(patronSlotsMount);
     wrap.appendChild(patronSlotsMount);
+    const filledSlots = (character.patronPurviewSlots || []).filter((s) => typeof s === "string" && s.trim()).length;
+    if (
+      (tierNorm === "demigod" || tierNorm === "sorcerer_demigod") &&
+      filledSlots < lim
+    ) {
+      const slotWarn = document.createElement("p");
+      slotWarn.className = "help warn";
+      slotWarn.textContent = `Demigod advancement grants ${lim} patron innate slots (Hero pick + two more) plus your pantheon Signature — ${filledSlots} of ${lim} patron slots filled. Fill empty slots above for your full innate Purview count before leaving this step.`;
+      wrap.appendChild(slotWarn);
+    }
   }
 
   if (singlePatronPurviewTier) {
@@ -7586,7 +7690,7 @@ function renderPurviews(root) {
           : `Demigod: <strong>four innate Purviews</strong> (Signature + <strong>${lim}</strong> patron slots: Hero pick + two more). Parent list or Purviews you already hold. `
         : "";
     help.innerHTML =
-      `${pathLine}<strong>Standard universal Purviews</strong> appear as chips below. Your pantheon’s <strong>Signature Purview</strong> stays automatic (not a chip); see innate summaries below. No other pantheon’s Specialty Purviews; no <strong>Denizen</strong> Purviews unless your table adds them via Birthright or another grant. Sorcerers: <strong>Magic</strong> stays available. See <em>Scion: Demigod</em> and <em>Scion: God</em>.`;
+      `${pathLine}<strong>Patron Purviews</strong> from your parent’s list appear in the chips below as well as in the innate slots above — assign a slot to make it innate (that Purview leaves the chip list until you change the slot). <strong>Standard universal Purviews</strong> are also chips. Your pantheon’s <strong>Signature Purview</strong> stays automatic (not a chip); see innate summaries below. No other pantheon’s Specialty Purviews; no <strong>Denizen</strong> Purviews unless your table adds them via Birthright or another grant. Sorcerers: <strong>Magic</strong> stays available. See <em>Scion: Demigod</em> and <em>Scion: God</em>.`;
   } else if (tierNorm === "sorcerer_hero") {
     help.innerHTML =
       "<strong>Heroic Sorcerer:</strong> only the <strong>Magic</strong> Purview appears as a chip here (Saints & Monsters ch. 3, p. 86). Turn it on, then choose Magic Boons on the <strong>Boons</strong> tab. If your chronicle grants other Purviews, track them outside this wizard or when your tier changes. <strong>Paraphernalia</strong> is the seven-dot Birthrights pool on this same step.";
@@ -7600,6 +7704,9 @@ function renderPurviews(root) {
   wrap.appendChild(help);
   const chips = document.createElement("div");
   chips.className = "chips purviews-patron-innate-chips";
+  const patronInnateSlots = new Set(
+    (character.patronPurviewSlots || []).filter((s) => typeof s === "string" && s.trim()),
+  );
   /** @type {[string, Record<string, unknown>][]} */
   let purviewEntries;
   if (singlePatronPurviewTier) {
@@ -7621,7 +7728,8 @@ function renderPurviews(root) {
       if (pid.startsWith("_") || !p || typeof p !== "object") return false;
       if (!isEntryVisibleForBooks(p, allowedBooks)) return false;
       if (sorcererHeroMagicOnly && pid !== "magic") return false;
-      if (patronOpts.length > 0 && patronSet.has(pid)) return false;
+      if (patronInnateSlots.has(pid)) return false;
+      if (!demigodLike && patronOpts.length > 0 && patronSet.has(pid)) return false;
       if (demigodLike && pantheonSigId && pid === pantheonSigId) return false;
       if (demigodLike && !demigodTierPurviewChipSelectable(pid)) return false;
       return true;
@@ -7635,7 +7743,7 @@ function renderPurviews(root) {
     chip.type = "button";
     const chipOn = singlePatronPurviewTier
       ? (character.patronPurviewSlots[0] || "") === pid
-      : character.purviewIds.includes(pid);
+      : character.purviewIds.includes(pid) && !patronInnateSlots.has(pid);
     chip.className = "chip purview-chip" + (chipOn ? " on" : "");
     chip.textContent = purviewDisplayNameForPantheon(pid, bundle, character.pantheonId) || p.name;
     chip.addEventListener("click", () => {
@@ -8248,6 +8356,7 @@ function renderBoons(root) {
     const eligible = boonEligible(b, character, bundle);
     const on = character.boonIds.includes(bid);
     const isXpBoon = experienceBoonIdSet(character).has(bid);
+    const locked = on && isBoonLocked(character, bid);
     const boonXpBuy =
       experiencePurchasesEnabled() && !on && eligible && atFreeCap && experienceCanAfford(character, bundle, "boon");
     const canFreeAdd =
@@ -8299,6 +8408,7 @@ function renderBoons(root) {
     chip.className =
       "chip" +
       (on ? " on" : "") +
+      (locked ? " chip-knack-locked" : "") +
       (isXpBoon && on ? " chip-knack-experience" : "") +
       (boonXpBuy ? " chip-experience-unlock" : "") +
       (slotBlocked ? " chip-knack-slot-blocked" : "") +
@@ -8313,11 +8423,14 @@ function renderBoons(root) {
     } else if (!eligible && on) {
       chip.title =
         "This Boon no longer matches your Purviews, tier, or prerequisite chain—remove it or adjust your character.";
+    } else if (locked) {
+      chip.title = "Locked from a prior tier — you can pick additional Boons, but not change this one.";
     }
     const boonChipLabel = boonDisplayLabel(b, bundle, character.pantheonId);
     chip.textContent = boonChipLabel;
     chip.addEventListener("click", () => {
       if (character.boonIds.includes(bid)) {
+        if (isBoonLocked(character, bid)) return;
         if (experienceBoonIdSet(character).has(bid)) removeExperienceBoonPick(bid);
         else character.boonIds = (character.boonIds || []).filter((x) => x !== bid);
         render();
@@ -9630,11 +9743,34 @@ function renderReview(root) {
       btnThisSheetPdf.disabled = false;
     }
   });
+  const btnSave = document.createElement("button");
+  btnSave.type = "button";
+  btnSave.className = "btn secondary review-save-btn";
+  btnSave.textContent = "Save";
+  btnSave.title = "Save character JSON in this browser and download a .json file. Use Import JSON in the toolbar to load it later.";
+  const saveStatus = document.createElement("span");
+  saveStatus.className = "help review-save-status";
+  saveStatus.setAttribute("aria-live", "polite");
+  const localSummary = summarizeLocalSave();
+  if (localSummary?.savedAt) {
+    saveStatus.textContent = `Last saved: ${new Date(localSummary.savedAt).toLocaleString()} — ${localSummary.characterName}`;
+  }
+  btnSave.addEventListener("click", () => {
+    const payload = saveCharacterProgressFromReview();
+    if (!payload) return;
+    const nm = String(character.characterName ?? "").trim() || "scion-character";
+    downloadCharacterSaveJson(payload, nm);
+    const when = new Date().toLocaleString();
+    saveStatus.textContent = `Saved locally and downloaded (${when}). Use Import JSON in the toolbar to load it later.`;
+    render();
+  });
   toolbar.appendChild(lab);
   toolbar.appendChild(btnSheet);
   toolbar.appendChild(btnJson);
+  toolbar.appendChild(btnSave);
   toolbar.appendChild(btnPrint);
   toolbar.appendChild(btnThisSheetPdf);
+  if (saveStatus.textContent) toolbar.appendChild(saveStatus);
   wrap.appendChild(toolbar);
 
   const sheetHooks = isDragonHeirChargen(character)
@@ -9915,6 +10051,7 @@ function buildExportObject() {
     experienceBoonIds: [...(character.experienceBoonIds || [])].filter(
       (id) => typeof id === "string" && id.trim() && (character.boonIds || []).includes(id),
     ),
+    lockedBoonIds: [...(character.lockedBoonIds || [])],
     carriedExperienceKnackIds: isSorcererLineTier(character.tier)
       ? []
       : [...(character.carriedExperienceKnackIds || [])],
@@ -9929,6 +10066,16 @@ function buildExportObject() {
       patronPurviewSlots: character.patronPurviewSlots,
     }),
     patronPurviewSlots: [...(character.patronPurviewSlots || [])],
+    purviewChargenBreakdown: purviewChargenBreakdown(
+      {
+        tier: character.tier,
+        pantheonId: character.pantheonId,
+        purviewIds: character.purviewIds,
+        patronPurviewSlots: character.patronPurviewSlots,
+        dominionBoonPurviewIds: character.dominionBoonPurviewIds,
+      },
+      bundle,
+    ),
     boons: (character.boonIds || []).filter((id) => {
       const bb = bundle.boons?.[id];
       return !bb || !boonIsPurviewInnateAutomaticGrant(bb, bundle);
@@ -9998,7 +10145,55 @@ function buildExportObject() {
     sorceryProfile: (ensureSorceryProfileShape(), { ...character.sorceryProfile }),
     titanicProfile: (ensureTitanicProfileShape(), { ...character.titanicProfile }),
     mythosInnatePower: (ensureMythosInnatePowerShape(), { ...character.mythosInnatePower }),
+    allowedBooks: [...allowedBooks],
   };
+}
+
+/**
+ * Load character JSON from a save payload or raw export object.
+ * @param {unknown} parsed
+ * @param {{ restoreStepIndex?: boolean }} [opts]
+ */
+function applyImportedCharacterPayload(parsed, opts = {}) {
+  const { characterData, stepIndex: savedStep, allowedBooks: savedBooks } = parseSavePayload(parsed);
+  character = importCharacterFromExportPayload(characterData);
+
+  if (savedBooks?.length && bundle?._sourceRegistry) {
+    const validSlugs = new Set(bundle._sourceRegistry.map((e) => e.slug));
+    allowedBooks = new Set(savedBooks.filter((slug) => validSlugs.has(slug)));
+  } else {
+    allowedBooks = new Set((bundle._sourceRegistry || []).map((e) => e.slug));
+  }
+
+  const steps = stepDefsForTier(character.tier);
+  if (opts.restoreStepIndex) {
+    stepIndex = Math.max(0, Math.min(steps.length - 1, savedStep));
+  } else {
+    stepIndex = 0;
+  }
+  reviewViewMode = "sheet";
+  appMainTab = "wizard";
+  skillsGateIssues = [];
+  normalizeCharacterStateAfterLoad();
+  updateHeaderTierDisplay();
+  render();
+  syncBookFilterPanelCheckboxes();
+  scrollWizardStepIntoView();
+}
+
+function saveCharacterProgressFromReview() {
+  persistFromForm();
+  const payload = buildSavePayload({
+    exportObj: buildExportObject(),
+    stepIndex,
+    allowedBooks,
+  });
+  const json = JSON.stringify(payload);
+  if (!saveCharacterJsonToLocalStorage(json)) {
+    window.alert("Could not save to browser storage (storage may be full or disabled). Try Export JSON instead.");
+    return null;
+  }
+  return payload;
 }
 
 /**
@@ -10209,23 +10404,28 @@ function importCharacterFromExportPayload(data) {
     ? data.experienceBoonIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validBoon.has(x))
     : [...(base.experienceBoonIds || [])];
   experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
+  let lockedBoonIds = Array.isArray(data.lockedBoonIds)
+    ? data.lockedBoonIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validBoon.has(x))
+    : [...(base.lockedBoonIds || [])];
   if (tierUsesLegendTraitEffects(tier)) {
     const importCtx = {
       tier,
       legendRating: legendRatingRaw,
       boonIds,
+      lockedBoonIds,
       dominionBoonPurviewIds: Array.isArray(data.dominionBoonPurviewIds) ? data.dominionBoonPurviewIds : [],
       experienceBoonIds,
     };
-    const xp = experienceBoonIdSet(importCtx);
     const total = legendTraitBoonPurchasesFromRating(legendRatingRaw);
     while (
-      boonIds.some((id) => !xp.has(id)) &&
+      boonIds.some((id) => boonCountsAgainstLegendBudget(importCtx, id)) &&
       legendBoonSlotsUsed({ ...importCtx, boonIds }) > total
     ) {
       let removed = false;
       for (let i = boonIds.length - 1; i >= 0; i -= 1) {
-        if (!xp.has(boonIds[i])) {
+        const id = boonIds[i];
+        if (lockedBoonIds.includes(id)) continue;
+        if (boonCountsAgainstLegendBudget(importCtx, id)) {
           boonIds.splice(i, 1);
           removed = true;
           break;
@@ -10234,9 +10434,14 @@ function importCharacterFromExportPayload(data) {
       if (!removed) break;
     }
     experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
-  } else if (Number.isFinite(importBoonCap) && boonIds.length > importBoonCap) {
-    boonIds = boonIds.slice(0, importBoonCap);
+    lockedBoonIds = lockedBoonIds.filter((id) => boonIds.includes(id));
+  } else if (Number.isFinite(importBoonCap)) {
+    const lockedOnSheet = boonIds.filter((id) => lockedBoonIds.includes(id));
+    const rest = boonIds.filter((id) => !lockedBoonIds.includes(id));
+    const room = Math.max(0, importBoonCap - lockedOnSheet.length);
+    boonIds = [...lockedOnSheet, ...rest.slice(0, room)];
     experienceBoonIds = experienceBoonIds.filter((id) => boonIds.includes(id));
+    lockedBoonIds = lockedBoonIds.filter((id) => boonIds.includes(id));
   }
   let knackIds = Array.isArray(data.knackIds)
     ? data.knackIds.filter((x) => typeof x === "string" && !x.startsWith("_") && validKnack.has(x))
@@ -10473,6 +10678,7 @@ function importCharacterFromExportPayload(data) {
     finishingBonusKnackIds,
     experienceKnackIds,
     experienceBoonIds,
+    lockedBoonIds,
     carriedExperienceKnackIds,
     knackSlotById: callingSlots ? knackSlotById : {},
     knackLockedRowBudgetCostById: callingSlots ? knackLockedRowBudgetCostById : {},
@@ -10616,6 +10822,8 @@ function pruneStaleKnackIds() {
   if (heroUsesCallingSlotRows(character) && Array.isArray(character.callingSlots)) {
     ensureFinishingBonusKnackIds(character);
     snapshotMissingLockedKnackRowBudgetCosts(character, bundle);
+    reassertExperienceKnackPoolTags(character, bundle);
+    repairMisassignedKnackCallingRows(character, bundle);
     stripRowPaidKnacksFromExperiencePools(character);
     pinLockedOriginBudgetKnackToPrimaryRow(character, bundle);
     pruneOrphanUnmappedKnackPurchases(character, bundle);
@@ -10749,6 +10957,52 @@ function healLockedKnackIdsFromTierAdvancement() {
   settleLockedExperienceKnacks(character);
 }
 
+/** Keep locked Boon ids on `boonIds` when bundle heal or import dropped them. */
+function reconcileLockedBoonIds(character, bundle) {
+  const locked = boonLockedIdSet(character);
+  if (!locked.size || !bundle?.boons) return;
+  const cur = [...(character.boonIds || [])];
+  let changed = false;
+  for (const id of locked) {
+    if (!bundle.boons[id] || cur.includes(id)) continue;
+    cur.push(id);
+    changed = true;
+  }
+  if (changed) character.boonIds = cur;
+}
+
+/**
+ * Exports saved before `lockedBoonIds` — if the character has tier-advanced, restore Hero+ Boon picks.
+ */
+function healLockedBoonIdsFromTierAdvancement() {
+  if (!Array.isArray(character.tierAdvancementLog) || !character.tierAdvancementLog.length) return;
+  const present = new Set(character.boonIds || []);
+  if (boonLockedIdSet(character).size > 0) {
+    character.lockedBoonIds = (character.lockedBoonIds || []).filter((id) => present.has(id));
+    reconcileLockedBoonIds(character, bundle);
+    return;
+  }
+  if (isOriginPlayTier(character.tier)) return;
+  const log = character.tierAdvancementLog;
+  /** @type {Set<string>} */
+  const allCarried = new Set();
+  for (const entry of log) {
+    const carried = Array.isArray(entry?.carriedBoonIds)
+      ? entry.carriedBoonIds.filter((id) => typeof id === "string" && id.trim() && bundle?.boons?.[id])
+      : [];
+    for (const id of carried) allCarried.add(id);
+  }
+  if (!allCarried.size) {
+    if (!isOriginPlayTier(character.tier) && (character.boonIds || []).length) {
+      character.lockedBoonIds = [...(character.boonIds || [])];
+    }
+    reconcileLockedBoonIds(character, bundle);
+    return;
+  }
+  character.lockedBoonIds = [...allCarried];
+  reconcileLockedBoonIds(character, bundle);
+}
+
 /**
  * Origin / Mortal-band Finishing “two extra Knacks” are stored in `finishing.finishingKnackIds`.
  * Hero+ omits the Finishing step; merge bonus ids into `knackIds` when Calling rows can pay for them.
@@ -10835,8 +11089,10 @@ function normalizeCharacterStateAfterLoad() {
   syncAwarenessWithPantheon();
   if (!Array.isArray(character.tierAdvancementLog)) character.tierAdvancementLog = [];
   if (!Array.isArray(character.lockedKnackIds)) character.lockedKnackIds = [];
+  if (!Array.isArray(character.lockedBoonIds)) character.lockedBoonIds = [];
   if (!Array.isArray(character.finishingBonusKnackIds)) character.finishingBonusKnackIds = [];
   healLockedKnackIdsFromTierAdvancement();
+  healLockedBoonIdsFromTierAdvancement();
   healFinishingBonusKnackIds();
   ensureSkillDots();
   ensurePathSkillArrays();
@@ -10870,16 +11126,9 @@ function normalizeCharacterStateAfterLoad() {
   }
   clearPurviewsAndBoonsIfInapplicableTier();
   ensurePatronPurviewSlots();
+  prunePatronPurviewSlotsToParentList();
   const hadAnySlot = character.patronPurviewSlots.some(Boolean);
   if (!hadAnySlot) hydratePatronPurviewSlotsFromPurviewIds();
-  else {
-    const allowed = new Set(
-      patronPurviewSlotLimitForCharacter() <= 1 ? patronPurviewOptionIds() : patronPurviewSlotOptionIds(),
-    );
-    if (allowed.size > 0) {
-      character.patronPurviewSlots = character.patronPurviewSlots.map((s) => (allowed.has(s) ? s : ""));
-    }
-  }
   syncPurviewIdsFromPatronSlots();
   migrateAesirLegacyFortuneSignatureToWyrd();
   migrateLegacyPantheonSignaturePurviewIds();
@@ -11581,27 +11830,7 @@ async function init() {
     if (!file) return;
     try {
       const text = await file.text();
-      const parsed = JSON.parse(text);
-      character = importCharacterFromExportPayload(parsed);
-
-      // Restore allowedBooks from imported payload (Requirement 4.3, 4.4, 4.5)
-      if (Array.isArray(parsed.allowedBooks)) {
-        const validSlugs = new Set((bundle._sourceRegistry || []).map(e => e.slug));
-        allowedBooks = new Set(parsed.allowedBooks.filter(slug => validSlugs.has(slug)));
-      } else {
-        // Field absent (older exports): default all books enabled
-        allowedBooks = new Set((bundle._sourceRegistry || []).map(e => e.slug));
-      }
-
-      stepIndex = 0;
-      reviewViewMode = "sheet";
-      appMainTab = "wizard";
-      skillsGateIssues = [];
-      normalizeCharacterStateAfterLoad();
-      updateHeaderTierDisplay();
-      render();
-      syncBookFilterPanelCheckboxes();
-      scrollWizardStepIntoView();
+      applyImportedCharacterPayload(JSON.parse(text), { restoreStepIndex: false });
     } catch (e) {
       console.error(e);
       const msg = e instanceof Error ? e.message : String(e);
@@ -11613,13 +11842,12 @@ async function init() {
 
   document.getElementById("btn-export-json")?.addEventListener("click", () => {
     persistFromForm();
-    const blob = new Blob([JSON.stringify(buildExportObject(), null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "scion-character.json";
-    a.click();
-    URL.revokeObjectURL(url);
+    const payload = buildSavePayload({
+      exportObj: buildExportObject(),
+      stepIndex,
+      allowedBooks,
+    });
+    downloadCharacterSaveJson(payload, String(character.characterName ?? "").trim() || "scion-character");
   });
   render();
 }
