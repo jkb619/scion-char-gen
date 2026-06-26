@@ -224,6 +224,11 @@ export const HELP = {
     example: "At Hero/Titanic: one innate Purview from the parent list (chips on this step) plus the pantheon Signature Purview. Demigod+: patron slots above and the same parent-list Purviews in the chips below (innate slot picks hide from chips until you change the slot); universal Purviews and extras via chips too.",
     source: `${cite("origin", "Appendix 2 (Purviews listed per deity — reference)", "170–177")}; ${cite("hero", "Purviews, Boons, Marvels", "200+")}.`,
   },
+  "purview-select-motm": {
+    example:
+      "Mythos: Signature Purview is automatic. One patron chip = your standard innate. Inverted Callings (Sage/Cosmos, etc.) are chosen on Callings, not here. The Awareness Innate panel below is optional — it replaces the standard innate model once you commit; Awareness Boons are on the Boons step.",
+    source: "Scion: Masks of the Mythos Ch. 3 (Step Seven Purviews; Awareness trait pp. 41, 49–59).",
+  },
   "birthrights-step": {
     example:
       "Costs stack toward your tier cap: seven points at Hero (Birthrights step only; Finishing does not add a second pool), four at Mortal/Sorcerer Finishing, eleven for Demigod/God in this wizard. Extra Birthrights beyond the cap are bought on the Exp Leveling tab (5 XP each).",

@@ -54,7 +54,11 @@ export function purviewInnateBlocks(bundle, purviewId, opts) {
   if (opts?.mythosPantheon && pv && typeof pv === "object") {
     const aw = typeof pv.mythosAwarenessInnate === "string" ? pv.mythosAwarenessInnate.trim() : "";
     if (aw) {
-      blocks.push({ key: "awareness", label: "Mythos Awareness innate (optional — MotM)", body: aw });
+      blocks.push({
+        key: "awareness",
+        label: "Awareness Innate (MotM — optional alternative to standard innate above)",
+        body: aw,
+      });
     }
   }
   return blocks;

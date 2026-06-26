@@ -998,30 +998,26 @@ function renderMythosInnatePowerPanel(wrap) {
   const optIds = [...mythosAwarenessInnatePurviewIds()].sort((a, b) =>
     purviewLabel(a).localeCompare(purviewLabel(b), undefined, { sensitivity: "base" }),
   );
-  const callout = masksMotMBundle()?.mythosInnatePowerCallout;
+  const motm = masksMotMBundle();
+  const callout = motm?.mythosInnatePowerCallout;
   const panel = document.createElement("div");
   panel.className = "panel mythos-innate-panel";
   const h = document.createElement("h2");
-  h.textContent = "Mythos: Awareness Innate Power";
+  h.textContent = "Awareness Innate (optional)";
   panel.appendChild(h);
   const intro = document.createElement("p");
   intro.className = "help";
   intro.innerHTML =
     typeof callout === "string" && callout.trim()
       ? callout.trim().replace(/\n/g, "<br/>")
-      : "Mythos Scions can take the <strong>Awareness Innate Power</strong> from a Purview instead of the <strong>normal</strong> Innate. You only have <strong>one</strong> Innate Power in this model; once you commit to the Awareness Innate, MotM says you <strong>cannot switch back</strong>.";
+      : "Awareness Innate Powers are MotM’s optional supernatural baseline for a parent Purview, tied to the <strong>Awareness</strong> trait. You still have only <strong>one</strong> Innate Power — standard (chips above) or Awareness, not both. Committing to the Awareness Innate is <strong>permanent</strong>.";
   panel.appendChild(intro);
-  const step7 = document.createElement("p");
-  step7.className = "help";
-  step7.innerHTML =
-    "<strong>Chargen (MotM p. 41, Step Seven):</strong> When you select your innate Purview, you may take the normal Innate or the Awareness Innate (p. 49). If you start with the normal Innate, you may replace it with the Awareness Innate when your Awareness increases—once you choose the Awareness Innate, you cannot change Innate Powers again.";
-  panel.appendChild(step7);
 
   if (m.awarenessLocked || (m.style === "awareness" && m.awarenessPurviewId)) {
     const pv = bundle.purviews?.[m.awarenessPurviewId];
     const status = document.createElement("div");
     status.className = "field mythos-innate-locked";
-    status.innerHTML = `<p><strong>Committed:</strong> You are using the <strong>Mythos Awareness Innate</strong> for <strong>${(pv && pv.name) || m.awarenessPurviewId || "—"}</strong> <span class="mono">(${m.awarenessPurviewId || "—"})</span>. This choice is <strong>permanent</strong> per Masks of the Mythos.</p>`;
+    status.innerHTML = `<p><strong>Committed:</strong> Your Innate Power is the <strong>Awareness Innate</strong> for <strong>${(pv && pv.name) || m.awarenessPurviewId || "—"}</strong>. This replaces the standard innate model and cannot be changed (MotM).</p>`;
     panel.appendChild(status);
     wrap.appendChild(panel);
     return;
@@ -1030,7 +1026,7 @@ function renderMythosInnatePowerPanel(wrap) {
   const fieldset = document.createElement("fieldset");
   fieldset.className = "mythos-innate-fieldset";
   const leg = document.createElement("legend");
-  leg.textContent = "Standard innate vs Awareness Innate";
+  leg.textContent = "Replace standard innate with Awareness Innate?";
   fieldset.appendChild(leg);
 
   const singlePatronSlotUi = patronPurviewSingleSlotHeroStyle();
@@ -1039,59 +1035,40 @@ function renderMythosInnatePowerPanel(wrap) {
   stdBlock.className = "field mythos-innate-standard-block";
   const stdTitle = document.createElement("div");
   stdTitle.className = "field mythos-innate-subhead";
-  stdTitle.textContent = singlePatronSlotUi ? "Standard innate (patron Purview)" : "Standard innate Purview";
+  stdTitle.textContent = "1. Standard innate (default)";
   stdBlock.appendChild(stdTitle);
   const stdP = document.createElement("p");
   stdP.className = "help";
-  if (singlePatronSlotUi) {
-    stdP.innerHTML =
-      "On Hero / Titanic, choose your patron innate with the <strong>Patron innate Purview</strong> chips <strong>above</strong>. That uses the <strong>standard innate</strong> from <strong>Pandora’s Box (Revised)</strong> (and Hero where PB points there)—not the Awareness dropdown in this section.";
-  } else {
-    stdP.innerHTML =
-      "Use the <strong>standard innate Purview</strong> write-ups from <strong>Pandora’s Box (Revised)</strong> (primary) and Scion: Hero where PB cross-references Hero, for each Purview your <strong>divine parent</strong> grants (patron Purviews from Origin Appendix 2). That follows the parent’s list, not the pantheon’s Signature Purview alone.";
-  }
+  stdP.innerHTML = singlePatronSlotUi
+    ? "If you leave this section alone, your Innate Power is the <strong>standard innate</strong> for whichever patron Purview chip you turned on <strong>above</strong> (Pandora’s Box / Hero text previews under the chips)."
+    : "If you leave this section alone, use each Purview’s <strong>standard innate</strong> write-ups (Pandora’s Box / Hero) for your patron slots and tracked Purviews.";
   stdBlock.appendChild(stdP);
   const deity = selectedDeityEntity();
   const parentPvIds = Array.isArray(deity?.purviews) ? [...new Set(deity.purviews)].filter(Boolean) : [];
   if (!character.parentDeityId) {
     const w = document.createElement("p");
     w.className = "warn";
-    w.textContent =
-      "Choose a divine parent on the Paths step first. Innate Purview options are based on that parent’s patron Purviews.";
+    w.textContent = "Choose a divine parent on Paths first — patron Purview options come from that parent’s list.";
     stdBlock.appendChild(w);
   } else if (parentPvIds.length === 0) {
     const w = document.createElement("p");
     w.className = "warn";
     w.textContent = "This divine parent has no patron Purviews listed in pantheon data yet.";
     stdBlock.appendChild(w);
-  } else if (!singlePatronSlotUi) {
-    const ul = document.createElement("ul");
-    ul.className = "mythos-innate-parent-purviews";
-    for (const pid of [...parentPvIds].sort((a, b) =>
-      purviewLabel(a).localeCompare(purviewLabel(b), undefined, { sensitivity: "base" }),
-    )) {
-      const li = document.createElement("li");
-      li.textContent = purviewLabel(pid);
-      ul.appendChild(li);
-    }
-    const cap = document.createElement("p");
-    cap.className = "help";
-    cap.textContent = "Patron Purviews from your current divine parent (for reference).";
-    stdBlock.appendChild(cap);
-    stdBlock.appendChild(ul);
   }
   fieldset.appendChild(stdBlock);
 
+  const awBlock = document.createElement("div");
+  awBlock.className = "field mythos-innate-awareness-block";
   const awTitle = document.createElement("div");
   awTitle.className = "field mythos-innate-subhead";
-  awTitle.textContent = "Awareness Innate — which Purview? (MotM)";
-  fieldset.appendChild(awTitle);
+  awTitle.textContent = "2. Awareness Innate (optional commit)";
+  awBlock.appendChild(awTitle);
   const awIntro = document.createElement("p");
   awIntro.className = "help";
-  awIntro.innerHTML = singlePatronSlotUi
-    ? "The <strong>dropdown</strong> is only for picking <strong>which parent Purview</strong> receives MotM’s <strong>Awareness Innate</strong> text if you press <strong>Awareness Innate Power…</strong>. It does <strong>not</strong> set your normal innate—that stays the chip selection above unless you commit and replace the model (MotM pp. 49–59; irreversible once committed)."
-    : "Optionally commit to the <strong>Awareness Innate</strong> for <strong>one</strong> Purview from your <strong>divine parent’s</strong> list (MotM pp. 49–59). Once confirmed, you cannot revert.";
-  fieldset.appendChild(awIntro);
+  awIntro.innerHTML =
+    "To use MotM’s <strong>Awareness Innate</strong> instead, choose <strong>one</strong> parent Purview below and press <strong>Commit</strong>. That swaps your innate model to the Awareness write-up for that Purview. The dropdown does <strong>not</strong> change your chip selection until you commit. <strong>Inverted Callings</strong> (Cosmos, Corruptor, etc.) are unrelated — pick those on the <strong>Callings</strong> step.";
+  awBlock.appendChild(awIntro);
 
   const mythosAwarenessInlineLayout = singlePatronSlotUi;
   const rowPv = document.createElement("div");
@@ -1099,9 +1076,7 @@ function renderMythosInnatePowerPanel(wrap) {
     "field mythos-innate-awareness-row" + (mythosAwarenessInlineLayout ? " mythos-innate-awareness-row--hero-inline" : "");
   const labPv = document.createElement("label");
   labPv.htmlFor = "f-mythos-innate-purview";
-  labPv.textContent = singlePatronSlotUi
-    ? "Purview for Awareness Innate (parent list; if committing)"
-    : "Purview (must be on divine parent’s list)";
+  labPv.textContent = "Parent Purview for Awareness Innate";
   const sel = document.createElement("select");
   sel.id = "f-mythos-innate-purview";
   const blank = document.createElement("option");
@@ -1117,27 +1092,21 @@ function renderMythosInnatePowerPanel(wrap) {
   }
   sel.value = optIds.includes(m.awarenessPurviewId) ? m.awarenessPurviewId : "";
 
-  const orSep = document.createElement("span");
-  orSep.className = "mythos-innate-or-sep";
-  orSep.setAttribute("role", "presentation");
-  orSep.textContent = "-- or --";
-
   const commitWrap = document.createElement("div");
   commitWrap.className = "mythos-innate-commit-wrap";
   const commitBtn = document.createElement("button");
   commitBtn.type = "button";
   commitBtn.id = "f-mythos-innate-commit";
   commitBtn.className = "btn primary mythos-innate-commit-btn";
-  commitBtn.textContent = "Awareness Innate Power…";
+  commitBtn.textContent = "Commit to Awareness Innate";
   commitWrap.appendChild(commitBtn);
 
   if (mythosAwarenessInlineLayout) {
     const labRow = document.createElement("div");
     labRow.className = "field mythos-innate-awareness-label";
     labRow.appendChild(labPv);
-    fieldset.appendChild(labRow);
+    awBlock.appendChild(labRow);
     rowPv.appendChild(sel);
-    rowPv.appendChild(orSep);
     rowPv.appendChild(commitWrap);
   } else {
     const pickWrap = document.createElement("div");
@@ -1145,33 +1114,33 @@ function renderMythosInnatePowerPanel(wrap) {
     pickWrap.appendChild(labPv);
     pickWrap.appendChild(sel);
     rowPv.appendChild(pickWrap);
-    rowPv.appendChild(orSep);
     rowPv.appendChild(commitWrap);
   }
-  fieldset.appendChild(rowPv);
+  awBlock.appendChild(rowPv);
 
   if (!character.parentDeityId) {
     const warn = document.createElement("p");
     warn.className = "warn";
     warn.textContent = "Select a divine parent on Paths to enable Awareness Innate choices.";
-    fieldset.appendChild(warn);
+    awBlock.appendChild(warn);
   } else if (parentPvIds.length > 0 && optIds.length === 0) {
     const warn = document.createElement("p");
     warn.className = "warn";
     warn.textContent =
-      "None of this parent’s Purviews have MotM Awareness Innate text in this app yet (see purviews.json mythosAwarenessInnate).";
-    fieldset.appendChild(warn);
+      "None of this parent’s Purviews have Awareness Innate text in this app yet (see purviews.json mythosAwarenessInnate).";
+    awBlock.appendChild(warn);
   }
+  fieldset.appendChild(awBlock);
 
   commitBtn.addEventListener("click", () => {
     const pid = sel.value;
     if (!pid) {
-      window.alert("Choose a Purview from the list (your divine parent’s patron Purviews with MotM data), then commit.");
+      window.alert("Choose a parent Purview, then commit to its Awareness Innate.");
       return;
     }
     if (
       !window.confirm(
-        "Commit to the Mythos Awareness Innate for this Purview? Masks of the Mythos states that once you choose the Awareness Innate Power, you cannot switch your Innate Powers again.",
+        "Commit to the Awareness Innate for this Purview? You will have only this Innate Power (not the standard innate), and MotM says you cannot switch again.",
       )
     ) {
       return;
@@ -7806,9 +7775,15 @@ function renderPurviews(root) {
 
   if (singlePatronPurviewTier) {
     if (patronOpts.length > 0) {
-      help.innerHTML = isMythosPantheonSelected()
-        ? `Use <strong>Patron innate Purview</strong> (chips) for your <strong>standard</strong> innate Purview. The <strong>Mythos: Awareness Innate</strong> section below is <em>only</em> if you commit MotM’s optional Awareness Innate—same page, different choice. Your pantheon Signature stays automatic (see above).`
-        : `Pick <strong>one patron innate</strong> from your parent’s list (<strong>two innate Purviews</strong> total with automatic pantheon Signature). Use the chips in <strong>Patron innate Purview</strong> below.`;
+      if (isMythosPantheonSelected()) {
+        const motmPv = masksMotMBundle()?.purviewsStepCallout;
+        help.innerHTML =
+          typeof motmPv === "string" && motmPv.trim()
+            ? motmPv.trim()
+            : "Pick one patron innate chip below (standard innate). Optional Awareness Innate is in the next panel. Inverted Callings are on the Callings step.";
+      } else {
+        help.innerHTML = `Pick <strong>one patron innate</strong> from your parent’s list (<strong>two innate Purviews</strong> total with automatic pantheon Signature). Use the chips in <strong>Patron innate Purview</strong> below.`;
+      }
     } else {
       const motmPaths = isMythosPantheonSelected() ? masksMotMBundle()?.pathsCallout : "";
       if (typeof motmPaths === "string" && motmPaths.trim()) {
@@ -7841,7 +7816,7 @@ function renderPurviews(root) {
     help.innerHTML =
       "Select Purviews to track on the sheet (choose a divine parent on Paths to restrict patron picks to Appendix 2). Full Boon and Purview text: <em>Pandora’s Box (Revised)</em> (primary); <em>Origin</em> Appendix 2 lists patron Purviews by deity.";
   }
-  applyHint(help, "purview-select");
+  applyHint(help, isMythosPantheonSelected() ? "purview-select-motm" : "purview-select");
   wrap.appendChild(help);
   const chips = document.createElement("div");
   chips.className = "chips purviews-patron-innate-chips";
@@ -7951,7 +7926,7 @@ function renderPurviews(root) {
     pIntro.className = "help purviews-patron-innate-intro";
     if (isMythosPantheonSelected()) {
       pIntro.innerHTML =
-        "Turn <strong>one</strong> chip on. That is the patron Purview whose <strong>standard innate</strong> you use (Pandora’s Box / Hero). It is <strong>not</strong> chosen with the Awareness dropdown—use the next panel only if you deliberately replace that model with MotM’s <strong>Awareness Innate</strong> (and commit).";
+        "Turn <strong>one</strong> chip on for your <strong>standard innate</strong> (Pandora’s Box / Hero). Preview text appears below the chips. To use MotM’s <strong>Awareness Innate</strong> instead, use the optional panel below — that choice replaces the standard innate once you commit.";
     } else {
       pIntro.innerHTML =
         "Turn <strong>one</strong> chip on for the innate Purview from your divine parent’s list. Innate write-ups preview below the chip row when a chip is on.";
