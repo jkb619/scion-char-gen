@@ -89,3 +89,6 @@ run run-https:
 
 run-http:
 	cd "$(ROOT)" && PYTHONPATH="$(ROOT)/src" HOST=$(HOST) PORT=$(PORT) $(PY) -m app
+
+run-with-llm: ## Run dev server with LLM keys from SOPS (secrets/llm-keys.yaml)
+	cd "$(ROOT)" && sops exec-env secrets/llm-keys.yaml 'PYTHONPATH="$(ROOT)/src" HOST=$(HOST) PORT=$(PORT) $(PY) -m app'

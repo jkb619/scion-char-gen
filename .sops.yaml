@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: secrets/llm-keys\.yaml$
+    kms: arn:aws:kms:us-east-2:373055206579:key/f8ba7373-6c16-426f-8c44-e11d527f61a3

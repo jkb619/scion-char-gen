@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import ASSET_VERSION, STATIC_DIR, TEMPLATES_DIR
-from app.routers import game_data, interactive_pdf, review_sheet_pdf
+from app.routers import game_data, interactive_pdf, llm, review_sheet_pdf
 from app.services import game_data as game_data_service
 
 app = FastAPI(title="Scion Character Creator", version="0.1.0")
@@ -30,6 +30,7 @@ async def disable_cache_for_static_scripts(request: Request, call_next):
 app.include_router(game_data.router)
 app.include_router(interactive_pdf.router)
 app.include_router(review_sheet_pdf.router)
+app.include_router(llm.router)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 

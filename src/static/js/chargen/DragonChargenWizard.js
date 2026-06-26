@@ -1826,6 +1826,11 @@ function applyDragonPathMathToSkillDots(d, bundle) {
   return pathOnly;
 }
 
+/** Hatchling skill totals from Path picks (used by random Dragon generator). */
+export function finalizeDragonSkillDotsFromPaths(d, bundle) {
+  return applyDragonPathMathToSkillDots(d, bundle);
+}
+
 /** @param {Record<string, number>} from @param {Record<string, number>} to @param {Record<string, unknown>} bundle */
 function sumPositiveDragonAttrDeltas(from, to, bundle) {
   let s = 0;

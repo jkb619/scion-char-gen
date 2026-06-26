@@ -27,6 +27,11 @@ import {
   resolveLeaveExpLevelingStep,
 } from "./expLevelingSession.js";
 import {
+  fetchLlmStatus,
+  runAutoCharacterFlavor,
+} from "./llmFlavorClient.js";
+import { applyMechanicalFlavorFallback, generateRandomCharacter } from "./randomCharacterGenerator.js";
+import {
   buildCharacterSheet,
   buildVirtueSpectrumElement,
   originDefenseFromFinalAttrs,
@@ -1686,6 +1691,111 @@ function welcomePartsFromCharacter() {
     return { line: "titan", payload: kt === "titanic" ? "titanic" : kt };
   }
   return { line: "deity", payload: kt };
+}
+
+/** Read Welcome UI selects when present; otherwise fall back to stored character track. */
+function readWelcomeTrackFromDom() {
+  const lineSel = document.getElementById("welcome-line-select");
+  const tierSel = document.getElementById("welcome-tier-select");
+  const inhSel = document.getElementById("welcome-dragon-inheritance-select");
+  if (lineSel) {
+    const line = /** @type {string} */ (lineSel.value);
+    if (line === "dragon") return `dragon:${inhSel?.value || welcomeDefaultDragonInheritance()}`;
+    if (line === "sorcerer") return `sorcerer:${tierSel?.value || welcomeDefaultPayloadForLine("sorcerer")}`;
+    return `${line}:${tierSel?.value || welcomeDefaultPayloadForLine(line === "titan" ? "titan" : "deity")}`;
+  }
+  return welcomeTrackValueFromCharacter();
+}
+
+async function runAiFlavorForStep(scope) {
+  if (!bundle) return;
+  persistFromForm();
+  const status = await fetchLlmStatus();
+  if (!status.configured) {
+    window.alert("AI flavor is not configured on this server (no LLM API keys).");
+    return;
+  }
+  const emptyMsg =
+    scope === "paths"
+      ? "Nothing to fill on Paths — all path phrase boxes already have text."
+      : scope === "specialties"
+        ? "Nothing to fill — no Skills at 3+ dots, or all specialties already have text."
+        : "Nothing to fill on Concept — name, concept, and deed boxes already have text.";
+  try {
+    const ok = await runAutoCharacterFlavor(character, bundle, { scope });
+    if (!ok) {
+      window.alert(emptyMsg);
+      return;
+    }
+    render();
+    scrollWizardStepIntoView();
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    window.alert(`AI flavor failed: ${msg}`);
+  }
+}
+
+/** @param {HTMLElement} container @param {"concept"|"paths"|"specialties"} scope */
+function appendStepAiFlavorButton(container, scope) {
+  const row = document.createElement("div");
+  row.className = "wizard-step-inline-actions";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn secondary";
+  btn.textContent = "AI flavor";
+  btn.title = "Empty fields: AI writes fresh text. Fields with keywords: AI enhances your draft.";
+  btn.addEventListener("click", () => {
+    void runAiFlavorForStep(scope);
+  });
+  row.appendChild(btn);
+  container.insertBefore(row, container.firstChild);
+}
+
+/** @param {HTMLElement} container */
+function appendWelcomeGenerateRandomButton(container) {
+  const row = document.createElement("div");
+  row.className = "wizard-step-inline-actions";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn secondary";
+  btn.textContent = "Generate random character";
+  btn.title = "Build a legal character for the selected Welcome line and tier (uses AI flavor when configured).";
+  btn.addEventListener("click", () => {
+    void runRandomCharacterGeneration();
+  });
+  row.appendChild(btn);
+  container.appendChild(row);
+}
+
+async function runRandomCharacterGeneration() {
+  if (!bundle) return;
+  const track = readWelcomeTrackFromDom();
+  if (
+    !window.confirm(
+      "Generate a new random character for the selected Welcome line and tier? This replaces the current character.",
+    )
+  ) {
+    return;
+  }
+  try {
+    const generated = generateRandomCharacter(bundle, { welcomeTrack: track });
+    character = generated;
+    stepIndex = 0;
+    reviewViewMode = "sheet";
+    appMainTab = "wizard";
+    skillsGateIssues = [];
+    normalizeCharacterStateAfterLoad();
+    const flavored = await runAutoCharacterFlavor(character, bundle, { scope: "all" });
+    if (!flavored) applyMechanicalFlavorFallback(character, bundle);
+    updateHeaderTierDisplay();
+    render();
+    scrollWizardStepIntoView();
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    window.alert(`Could not generate character: ${msg}`);
+  }
 }
 
 /** Encoded track for confirm logic (`deity:mortal`, `dragon:5`, `sorcerer:sorcerer`, …). */
@@ -5427,6 +5537,7 @@ function renderWelcome(root) {
   trHelp.textContent =
     "Pick a line, then tier (Mortal/Origin through God on Deity, Titanic on Titan, Mortal- through God-band on Sorcerer). Dragon Heir picks Inheritance 1–10 (True Dragon at 10). Sorcerer uses Saints & Monsters ch. 3 tiers in data/tier.json. Dragon uses the shared Origin spine and the same wizard tabs after Concept (Paths through Review), with Dragon-specific Callings, Magic, and Birthrights steps.";
   tierPick.appendChild(trHelp);
+  appendWelcomeGenerateRandomButton(tierPick);
   body.appendChild(tierPick);
 
   const intro = document.createElement("div");
@@ -5441,7 +5552,10 @@ function renderWelcome(root) {
 
 function renderConcept(root) {
   const wrap = document.createElement("div");
-  wrap.innerHTML = `
+  appendStepAiFlavorButton(wrap, "concept");
+  wrap.insertAdjacentHTML(
+    "beforeend",
+    `
     <p class="help" id="f-chargen-lineage-blurb" style="display:none"></p>
     <div class="field"><label>Character name</label><input type="text" id="f-char-name" autocomplete="name" spellcheck="false" /></div>
     <div class="field"><label>Concept</label><textarea id="f-concept"></textarea></div>
@@ -5451,7 +5565,8 @@ function renderConcept(root) {
       <div class="field"><label id="lab-deed-long" for="f-deed-long">Long-term Deed</label><textarea id="f-deed-long"></textarea></div>
     </div>
     <div class="field"><label id="lab-deed-band" for="f-deed-band">Band Deed</label><textarea id="f-deed-band"></textarea></div>
-    <div class="field"><label for="f-sheet-description">Description</label><textarea id="f-sheet-description" spellcheck="false" aria-label="Description"></textarea></div>`;
+    <div class="field"><label for="f-sheet-description">Description</label><textarea id="f-sheet-description" spellcheck="false" aria-label="Description"></textarea></div>`,
+  );
   root.appendChild(panel("Concept & Deeds", wrap));
   const applyDeedLabels = (dragon) => {
     const ls = document.getElementById("lab-deed-short");
@@ -5499,6 +5614,8 @@ function renderConcept(root) {
 /** Dragon Heir Paths: Flight + three phrases (delegates to Dragon wizard module; main flow uses `renderDragonHeirStepInRoot` for `paths`). */
 function renderDragonHeirPathsOnly(root) {
   appendDragonHeirFlightsPathStep(root, character, bundle, render);
+  const inner = root.querySelector(".panel > div");
+  if (inner) appendStepAiFlavorButton(inner, "paths");
 }
 
 function renderPaths(root) {
@@ -5507,7 +5624,10 @@ function renderPaths(root) {
     return;
   }
   const wrap = document.createElement("div");
-  wrap.innerHTML = `
+  appendStepAiFlavorButton(wrap, "paths");
+  wrap.insertAdjacentHTML(
+    "beforeend",
+    `
     <div class="paths-step-grid">
       <div class="paths-phrases-row">
         <div class="field"><label>Origin Path phrase</label><textarea id="p-origin"></textarea></div>
@@ -5527,7 +5647,8 @@ function renderPaths(root) {
     </div>
     <aside id="p-pantheon-virtues" class="pantheon-virtues-panel" aria-live="polite"></aside>
     <div id="p-virtue-spectrum-mount" class="p-virtue-spectrum-mount"></div>
-    <p class="help" id="paths-pantheon-skills-help" style="display:none"></p>`;
+    <p class="help" id="paths-pantheon-skills-help" style="display:none"></p>`,
+  );
   if (isMythosPantheonSelected()) {
     const motm = masksMotMBundle()?.pathsCallout;
     if (typeof motm === "string" && motm.trim()) {
@@ -5762,6 +5883,8 @@ function renderSkills(root) {
       scrollStepIntoView: scrollWizardStepIntoView,
       navigateToDragonHeirStep: navigateDragonHeirToMainWizardStep,
     });
+    const inner = root.querySelector(".panel > div");
+    if (inner) appendStepAiFlavorButton(inner, "specialties");
     return;
   }
   ensureSkillDots();
@@ -5804,6 +5927,7 @@ function renderSkills(root) {
   intro.textContent =
     "Pick three Skills for each Path (panels below), then set primary / secondary / tertiary priority. If overlap would exceed 5 in a Skill, use the overflow controls when they appear; dot rows stay read-only.";
   wrap.appendChild(intro);
+  appendStepAiFlavorButton(wrap, "specialties");
   if (skLocked) {
     const lock = document.createElement("p");
     lock.className = "help attributes-core-locked-note";

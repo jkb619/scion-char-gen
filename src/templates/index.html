@@ -73,6 +73,22 @@
       window.__SCION_EMBEDDED_BUNDLE = true;
     </script>
     {% endif %}
+    <script>
+      function showWizardLoadFailure(msg) {
+        var host = document.getElementById("wizard-step-host");
+        if (!host || !host.querySelector(".wizard-loading-msg")) return;
+        host.innerHTML = "";
+        var p = document.createElement("p");
+        p.className = "warn";
+        p.textContent = msg;
+        host.appendChild(p);
+      }
+      window.addEventListener("unhandledrejection", function (e) {
+        var reason = e.reason;
+        var msg = reason instanceof Error ? reason.message : String(reason);
+        if (msg && /import|module|export/i.test(msg)) showWizardLoadFailure("Failed to load wizard: " + msg);
+      });
+    </script>
     <script type="module" src="/static/js/app.js?v={{ asset_version }}"></script>
   </body>
 </html>

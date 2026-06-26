@@ -55,10 +55,21 @@ ls-deploy: ## Deploy latest pushed image to Lightsail
 		echo "$(RED)Could not parse Lightsail image version from: $$LATEST_IMAGE$(NC)"; \
 		exit 1; \
 	fi; \
+	LLM_ENV_JSON=$$(aws ssm get-parameter \
+		--name /scion-chargen/production/llm-env \
+		--with-decryption \
+		--region $(AWS_REGION) \
+		--query Parameter.Value \
+		--output text 2>/dev/null || echo ""); \
+	CONTAINER_ENV=$$(IMAGE_VERSION="$$IMAGE_VERSION" LLM_ENV_JSON="$$LLM_ENV_JSON" python3 -c 'import json,os; base={"PORT":"8000","ASSET_VERSION":os.environ["IMAGE_VERSION"]}; raw=os.environ.get("LLM_ENV_JSON","").strip(); base.update(json.loads(raw) if raw else {}); print(json.dumps(base))'); \
+	if [ -z "$$CONTAINER_ENV" ]; then \
+		echo "$(RED)Failed to build container environment JSON$(NC)"; \
+		exit 1; \
+	fi; \
 	aws lightsail create-container-service-deployment \
 		--service-name $(LIGHTSAIL_SERVICE) \
 		--region $(AWS_REGION) \
-		--containers "$$(printf '%s' "{\"app\": {\"image\": \"$$LATEST_IMAGE\", \"ports\": {\"8000\": \"HTTP\"}, \"environment\": {\"PORT\": \"8000\", \"ASSET_VERSION\": \"$$IMAGE_VERSION\"}}}")" \
+		--containers "$$(printf '%s' "{\"app\": {\"image\": \"$$LATEST_IMAGE\", \"ports\": {\"8000\": \"HTTP\"}, \"environment\": $$CONTAINER_ENV}}")" \
 		--public-endpoint '{"containerName": "app", "containerPort": 8000, "healthCheck": {"path": "/", "intervalSeconds": 30, "timeoutSeconds": 5, "unhealthyThreshold": 3, "healthyThreshold": 2, "successCodes": "200"}}' \
 		--no-cli-pager; \
 	echo "$(GREEN)Deployment created. Run 'make ls-status' to monitor.$(NC)"; \
