@@ -28,6 +28,8 @@ def test_render_boons_uses_legend_budget():
     assert "addExperienceBoonPick(bid)" in render
     assert "removeExperienceBoonPick(bid)" in render
     assert "experienceBoonIds" in app
+    exp = app.split("function renderExpLeveling(root)")[1].split("function renderDominionBoons")[0]
+    assert "appendExpBoonChip(bid, b)" in exp
 
 
 def test_dominion_sacrifice_ui_and_exp_leveling():

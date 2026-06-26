@@ -57,6 +57,20 @@ export function lockBoonsAtTierAdvance(character) {
   character.lockedBoonIds = [...locked];
 }
 
+/**
+ * Boon already on the sheet from chargen or locked after tier advance — not an Exp Leveling target.
+ * @param {unknown} character
+ * @param {string} boonId
+ */
+export function boonOwnedFromPriorChargenPick(character, boonId) {
+  const id = String(boonId ?? "").trim();
+  if (!id) return false;
+  if (!(character.boonIds || []).includes(id)) return false;
+  if (!experienceBoonIdSet(character).has(id)) return true;
+  if (isBoonLocked(character, id)) return true;
+  return false;
+}
+
 /** @param {unknown} character */
 export function ensureDominionForgoneShape(character) {
   if (!character || typeof character !== "object") return;

@@ -159,6 +159,7 @@ import {
   boonBudgetSnapshot,
   boonCountsAgainstLegendBudget,
   boonLockedIdSet,
+  boonOwnedFromPriorChargenPick,
   clearDominionMarkPayment,
   dominionForgoneBoonIds,
   dominionMarkPaymentOptions,
@@ -4934,10 +4935,15 @@ function removeExperienceKnackPick(kid) {
   return true;
 }
 
+/** Boon already on the sheet from chargen or a prior tier — not an Experience purchase target. */
+function boonOwnedFromPriorChargen(bid) {
+  return boonOwnedFromPriorChargenPick(character, bid);
+}
+
 /** @param {string} bid */
 function addExperienceBoonPick(bid) {
   const id = String(bid || "").trim();
-  if (!id) return false;
+  if (!id || boonOwnedFromPriorChargen(id)) return false;
   if (experienceBoonIdSet(character).has(id)) return true;
   const label = boonDisplayLabel(bundle.boons?.[id], bundle, character.pantheonId) || id;
   if (!experienceSpend(character, bundle, "boon", `Boon: ${label}`)) return false;
@@ -4959,6 +4965,7 @@ function removeExperienceBoonPickIfPresent(bid) {
 function removeExperienceBoonPick(bid) {
   const id = String(bid || "").trim();
   if (!id || !experienceBoonIdSet(character).has(id)) return false;
+  if (isBoonLocked(character, id)) return false;
   const label = boonDisplayLabel(bundle.boons?.[id], bundle, character.pantheonId) || id;
   character.boonIds = (character.boonIds || []).filter((x) => x !== id);
   removeExperienceBoonPickIfPresent(id);
@@ -6547,34 +6554,44 @@ function appendExpLevelingKnackSections(knackSec, knackEntries) {
 
   /** @param {Record<string, unknown>} k */
   function expKnackOffered(kid, k) {
-    if (knackOwnedFromPriorChargen(kid)) return false;
     const experienceExtra = experienceKnackIdSet(character).has(kid);
+    if (experienceExtra || knackOwnedFromPriorChargen(kid)) return true;
     const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const knackXpBuy = baseOk && !eligible && !on && experienceCanAfford(character, bundle, "knack");
-    return experienceExtra || knackXpBuy;
+    return knackXpBuy;
   }
 
   /** @param {HTMLElement} container */
   function appendExpKnackChip(container, kid, k) {
     const on = character.knackIds.includes(kid) || finishingKnackSet.has(kid);
     const experienceExtra = experienceKnackIdSet(character).has(kid);
+    const priorOwned = knackOwnedFromPriorChargen(kid);
+    const carriedXp = carriedExperienceKnackIdSet(character).has(kid);
+    const locked = isKnackLocked(character, kid);
     const baseOk = knackEligibleOrLockedHeld(k, character, bundle);
     const eligible = knackEligibleForCallingStep(k, character, bundle);
     const knackXpBuy =
-      !experienceExtra && !on && !knackOwnedFromPriorChargen(kid) && baseOk && !eligible && experienceCanAfford(character, bundle, "knack");
-    const slotBlocked = !on && baseOk && !eligible && !knackXpBuy;
+      !experienceExtra && !priorOwned && !on && baseOk && !eligible && experienceCanAfford(character, bundle, "knack");
+    const slotBlocked = !on && !priorOwned && baseOk && !eligible && !knackXpBuy;
     const knackCost = experiencePurchaseCost(bundle, "knack") ?? 10;
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className =
       "chip" +
-      (on || experienceExtra ? " on" : "") +
+      (on || experienceExtra || priorOwned ? " on" : "") +
       (experienceExtra ? " chip-knack-experience" : "") +
+      (priorOwned ? " chip-knack-locked" : "") +
       (slotBlocked ? " chip-knack-slot-blocked" : "");
-    chip.disabled = slotBlocked;
-    if (experienceExtra) {
+    chip.disabled = priorOwned || slotBlocked;
+    if (priorOwned) {
+      chip.title = carriedXp
+        ? "Experience purchase from a prior tier — already on your sheet."
+        : locked
+          ? "Locked from a prior tier — already on your sheet."
+          : "Already on your sheet from Calling knack dots — not an Experience purchase.";
+    } else if (experienceExtra) {
       chip.title = `Experience purchase (${knackCost} XP) — click to deselect and refund`;
     } else if (knackXpBuy) {
       chip.title = `Spend ${knackCost} Experience to purchase this Knack`;
@@ -9491,7 +9508,7 @@ function renderExpLeveling(root) {
   const knackHelp = document.createElement("p");
   knackHelp.className = "help";
   knackHelp.textContent =
-    "Knacks you qualify for but cannot fit in your Calling knack budget appear here, grouped by Calling like the Callings tab. Click a dashed chip to purchase; selected chips stay highlighted — click again to deselect and refund XP.";
+    "Knacks you qualify for but cannot fit in your Calling knack budget appear here as dashed chips (click to spend XP). Knacks already on your sheet — from Calling dots, a prior tier, or an earlier Experience purchase — show highlighted and locked. Active Experience picks on this step can be clicked again to refund XP.";
   knackSec.appendChild(knackHelp);
   const knackEntries = Object.entries(bundle.knacks || {})
     .filter(([kid, k]) => !kid.startsWith("_") && isEntryVisibleForBooks(k, allowedBooks))
@@ -9513,13 +9530,14 @@ function renderExpLeveling(root) {
     boonHelp.className = "help";
     const boonBudget = boonBudgetSnapshot(character, bundle);
     boonHelp.textContent = boonBudget.usesLegendBudget
-      ? `When your Legend Boon budget (${boonBudget.legendUsed ?? 0} / ${boonBudget.legendTotal ?? 0}) is full, eligible Boons below can be bought with Experience.`
+      ? `When your Legend Boon budget (${boonBudget.legendUsed ?? 0} / ${boonBudget.legendTotal ?? 0}) is full, eligible Boons below can be bought with Experience (dashed chips). Boons already on your sheet from chargen or a prior tier show locked; active Experience picks highlight and can be refunded.`
       : boonBudget.heroCap != null
-        ? `When your chargen Boon cap (${boonBudget.heroCap}) is full, eligible Boons below can be bought with Experience.`
-        : "Eligible Boons you have not taken appear below for Experience purchase when your table uses caps.";
+        ? `When your chargen Boon cap (${boonBudget.heroCap}) is full, eligible Boons below can be bought with Experience. Boons already on your sheet show locked; active Experience picks highlight and can be refunded.`
+        : "Eligible Boons appear below for Experience purchase when caps apply. Owned Boons show locked; active Experience picks highlight.";
     boonSec.appendChild(boonHelp);
     const atFreeCap = boonBudget.atFreeCap;
-    let boonXpCount = 0;
+    const boonCost = experiencePurchaseCost(bundle, "boon") ?? 10;
+    let boonDisplayCount = 0;
     const boonEntries = Object.entries(bundle.boons || {})
       .filter(([bid]) => !bid.startsWith("_"))
       .sort((a, b) => {
@@ -9529,14 +9547,69 @@ function renderExpLeveling(root) {
       });
     let lastPv = null;
     let pvChips = null;
-    for (const [bid, b] of boonEntries) {
-      if (boonIsPurviewInnateAutomaticGrant(b, bundle)) continue;
-      if (!isEntryVisibleForBooks(b, allowedBooks)) continue;
+
+    /** @param {string} bid @param {Record<string, unknown>} b */
+    function expBoonOffered(bid, b) {
+      if (boonIsPurviewInnateAutomaticGrant(b, bundle)) return false;
+      if (!isEntryVisibleForBooks(b, allowedBooks)) return false;
+      const experienceExtra = experienceBoonIdSet(character).has(bid);
+      if (experienceExtra || boonOwnedFromPriorChargen(bid)) return true;
       const eligible = boonEligible(b, character, bundle);
       const on = character.boonIds.includes(bid);
       const boonXpBuy = !on && eligible && atFreeCap && experienceCanAfford(character, bundle, "boon");
-      if (!boonXpBuy) continue;
-      boonXpCount += 1;
+      if (boonXpBuy) return true;
+      return !on && eligible && atFreeCap && !experienceCanAfford(character, bundle, "boon");
+    }
+
+    /** @param {string} bid @param {Record<string, unknown>} b */
+    function appendExpBoonChip(bid, b) {
+      const on = character.boonIds.includes(bid);
+      const experienceExtra = experienceBoonIdSet(character).has(bid);
+      const priorOwned = boonOwnedFromPriorChargen(bid);
+      const locked = on && isBoonLocked(character, bid);
+      const eligible = boonEligible(b, character, bundle);
+      const boonXpBuy = !experienceExtra && !priorOwned && !on && eligible && atFreeCap && experienceCanAfford(character, bundle, "boon");
+      const slotBlocked = !on && !priorOwned && eligible && atFreeCap && !boonXpBuy;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className =
+        "chip" +
+        (on || experienceExtra || priorOwned ? " on" : "") +
+        (locked || priorOwned ? " chip-knack-locked" : "") +
+        (experienceExtra ? " chip-knack-experience" : "") +
+        (boonXpBuy ? " chip-experience-unlock" : "") +
+        (slotBlocked ? " chip-knack-slot-blocked" : "") +
+        (!eligible && on ? " chip-unqualified" : "");
+      chip.disabled = priorOwned || locked || slotBlocked;
+      if (priorOwned) {
+        chip.title = locked
+          ? "Locked from a prior tier — already on your sheet."
+          : "Already on your sheet from chargen — not an Experience purchase.";
+      } else if (experienceExtra) {
+        chip.title = `Experience purchase (${boonCost} XP) — click to deselect and refund`;
+      } else if (boonXpBuy) {
+        chip.title = `Spend ${boonCost} Experience for this Boon`;
+      } else if (slotBlocked) {
+        chip.title = `Not enough Experience (${boonCost} XP required)`;
+      } else if (!eligible && on) {
+        chip.title = "This Boon no longer matches your Purviews or tier, but it remains on your sheet.";
+      }
+      const boonChipLabel = boonDisplayLabel(b, bundle, character.pantheonId);
+      chip.textContent = boonChipLabel;
+      chip.addEventListener("click", () => {
+        if (chip.disabled) return;
+        if (experienceBoonIdSet(character).has(bid)) {
+          if (!removeExperienceBoonPick(bid)) return;
+        } else if (!addExperienceBoonPick(bid)) return;
+        render();
+      });
+      applyGameDataHint(chip, { ...b, name: boonChipLabel });
+      pvChips.appendChild(chip);
+      boonDisplayCount += 1;
+    }
+
+    for (const [bid, b] of boonEntries) {
+      if (!expBoonOffered(bid, b)) continue;
       const primaryPv = boonPrimaryPurview(b);
       if (primaryPv !== lastPv) {
         const gh = document.createElement("h3");
@@ -9548,19 +9621,9 @@ function renderExpLeveling(root) {
         boonSec.appendChild(pvChips);
         lastPv = primaryPv;
       }
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "chip chip-experience-unlock";
-      const boonChipLabel = boonDisplayLabel(b, bundle, character.pantheonId);
-      chip.textContent = boonChipLabel;
-      chip.title = `Spend ${experiencePurchaseCost(bundle, "boon")} Experience for this Boon`;
-      chip.addEventListener("click", () => {
-        if (addExperienceBoonPick(bid)) render();
-      });
-      applyGameDataHint(chip, { ...b, name: boonChipLabel });
-      pvChips.appendChild(chip);
+      appendExpBoonChip(bid, b);
     }
-    if (boonXpCount === 0) {
+    if (boonDisplayCount === 0) {
       const empty = document.createElement("p");
       empty.className = "help";
       empty.textContent = boonBudget.usesLegendBudget

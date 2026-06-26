@@ -118,14 +118,19 @@ def test_tier_advance_carries_experience_knacks_and_attr_display():
     assert "experienceArenaExtraDelta(arena)" in text.split("function maxAttrRatingForArena(attrId, attrs)")[1][:600]
 
 
-def test_exp_knacks_exclude_prior_chargen_picks():
+def test_exp_knacks_show_prior_owned_greyed():
     text = APP_JS.read_text(encoding="utf-8")
     elig = (ROOT / "src" / "static" / "js" / "eligibility.js").read_text(encoding="utf-8")
     assert "function knackOwnedFromPriorChargen" in text
     assert "knackOwnedFromPriorChargenPick(character, kid)" in text
-    assert "if (knackOwnedFromPriorChargen(kid)) return false" in text
-    assert "healSpuriousExperienceKnackIds" in text
+    start = text.index("function appendExpLevelingKnackSections")
+    block = text[start : text.index("function renderCalling(root)", start)]
+    assert "if (experienceExtra || knackOwnedFromPriorChargen(kid)) return true" in block
+    assert "const priorOwned = knackOwnedFromPriorChargen(kid)" in block
+    assert "chip-knack-locked" in block
+    assert "chip.disabled = priorOwned || slotBlocked" in block
     assert "if (!id || knackOwnedFromPriorChargen(id)) return false" in text
+    assert "healSpuriousExperienceKnackIds" in text
     assert "settleExperienceKnacksAfterTierAdvance(character, carriedKnackIds)" in text
     assert "settleLockedExperienceKnacks(character)" in text
     assert "export function settleExperienceKnacksAfterTierAdvance" in elig

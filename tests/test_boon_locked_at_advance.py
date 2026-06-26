@@ -16,6 +16,18 @@ def test_boon_lock_helpers_exported():
     assert "export function isBoonLocked" in js
     assert "export function boonCountsAgainstLegendBudget" in js
     assert "export function lockBoonsAtTierAdvance" in js
+    assert "export function boonOwnedFromPriorChargenPick" in js
+
+
+def test_exp_leveling_boons_show_owned_greyed():
+    app = APP.read_text(encoding="utf-8")
+    render = app.split("function renderExpLeveling(root)")[1].split("function renderDominionBoons")[0]
+    assert "function expBoonOffered(bid, b)" in render
+    assert "boonOwnedFromPriorChargen(bid)" in render
+    assert "chip-knack-locked" in render
+    assert "chip-knack-experience" in render
+    assert "removeExperienceBoonPick(bid)" in render
+    assert "if (!boonXpBuy) continue" not in render
 
 
 def test_tier_advance_locks_boons():
