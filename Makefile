@@ -61,7 +61,7 @@ help: ## Show targets
 	@echo "  make enable           — turn containers back on after disable"
 	@echo ""
 	@echo "$(YELLOW)Teardown:$(NC)"
-	@echo "  make destroy          — terragrunt destroy (Lightsail, DNS, cert, SSM — stops billing)"
+	@echo "  make destroy          — detach cert, then destroy infra in safe order (stops billing)"
 	@echo ""
 	@echo "$(YELLOW)Terraform:$(NC)"
 	@echo "  make plan             — terragrunt run-all plan"
@@ -87,9 +87,9 @@ apply: ## Run terragrunt apply for all modules
 	cd terraform && terragrunt run-all apply
 
 destroy: ## Destroy all Terraform-managed AWS infrastructure (stops Lightsail billing)
-	@echo "$(RED)=== destroy: terragrunt run-all destroy ===$(NC)"
+	@echo "$(RED)=== destroy: detach Lightsail cert → ordered terragrunt destroy ===$(NC)"
 	@echo "$(RED)Removes Lightsail service, certificate, Route53 records, SSM params, etc.$(NC)"
-	cd terraform && terragrunt run-all destroy
+	bash "$(ROOT)/terraform/scripts/destroy-all.sh"
 
 # Default: HTTPS with repo-local dev cert (src/scripts/dev_tls_cert.sh).
 run run-https:

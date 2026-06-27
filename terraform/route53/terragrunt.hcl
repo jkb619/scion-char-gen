@@ -18,7 +18,7 @@ dependency "lightsail_service" {
     url          = "https://scion-chargen.abcdef123.us-east-2.cs.amazonlightsail.com"
   }
 
-  mock_outputs_allowed_terraform_commands = ["validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "destroy"]
 }
 
 locals {
