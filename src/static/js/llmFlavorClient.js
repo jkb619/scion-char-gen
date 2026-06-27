@@ -106,6 +106,8 @@ export function buildCharacterFlavorSummary(character, bundle) {
   const fieldModes = {
     characterName: flavorFieldMode(character.characterName),
     concept: flavorFieldMode(character.concept),
+    notes: flavorFieldMode(character.notes),
+    sheetDescription: flavorFieldMode(character.sheetDescription),
     deeds: {
       short: flavorFieldMode(deeds.short),
       long: flavorFieldMode(deeds.long),
@@ -147,6 +149,8 @@ export function buildCharacterFlavorSummary(character, bundle) {
     callings,
     characterName: String(character.characterName || ""),
     concept: String(character.concept || ""),
+    notes: String(character.notes || ""),
+    sheetDescription: String(character.sheetDescription || ""),
     deeds: {
       short: String(deeds.short || ""),
       long: String(deeds.long || ""),
@@ -179,14 +183,29 @@ export function scopeFlavorSummary(summary, scope) {
   if (scope === "concept") {
     next.paths = allSkip(/** @type {Record<string, string>} */ (fm.paths));
     next.skillSpecialties = allSkip(/** @type {Record<string, string>} */ (fm.skillSpecialties));
+    for (const key of ["characterName", "concept", "notes", "sheetDescription"]) {
+      if (next[key] !== "skip") next[key] = flavorFieldMode(summary[key]);
+    }
+    const deedDraft = summary.deeds && typeof summary.deeds === "object" ? summary.deeds : {};
+    const deedModes = fm.deeds && typeof fm.deeds === "object" ? { ...fm.deeds } : {};
+    for (const key of ["short", "long", "band", "mythos"]) {
+      if (Object.prototype.hasOwnProperty.call(deedDraft, key)) {
+        deedModes[key] = flavorFieldMode(deedDraft[key]);
+      }
+    }
+    next.deeds = deedModes;
   } else if (scope === "paths") {
     next.characterName = "skip";
     next.concept = "skip";
+    next.notes = "skip";
+    next.sheetDescription = "skip";
     next.deeds = allSkip(/** @type {Record<string, string>} */ (fm.deeds));
     next.skillSpecialties = allSkip(/** @type {Record<string, string>} */ (fm.skillSpecialties));
   } else if (scope === "specialties") {
     next.characterName = "skip";
     next.concept = "skip";
+    next.notes = "skip";
+    next.sheetDescription = "skip";
     next.deeds = allSkip(/** @type {Record<string, string>} */ (fm.deeds));
     next.paths = allSkip(/** @type {Record<string, string>} */ (fm.paths));
   }
@@ -199,6 +218,8 @@ function summaryHasFlavorWork(summary) {
   const modes = [
     fm.characterName,
     fm.concept,
+    fm.notes,
+    fm.sheetDescription,
     ...Object.values(fm.deeds && typeof fm.deeds === "object" ? fm.deeds : {}),
     ...Object.values(fm.paths && typeof fm.paths === "object" ? fm.paths : {}),
     ...Object.values(fm.skillSpecialties && typeof fm.skillSpecialties === "object" ? fm.skillSpecialties : {}),
@@ -217,13 +238,23 @@ export function applyCharacterFlavor(character, flavor, fieldModes) {
   const d = dragon && character.dragon && typeof character.dragon === "object" ? character.dragon : null;
   const modes = fieldModes && typeof fieldModes === "object" ? fieldModes : null;
 
-  const shouldApply = (mode) => !modes || mode === "generate" || mode === "enhance";
+  const shouldApply = (mode) => !modes || mode !== "skip";
 
   if (shouldApply(modes?.characterName) && typeof flavor.characterName === "string" && flavor.characterName.trim()) {
     character.characterName = flavor.characterName.trim();
   }
   if (shouldApply(modes?.concept) && typeof flavor.concept === "string" && flavor.concept.trim()) {
     character.concept = flavor.concept.trim();
+  }
+  if (shouldApply(modes?.notes) && typeof flavor.notes === "string" && flavor.notes.trim()) {
+    character.notes = flavor.notes.trim();
+  }
+  if (
+    shouldApply(modes?.sheetDescription) &&
+    typeof flavor.sheetDescription === "string" &&
+    flavor.sheetDescription.trim()
+  ) {
+    character.sheetDescription = flavor.sheetDescription.trim();
   }
 
   if (flavor.deeds && typeof flavor.deeds === "object") {

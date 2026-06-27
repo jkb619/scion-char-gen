@@ -9,8 +9,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import ASSET_VERSION, STATIC_DIR, TEMPLATES_DIR
+from app.services.llm_config import bootstrap_llm_env
 from app.routers import game_data, interactive_pdf, llm, review_sheet_pdf
 from app.services import game_data as game_data_service
+
+bootstrap_llm_env()
 
 app = FastAPI(title="Scion Character Creator", version="0.1.0")
 

@@ -75,10 +75,11 @@ ls-deploy: ## Deploy latest pushed image to Lightsail
 	echo "$(GREEN)Deployment created. Run 'make ls-status' to monitor.$(NC)"; \
 	echo "  Verify live site header shows version: $$IMAGE_VERSION"
 
-deploy: ## Build, push, and deploy to Lightsail (full workflow)
-	@echo "$(GREEN)=== Full deploy: build → push → deploy ===$(NC)"
+deploy: ## Build, push, sync LLM keys, and deploy to Lightsail (full workflow)
+	@echo "$(GREEN)=== Full deploy: build → push → sync LLM keys → deploy ===$(NC)"
 	$(MAKE) build
 	$(MAKE) ls-push
+	$(MAKE) sync-llm-keys
 	$(MAKE) ls-deploy
 
 ls-status: ## Show Lightsail service status and URL
@@ -93,4 +94,24 @@ ls-logs: ## Fetch Lightsail container logs
 		--container-name app \
 		--region $(AWS_REGION) \
 		--no-cli-pager
+
+disable: ## Disable Lightsail service (containers off, public URL 503; service still billed)
+	@echo "$(YELLOW)Disabling Lightsail service $(LIGHTSAIL_SERVICE) in $(AWS_REGION)...$(NC)"
+	aws lightsail update-container-service \
+		--service-name $(LIGHTSAIL_SERVICE) \
+		--region $(AWS_REGION) \
+		--is-disabled \
+		--no-cli-pager
+	@echo "$(GREEN)Service disabled — containers stopped, URL returns 503.$(NC)"
+	@echo "  Re-enable: make enable"
+	@echo "$(YELLOW)  Note: Lightsail still bills while disabled (power × scale). Use make destroy to remove infra and stop charges.$(NC)"
+
+enable: ## Re-enable a disabled Lightsail container service
+	@echo "$(GREEN)Enabling Lightsail service $(LIGHTSAIL_SERVICE) in $(AWS_REGION)...$(NC)"
+	aws lightsail update-container-service \
+		--service-name $(LIGHTSAIL_SERVICE) \
+		--region $(AWS_REGION) \
+		--no-is-disabled \
+		--no-cli-pager
+	@echo "$(GREEN)Service enabled — last deployment should resume (make ls-status to watch).$(NC)"
 

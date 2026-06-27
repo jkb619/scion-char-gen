@@ -133,6 +133,65 @@ body > * {
   gap: 0.5rem;
 }
 
+.welcome-chargen-actions {
+  align-items: flex-start;
+  width: 100%;
+}
+
+.welcome-concept-prompt {
+  flex: 1 1 16rem;
+  min-width: 12rem;
+  min-height: 2.75rem;
+  max-width: 36rem;
+  resize: vertical;
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 4px;
+}
+
+.welcome-concept-generate-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.welcome-chargen-progress-span {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 36rem;
+  margin-top: 0.15rem;
+}
+
+.welcome-concept-progress-track {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--border, #ccc);
+  overflow: hidden;
+}
+
+.welcome-concept-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5a7a9a, #3d6b8c);
+  transition: width 0.25s ease;
+}
+
+.welcome-concept-progress.is-complete .welcome-concept-progress-fill {
+  background: linear-gradient(90deg, #4a8f5a, #2d7a44);
+}
+
+.welcome-concept-progress.is-error .welcome-concept-progress-fill {
+  background: linear-gradient(90deg, #a05050, #8b3a3a);
+}
+
+.welcome-concept-progress-label {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted, #555);
+  line-height: 1.35;
+}
+
 .wizard-step-inline-actions {
   display: flex;
   flex-wrap: wrap;

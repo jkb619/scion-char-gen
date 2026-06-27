@@ -10,3 +10,4 @@ books/
 **/.terragrunt-cache/
 **/.terraform/
 terraform/secrets/app-secret.json
+secrets/llm-keys.local.yaml

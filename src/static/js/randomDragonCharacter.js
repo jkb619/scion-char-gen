@@ -7,10 +7,20 @@ import {
   ensureDragonShape,
   syncDragonFlightPathRequiredSkills,
   dragonCallingDotsRequired,
+  dragonKnackShell,
+  dragonMagicIdsExcludedFromSecondaryKnownSlots,
   finalizeDragonSkillDotsFromPaths,
 } from "./chargen/DragonChargenWizard.js";
+import {
+  knackEligible,
+  knackEligibleForCallingStep,
+  knackIdsCallingSlotsUsed,
+  pruneKnackIdsToCallingSlotCap,
+  seedHeroKnackRowAssignments,
+  syncHeroKnackSlotAssignments,
+} from "./eligibility.js";
 import { experiencePurchaseCost, experienceSpend, recordExperienceSkillBump } from "./experience.js";
-import { createRng, emptyCharacterShape, pick, shuffle } from "./randomChargenUtils.js";
+import { emptyCharacterShape, pick, shuffle } from "./randomChargenUtils.js";
 import { rollDragonInheritanceExperiencePool } from "./tierExperienceBudget.js";
 
 const DRAGON_PATH_KEYS = ["origin", "role", "flight"];
@@ -21,6 +31,14 @@ const ARENAS = {
   Social: ["presence", "manipulation", "composure"],
 };
 const APPROACHES = ["Force", "Finesse", "Resilience"];
+const DEED_NAME_TEMPLATES = [
+  "The Unwritten Scale",
+  "Breath Before the Storm",
+  "Hoard of Broken Oaths",
+  "Wyrm's Quiet Gambit",
+  "Ash on the Horizon",
+  "The Brood Remembers",
+];
 
 /** @param {Record<string, unknown>} bundle */
 function skillIds(bundle) {
@@ -43,6 +61,61 @@ function dragonCallingIdPool(bundle) {
     }
   }
   return [...out];
+}
+
+/** @param {Record<string, unknown>} bundle */
+function dragonBirthrightCatalogIds(bundle) {
+  return Object.keys(bundle?.birthrights || {}).filter((id) => {
+    if (id.startsWith("_")) return false;
+    const b = bundle.birthrights[id];
+    if (!b || typeof b !== "object") return false;
+    const lines = /** @type {{ chargenLines?: unknown }} */ (b).chargenLines;
+    return Array.isArray(lines) && lines.includes("dragonHeir");
+  });
+}
+
+/** @param {Record<string, unknown>} bundle @param {string} bid */
+function birthrightPointCost(bundle, bid) {
+  const br = bundle.birthrights?.[bid];
+  const c = Math.round(Number(br?.pointCost ?? br?.dots ?? 1));
+  return Number.isFinite(c) && c > 0 ? Math.min(5, c) : 1;
+}
+
+/** @param {Record<string, unknown>} bundle @param {string} magicId */
+function spellIdsForMagic(bundle, magicId) {
+  const mag = bundle?.dragonMagic?.[magicId];
+  if (!mag || !Array.isArray(mag.spells)) return [];
+  return mag.spells
+    .map((s) => String(s?.id ?? "").trim())
+    .filter(Boolean);
+}
+
+/**
+ * @param {Record<string, unknown>} bundle
+ * @param {string} magicId
+ * @param {() => number} rng
+ * @param {Set<string>} [exclude]
+ */
+function pickSpellForMagic(bundle, magicId, rng, exclude = new Set()) {
+  const pool = spellIdsForMagic(bundle, magicId).filter((id) => !exclude.has(id));
+  return pick(pool.length ? pool : spellIdsForMagic(bundle, magicId), rng) || "";
+}
+
+/** @param {number} inh @param {Record<string, unknown>} bundle */
+function advancementSpellSlotCount(inh, bundle) {
+  const row = bundle?.dragonTier?.inheritanceTrack?.[String(inh)];
+  return Math.max(0, Math.round(Number(row?.wizardAdvancementSpellSlots) || 0));
+}
+
+/** @param {Record<string, unknown>} character @param {import('./chargen/DragonChargenWizard.js').DragonState} d */
+function draconicKnackEligibilityCharacter(character, d) {
+  return {
+    ...character,
+    tier: "hero",
+    legendRating: Math.round(Number(d.inheritance) || 1),
+    callingSlots: d.callingSlots,
+    dragonHeirCallingKnackShell: true,
+  };
 }
 
 /** @param {Record<string, unknown>} bundle @param {() => number} rng */
@@ -122,8 +195,13 @@ function assignDragonAttributes(d, rng) {
   if (finId && (d.attributes[finId] || 1) < 5) d.attributes[finId] += 1;
 }
 
-/** @param {import('./chargen/DragonChargenWizard.js').DragonState} d @param {Record<string, unknown>} bundle @param {() => number} rng */
-function assignDragonCallingsAndKnacks(d, bundle, rng) {
+/**
+ * @param {Record<string, unknown>} character
+ * @param {import('./chargen/DragonChargenWizard.js').DragonState} d
+ * @param {Record<string, unknown>} bundle
+ * @param {() => number} rng
+ */
+function assignDragonCallingsAndKnacks(character, d, bundle, rng) {
   const pool = dragonCallingIdPool(bundle);
   const picked = shuffle(pool, rng).slice(0, 3);
   const totalDots = dragonCallingDotsRequired(bundle, d.inheritance);
@@ -150,52 +228,144 @@ function assignDragonCallingsAndKnacks(d, bundle, rng) {
     { id: picked[1] || "", dots: dots[1] },
     { id: picked[2] || "", dots: dots[2] },
   ];
+  d.callingKnackIds = [];
+  d.knackSlotById = {};
 
-  const knackRows = Object.entries(bundle?.dragonCallingKnacks || {}).filter(([k]) => !k.startsWith("_"));
-  const shuffled = shuffle(knackRows, rng);
+  const shell = dragonKnackShell(character);
+  shell.knackIds = [];
+  shell.knackSlotById = {};
+  const knackPool = Object.values(bundle?.dragonCallingKnacks || {}).filter(
+    (k) => k && typeof k === "object" && knackEligibleForCallingStep(k, shell, bundle),
+  );
   /** @type {string[]} */
-  const knackIds = [];
-  let budget = totalDots;
-  for (const [kid, row] of shuffled) {
-    if (budget <= 0) break;
-    const cost = Math.round(Number(row?.callingSlotCost) || 1);
-    if (cost > budget) continue;
-    knackIds.push(kid);
-    budget -= cost;
+  const pickedKnacks = [];
+  for (const k of shuffle(knackPool, rng)) {
+    if (knackIdsCallingSlotsUsed(pickedKnacks, bundle, shell) >= totalDots) break;
+    const kid = String(k.id || "").trim();
+    if (!kid) continue;
+    const trial = pruneKnackIdsToCallingSlotCap([...pickedKnacks, kid], shell, bundle);
+    if (trial.length === pickedKnacks.length + 1) pickedKnacks.push(kid);
   }
-  d.callingKnackIds = knackIds;
+  shell.knackIds = pickedKnacks;
+  seedHeroKnackRowAssignments(shell, bundle);
+  syncHeroKnackSlotAssignments(shell, bundle);
+  d.callingKnackIds = [...(shell.knackIds || [])];
+  d.knackSlotById = { ...(shell.knackSlotById || {}) };
 
-  const cap = Math.min(10, Math.round(Number(d.inheritance) || 1) + 1);
+  const dkCap = Math.min(10, Math.round(Number(d.inheritance) || 1) + 1);
   const flight = bundle?.dragonFlights?.[d.flightId];
   const favored = Array.isArray(flight?.favoredDraconicKnackIds) ? flight.favoredDraconicKnackIds : [];
   const draconicPool = Object.keys(bundle?.dragonKnacks || {}).filter((k) => !k.startsWith("_"));
-  const draconicPick = shuffle([...favored, ...draconicPool], rng).filter(
-    (id, i, arr) => arr.indexOf(id) === i,
-  );
-  d.draconicKnackIds = draconicPick.slice(0, cap);
+  const draconicPick = shuffle([...favored, ...draconicPool], rng).filter((id, i, arr) => arr.indexOf(id) === i);
+  const knChar = draconicKnackEligibilityCharacter(character, d);
+  /** @type {string[]} */
+  const draconicIds = [];
+  for (const id of draconicPick) {
+    if (draconicIds.length >= dkCap) break;
+    const k = bundle?.dragonKnacks?.[id];
+    if (k && typeof k === "object" && knackEligible(k, knChar, bundle)) draconicIds.push(id);
+  }
+  for (const id of shuffle(draconicPool, rng)) {
+    if (draconicIds.length >= dkCap) break;
+    if (draconicIds.includes(id)) continue;
+    const k = bundle?.dragonKnacks?.[id];
+    if (k && typeof k === "object" && knackEligible(k, knChar, bundle)) draconicIds.push(id);
+  }
+  d.draconicKnackIds = draconicIds.slice(0, dkCap);
 }
 
 /** @param {import('./chargen/DragonChargenWizard.js').DragonState} d @param {Record<string, unknown>} bundle @param {() => number} rng */
-function assignDragonMagicAndBirthrights(d, bundle, rng) {
+function assignDragonMagicAndSpells(d, bundle, rng) {
   const flight = bundle?.dragonFlights?.[d.flightId];
-  if (flight?.signatureMagicId) d.knownMagics[0] = String(flight.signatureMagicId);
-  const magicPool = Object.keys(bundle?.dragonMagic || {}).filter((k) => !k.startsWith("_"));
-  const extras = shuffle(magicPool.filter((id) => id !== d.knownMagics[0]), rng);
-  if (extras[0]) d.knownMagics[1] = extras[0];
+  const sig = flight?.signatureMagicId ? String(flight.signatureMagicId) : "";
+  d.knownMagics = ["", "", ""];
+  if (sig) d.knownMagics[0] = sig;
 
-  const brPool = Object.keys(bundle?.birthrightsDragon || bundle?.birthrights || {}).filter((k) => !k.startsWith("_"));
-  let spent = 0;
-  /** @type {{ id: string; dots: number }[]} */
-  const picks = [];
-  for (const bid of shuffle(brPool, rng)) {
-    const table = bundle?.birthrightsDragon?.[bid] || bundle?.birthrights?.[bid];
-    const cost = Math.max(1, Math.round(Number(table?.pointCost ?? table?.dots ?? 1)));
-    if (spent + cost > 4) continue;
-    picks.push({ id: bid, dots: cost });
-    spent += cost;
+  const excluded = dragonMagicIdsExcludedFromSecondaryKnownSlots(bundle, d.flightId);
+  const magicPool = Object.keys(bundle?.dragonMagic || {}).filter(
+    (k) => !k.startsWith("_") && k !== sig && !excluded.has(k),
+  );
+  const extras = shuffle(magicPool, rng);
+  if (extras[0]) d.knownMagics[1] = extras[0];
+  if (extras[1]) d.knownMagics[2] = extras[1];
+  if (!d.knownMagics[1]) d.knownMagics[1] = pick(magicPool.filter((id) => id !== d.knownMagics[2]), rng) || "";
+  if (!d.knownMagics[2]) {
+    d.knownMagics[2] =
+      pick(
+        magicPool.filter((id) => id !== d.knownMagics[1]),
+        rng,
+      ) || "";
   }
-  d.birthrightPicks = picks;
+
+  if (!d.spellsByMagicId || typeof d.spellsByMagicId !== "object") d.spellsByMagicId = {};
+  for (const mid of d.knownMagics.filter(Boolean)) {
+    const spellId = pickSpellForMagic(bundle, mid, rng);
+    if (spellId) d.spellsByMagicId[mid] = spellId;
+  }
+
+  if (!d.bonusSpell || typeof d.bonusSpell !== "object") d.bonusSpell = { magicId: "", spellId: "" };
+  const known = d.knownMagics.filter(Boolean);
+  const bonusMid = pick(known, rng) || known[0] || "";
+  const primarySpell = String(d.spellsByMagicId[bonusMid] || "").trim();
+  const bonusSpellId = pickSpellForMagic(bundle, bonusMid, rng, new Set([primarySpell]));
+  d.bonusSpell = { magicId: bonusMid, spellId: bonusSpellId || pickSpellForMagic(bundle, bonusMid, rng) };
+
+  const advN = advancementSpellSlotCount(d.inheritance, bundle);
+  /** @type {{ magicId: string; spellId: string }[]} */
+  const advRows = [];
+  const magicForAdv = [...known, String(d.bonusSpell.magicId || "").trim()].filter(Boolean);
+  const usedAdvSpells = new Set(
+    [
+      ...Object.values(d.spellsByMagicId || {}),
+      String(d.bonusSpell.spellId || "").trim(),
+    ].filter(Boolean),
+  );
+  for (let i = 0; i < advN; i += 1) {
+    const mid = magicForAdv[i % magicForAdv.length] || known[0] || "";
+    const spellId = pickSpellForMagic(bundle, mid, rng, usedAdvSpells) || pickSpellForMagic(bundle, mid, rng);
+    if (spellId) usedAdvSpells.add(spellId);
+    advRows.push({ magicId: mid, spellId });
+  }
+  d.advancementSpells = advRows;
+}
+
+/** @param {import('./chargen/DragonChargenWizard.js').DragonState} d @param {Record<string, unknown>} bundle @param {() => number} rng */
+function assignDragonBirthrights(d, bundle, rng) {
+  const brPool = dragonBirthrightCatalogIds(bundle);
+  const target = 7;
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    /** @type {{ id: string; dots: number }[]} */
+    const picks = [];
+    let spent = 0;
+    for (const bid of shuffle([...brPool], rng)) {
+      const cost = birthrightPointCost(bundle, bid);
+      if (spent + cost > target) continue;
+      picks.push({ id: bid, dots: cost });
+      spent += cost;
+      if (spent === target) break;
+    }
+    if (spent === target) {
+      d.birthrightPicks = picks;
+      d.finishingFocus = "knacks";
+      return;
+    }
+  }
+  /** Fallback: 4 + 3 dots when greedy shuffle misses exact 7. */
+  const sorted = [...brPool].sort((a, b) => birthrightPointCost(bundle, b) - birthrightPointCost(bundle, a));
+  const four = sorted.find((id) => birthrightPointCost(bundle, id) === 4) || sorted[0];
+  const three = sorted.find((id) => id !== four && birthrightPointCost(bundle, id) === 3) || sorted.find((id) => id !== four);
+  d.birthrightPicks = [
+    four ? { id: four, dots: birthrightPointCost(bundle, four) } : null,
+    three ? { id: three, dots: birthrightPointCost(bundle, three) } : null,
+  ].filter(Boolean);
   d.finishingFocus = "knacks";
+}
+
+/** @param {import('./chargen/DragonChargenWizard.js').DragonState} d @param {() => number} rng */
+function assignDragonDeedName(d, rng) {
+  if (Math.round(Number(d.inheritance) || 1) >= 2) {
+    d.deedName = pick(DEED_NAME_TEMPLATES, rng) || "The Brood's Mark";
+  }
 }
 
 /** @param {import('./chargen/DragonChargenWizard.js').DragonState} d @param {Record<string, unknown>} bundle @param {() => number} rng */
@@ -238,8 +408,10 @@ export function generateRandomDragonCharacter(bundle, inheritancePayload, rng) {
   pickDragonPathSkills(character.dragon, bundle, rng);
   distributeDragonFinishingSkills(character.dragon, bundle, rng);
   assignDragonAttributes(character.dragon, rng);
-  assignDragonCallingsAndKnacks(character.dragon, bundle, rng);
-  assignDragonMagicAndBirthrights(character.dragon, bundle, rng);
+  assignDragonCallingsAndKnacks(character, character.dragon, bundle, rng);
+  assignDragonMagicAndSpells(character.dragon, bundle, rng);
+  assignDragonBirthrights(character.dragon, bundle, rng);
+  assignDragonDeedName(character.dragon, rng);
 
   character.paths.origin = character.dragon.paths.origin;
   character.paths.role = character.dragon.paths.role;

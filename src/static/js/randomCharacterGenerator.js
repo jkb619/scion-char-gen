@@ -29,6 +29,8 @@ import {
 } from "./experience.js";
 import { applyPathAndFinishingToSkillDots, pathSkillTrimmedLostAndUnion, sanitizePathSkillRedistribution } from "./pathSkillMath.js";
 import { generateRandomDragonCharacter } from "./randomDragonCharacter.js";
+import { assignScionMantleExtras } from "./randomScionMantleExtras.js";
+import { assignSorcererChargen } from "./randomSorcererChargen.js";
 import {
   createRng,
   distributeThreeRowCallingDots,
@@ -248,7 +250,7 @@ function allowedCallingIds(character, bundle) {
 }
 
 /** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle @param {() => number} rng */
-function assignCallingAndKnacks(character, bundle, rng) {
+export function assignCallingAndKnacks(character, bundle, rng) {
   const allowed = allowedCallingIds(character, bundle);
   const tier = String(character.tier || "mortal");
 
@@ -332,7 +334,7 @@ function birthrightBudgetForTier(tierId) {
 }
 
 /** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle @param {() => number} rng */
-function assignPurviewsBirthrightsBoons(character, bundle, rng) {
+export function assignPurviewsBirthrightsBoons(character, bundle, rng) {
   const tier = String(character.tier || "mortal");
   const pant = bundle.pantheons?.[character.pantheonId];
   const sig = pant && typeof pant === "object" ? String(pant.signaturePurviewId || "").trim() : "";
@@ -414,13 +416,39 @@ function distributeFinishingSkillDots(character, bundle, rng) {
   applyPathAndFinishingToSkillDots(bundle, character, bumps);
 }
 
-/** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle */
-export function applyMechanicalFlavorFallback(character, bundle) {
+/** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle @param {boolean} dragon */
+function fallbackSheetDescription(character, bundle, dragon) {
+  const name = String(character.characterName || "They").trim();
+  const concept = String(character.concept || "").trim().replace(/\.$/, "");
+  if (dragon && character.dragon && typeof character.dragon === "object") {
+    const d = character.dragon;
+    const flight = bundle.dragonFlights?.[String(d.flightId || "")]?.name;
+    const inh = Math.round(Number(d.inheritance) || 0);
+    const inhLabel = bundle.dragonTier?.inheritanceTrack?.[String(inh)]?.name || (inh ? `Inheritance ${inh}` : "");
+    const parts = [];
+    if (concept) parts.push(concept);
+    if (flight) parts.push(`of ${flight}`);
+    if (inhLabel) parts.push(`(${inhLabel})`);
+    const core = parts.length ? parts.join(" ") : "a Dragon Heir whose story is still unfolding";
+    return `${name} — ${core}.`;
+  }
+  const paths = character.paths && typeof character.paths === "object" ? character.paths : {};
+  const pathBits = ["origin", "role", "society"]
+    .map((k) => String(paths[k] || "").trim())
+    .filter(Boolean);
+  let text = concept ? `${name}: ${concept}.` : `${name} — an enigmatic figure at the table.`;
+  if (pathBits.length) text += ` ${pathBits.join("; ")}.`;
+  return text;
+}
+
+/** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle @param {{ force?: boolean }} [options] */
+export function applyConceptMechanicalFallback(character, bundle, options = {}) {
+  const force = options.force === true;
   const dragon = String(character?.chargenLineage ?? "").trim().toLowerCase() === "dragonheir";
-  if (!String(character.characterName || "").trim()) {
+  if (force || !String(character.characterName || "").trim()) {
     character.characterName = `${pick(NAME_PARTS, rngStatic())} ${pick(NAME_PARTS, rngStatic())}`;
   }
-  if (!String(character.concept || "").trim()) {
+  if (force || !String(character.concept || "").trim()) {
     if (dragon) {
       character.concept = "A Dragon Heir learning what inheritance demands.";
     } else if (isSorcererLineTierId(String(character.tier))) {
@@ -431,17 +459,31 @@ export function applyMechanicalFlavorFallback(character, bundle) {
     }
   }
   if (!character.deeds || typeof character.deeds !== "object") character.deeds = {};
-  if (!String(character.deeds.short || "").trim()) {
+  if (force || !String(character.deeds.short || "").trim()) {
     character.deeds.short = dragon ? "Master a draconic challenge." : "Prove worth to allies and rivals alike.";
   }
-  if (!String(character.deeds.long || "").trim()) {
+  if (force || !String(character.deeds.long || "").trim()) {
     character.deeds.long = dragon
       ? "Claim a place worthy of your inheritance."
       : `Forge a lasting bond between mortal life and ${character.patronKind === "titan" ? "Titan" : "deity"} legacy.`;
   }
-  if (!String(character.deeds.band || "").trim()) {
+  if (force || !String(character.deeds.band || "").trim()) {
     character.deeds.band = dragon ? "Stand with the Brood when fate turns brutal." : "Stand with the band when fate turns brutal.";
   }
+  if (force || !String(character.sheetDescription || "").trim()) {
+    character.sheetDescription = fallbackSheetDescription(character, bundle, dragon);
+  }
+  if (force || !String(character.notes || "").trim()) {
+    character.notes = dragon
+      ? "Chronicle notes: Brood ties, Flight oaths, and what inheritance costs at the table."
+      : "Chronicle notes: band ties, SG agreements, and anything not on the sheet.";
+  }
+}
+
+/** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle */
+export function applyMechanicalFlavorFallback(character, bundle) {
+  const dragon = String(character?.chargenLineage ?? "").trim().toLowerCase() === "dragonheir";
+  applyConceptMechanicalFallback(character, bundle);
   for (const pk of ["origin", "role", "society"]) {
     if (!character.paths || typeof character.paths !== "object") character.paths = {};
     if (!String(character.paths[pk] || "").trim()) {
@@ -470,6 +512,12 @@ export function applyMechanicalFlavorFallback(character, bundle) {
   } else {
     assignChargenSpecialties(character, bundle, rngStatic());
   }
+  if (!dragon) {
+    assignScionMantleExtras(character, bundle, rngStatic());
+    if (isSorcererLineTierId(String(character.tier))) {
+      assignSorcererChargen(character, bundle, rngStatic());
+    }
+  }
 }
 
 function rngStatic() {
@@ -477,7 +525,7 @@ function rngStatic() {
 }
 
 /** @param {Record<string, unknown>} character @param {Record<string, unknown>} bundle @param {() => number} rng */
-function assignChargenSpecialties(character, bundle, rng) {
+export function assignChargenSpecialties(character, bundle, rng) {
   if (!character.skillSpecialties || typeof character.skillSpecialties !== "object") character.skillSpecialties = {};
   for (const sid of skillIds(bundle)) {
     const dots = character.skillDots?.[sid] || 0;
@@ -582,6 +630,7 @@ export function generateRandomCharacter(bundle, options) {
     assignAttributesAndFinishing(character, rng);
     spendTierExperiencePool(character, bundle, rng);
     character.legendRating = rollLegendRatingForTier(character.tier, bundle, rng);
+    assignSorcererChargen(character, bundle, rng);
     return character;
   }
 
@@ -606,6 +655,8 @@ export function generateRandomCharacter(bundle, options) {
   assignPurviewsBirthrightsBoons(character, bundle, rng);
 
   spendTierExperiencePool(character, bundle, rng);
+
+  assignScionMantleExtras(character, bundle, rng);
 
   return character;
 }

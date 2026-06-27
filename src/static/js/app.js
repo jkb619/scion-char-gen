@@ -30,7 +30,11 @@ import {
   fetchLlmStatus,
   runAutoCharacterFlavor,
 } from "./llmFlavorClient.js";
-import { applyMechanicalFlavorFallback, generateRandomCharacter } from "./randomCharacterGenerator.js";
+import { requestCharacterFromConcept, fetchLlmStatusExtended } from "./llmConceptChargenClient.js";
+import { applyConceptMechanicalFallback, applyMechanicalFlavorFallback, generateRandomCharacter } from "./randomCharacterGenerator.js";
+import { mountConceptGenProgress } from "./conceptGenProgress.js";
+import { finalizeConceptCharacterFromSkeleton, repairConceptMechanicalsFromSkeleton, clearGenericSkillSpecialtyPlaceholders } from "./randomConceptCharacter.js";
+import { assignScionMantleExtras, ensureMantleExtrasShape, legendaryTitleLineCount } from "./randomScionMantleExtras.js";
 import {
   buildCharacterSheet,
   buildVirtueSpectrumElement,
@@ -198,6 +202,8 @@ import {
   isDragonHeirChargen,
   dragonHeirAttributesCoreLayoutLocked,
   buildDragonReviewSnapshot,
+  dragonExportTierPresentation,
+  defaultDragonState,
   captureDragonFinishingAttrBaseline,
   appendDragonHeirFlightsPathStep,
 } from "./chargen/DragonChargenWizard.js";
@@ -825,6 +831,12 @@ function defaultCharacter() {
     notes: "",
     /** Freeform look / vitals / etc. for the sheet “Description” block (page 2). */
     sheetDescription: "",
+    /** One Legendary Title per Legend dot, newline-separated (Hero p. 191; Demigod p. 132). */
+    legendaryTitles: "",
+    /** Manifestation when spending Momentum or Legend (Demigod p. 132). */
+    omen: "",
+    /** Per Birthright template id: Demigod creature upgrade / play notes keyed by pick id. */
+    birthrightPickNotes: {},
     /** Equipment ids from `equipment.json` for the printable equipment section. */
     sheetEquipmentIds: [],
     /** Fatebinding rows for the printable Fatebinding section (name, strength, story per slot). */
@@ -1174,6 +1186,7 @@ function ensureSheetAppendicesShape() {
   else if (fi.fatebindingEditorIndex >= n) fi.fatebindingEditorIndex = n - 1;
   if (character.sheetNotesExtra == null) character.sheetNotesExtra = "";
   if (character.sheetDescription == null || typeof character.sheetDescription !== "string") character.sheetDescription = "";
+  ensureMantleExtrasShape(character);
 }
 
 function skillIds() {
@@ -1676,32 +1689,67 @@ function readWelcomeTrackFromDom() {
   return welcomeTrackValueFromCharacter();
 }
 
-async function runAiFlavorForStep(scope) {
+async function runAiFlavorForStep(scope, triggerBtn) {
   if (!bundle) return;
-  persistFromForm();
+  if (scope === "concept") persistConceptStepFromDom();
+  else persistFromForm();
   const status = await fetchLlmStatus();
-  if (!status.configured) {
-    window.alert("AI flavor is not configured on this server (no LLM API keys).");
-    return;
+  const prevLabel = triggerBtn?.textContent;
+  if (triggerBtn) {
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = "AI flavor…";
   }
-  const emptyMsg =
-    scope === "paths"
-      ? "Nothing to fill on Paths — all path phrase boxes already have text."
-      : scope === "specialties"
-        ? "Nothing to fill — no Skills at 3+ dots, or all specialties already have text."
-        : "Nothing to fill on Concept — name, concept, and deed boxes already have text.";
+  let llmOk = false;
+  let llmError = "";
   try {
-    const ok = await runAutoCharacterFlavor(character, bundle, { scope });
-    if (!ok) {
-      window.alert(emptyMsg);
+    if (!status.configured) {
+      if (scope === "concept") {
+        applyConceptMechanicalFallback(character, bundle, { force: true });
+        render();
+        scrollWizardStepIntoView();
+        window.alert(
+          "AI flavor is not configured on this server (no LLM API keys). Filled empty Concept & Deeds fields with template text.",
+        );
+        return;
+      }
+      window.alert("AI flavor is not configured on this server (no LLM API keys).");
+      return;
+    }
+    try {
+      llmOk = await runAutoCharacterFlavor(character, bundle, { scope });
+    } catch (e) {
+      console.error(e);
+      llmError = e instanceof Error ? e.message : String(e);
+    }
+    if (scope === "concept") {
+      applyConceptMechanicalFallback(character, bundle);
+      render();
+      scrollWizardStepIntoView();
+      if (llmOk) return;
+      if (llmError) {
+        window.alert(`AI flavor failed (${llmError}). Filled any still-empty fields with template text.`);
+      } else {
+        window.alert("AI flavor did not return text. Filled any still-empty fields with template text.");
+      }
+      return;
+    }
+    if (!llmOk) {
+      window.alert(
+        scope === "paths"
+          ? "Nothing to fill on Paths — all path phrase boxes already have text, or AI flavor did not return text."
+          : scope === "specialties"
+            ? "Nothing to fill — no Skills at 3+ dots, all specialties have text, or AI flavor did not return text."
+            : "AI flavor did not return text for this step.",
+      );
       return;
     }
     render();
     scrollWizardStepIntoView();
-  } catch (e) {
-    console.error(e);
-    const msg = e instanceof Error ? e.message : String(e);
-    window.alert(`AI flavor failed: ${msg}`);
+  } finally {
+    if (triggerBtn) {
+      triggerBtn.disabled = false;
+      triggerBtn.textContent = prevLabel || "AI flavor";
+    }
   }
 }
 
@@ -1715,26 +1763,178 @@ function appendStepAiFlavorButton(container, scope) {
   btn.textContent = "AI flavor";
   btn.title = "Empty fields: AI writes fresh text. Fields with keywords: AI enhances your draft.";
   btn.addEventListener("click", () => {
-    void runAiFlavorForStep(scope);
+    void runAiFlavorForStep(scope, btn);
   });
   row.appendChild(btn);
   container.insertBefore(row, container.firstChild);
 }
 
+/** Build export JSON for a character object without mutating the wizard's live `character`. */
+function buildExportObjectForCharacter(char) {
+  const prev = character;
+  character = char;
+  try {
+    return buildExportObject();
+  } finally {
+    character = prev;
+  }
+}
+
 /** @param {HTMLElement} container */
-function appendWelcomeGenerateRandomButton(container) {
+function appendWelcomeChargenActions(container) {
   const row = document.createElement("div");
-  row.className = "wizard-step-inline-actions";
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "btn secondary";
-  btn.textContent = "Generate random character";
-  btn.title = "Build a legal character for the selected Welcome line and tier (uses AI flavor when configured).";
-  btn.addEventListener("click", () => {
+  row.className = "wizard-step-inline-actions welcome-chargen-actions";
+
+  const randomBtn = document.createElement("button");
+  randomBtn.type = "button";
+  randomBtn.className = "btn secondary";
+  randomBtn.textContent = "Generate random character";
+  randomBtn.title = "Build a legal character for the selected Welcome line and tier (uses AI flavor when configured).";
+  randomBtn.addEventListener("click", () => {
     void runRandomCharacterGeneration();
   });
-  row.appendChild(btn);
+  row.appendChild(randomBtn);
+
+  const conceptInput = document.createElement("textarea");
+  conceptInput.id = "welcome-concept-prompt";
+  conceptInput.className = "welcome-concept-prompt";
+  conceptInput.rows = 2;
+  conceptInput.placeholder = "Describe your character concept (e.g. Oya’s skeptical spy-turned-sorcerer in Lagos)…";
+  conceptInput.setAttribute("aria-label", "Character concept prompt for AI generation");
+  row.appendChild(conceptInput);
+
+  const conceptBtn = document.createElement("button");
+  conceptBtn.type = "button";
+  conceptBtn.className = "btn secondary welcome-concept-generate-btn";
+  conceptBtn.textContent = "Generate Character from Concept";
+  conceptBtn.title =
+    "Uses the Scion 2e PDF collection (when configured) plus a legal mechanical skeleton to fill the sheet from your concept.";
+  conceptBtn.addEventListener("click", () => {
+    void runGenerateCharacterFromConcept(conceptInput, conceptBtn);
+  });
+  row.appendChild(conceptBtn);
+
+  const conceptProgress = mountConceptGenProgress(row);
+  row.dataset.conceptProgressMounted = "1";
+
   container.appendChild(row);
+
+  /** @type {ReturnType<typeof mountConceptGenProgress> | null} */
+  welcomeConceptProgress = conceptProgress;
+}
+
+/** Progress meter for in-flight concept generation (Welcome step). */
+let welcomeConceptProgress = null;
+
+async function runGenerateCharacterFromConcept(conceptInput, triggerBtn) {
+  if (!bundle) return;
+  const conceptPrompt = String(conceptInput?.value || "").trim();
+  if (!conceptPrompt) {
+    window.alert("Enter a character concept in the text box first.");
+    conceptInput?.focus();
+    return;
+  }
+  const track = readWelcomeTrackFromDom();
+  if (
+    !window.confirm(
+      "Generate a character from your concept for the selected Welcome line and tier? This replaces the current character.",
+    )
+  ) {
+    return;
+  }
+
+  const status = await fetchLlmStatusExtended();
+  if (!status.configured) {
+    const hint = status.setupHint
+      ? `\n\n${status.setupHint}`
+      : "\n\nLocal dev: copy secrets/llm-keys.local.yaml.example to secrets/llm-keys.local.yaml, add your API key, restart the server.";
+    window.alert(`LLM is not configured on this server (no API keys). Cannot generate from concept.${hint}`);
+    return;
+  }
+
+  const progress = welcomeConceptProgress;
+  const prevLabel = triggerBtn?.textContent;
+  if (triggerBtn) {
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = "Generating…";
+  }
+  conceptInput.disabled = true;
+  progress?.show();
+  progress?.set(2, "Starting…");
+
+  try {
+    progress?.set(8, "Building mechanical skeleton…");
+    const skeleton = generateRandomCharacter(bundle, { welcomeTrack: track });
+    progress?.set(14, "Preparing character data for AI…");
+    const mechanical = buildExportObjectForCharacter(skeleton);
+
+    progress?.set(18, "Sending concept to AI (may take up to a minute)…");
+    progress?.startCreep(18, 58, 120_000);
+    const { override, usedCollection } = await requestCharacterFromConcept({
+      conceptPrompt,
+      welcomeTrack: track,
+      mechanical,
+    });
+    progress?.stopCreep();
+
+    progress?.set(62, "Applying AI choices to character…");
+    character = finalizeConceptCharacterFromSkeleton(
+      skeleton,
+      override || {},
+      bundle,
+      track,
+      () => Math.random(),
+    );
+    reviewViewMode = "sheet";
+    appMainTab = "wizard";
+    skillsGateIssues = [];
+    const steps = stepDefsForTier(character.tier);
+    const conceptIdx = steps.indexOf("concept");
+    stepIndex = conceptIdx >= 0 ? conceptIdx : 0;
+
+    progress?.set(78, "Validating paths, skills, and finishing…");
+    normalizeCharacterStateAfterLoad();
+    repairConceptMechanicalsFromSkeleton(character, skeleton, bundle, () => Math.random());
+    clearGenericSkillSpecialtyPlaceholders(character, bundle);
+
+    progress?.set(82, "Writing skill specialties…");
+    progress?.startCreep(82, 96, 60_000);
+    await runAutoCharacterFlavor(character, bundle, { scope: "specialties" });
+    progress?.stopCreep();
+
+    progress?.complete("Character ready — opening Concept step…");
+    updateHeaderTierDisplay();
+    render();
+    scrollWizardStepIntoView();
+
+    if (!status.collectionConfigured) {
+      window.alert(
+        "Character generated. Note: SCION_LLM_XAI_COLLECTION_ID is not set — rules were not retrieved from your Scion 2e PDF collection. Set the collection id in llm-keys for full RAG.",
+      );
+    } else if (!usedCollection) {
+      window.alert("Character generated using LLM without collection search (check provider is xAI).");
+    }
+  } catch (e) {
+    console.error(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    progress?.fail(`Failed: ${msg}`);
+    window.alert(`Could not generate character from concept: ${msg}`);
+  } finally {
+    conceptInput.disabled = false;
+    if (triggerBtn) {
+      triggerBtn.disabled = false;
+      triggerBtn.textContent = prevLabel || "Generate Character from Concept";
+    }
+    if (progress) {
+      const delay = progress.lastPct >= 100 ? 2500 : 6000;
+      window.setTimeout(() => progress.hide(), delay);
+    }
+  }
+}
+
+/** @param {HTMLElement} container */
+function appendWelcomeGenerateRandomButton(container) {
+  appendWelcomeChargenActions(container);
 }
 
 async function runRandomCharacterGeneration() {
@@ -5158,6 +5358,45 @@ function birthrightAddButtonMeta(bid, used, cap) {
   return { cost, underBudget, xpBuy, xpCost, enabled: underBudget || xpBuy };
 }
 
+/** @returns {"deity"|"titan"|"dragon"|"sorcerer"} */
+function welcomeLineFromCharacter(character) {
+  if (isDragonHeirChargen(character)) return "dragon";
+  if (isSorcererLineTier(character.tier)) return "sorcerer";
+  syncPatronKindFromWelcomeLine();
+  if (patronKindIsTitan()) return "titan";
+  return "deity";
+}
+
+/**
+ * Line + tier labels for header, Welcome blurb, and JSON export (kept in sync).
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ */
+function trackTierPresentation(character, bundle) {
+  const line = welcomeLineFromCharacter(character);
+  if (line === "dragon") {
+    return dragonExportTierPresentation(character, bundle);
+  }
+  const tierId = normalizedTierId(character.tier);
+  const tierMeta = bundle?.tier?.[character.tier] || bundle?.tier?.[tierId];
+  const linePrefix = line === "sorcerer" ? "Sorcerer" : line === "titan" ? "Titan" : "Deity";
+  let tierSlab = tierMeta?.name || tierId;
+  if (tierId === "titanic") tierSlab = "Hero (Titanic Scion)";
+  const trackTierLabel = `${linePrefix}-${tierSlab}`;
+  return {
+    welcomeLine: line,
+    chargenLineage: "scion",
+    patronKind: line === "titan" ? "titan" : "deity",
+    trackTierLabel,
+    tier: tierId,
+    tierId,
+    tierName: trackTierLabel,
+    tierBookName: tierMeta?.name || tierId,
+    tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+    typicalLegendRange: tierMeta?.typicalLegendRange || "",
+  };
+}
+
 function updateHeaderTierDisplay() {
   const el = document.getElementById("header-tier-display");
   if (!el || !bundle?.tier) return;
@@ -5166,7 +5405,6 @@ function updateHeaderTierDisplay() {
     ensureDragonShape(character, bundle);
     const d = character.dragon;
     const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d.inheritance) || 1)));
-    const m = bundle.dragonTier?.inheritanceTrack?.[String(inhN)];
     el.title =
       "Dragon Heirs have no Legend rating at any Inheritance—Knacks, Spells, Twists of Fate, and other powers draw from the Inheritance trait and pool, not Legend (Scion: Dragon p. 114; mechanics pp. 112–113, 117–121, 150–151). The row below tracks your Inheritance pool at the table. Chargen follows the Origin spine with Dragon steps after Concept (pp. 110–119).";
     if (isMythosPantheonSelected()) {
@@ -5175,9 +5413,7 @@ function updateHeaderTierDisplay() {
     }
     const tierLine = document.createElement("div");
     tierLine.className = "header-tier-line";
-    const fl = bundle.dragonFlights[d.flightId];
-    const stageLab = m?.name ? `Dragon-${m.name}` : `Dragon-Inheritance ${inhN}`;
-    tierLine.textContent = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Flights tab)`;
+    tierLine.textContent = trackTierPresentation(character, bundle).trackTierLabel;
     el.appendChild(tierLine);
 
     const inhRow = document.createElement("div");
@@ -5213,14 +5449,10 @@ function updateHeaderTierDisplay() {
     el.title +=
       " Mythos Scions also set Awareness below: click a dot to set rating, or the rightmost filled dot again to lower by one (minimum 1).";
   }
-  const t = bundle.tier[character.tier];
+  const pres = trackTierPresentation(character, bundle);
   const tierLine = document.createElement("div");
   tierLine.className = "header-tier-line";
-  const tn = normalizedTierId(character.tier);
-  const linePrefix = isSorcererLineTier(character.tier) ? "Sorcerer" : patronKindIsTitan() ? "Titan" : "Deity";
-  let tierSlab = t?.name || character.tier;
-  if (tn === "titanic") tierSlab = "Hero (Titanic Scion)";
-  tierLine.textContent = `${linePrefix}-${tierSlab}`;
+  tierLine.textContent = pres.trackTierLabel;
   el.appendChild(tierLine);
 
   const legRow = document.createElement("div");
@@ -5340,7 +5572,6 @@ function panel(title, inner) {
 function renderWelcome(root) {
   const parts = welcomePartsFromCharacter();
   const curEnc = welcomeTrackValueFromCharacter();
-  const t = bundle.tier[character.tier];
   const body = document.createElement("div");
   const tierPick = document.createElement("div");
   tierPick.className = "field welcome-tier-field";
@@ -5510,13 +5741,39 @@ function renderWelcome(root) {
   body.appendChild(tierPick);
 
   const intro = document.createElement("div");
-  const srcWelcome = formatGameDataSourceForDisplay(String(t?.source || ""));
-  intro.innerHTML = `<p class="help">${t?.description || ""}</p>
-    <p class="help"><strong>Typical Legend:</strong> ${t?.typicalLegendRange || "—"}</p>
-    <p class="help mono">${t?.mechanicalEffects || ""}</p>
-    <p class="help"><em>${srcWelcome.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</em></p>`;
+  intro.innerHTML = buildWelcomeIntroHtml(parts);
   body.appendChild(intro);
   root.appendChild(panel("Welcome", body));
+}
+
+/** Welcome step blurb: line + tier (Legend band for Scion lines; Inheritance for Dragon). */
+function buildWelcomeIntroHtml(_parts) {
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const pres = trackTierPresentation(character, bundle);
+  if (pres.welcomeLine === "dragon") {
+    const inhN = pres.inheritance;
+    const row = bundle?.dragonTier?.inheritanceTrack?.[String(inhN)];
+    const summary = row?.summary ? String(row.summary).trim() : "";
+    const meta = bundle?.dragonTier?._meta;
+    const metaNote = meta && typeof meta.note === "string" ? meta.note.trim() : "";
+    const src =
+      meta && typeof meta.source === "string" ? formatGameDataSourceForDisplay(meta.source.trim()) : "";
+    let html = `<p class="help"><strong>${esc(pres.trackTierLabel)}</strong></p>`;
+    html +=
+      "<p class=\"help\"><strong>No Legend rating</strong> — Knacks, Spells, and Marvels use the <strong>Inheritance</strong> trait and pool (Dragon p. 114).</p>";
+    html += `<p class="help"><strong>Inheritance:</strong> ${esc(pres.inheritanceMilestone)} — stage ${inhN} of 10</p>`;
+    if (summary) html += `<p class="help">${esc(summary)}</p>`;
+    if (metaNote) html += `<p class="help mono">${esc(metaNote)}</p>`;
+    if (src) html += `<p class="help"><em>${esc(src)}</em></p>`;
+    return html;
+  }
+  const t = bundle.tier[character.tier];
+  const srcWelcome = formatGameDataSourceForDisplay(String(t?.source || ""));
+  const aka = pres.tierAlsoKnownAs ? ` <span class="help">(${esc(pres.tierAlsoKnownAs)})</span>` : "";
+  return `<p class="help"><strong>${esc(pres.trackTierLabel)}</strong>${aka}</p>
+    <p class="help"><strong>Typical Legend:</strong> ${esc(pres.typicalLegendRange || "—")}</p>
+    <p class="help mono">${esc(t?.mechanicalEffects || "")}</p>
+    <p class="help"><em>${esc(srcWelcome)}</em></p>`;
 }
 
 function renderConcept(root) {
@@ -9839,6 +10096,66 @@ function renderExpLeveling(root) {
   root.appendChild(panelEl);
 }
 
+function appendReviewMantleFields(wrap) {
+  ensureMantleExtrasShape(character);
+  const titleCount = legendaryTitleLineCount(character);
+  const showTitles = titleCount > 0;
+  const notes = character.birthrightPickNotes && typeof character.birthrightPickNotes === "object" ? character.birthrightPickNotes : {};
+  const noteEntries = Object.entries(notes).filter(([k, v]) => String(k).trim() && String(v ?? "").trim());
+  if (!showTitles && noteEntries.length === 0) return;
+
+  const sec = document.createElement("section");
+  sec.className = "panel review-mantle-panel";
+  const h = document.createElement("h2");
+  h.textContent = "Legend & Mantle";
+  sec.appendChild(h);
+  if (showTitles) {
+    const p = document.createElement("p");
+    p.className = "help";
+    p.innerHTML = `One <strong>Legendary Title</strong> per Legend dot (${titleCount} now). At Demigod, refresh your <strong>Omen</strong> when Titles change (<cite>Scion: Demigod</cite> p. 132).`;
+    sec.appendChild(p);
+    const f1 = document.createElement("div");
+    f1.className = "field";
+    const lab1 = document.createElement("label");
+    lab1.setAttribute("for", "f-legendary-titles");
+    lab1.textContent = "Legendary Titles (one per line)";
+    const ta1 = document.createElement("textarea");
+    ta1.id = "f-legendary-titles";
+    ta1.rows = Math.min(10, Math.max(3, titleCount));
+    ta1.value = character.legendaryTitles ?? "";
+    f1.appendChild(lab1);
+    f1.appendChild(ta1);
+    sec.appendChild(f1);
+    const f2 = document.createElement("div");
+    f2.className = "field";
+    const lab2 = document.createElement("label");
+    lab2.setAttribute("for", "f-omen");
+    lab2.textContent = "Omen";
+    const ta2 = document.createElement("textarea");
+    ta2.id = "f-omen";
+    ta2.rows = 3;
+    ta2.value = character.omen ?? "";
+    f2.appendChild(lab2);
+    f2.appendChild(ta2);
+    sec.appendChild(f2);
+  }
+  if (noteEntries.length) {
+    const nh = document.createElement("h3");
+    nh.textContent = "Birthright notes (Demigod creatures)";
+    sec.appendChild(nh);
+    const ul = document.createElement("ul");
+    ul.className = "review-birthright-notes";
+    for (const [bid, text] of noteEntries) {
+      const li = document.createElement("li");
+      const brName = bundle.birthrights?.[bid]?.name || bid;
+      li.textContent = `${brName}: ${text}`;
+      ul.appendChild(li);
+    }
+    sec.appendChild(ul);
+  }
+  wrap.appendChild(sec);
+}
+
 function renderReview(root) {
   persistFromForm();
   const exportObj = buildExportObject();
@@ -9934,6 +10251,8 @@ function renderReview(root) {
   toolbar.appendChild(btnThisSheetPdf);
   if (saveStatus.textContent) toolbar.appendChild(saveStatus);
   wrap.appendChild(toolbar);
+
+  appendReviewMantleFields(wrap);
 
   const sheetHooks = isDragonHeirChargen(character)
     ? {
@@ -10066,17 +10385,13 @@ function buildExportObject() {
   if (isDragonHeirChargen(character)) {
     ensureDragonShape(character, bundle);
     const snap = buildDragonReviewSnapshot(character, bundle);
-    const tierMeta = bundle.tier?.[character.tier];
     return {
-      tier: character.tier,
-      tierId: character.tier,
-      tierName: tierMeta?.name || character.tier,
-      tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+      ...snap,
+      ...trackTierPresentation(character, bundle),
       characterName: character.characterName ?? "",
       concept: character.concept,
       deeds: character.deeds,
       notes: character.notes ?? "",
-      ...snap,
     };
   }
   const p = selectedPantheon();
@@ -10107,7 +10422,7 @@ function buildExportObject() {
     },
     bundle,
   );
-  const tierMeta = bundle.tier?.[character.tier];
+  const tierHdr = trackTierPresentation(character, bundle);
   const heroSeven = getTierAdvancementRule("mortal")?.heroBirthrightDotTotal ?? 7;
   const tnEx = normalizedTierId(character.tier);
   const heroUnused =
@@ -10115,10 +10430,7 @@ function buildExportObject() {
       ? Math.max(0, heroSeven - finishingBirthrightPointsUsed())
       : null;
   return {
-    tier: character.tier,
-    tierId: character.tier,
-    tierName: tierMeta?.name || character.tier,
-    tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+    ...tierHdr,
     legendRating: character.legendRating ?? 0,
     maxLegend: legendDotMaxForTier(character.tier),
     legendDotMax: LEGEND_SHEET_DOT_COUNT,
@@ -10291,6 +10603,9 @@ function buildExportObject() {
     })(),
     notes: character.notes,
     sheetDescription: character.sheetDescription ?? "",
+    legendaryTitles: character.legendaryTitles ?? "",
+    omen: character.omen ?? "",
+    birthrightPickNotes: { ...(character.birthrightPickNotes || {}) },
     sheetEquipmentIds: [...(character.sheetEquipmentIds || [])],
     sheetEquipment: (character.sheetEquipmentIds || [])
       .map((eid) => {
@@ -10625,7 +10940,10 @@ function importCharacterFromExportPayload(data) {
   let lineageEarly = canonChargenLineageFromRaw(data.chargenLineage);
   if (lineageEarly !== "dragonHeir") {
     if (dragonPayloadImpliesHeir(data.dragon)) lineageEarly = "dragonHeir";
-    else {
+    else if (normalizedTierId(data.tier) === "dragonheir") lineageEarly = "dragonHeir";
+    else if (/^inheritance_\d+$/i.test(String(data.tierId ?? "")) && (data.dragon || data.inheritance != null)) {
+      lineageEarly = "dragonHeir";
+    } else {
       const tlEarly = String(data.trackTierLabel ?? "").toLowerCase();
       if (tlEarly.includes("dragon") && tlEarly.includes("heir") && data.dragon && typeof data.dragon === "object") {
         lineageEarly = "dragonHeir";
@@ -10943,6 +11261,16 @@ function importCharacterFromExportPayload(data) {
     finishing: finBase,
     notes: typeof data.notes === "string" ? data.notes : "",
     sheetDescription: typeof data.sheetDescription === "string" ? data.sheetDescription : "",
+    legendaryTitles: typeof data.legendaryTitles === "string" ? data.legendaryTitles : "",
+    omen: typeof data.omen === "string" ? data.omen : "",
+    birthrightPickNotes:
+      data.birthrightPickNotes && typeof data.birthrightPickNotes === "object" && !Array.isArray(data.birthrightPickNotes)
+        ? Object.fromEntries(
+            Object.entries(data.birthrightPickNotes).filter(
+              ([k, v]) => typeof k === "string" && k.trim() && typeof v === "string",
+            ),
+          )
+        : {},
     sheetEquipmentIds,
     fatebindings: sanitizeFatebindingsForEditor(data.fatebindings),
     sheetNotesExtra: typeof data.sheetNotesExtra === "string" ? data.sheetNotesExtra : "",
@@ -10951,16 +11279,25 @@ function importCharacterFromExportPayload(data) {
     mythosInnatePower,
     legendPoolDotSpentSlots,
     awarenessPoolDotSpentSlots,
-    ...(chargenLineage === "dragonHeir" && data.dragon && typeof data.dragon === "object"
+    ...(chargenLineage === "dragonHeir"
       ? {
           dragon: (() => {
             /** @type {any} */
             let merged;
             try {
-              merged = JSON.parse(JSON.stringify(data.dragon));
+              merged =
+                data.dragon && typeof data.dragon === "object"
+                  ? JSON.parse(JSON.stringify(data.dragon))
+                  : defaultDragonState();
             } catch {
-              merged = { ...data.dragon };
+              merged = data.dragon && typeof data.dragon === "object" ? { ...data.dragon } : {};
             }
+            const tierInh = /^inheritance_(\d+)$/i.exec(String(data.tierId ?? ""));
+            const inhRaw = data.inheritance ?? (tierInh ? tierInh[1] : null) ?? merged.inheritance;
+            merged.inheritance = Math.max(
+              1,
+              Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(inhRaw) || 1)),
+            );
             if (data.inheritancePoolRating != null && !Number.isNaN(Number(data.inheritancePoolRating))) {
               merged.inheritancePoolRating = Math.round(Number(data.inheritancePoolRating));
             }
@@ -11282,6 +11619,7 @@ function normalizeCharacterStateAfterLoad() {
   ensureSheetAppendicesShape();
   ensureSorceryProfileShape();
   ensureTitanicProfileShape();
+  ensureMantleExtrasShape(character);
   ensureMythosInnatePowerShape();
   if (!isMythosPantheonSelected()) {
     character.mythosInnatePower = defaultMythosInnatePower();
@@ -11531,33 +11869,37 @@ function refreshFinishingWizardGateUiFromDom() {
   }
 }
 
+function persistConceptStepFromDom() {
+  const nameEl = document.getElementById("f-char-name");
+  if (!nameEl) return;
+  if (!character.deeds || typeof character.deeds !== "object") {
+    character.deeds = { short: "", long: "", band: "", mythos: "" };
+  }
+  character.characterName = nameEl.value || "";
+  character.concept = document.getElementById("f-concept")?.value || "";
+  character.notes = document.getElementById("f-notes")?.value || "";
+  character.deeds.short = document.getElementById("f-deed-short")?.value || "";
+  character.deeds.long = document.getElementById("f-deed-long")?.value || "";
+  character.deeds.band = document.getElementById("f-deed-band")?.value || "";
+  character.sheetDescription = document.getElementById("f-sheet-description")?.value || "";
+}
+
 function persistFromForm() {
+  ensureMantleExtrasShape(character);
+  const legendaryTitlesEl = document.getElementById("f-legendary-titles");
+  if (legendaryTitlesEl) character.legendaryTitles = legendaryTitlesEl.value;
+  const omenEl = document.getElementById("f-omen");
+  if (omenEl) character.omen = omenEl.value;
   if (isDragonHeirChargen(character)) {
     ensureDragonShape(character, bundle);
     const step = stepDefsForTier(character.tier)[stepIndex];
-    if (step === "concept") {
-      character.characterName = document.getElementById("f-char-name")?.value || "";
-      character.concept = document.getElementById("f-concept")?.value || "";
-      character.notes = document.getElementById("f-notes")?.value || "";
-      character.deeds.short = document.getElementById("f-deed-short")?.value || "";
-      character.deeds.long = document.getElementById("f-deed-long")?.value || "";
-      character.deeds.band = document.getElementById("f-deed-band")?.value || "";
-      character.sheetDescription = document.getElementById("f-sheet-description")?.value || "";
-    }
+    if (step === "concept") persistConceptStepFromDom();
     if (step === "paths") persistPathsPhrasesFromDom();
     persistDragonFromDom(character, bundle, step);
     return;
   }
   const step = stepDefsForTier(character.tier)[stepIndex];
-  if (step === "concept") {
-    character.characterName = document.getElementById("f-char-name")?.value || "";
-    character.concept = document.getElementById("f-concept")?.value || "";
-    character.notes = document.getElementById("f-notes")?.value || "";
-    character.deeds.short = document.getElementById("f-deed-short")?.value || "";
-    character.deeds.long = document.getElementById("f-deed-long")?.value || "";
-    character.deeds.band = document.getElementById("f-deed-band")?.value || "";
-    character.sheetDescription = document.getElementById("f-sheet-description")?.value || "";
-  }
+  if (step === "concept") persistConceptStepFromDom();
   if (step === "paths") persistPathsStepFromDom();
   if (step === "skills") {
     persistSkillSpecialtiesFromForm();

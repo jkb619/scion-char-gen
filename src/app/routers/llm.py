@@ -6,7 +6,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from app.services import llm_client
-from app.services.llm_config import active_provider, configured_providers, llm_configured
+from app.services.game_data import load_bundle
+from app.services.llm_config import active_provider, configured_providers, llm_configured, llm_setup_hint, xai_collection_id
+from app.services.llm_concept_chargen import generate_character_from_concept
 
 router = APIRouter(prefix="/api/llm", tags=["llm"])
 
@@ -23,6 +25,8 @@ class CharacterFlavorRequest(BaseModel):
     callings: list[str] = Field(default_factory=list)
     characterName: str = ""
     concept: str = ""
+    notes: str = ""
+    sheetDescription: str = ""
     deeds: dict[str, str] = Field(default_factory=dict)
     paths: dict[str, str] = Field(default_factory=dict)
     skills: list[dict[str, Any]] = Field(default_factory=list)
@@ -55,6 +59,14 @@ def _build_field_instructions(body: CharacterFlavorRequest) -> str:
 
     lines.append(_mode_line("characterName", mode_for("characterName"), body.characterName))
     lines.append(_mode_line("concept", mode_for("concept"), body.concept))
+    lines.append(_mode_line("notes (player / group notes)", mode_for("notes"), body.notes))
+    lines.append(
+        _mode_line(
+            "sheetDescription (Description box — appearance, bearing, personality; 2–4 sentences)",
+            mode_for("sheetDescription"),
+            body.sheetDescription,
+        )
+    )
 
     deed_modes = modes.get("deeds") if isinstance(modes.get("deeds"), dict) else {}
     for key in ("short", "long", "band", "mythos"):
@@ -95,7 +107,8 @@ def _build_field_instructions(body: CharacterFlavorRequest) -> str:
             continue
         name = str(row.get("name") or sid)
         draft = str(row.get("specialty") or "")
-        lines.append(_mode_line(f"skillSpecialties[{sid!r}] ({name})", sm, draft))
+        spec_label = f"skillSpecialties[{sid!r}] ({name} — narrow Specialty, not '{name} focus')"
+        lines.append(_mode_line(spec_label, sm, draft))
 
     return "\n".join(lines)
 
@@ -106,10 +119,54 @@ def flavor_default_mode(draft: str) -> str:
 
 @router.get("/status")
 def llm_status() -> dict[str, Any]:
+    coll = xai_collection_id()
+    configured = llm_configured()
     return {
-        "configured": llm_configured(),
+        "configured": configured,
         "providers": configured_providers(),
-        "defaultProvider": active_provider().provider_id if llm_configured() else None,
+        "defaultProvider": active_provider().provider_id if configured else None,
+        "collectionConfigured": bool(coll),
+        "collectionIdSet": bool(coll),
+        "setupHint": llm_setup_hint(),
+    }
+
+
+class CharacterFromConceptRequest(BaseModel):
+    conceptPrompt: str = Field(..., min_length=1, max_length=4000)
+    welcomeTrack: str = Field(default="deity:mortal", max_length=80)
+    mechanical: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/character-from-concept")
+def character_from_concept(body: CharacterFromConceptRequest) -> dict[str, Any]:
+    cfg = active_provider()
+    if cfg is None:
+        raise HTTPException(
+            status_code=503,
+            detail="LLM API keys are not configured on this server.",
+        )
+    if not isinstance(body.mechanical, dict) or not body.mechanical:
+        raise HTTPException(status_code=400, detail="Mechanical character skeleton is required.")
+
+    try:
+        bundle = load_bundle()
+        result = generate_character_from_concept(
+            cfg,
+            concept_prompt=body.conceptPrompt,
+            welcome_track=body.welcomeTrack,
+            mechanical=body.mechanical,
+            bundle=bundle,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return {
+        "provider": cfg.provider_id,
+        "usedCollection": result.get("usedCollection", False),
+        "character": result["character"],
+        "override": result.get("override", {}),
     }
 
 
@@ -129,14 +186,18 @@ def character_flavor(body: CharacterFlavorRequest) -> dict[str, Any]:
     system = (
         "You write concise, table-ready Scion 2e character flavor (Origin/Hero or Scion: Dragon Heir). "
         "Return a single JSON object with keys: "
-        "characterName, concept, deeds (object), paths (object), skillSpecialties (object mapping skill id → text). "
+        "characterName, concept, notes, sheetDescription, deeds (object), paths (object), "
+        "skillSpecialties (object mapping skill id → text). "
         "Follow each field instruction exactly: "
         "GENERATE = write new copy with no draft to preserve; "
         "ENHANCE = keep the player's keywords and intent but polish and expand into full prose; "
         "omit JSON keys for SKIP fields. "
         f"paths uses keys: {path_key_hint}. deeds uses: {deed_keys}. "
         "Keep each path phrase under 120 characters. "
-        "Only include skillSpecialties for skills listed with 3+ dots."
+        "Only include skillSpecialties for skills listed with 3+ dots. "
+        "Each specialty must be a narrow Scion Specialty (specific technique, venue, or situation the character excels in), "
+        "not the skill name repeated and never placeholders like 'Athletics focus'. "
+        "Aim for 2–8 vivid words tied to the character concept."
     )
 
     context = (

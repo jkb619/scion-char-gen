@@ -27,14 +27,20 @@ def test_character_flavor_builds_instructions(monkeypatch) -> None:
         lineage="scion",
         tier="Hero",
         concept="street samurai",
+        notes="",
+        sheetDescription="",
         fieldModes={
             "concept": "enhance",
+            "notes": "generate",
+            "sheetDescription": "generate",
             "paths": {"origin": "generate", "role": "enhance", "society": "generate"},
         },
         paths={"origin": "", "role": "soldier", "society": ""},
     )
     text = _build_field_instructions(body)
     assert "ENHANCE" in text and "street samurai" in text
+    assert "notes" in text and "GENERATE" in text
+    assert "sheetDescription" in text and "GENERATE" in text
     assert "paths.origin" in text and "GENERATE" in text
 
 

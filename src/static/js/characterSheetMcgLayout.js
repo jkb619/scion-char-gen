@@ -366,9 +366,11 @@ export function fillMcgFourPageLayout(el, api) {
   const leftCol = document.createElement("div");
   leftCol.className = "cs-mcg-p1-left";
   leftCol.appendChild(mcgSectionTitle("Legendary titles"));
+  const titleLines = sheetMultilineSixWriteLines(data.legendaryTitles);
   for (let i = 0; i < 6; i += 1) {
     const ln = document.createElement("div");
     ln.className = "cs-mcg-write-line";
+    ln.textContent = titleLines[i] || "";
     leftCol.appendChild(ln);
   }
   const pushCallingRow = (label, dots) => {
@@ -449,7 +451,7 @@ export function fillMcgFourPageLayout(el, api) {
   }
   legStack.appendChild(legBlock);
   rightCol.appendChild(legStack);
-  rightCol.appendChild(mcgLinedField("Omen", ""));
+  rightCol.appendChild(mcgLinedField("Omen", String(data.omen ?? "").trim()));
   if (mythosSheet) {
     const awStack = document.createElement("div");
     awStack.className = "cs-mcg-track-stack";

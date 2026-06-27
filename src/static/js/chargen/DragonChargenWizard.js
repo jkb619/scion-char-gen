@@ -1668,7 +1668,7 @@ const DRAGON_FLIGHT_SIGNATURE_MAGIC_IDS = {
  * @param {string} currentFlightId
  * @returns {Set<string>}
  */
-function dragonMagicIdsExcludedFromSecondaryKnownSlots(bundle, currentFlightId) {
+export function dragonMagicIdsExcludedFromSecondaryKnownSlots(bundle, currentFlightId) {
   const out = new Set();
   const cur = String(currentFlightId || "").trim();
   const flights = bundle?.dragonFlights;
@@ -1982,7 +1982,7 @@ function dragonFinishingAttrDotsRemaining(d, bundle) {
   return Math.max(0, 1 - dragonFinishingAttrDotsPlaced(d, bundle));
 }
 
-function dragonKnackShell(character) {
+export function dragonKnackShell(character) {
   const d = character.dragon;
   const inh = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
   const pathRank = { primary: "origin", secondary: "origin", tertiary: "origin" };
@@ -3765,17 +3765,13 @@ export function renderDragonHeirStepInRoot(ctx) {
 
   if (step === "review") {
     persistDragonFromDom(character, bundle, "review");
-    const tierMeta = bundle.tier?.[character.tier];
     const exportData = {
-      tier: character.tier,
-      tierId: character.tier,
-      tierName: tierMeta?.name || character.tier,
-      tierAlsoKnownAs: tierMeta?.alsoKnownAs || "",
+      ...buildDragonReviewSnapshot(character, bundle),
+      ...dragonExportTierPresentation(character, bundle),
       characterName: character.characterName ?? "",
       concept: character.concept,
       deeds: character.deeds,
       notes: character.notes ?? "",
-      ...buildDragonReviewSnapshot(character, bundle),
     };
 
     const wrap = document.createElement("div");
@@ -4037,6 +4033,40 @@ export function persistDragonFromDom(character, bundle, explicitStep) {
   sanitizeDragonSecondaryKnownMagics(d, bundle);
   syncDragonFlightPathRequiredSkills(d, bundle);
   void bundle;
+}
+
+/**
+ * Export-facing tier fields for Dragon Heir (Inheritance track, not Scion Legend tier).
+ * Internal wizard still uses `character.tier === "mortal"` for the Origin step list.
+ * @param {Record<string, unknown>} character
+ * @param {Record<string, unknown>} bundle
+ */
+export function dragonExportTierPresentation(character, bundle) {
+  ensureDragonShape(character, bundle);
+  const d = character.dragon;
+  const inhN = Math.max(1, Math.min(DRAGON_INHERITANCE_MAX, Math.round(Number(d?.inheritance) || 1)));
+  const row = bundle?.dragonTier?.inheritanceTrack?.[String(inhN)];
+  const stageName = row?.name || `Inheritance ${inhN}`;
+  const band = row?.band || "Dragon Heir";
+  const fl = bundle?.dragonFlights?.[d?.flightId];
+  const stageLab = row?.name ? `Dragon-${stageName}` : `Dragon-Inheritance ${inhN}`;
+  const trackTierLabel = fl?.name ? `${stageLab} — ${fl.name}` : `${stageLab} (pick Flight on Flights tab)`;
+  return {
+    welcomeLine: "dragon",
+    chargenLineage: "dragonHeir",
+    trackTierLabel,
+    tier: "dragonHeir",
+    tierId: `inheritance_${inhN}`,
+    tierName: `${stageName} (Inheritance ${inhN})`,
+    tierAlsoKnownAs: band,
+    inheritance: inhN,
+    inheritanceMilestone: stageName,
+    inheritanceBand: band,
+    wizardSpineTier: "mortal",
+    typicalLegendRange: null,
+    progressionNote:
+      "Dragon Heirs use Inheritance (1–10), not Legend. wizardSpineTier is the internal Origin chargen step list only.",
+  };
 }
 
 /**
